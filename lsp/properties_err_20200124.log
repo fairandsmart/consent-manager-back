@@ -1,0 +1,710 @@
+janv. 24, 2020 8:51:17 AM com.redhat.quarkus.ls.QuarkusLanguageServer initialize
+INFOS: Initializing Quarkus server 0.0.4-20191120-1547 with /usr/lib/jvm/java-8-oracle/jre
+janv. 24, 2020 8:52:16 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint logIssues
+AVERTISSEMENT: Issue found in NotificationMessage: Message could not be parsed.
+com.google.gson.stream.MalformedJsonException: Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 322 path $
+	at com.google.gson.stream.JsonReader.syntaxError(JsonReader.java:1568)
+	at com.google.gson.stream.JsonReader.checkLenient(JsonReader.java:1409)
+	at com.google.gson.stream.JsonReader.doPeek(JsonReader.java:542)
+	at com.google.gson.stream.JsonReader.peek(JsonReader.java:425)
+	at org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler.parseMessage(MessageJsonHandler.java:124)
+	at org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler.parseMessage(MessageJsonHandler.java:114)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.handleMessage(StreamMessageProducer.java:193)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:94)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:16 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "ontent-Length: 309
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "ontent-Length: 309
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:16 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":42,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":34},"end":{"line":8,"character":45}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":42,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":34},"end":{"line":8,"character":45}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:16 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":43,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":34},"end":{"line":8,"character":34}},"rangeLength":0,"text":"f"}]}}Content-Length: 221
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":43,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":34},"end":{"line":8,"character":34}},"rangeLength":0,"text":"f"}]}}Content-Length: 221
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:26 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"40","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":8,"character":35}}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"40","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":8,"character":35}}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:26 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":44,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":35},"end":{"line":8,"character":35}},"rangeLength":0,"text":"s"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":44,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":35},"end":{"line":8,"character":35}},"rangeLength":0,"text":"s"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:29 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":45,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":36},"end":{"line":8,"character":36}},"rangeLength":0,"text":"s"}]}}Content-Length: 309
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":45,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":36},"end":{"line":8,"character":36}},"rangeLength":0,"text":"s"}]}}Content-Length: 309
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:30 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":46,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":36},"end":{"line":8,"character":37}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":46,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":36},"end":{"line":8,"character":37}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:30 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":47,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":36},"end":{"line":8,"character":36}},"rangeLength":0,"text":"d"}]}}Content-Length: 221
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":47,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":36},"end":{"line":8,"character":36}},"rangeLength":0,"text":"d"}]}}Content-Length: 221
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:40 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"41","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":8,"character":37}}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"41","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":8,"character":37}}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:40 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":48,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":37},"end":{"line":8,"character":37}},"rangeLength":0,"text":"a"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":48,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":37},"end":{"line":8,"character":37}},"rangeLength":0,"text":"a"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:40 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":49,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":38},"end":{"line":8,"character":38}},"rangeLength":0,"text":"t"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":49,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":38},"end":{"line":8,"character":38}},"rangeLength":0,"text":"t"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:40 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":50,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":39},"end":{"line":8,"character":39}},"rangeLength":0,"text":"a"}]}}Content-Length: 221
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":50,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":39},"end":{"line":8,"character":39}},"rangeLength":0,"text":"a"}]}}Content-Length: 221
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"42","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":8,"character":40}}}Content-Length: 309
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"42","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":8,"character":40}}}Content-Length: 309
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":51,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":41},"end":{"line":8,"character":47}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":51,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":41},"end":{"line":8,"character":47}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":52,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":41},"end":{"line":8,"character":41}},"rangeLength":0,"text":"c"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":52,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":41},"end":{"line":8,"character":41}},"rangeLength":0,"text":"c"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":53,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":42},"end":{"line":8,"character":42}},"rangeLength":0,"text":"o"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":53,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":42},"end":{"line":8,"character":42}},"rangeLength":0,"text":"o"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":54,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":43},"end":{"line":8,"character":43}},"rangeLength":0,"text":"n"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":54,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":43},"end":{"line":8,"character":43}},"rangeLength":0,"text":"n"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":55,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":44},"end":{"line":8,"character":44}},"rangeLength":0,"text":"s"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":55,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":44},"end":{"line":8,"character":44}},"rangeLength":0,"text":"s"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":56,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":45},"end":{"line":8,"character":45}},"rangeLength":0,"text":"e"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":56,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":45},"end":{"line":8,"character":45}},"rangeLength":0,"text":"e"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":57,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":46},"end":{"line":8,"character":46}},"rangeLength":0,"text":"n"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":57,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":46},"end":{"line":8,"character":46}},"rangeLength":0,"text":"n"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":58,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":47},"end":{"line":8,"character":47}},"rangeLength":0,"text":"t"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":58,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":47},"end":{"line":8,"character":47}},"rangeLength":0,"text":"t"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":59,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":48},"end":{"line":8,"character":48}},"rangeLength":0,"text":"-"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":59,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":48},"end":{"line":8,"character":48}},"rangeLength":0,"text":"-"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":60,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":49},"end":{"line":8,"character":49}},"rangeLength":0,"text":"m"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":60,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":49},"end":{"line":8,"character":49}},"rangeLength":0,"text":"m"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":61,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":50},"end":{"line":8,"character":50}},"rangeLength":0,"text":"a"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":61,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":50},"end":{"line":8,"character":50}},"rangeLength":0,"text":"a"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":62,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":51},"end":{"line":8,"character":51}},"rangeLength":0,"text":"n"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":62,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":51},"end":{"line":8,"character":51}},"rangeLength":0,"text":"n"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":63,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":52},"end":{"line":8,"character":52}},"rangeLength":0,"text":"a"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":63,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":52},"end":{"line":8,"character":52}},"rangeLength":0,"text":"a"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":64,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":53},"end":{"line":8,"character":53}},"rangeLength":0,"text":"g"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":64,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":53},"end":{"line":8,"character":53}},"rangeLength":0,"text":"g"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":65,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":54},"end":{"line":8,"character":54}},"rangeLength":0,"text":"e"}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":65,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":54},"end":{"line":8,"character":54}},"rangeLength":0,"text":"e"}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:52:50 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":66,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":55},"end":{"line":8,"character":55}},"rangeLength":0,"text":"r"}]}}Content-Length: 221
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":66,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":8,"character":55},"end":{"line":8,"character":55}},"rangeLength":0,"text":"r"}]}}Content-Length: 221
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:00 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"43","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":8,"character":56}}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"43","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":8,"character":56}}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:05 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":67,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":13,"character":0},"end":{"line":22,"character":85}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":67,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":13,"character":0},"end":{"line":22,"character":85}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:06 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":68,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":13,"character":0},"end":{"line":18,"character":62}},"rangeLength":0,"text":""}]}}Content-Length: 183
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":68,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":13,"character":0},"end":{"line":18,"character":62}},"rangeLength":0,"text":""}]}}Content-Length: 183
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:06 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/willSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"reason":1}}Content-Length: 183
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/willSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"reason":1}}Content-Length: 183
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:06 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/willSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"reason":1}}Content-Length: 624
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/willSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"reason":1}}Content-Length: 624
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:06 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"text":"# Configuration file\nquarkus.http.port\u003d9080\n\nquarkus.oidc.enabled\u003dtrue\nquarkus.oidc.auth-server-url\u003dhttp://localhost:8080/auth/realms/FairAndSmart\nquarkus.oidc.client-id\u003dconsent-manager\nquarkus.oidc.authentication.scopes\u003dprofile,email,roles\n\nquarkus.datasource.url\u003djdbc:h2:~/.fsdata/consent-manager\nquarkus.datasource.driver\u003dorg.h2.Driver\n\nquarkus.hibernate-orm.database.generation\u003dupdate\n\n"}}Content-Length: 166
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"text":"# Configuration file\nquarkus.http.port\u003d9080\n\nquarkus.oidc.enabled\u003dtrue\nquarkus.oidc.auth-server-url\u003dhttp://localhost:8080/auth/realms/FairAndSmart\nquarkus.oidc.client-id\u003dconsent-manager\nquarkus.oidc.authentication.scopes\u003dprofile,email,roles\n\nquarkus.datasource.url\u003djdbc:h2:~/.fsdata/consent-manager\nquarkus.datasource.driver\u003dorg.h2.Driver\n\nquarkus.hibernate-orm.database.generation\u003dupdate\n\n"}}Content-Length: 166
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:16 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file:///home/jerome/Work/fs/consent-manager/.idea/workspace.xml","type":2}]}}Content-Length: 309
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file:///home/jerome/Work/fs/consent-manager/.idea/workspace.xml","type":2}]}}Content-Length: 309
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:16 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":69,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":1,"character":18},"end":{"line":1,"character":19}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":69,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":1,"character":18},"end":{"line":1,"character":19}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:16 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":70,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":1,"character":18},"end":{"line":1,"character":18}},"rangeLength":0,"text":"8"}]}}Content-Length: 221
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":70,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":1,"character":18},"end":{"line":1,"character":18}},"rangeLength":0,"text":"8"}]}}Content-Length: 221
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:26 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"44","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":1,"character":19}}}Content-Length: 309
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"44","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"position":{"line":1,"character":19}}}Content-Length: 309
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:26 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":71,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":1,"character":21},"end":{"line":1,"character":22}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":71,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":1,"character":21},"end":{"line":1,"character":22}},"rangeLength":0,"text":""}]}}Content-Length: 310
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:26 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":72,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":1,"character":21},"end":{"line":1,"character":21}},"rangeLength":0,"text":"7"}]}}Content-Length: 183
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"version":72,"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"contentChanges":[{"range":{"start":{"line":1,"character":21},"end":{"line":1,"character":21}},"rangeLength":0,"text":"7"}]}}Content-Length: 183
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:26 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/willSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"reason":1}}Content-Length: 183
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/willSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"reason":1}}Content-Length: 183
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:26 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/willSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"reason":1}}Content-Length: 624
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/willSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"reason":1}}Content-Length: 624
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:26 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"text":"# Configuration file\nquarkus.http.port\u003d8087\n\nquarkus.oidc.enabled\u003dtrue\nquarkus.oidc.auth-server-url\u003dhttp://localhost:8080/auth/realms/FairAndSmart\nquarkus.oidc.client-id\u003dconsent-manager\nquarkus.oidc.authentication.scopes\u003dprofile,email,roles\n\nquarkus.datasource.url\u003djdbc:h2:~/.fsdata/consent-manager\nquarkus.datasource.driver\u003dorg.h2.Driver\n\nquarkus.hibernate-orm.database.generation\u003dupdate\n\n"}}Content-Length: 166
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"textDocument/didSave","params":{"textDocument":{"uri":"file:///home/jerome/Work/fs/consent-manager/src/main/resources/application.properties"},"text":"# Configuration file\nquarkus.http.port\u003d8087\n\nquarkus.oidc.enabled\u003dtrue\nquarkus.oidc.auth-server-url\u003dhttp://localhost:8080/auth/realms/FairAndSmart\nquarkus.oidc.client-id\u003dconsent-manager\nquarkus.oidc.authentication.scopes\u003dprofile,email,roles\n\nquarkus.datasource.url\u003djdbc:h2:~/.fsdata/consent-manager\nquarkus.datasource.driver\u003dorg.h2.Driver\n\nquarkus.hibernate-orm.database.generation\u003dupdate\n\n"}}Content-Length: 166
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:29 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file:///home/jerome/Work/fs/consent-manager/.idea/workspace.xml","type":2}]}}Content-Length: 61
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file:///home/jerome/Work/fs/consent-manager/.idea/workspace.xml","type":2}]}}Content-Length: 61
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+janv. 24, 2020 8:53:29 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireError
+GRAVE: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"45","method":"shutdown","params":null}Content-Length: 172
+
+"
+java.lang.IllegalStateException: Missing header Content-Length in input "{"jsonrpc":"2.0","id":"45","method":"shutdown","params":null}Content-Length: 172
+
+"
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:91)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
