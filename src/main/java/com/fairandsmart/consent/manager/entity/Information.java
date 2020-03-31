@@ -8,6 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Version;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Entity
 public class Information extends PanacheEntity implements ModelPart {
@@ -18,26 +20,27 @@ public class Information extends PanacheEntity implements ModelPart {
     public long lock;
     public String serial;
     public String version;
-    private String author;
-    private String owner;
-    private String reference;
+    public Type type;
+    public String author;
+    public String owner;
+    public String reference;
     public String name;
     public String description;
+    public String language;
+    public String availableLanguages;
     public String country;
-    //private ModelPart.Status status;
+    public ModelPart.Status status;
+    public InvalidationStatus invalidation;
     public String parent;
-    public boolean invalidateAncestors;
-    private long creationDate;
-    private long modificationDate;
+    public long creationDate;
+    public long modificationDate;
     @ElementCollection
-    public Set<String> availableLanguages;
+    public Set<String> translations;
     @ElementCollection
     public Map<String, Content> content;
 
-
     //TODO attachments
     //public List<String> attachments
-
 
     @Override
     public String getId() {
@@ -55,22 +58,33 @@ public class Information extends PanacheEntity implements ModelPart {
     }
 
     @Override
-    public boolean isInvalidateAncestors() {
-        return false;
-    }
-
-    @Override
     public String getCountry() {
-        return null;
+        return country;
     }
 
     @Override
-    public Set<String> getAvailableLanguages() {
-        return null;
+    public Status getStatus() {
+        return status;
     }
 
     @Override
-    public String hash() {
+    public InvalidationStatus getInvalidationStatus() {
+        return invalidation;
+    }
+
+    @Override
+    public Set<String> listAvailableLanguages() {
+        return Pattern.compile(",").splitAsStream(availableLanguages).collect(Collectors.toSet());
+    }
+
+    @Override
+    //TODO
+    public String getHash() {
         return null;
+    }
+
+    public enum Type {
+        HEADER,
+        FOOTER
     }
 }

@@ -3,7 +3,7 @@ package com.fairandsmart.consent.api.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Page<T> {
+public class CollectionPage<T> {
 
     private List<T> values;
     private int page;
@@ -11,7 +11,7 @@ public class Page<T> {
     private int totalPages;
     private long totalCount;
 
-    public Page() {
+    public CollectionPage() {
         values = new ArrayList<>();
     }
 

@@ -20,16 +20,28 @@ public interface ModelPart {
 
     String getVersion();
 
-    boolean isInvalidateAncestors();
+    Status getStatus();
+
+    InvalidationStatus getInvalidationStatus();
 
     String getCountry();
 
-    Set<String> getAvailableLanguages();
+    Set<String> listAvailableLanguages();
 
-    String hash();
+    String getHash();
 
     enum Status {
-
+        DRAFT,
+        REVIEW,
+        ACTIVE,
+        ARCHIVED
     }
+
+    enum InvalidationStatus {
+        OUTDATED,
+        REFRESH,
+        GOOD
+    }
+
 
 }
