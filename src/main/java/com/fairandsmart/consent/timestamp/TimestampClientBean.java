@@ -1,12 +1,13 @@
 package com.fairandsmart.consent.timestamp;
 
 import com.fairandsmart.consent.timestamp.dto.Timestamp;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.tsp.TimeStampResp;
 import org.bouncycastle.tsp.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.resteasy.util.Hex;
 
 import javax.inject.Singleton;
 import java.io.IOException;
@@ -117,17 +118,17 @@ public class TimestampClientBean implements TimestampClient {
             LOGGER.log(Level.FINEST, "Policy: {0}", response.getTimeStampToken().getTimeStampInfo().getPolicy());
 
             return response;
-        } catch (IOException | TSPException e) {
+        } catch (IOException | TSPException | DecoderException e) {
             throw new TimestampClientException("unable to generate timestamp", e);
         }
     }
 
-    private byte[] hexToByte(String hex) {
+    private byte[] hexToByte(String hex) throws DecoderException {
         return Hex.decodeHex(hex);
     }
 
     private String byteToHex(byte[] value) {
-        return Hex.encodeHex(value);
+        return Hex.encodeHexString(value);
     }
 
 }

@@ -28,7 +28,7 @@ public class Treatment extends PanacheEntity implements ModelPart {
     public String availableLanguages;
     public String country;
     public ModelPart.Status status;
-    public ModelPart.InvalidationStatus invalidation;
+    public InvalidationStrategy invalidation;
     public String parent;
     public long creationDate;
     public long modificationDate;
@@ -61,7 +61,7 @@ public class Treatment extends PanacheEntity implements ModelPart {
     }
 
     @Override
-    public InvalidationStatus getInvalidationStatus() {
+    public InvalidationStrategy getInvalidationStrategy() {
         return invalidation;
     }
 

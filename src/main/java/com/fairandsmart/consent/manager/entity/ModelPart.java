@@ -18,11 +18,11 @@ public interface ModelPart {
 
     String getSerial();
 
-    String getVersion();
+    String getParent();
 
     Status getStatus();
 
-    InvalidationStatus getInvalidationStatus();
+    InvalidationStrategy getInvalidationStrategy();
 
     String getCountry();
 
@@ -37,10 +37,10 @@ public interface ModelPart {
         ARCHIVED
     }
 
-    enum InvalidationStatus {
+    enum InvalidationStrategy {
         OUTDATED,
         REFRESH,
-        GOOD
+        PRESERVE
     }
 
 

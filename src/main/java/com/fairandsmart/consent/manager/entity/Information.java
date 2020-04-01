@@ -19,28 +19,22 @@ public class Information extends PanacheEntity implements ModelPart {
     @Version
     public long lock;
     public String serial;
-    public String version;
+    public String parent;
     public Type type;
     public String author;
     public String owner;
     public String reference;
     public String name;
     public String description;
-    public String language;
+    public String defaultLanguage;
     public String availableLanguages;
     public String country;
     public ModelPart.Status status;
-    public InvalidationStatus invalidation;
-    public String parent;
+    public InvalidationStrategy invalidation;
     public long creationDate;
     public long modificationDate;
     @ElementCollection
-    public Set<String> translations;
-    @ElementCollection
     public Map<String, Content> content;
-
-    //TODO attachments
-    //public List<String> attachments
 
     @Override
     public String getId() {
@@ -53,8 +47,8 @@ public class Information extends PanacheEntity implements ModelPart {
     }
 
     @Override
-    public String getVersion() {
-        return version;
+    public String getParent() {
+        return parent;
     }
 
     @Override
@@ -68,7 +62,7 @@ public class Information extends PanacheEntity implements ModelPart {
     }
 
     @Override
-    public InvalidationStatus getInvalidationStatus() {
+    public InvalidationStrategy getInvalidationStrategy() {
         return invalidation;
     }
 
@@ -78,13 +72,12 @@ public class Information extends PanacheEntity implements ModelPart {
     }
 
     @Override
-    //TODO
     public String getHash() {
         return null;
     }
 
     public enum Type {
-        HEADER,
-        FOOTER
+        HEAD,
+        FOOT
     }
 }
