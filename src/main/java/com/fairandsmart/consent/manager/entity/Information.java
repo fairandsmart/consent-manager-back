@@ -1,21 +1,23 @@
 package com.fairandsmart.consent.manager.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import javax.persistence.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Entity
-public class Information extends PanacheEntity implements ModelPart {
+public class Information extends PanacheEntityBase implements ModelPart {
 
     @Id
-    public String id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    public UUID id;
     @Version
     public long lock;
     public String serial;
@@ -33,12 +35,12 @@ public class Information extends PanacheEntity implements ModelPart {
     public InvalidationStrategy invalidation;
     public long creationDate;
     public long modificationDate;
-    @ElementCollection
-    public Map<String, Content> content;
+    @ElementCollection(fetch = FetchType.EAGER)
+    public Map<String, Content> content = new HashMap<>();
 
     @Override
     public String getId() {
-        return id;
+        return id.toString();
     }
 
     @Override

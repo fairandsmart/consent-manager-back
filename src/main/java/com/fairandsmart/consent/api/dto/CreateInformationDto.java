@@ -1,16 +1,31 @@
 package com.fairandsmart.consent.api.dto;
 
+import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.entity.Content;
 import com.fairandsmart.consent.manager.entity.Information;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class CreateInformationDto {
 
+    @NotNull
     private Information.Type type;
+    @UUID
     private String parent;
+    @NotNull
+    @Size(min = 3, max = 255)
     private String name;
+    @NotNull
+    @Size(max = 2500)
     private String description;
+    @NotNull
     private String defaultLanguage;
+    @NotNull
     private String country;
+    @Valid
+    @NotNull
     private Content content;
 
     public CreateInformationDto() {

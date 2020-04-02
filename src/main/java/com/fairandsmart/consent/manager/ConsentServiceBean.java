@@ -15,9 +15,11 @@ import io.quarkus.panache.common.Page;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ConsentServiceBean implements ConsentService {
@@ -34,13 +36,13 @@ public class ConsentServiceBean implements ConsentService {
     public CollectionPage<Information> listInformations(InformationFilter filter) {
         LOGGER.log(Level.FINE, "Listing informations models");
         PanacheQuery<Information> query = repository.find("type", filter.getType());
-        query.page(Page.of(filter.getPage(), filter.getSize()));
+        query.page(Page.ofSize(filter.getSize()));
         CollectionPage<Information> result = new CollectionPage<>();
+        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
         result.setTotalPages(query.pageCount());
-        result.setTotalCount(repository.count());
-        result.setValues(query.list());
+        result.setTotalCount(query.count());
         return result;
     }
 
@@ -51,7 +53,6 @@ public class ConsentServiceBean implements ConsentService {
         //TODO Include the ability to create a child (same type, and parent exists)
         try {
             Information information = new Information();
-            information.id = UUID.randomUUID().toString();
             information.type = type;
             information.name = name;
             information.description = description;
@@ -61,7 +62,8 @@ public class ConsentServiceBean implements ConsentService {
             information.creationDate = System.currentTimeMillis();
             information.modificationDate = information.creationDate;
             information.serial = generator.next(information.getClass().getName());
-            return information.id;
+            information.persist();
+            return information.id.toString();
         } catch ( SerialGeneratorException ex ) {
             throw new ConsentManagerException("unable to generate serial number for information models");
         }
@@ -70,7 +72,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public Information getInformation(String id) throws EntityNotFoundException {
         LOGGER.log(Level.FINE, "Loading information model for id: " + id);
-        Information information = Information.findById(id);
+        Information information = Information.findById(UUID.fromString(id));
         if (information == null) {
             throw new EntityNotFoundException("Unable to find Information for id: " + id);
         }
