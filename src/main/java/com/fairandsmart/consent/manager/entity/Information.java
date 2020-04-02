@@ -82,4 +82,28 @@ public class Information extends PanacheEntityBase implements ModelPart {
         HEAD,
         FOOT
     }
+
+    @Override
+    public String toString() {
+        return "Information{" +
+                "id=" + id +
+                ", lock=" + lock +
+                ", serial='" + serial + '\'' +
+                ", parent='" + parent + '\'' +
+                ", type=" + type +
+                ", author='" + author + '\'' +
+                ", owner='" + owner + '\'' +
+                ", reference='" + reference + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", defaultLanguage='" + defaultLanguage + '\'' +
+                ", availableLanguages='" + availableLanguages + '\'' +
+                ", country='" + country + '\'' +
+                ", status=" + status +
+                ", invalidation=" + invalidation +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
+                ", content=" + content +
+                '}';
+    }
 }
