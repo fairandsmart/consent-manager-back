@@ -2,6 +2,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.Content;
 import com.fairandsmart.consent.manager.entity.Information;
 import com.fairandsmart.consent.manager.filter.InformationFilter;
@@ -64,5 +65,15 @@ public class ConsentServiceBean implements ConsentService {
         } catch ( SerialGeneratorException ex ) {
             throw new ConsentManagerException("unable to generate serial number for information models");
         }
+    }
+
+    @Override
+    public Information getInformation(String id) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Loading information model for id: " + id);
+        Information information = Information.findById(id);
+        if (information == null) {
+            throw new EntityNotFoundException("Unable to find Information for id: " + id);
+        }
+        return information;
     }
 }

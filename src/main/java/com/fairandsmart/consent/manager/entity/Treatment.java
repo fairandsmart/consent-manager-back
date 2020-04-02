@@ -18,18 +18,17 @@ public class Treatment extends PanacheEntity implements ModelPart {
     @Version
     public long lock;
     public String serial;
-    public String version;
+    public String parent;
     public String author;
     public String owner;
     public String reference;
     public String name;
     public String description;
-    public String language;
+    public String defaultLanguage;
     public String availableLanguages;
     public String country;
     public ModelPart.Status status;
     public InvalidationStrategy invalidation;
-    public String parent;
     public long creationDate;
     public long modificationDate;
     @ElementCollection
@@ -46,8 +45,8 @@ public class Treatment extends PanacheEntity implements ModelPart {
     }
 
     @Override
-    public String getVersion() {
-        return version;
+    public String getParent() {
+        return parent;
     }
 
     @Override
