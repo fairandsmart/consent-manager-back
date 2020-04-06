@@ -22,6 +22,7 @@ public class Treatment extends PanacheEntity implements ModelPart {
     public String author;
     public String owner;
     public String reference;
+    public String key;
     public String name;
     public String description;
     public String defaultLanguage;

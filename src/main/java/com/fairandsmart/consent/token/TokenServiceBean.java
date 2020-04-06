@@ -20,13 +20,13 @@ public class TokenServiceBean  implements TokenService {
 
     private static final Logger LOGGER = Logger.getLogger(TokenService.class.getName());
 
-    @ConfigProperty(name = "fs.core.token.secret")
+    @ConfigProperty(name = "consent.token.secret")
     String secret;
 
-    @ConfigProperty(name = "fs.core.token.issuer")
+    @ConfigProperty(name = "consent.token.issuer")
     String issuer;
 
-    @ConfigProperty(name = "fs.core.token.systemid")
+    @ConfigProperty(name = "consent.token.systemid")
     String systemId;
 
     private static JWTVerifier verifier;

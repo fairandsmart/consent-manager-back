@@ -5,7 +5,11 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.Content;
 import com.fairandsmart.consent.manager.entity.Information;
+import com.fairandsmart.consent.manager.entity.Treatment;
 import com.fairandsmart.consent.manager.filter.InformationFilter;
+import com.fairandsmart.consent.manager.filter.TreatmentFilter;
+
+import javax.transaction.Transactional;
 
 public interface ConsentService {
 
@@ -15,4 +19,9 @@ public interface ConsentService {
 
     Information getInformation(String id) throws EntityNotFoundException;
 
+    CollectionPage<Treatment> listTreatments(TreatmentFilter filter);
+
+    String createTreatment(String key, String name, String description, String defaultLanguage, String country) throws ConsentManagerException;
+
+    Treatment getTreatment(String id) throws EntityNotFoundException;
 }

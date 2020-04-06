@@ -6,7 +6,9 @@ import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.Content;
 import com.fairandsmart.consent.manager.entity.Information;
 import com.fairandsmart.consent.manager.entity.ModelPart;
+import com.fairandsmart.consent.manager.entity.Treatment;
 import com.fairandsmart.consent.manager.filter.InformationFilter;
+import com.fairandsmart.consent.manager.filter.TreatmentFilter;
 import com.fairandsmart.consent.manager.repository.InformationRepository;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
@@ -68,7 +70,7 @@ public class ConsentServiceBean implements ConsentService {
             information.persist();
             return information.id.toString();
         } catch ( SerialGeneratorException ex ) {
-            throw new ConsentManagerException("unable to generate serial number for information models");
+            throw new ConsentManagerException("unable to generate serial number for information model");
         }
     }
 
@@ -81,4 +83,52 @@ public class ConsentServiceBean implements ConsentService {
         }
         return information;
     }
+
+    @Override
+    public CollectionPage<Treatment> listTreatments(TreatmentFilter filter) {
+        LOGGER.log(Level.FINE, "Listing treatments models");
+        PanacheQuery<Treatment> query = Information.findAll();
+        CollectionPage<Treatment> result = new CollectionPage<>();
+        result.setValues(query.page(Page.of(filter.getPage()-1, filter.getSize())).list());
+        result.setPageSize(filter.getSize());
+        result.setPage(filter.getPage());
+        result.setTotalPages(query.pageCount());
+        result.setTotalCount(query.count());
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public String createTreatment(String key, String name, String description, String defaultLanguage, String country) throws ConsentManagerException {
+        LOGGER.log(Level.FINE, "Creating new treatment model");
+        //TODO Include the ability to create a child (same type, and parent exists)
+        try {
+            Treatment treatment = new Treatment();
+            treatment.key = key;
+            treatment.name = name;
+            treatment.description = description;
+            treatment.defaultLanguage = defaultLanguage;
+            treatment.country = country;
+            treatment.creationDate = System.currentTimeMillis();
+            treatment.modificationDate = treatment.creationDate;
+            treatment.invalidation = ModelPart.InvalidationStrategy.OUTDATED;
+            treatment.status = ModelPart.Status.DRAFT;
+            treatment.serial = generator.next(treatment.getClass().getName());
+            treatment.persist();
+            return treatment.id.toString();
+        } catch ( SerialGeneratorException ex ) {
+            throw new ConsentManagerException("unable to generate serial number for treatment model");
+        }
+    }
+
+    @Override
+    public Treatment getTreatment(String id) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Loading treatment model for id: " + id);
+        Treatment treatment = Treatment.findById(UUID.fromString(id));
+        if (treatment == null) {
+            throw new EntityNotFoundException("Unable to find treatment for id: " + id);
+        }
+        return treatment;
+    }
+
 }

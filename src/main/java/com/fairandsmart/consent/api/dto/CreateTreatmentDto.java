@@ -1,19 +1,17 @@
 package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.common.validation.UUID;
-import com.fairandsmart.consent.manager.entity.Content;
-import com.fairandsmart.consent.manager.entity.Information;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class CreateInformationDto {
+public class CreateTreatmentDto {
 
-    @NotNull
-    private Information.Type type;
     @UUID
     private String parent;
+    @NotNull
+    @Size(min = 3, max = 255)
+    private String key;
     @NotNull
     @Size(min = 3, max = 255)
     private String name;
@@ -24,19 +22,8 @@ public class CreateInformationDto {
     private String defaultLanguage;
     @NotNull
     private String country;
-    @Valid
-    @NotNull
-    private Content content;
 
-    public CreateInformationDto() {
-    }
-
-    public Information.Type getType() {
-        return type;
-    }
-
-    public void setType(Information.Type type) {
-        this.type = type;
+    public CreateTreatmentDto() {
     }
 
     public String getParent() {
@@ -45,6 +32,14 @@ public class CreateInformationDto {
 
     public void setParent(String parent) {
         this.parent = parent;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getName() {
@@ -79,24 +74,15 @@ public class CreateInformationDto {
         this.country = country;
     }
 
-    public Content getContent() {
-        return content;
-    }
-
-    public void setContent(Content content) {
-        this.content = content;
-    }
-
     @Override
     public String toString() {
-        return "CreateInformationDto{" +
-                "type=" + type +
-                ", parent='" + parent + '\'' +
+        return "CreateTreatmentDto{" +
+                "parent='" + parent + '\'' +
+                ", key='" + key + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", defaultLanguage='" + defaultLanguage + '\'' +
                 ", country='" + country + '\'' +
-                ", content=" + content +
                 '}';
     }
 }
