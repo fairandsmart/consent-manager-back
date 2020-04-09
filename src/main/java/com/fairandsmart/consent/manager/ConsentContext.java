@@ -18,12 +18,22 @@ public class ConsentContext {
         this.subject = subject;
     }
 
+    public ConsentContext withSubject(String subject) {
+        this.subject = subject;
+        return this;
+    }
+
     public Orientation getOrientation() {
         return orientation;
     }
 
     public void setOrientation(Orientation orientation) {
         this.orientation = orientation;
+    }
+
+    public ConsentContext withOrientation(Orientation orientation) {
+        this.orientation = orientation;
+        return this;
     }
 
     public String getHeader() {
@@ -34,6 +44,11 @@ public class ConsentContext {
         this.header = header;
     }
 
+    public ConsentContext withHeader(String header) {
+        this.header = header;
+        return this;
+    }
+
     public List<String> getTreatments() {
         return treatments;
     }
@@ -42,12 +57,22 @@ public class ConsentContext {
         this.treatments = treatments;
     }
 
+    public ConsentContext withTreatments(List<String> treatments) {
+        this.treatments = treatments;
+        return this;
+    }
+
     public String getFooter() {
         return footer;
     }
 
     public void setFooter(String footer) {
         this.footer = footer;
+    }
+
+    public ConsentContext withFooter(String footer) {
+        this.footer = footer;
+        return this;
     }
 
     public enum Orientation {
