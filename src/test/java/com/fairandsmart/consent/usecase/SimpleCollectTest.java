@@ -4,6 +4,7 @@ import com.fairandsmart.consent.api.dto.CreateInformationDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Information;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -32,8 +33,10 @@ public class SimpleCollectTest {
         h1.setDefaultLanguage("fr");
         h1.setName("H1");
         h1.setDescription("Le header H1");
-        given().when().post("/models/informations", h1);
 
+        given().contentType(ContentType.JSON).body(h1).
+        when().post("/models/informations").
+        then().statusCode(201).header("location", notNullValue());
 
         ConsentContext ctx = new ConsentContext()
                 .withSubject("mmichu")
