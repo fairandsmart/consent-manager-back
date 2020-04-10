@@ -1,19 +1,86 @@
 package com.fairandsmart.consent.usecase;
 
 import com.fairandsmart.consent.api.dto.CreateInformationDto;
+import com.fairandsmart.consent.api.dto.CreateTreatmentDto;
 import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.entity.Content;
 import com.fairandsmart.consent.manager.entity.Information;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import javax.validation.Validation;
+import java.util.Arrays;
+import java.util.logging.Logger;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 public class SimpleCollectTest {
+
+    private static final Logger LOGGER = Logger.getLogger(SimpleCollectTest.class.getName());
+
+    @BeforeEach
+    public void setup() {
+        //Check that app is running
+        given().contentType(ContentType.JSON).
+                when().get("/health").
+                then().body("status", equalTo("UP"));
+
+        //Create head information model
+        CreateInformationDto h1 = new CreateInformationDto();
+        h1.setType(Information.Type.HEAD);
+        h1.setCountry("FR");
+        h1.setDefaultLanguage("fr");
+        h1.setName("H1");
+        h1.setDescription("Le header H1");
+        h1.setContent(new Content().withTitle("Title h1").withBody("Body h1").withFooter("Foot h1"));
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
+        given().contentType(ContentType.JSON).body(h1).
+                when().post("/models/informations").
+                then().statusCode(201).header("location", notNullValue());
+
+        //Create footer information model
+        CreateInformationDto f1 = new CreateInformationDto();
+        f1.setType(Information.Type.HEAD);
+        f1.setCountry("FR");
+        f1.setDefaultLanguage("fr");
+        f1.setName("F1");
+        f1.setDescription("Le footer F1");
+        f1.setContent(new Content().withTitle("Title f1").withBody("Body f1").withFooter("Foot f1"));
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
+        given().contentType(ContentType.JSON).body(f1).
+                when().post("/models/informations").
+                then().statusCode(201).header("location", notNullValue());
+
+        //Create treatment 1 mdoel
+        CreateTreatmentDto t1 = new CreateTreatmentDto();
+        t1.setKey("T1");
+        t1.setCountry("FR");
+        t1.setDefaultLanguage("fr");
+        t1.setName("T1");
+        t1.setDescription("Le traitement t1");
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
+        given().contentType(ContentType.JSON).body(t1).
+                when().post("/models/treatments").
+                then().statusCode(201).header("location", notNullValue());
+
+        //Create treatment 2 mdoel
+        CreateTreatmentDto t2 = new CreateTreatmentDto();
+        t2.setKey("T2");
+        t2.setCountry("FR");
+        t2.setDefaultLanguage("fr");
+        t2.setName("T2");
+        t2.setDescription("Le traitement t2");
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
+        given().contentType(ContentType.JSON).body(t2).
+                when().post("/models/treatments").
+                then().statusCode(201).header("location", notNullValue());
+    }
 
     /**
      * 1 : l'orga génère un context de collecte
@@ -26,30 +93,18 @@ public class SimpleCollectTest {
      */
     @Test
     public void testSimpleCollect() {
-        //Préconditions
-        CreateInformationDto h1 = new CreateInformationDto();
-        h1.setType(Information.Type.HEAD);
-        h1.setCountry("FR");
-        h1.setDefaultLanguage("fr");
-        h1.setName("H1");
-        h1.setDescription("Le header H1");
-
-        given().contentType(ContentType.JSON).body(h1).
-        when().post("/models/informations").
-        then().statusCode(201).header("location", notNullValue());
-
+        //Use basic consent context for first generation
         ConsentContext ctx = new ConsentContext()
                 .withSubject("mmichu")
                 .withOrientation(ConsentContext.Orientation.VERTICAL)
-                .withHeader("h1")
-                .withTreatments(Collections.singletonList("t1"))
-                .withFooter("f1");
+                .withHeader("H1")
+                .withTreatments(Arrays.asList("T1","T2"))
+                .withFooter("F1");
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        given()
-            .when().post("/admin/token")
-            .then()
-            .statusCode(200)
-            .body(notNullValue());
+        given().contentType(ContentType.JSON).body(ctx).
+            when().post("/admin/token").
+            then().statusCode(200).body(notNullValue());
     }
 
 }

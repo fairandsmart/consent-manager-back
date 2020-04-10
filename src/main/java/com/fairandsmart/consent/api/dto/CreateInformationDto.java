@@ -15,7 +15,7 @@ public class CreateInformationDto {
     @UUID
     private String parent;
     @NotNull
-    @Size(min = 3, max = 255)
+    @Size(min = 2, max = 255)
     private String name;
     @NotNull
     @Size(max = 2500)

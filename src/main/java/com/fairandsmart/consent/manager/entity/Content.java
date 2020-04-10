@@ -20,6 +20,11 @@ public class Content {
         this.title = title;
     }
 
+    public Content withTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
     public String getBody() {
         return body;
     }
@@ -28,11 +33,21 @@ public class Content {
         this.body = body;
     }
 
+    public Content withBody(String body) {
+        this.body = body;
+        return this;
+    }
+
     public String getFooter() {
         return footer;
     }
 
     public void setFooter(String footer) {
         this.footer = footer;
+    }
+
+    public Content withFooter(String footer) {
+        this.footer = footer;
+        return this;
     }
 }

@@ -1,12 +1,17 @@
 package com.fairandsmart.consent.manager;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class ConsentContext {
 
+    @NotNull
     private String subject;
+    @NotNull
     private Orientation orientation;
     private String header;
+    @NotNull @NotEmpty
     private List<String> treatments;
     private String footer;
 
