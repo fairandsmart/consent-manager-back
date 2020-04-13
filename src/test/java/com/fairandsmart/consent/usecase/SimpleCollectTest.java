@@ -57,6 +57,8 @@ public class SimpleCollectTest {
                 when().post("/models/informations").
                 then().statusCode(201).header("location", notNullValue());
 
+        /*  TEMPORARY REMOVED
+
         //Create treatment 1 mdoel
         CreateTreatmentDto t1 = new CreateTreatmentDto();
         t1.setKey("T1");
@@ -80,6 +82,8 @@ public class SimpleCollectTest {
         given().contentType(ContentType.JSON).body(t2).
                 when().post("/models/treatments").
                 then().statusCode(201).header("location", notNullValue());
+
+         */
     }
 
     /**
@@ -102,7 +106,7 @@ public class SimpleCollectTest {
                 .withFooter("F1");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        given().contentType(ContentType.JSON).body(ctx).
+        given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx).
             when().post("/admin/token").
             then().statusCode(200).body(notNullValue());
     }
