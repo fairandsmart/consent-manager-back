@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.api.resource;
 
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.token.InvalidTokenException;
@@ -38,11 +39,11 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getForm(@HeaderParam("TOKEN") String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException {
+    public TemplateInstance getForm(@HeaderParam("TOKEN") String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Getting consent form");
         ConsentContext ctx = tokenService.readToken(token);
         HashMap<String, Object> data = new HashMap<>();
-        //consentService.getInformation()
+        data.put("information", consentService.findInformationByName(ctx.getHeader()));
         switch ( ctx.getOrientation() ) {
             case HORIZONTAL: return horizontal.data(data);
             default: return vertical.data(data);

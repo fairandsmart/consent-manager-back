@@ -112,12 +112,13 @@ public class SimpleCollectTest {
 
         Response response = given().header("TOKEN", token).
             when().get("/consents");
-        String form = response.asString();
+        String page = response.asString();
         response.then().assertThat().statusCode(200);
-        LOGGER.log(Level.INFO, "Content Form: " + form);
-        assertTrue(form.contains("Title h1"));
-        assertTrue(form.contains("Body h1"));
-        assertTrue(form.contains("Foot h1"));
+        LOGGER.log(Level.INFO, "Consent form page: " + page);
+        assertTrue(page.contains("vertical"));
+        assertTrue(page.contains("Title h1"));
+        assertTrue(page.contains("Body h1"));
+        assertTrue(page.contains("Foot h1"));
 
 
 

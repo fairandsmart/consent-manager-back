@@ -85,6 +85,17 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
+    public Information findInformationByName(String name) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Looking information model for name: " + name);
+        List<Information> informations = Information.find("name", name).list();
+        //TODO Apply the algorithm to determine active instance for that name
+        if ( informations.size() <= 0 ) {
+            throw new EntityNotFoundException("Unable to find Information for name: " + name);
+        }
+        return informations.get(0);
+    }
+
+    @Override
     public CollectionPage<Treatment> listTreatments(TreatmentFilter filter) {
         LOGGER.log(Level.FINE, "Listing treatments models");
         PanacheQuery<Treatment> query = Information.findAll();
