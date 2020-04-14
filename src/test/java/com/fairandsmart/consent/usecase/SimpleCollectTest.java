@@ -116,10 +116,19 @@ public class SimpleCollectTest {
         response.then().assertThat().statusCode(200);
 
         LOGGER.log(Level.INFO, "Consent form page: " + page);
+        //Orientation
         assertTrue(page.contains("vertical"));
+        //Header
         assertTrue(page.contains("Title h1"));
         assertTrue(page.contains("Body h1"));
         assertTrue(page.contains("Foot h1"));
+        //Traitements
+        assertTrue(page.contains("Le traitement t1"));
+        assertTrue(page.contains("Le traitement t2"));
+        //Footer
+        assertTrue(page.contains("Title f1"));
+        assertTrue(page.contains("Body f1"));
+        assertTrue(page.contains("Foot f1"));
 
     }
 

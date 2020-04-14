@@ -49,8 +49,16 @@ public class ConsentsResource {
         HashMap<String, Object> data = new HashMap<>();
 
         Information headerInfo = consentService.findInformationByName(ctx.getHeaderKey());
-        data.put("header", headerInfo);
         data.put("headerContent", headerInfo.content.get(headerInfo.defaultLanguage));
+
+        List<Treatment> treatments = new ArrayList<>();
+        for (String treatmentKey : ctx.getTreatmentsKeys()) {
+            treatments.add(consentService.findTreatmentByName(treatmentKey));
+        }
+        data.put("treatments", treatments);
+
+        Information footerInfo = consentService.findInformationByName(ctx.getFooterKey());
+        data.put("footerContent", footerInfo.content.get(footerInfo.defaultLanguage));
 
         switch (ctx.getOrientation()) {
             case HORIZONTAL:

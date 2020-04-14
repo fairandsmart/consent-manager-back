@@ -26,4 +26,6 @@ public interface ConsentService {
     String createTreatment(String key, String name, String description, String defaultLanguage, String country) throws ConsentManagerException;
 
     Treatment getTreatment(String id) throws EntityNotFoundException;
+
+    Treatment findTreatmentByName(String name) throws EntityNotFoundException;
 }

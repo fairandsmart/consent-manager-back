@@ -41,7 +41,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.FINE, "Listing informations models");
         PanacheQuery<Information> query = Information.find("type", filter.getType());
         CollectionPage<Information> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage()-1, filter.getSize())).list());
+        result.setValues(query.page(Page.of(filter.getPage() - 1, filter.getSize())).list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
         result.setTotalPages(query.pageCount());
@@ -69,7 +69,7 @@ public class ConsentServiceBean implements ConsentService {
             information.serial = generator.next(information.getClass().getName());
             information.persist();
             return information.id.toString();
-        } catch ( SerialGeneratorException ex ) {
+        } catch (SerialGeneratorException ex) {
             throw new ConsentManagerException("unable to generate serial number for information model");
         }
     }
@@ -89,7 +89,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.FINE, "Looking information model for name: " + name);
         List<Information> informations = Information.find("name", name).list();
         //TODO Apply the algorithm to determine active instance for that name
-        if ( informations.size() <= 0 ) {
+        if (informations.size() <= 0) {
             throw new EntityNotFoundException("Unable to find Information for name: " + name);
         }
         return informations.get(0);
@@ -100,7 +100,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.FINE, "Listing treatments models");
         PanacheQuery<Treatment> query = Information.findAll();
         CollectionPage<Treatment> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage()-1, filter.getSize())).list());
+        result.setValues(query.page(Page.of(filter.getPage() - 1, filter.getSize())).list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
         result.setTotalPages(query.pageCount());
@@ -127,7 +127,7 @@ public class ConsentServiceBean implements ConsentService {
             treatment.serial = generator.next(treatment.getClass().getName());
             treatment.persist();
             return treatment.id.toString();
-        } catch ( SerialGeneratorException ex ) {
+        } catch (SerialGeneratorException ex) {
             throw new ConsentManagerException("unable to generate serial number for treatment model");
         }
     }
@@ -140,6 +140,17 @@ public class ConsentServiceBean implements ConsentService {
             throw new EntityNotFoundException("Unable to find treatment for id: " + id);
         }
         return treatment;
+    }
+
+    @Override
+    public Treatment findTreatmentByName(String name) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Looking treatment model for name: " + name);
+        List<Treatment> treatments = Treatment.find("name", name).list();
+        //TODO Apply the algorithm to determine active instance for that name
+        if (treatments.size() <= 0) {
+            throw new EntityNotFoundException("Unable to find Treatment for name: " + name);
+        }
+        return treatments.get(0);
     }
 
 }
