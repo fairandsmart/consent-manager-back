@@ -1,20 +1,21 @@
 package com.fairandsmart.consent.manager.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Entity
-public class Treatment extends PanacheEntity implements ModelPart {
+public class Treatment extends PanacheEntityBase implements ModelPart {
 
     @Id
-    public String id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    public UUID id;
     @Version
     public long lock;
     public String serial;
@@ -37,7 +38,7 @@ public class Treatment extends PanacheEntity implements ModelPart {
 
     @Override
     public String getId() {
-        return id;
+        return id.toString();
     }
 
     @Override
@@ -76,4 +77,27 @@ public class Treatment extends PanacheEntity implements ModelPart {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return "Treatment{" +
+                "id=" + id +
+                ", lock=" + lock +
+                ", serial='" + serial + '\'' +
+                ", parent='" + parent + '\'' +
+                ", author='" + author + '\'' +
+                ", owner='" + owner + '\'' +
+                ", reference='" + reference + '\'' +
+                ", key='" + key + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", defaultLanguage='" + defaultLanguage + '\'' +
+                ", availableLanguages='" + availableLanguages + '\'' +
+                ", country='" + country + '\'' +
+                ", status=" + status +
+                ", invalidation=" + invalidation +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
+                ", translations=" + translations +
+                '}';
+    }
 }
