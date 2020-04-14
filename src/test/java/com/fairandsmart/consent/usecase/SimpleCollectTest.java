@@ -7,6 +7,7 @@ import com.fairandsmart.consent.manager.entity.Content;
 import com.fairandsmart.consent.manager.entity.Information;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,8 +19,7 @@ import java.util.logging.Logger;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 public class SimpleCollectTest {
@@ -109,6 +109,15 @@ public class SimpleCollectTest {
             when().post("/admin/token").asString();
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token : " + token);
+
+        Response response = given().header("CTX", token).
+            when().get("/consents");
+        String form = response.asString();
+        response.then().assertThat().statusCode(200);
+        LOGGER.log(Level.INFO, "Content Form: " + form);
+        assertTrue(form.contains("Title h1"));
+        assertTrue(form.contains("Body h1"));
+        assertTrue(form.contains("Foot h1"));
 
 
 
