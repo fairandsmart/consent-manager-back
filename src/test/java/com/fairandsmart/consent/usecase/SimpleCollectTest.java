@@ -110,7 +110,7 @@ public class SimpleCollectTest {
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token : " + token);
 
-        Response response = given().header("CTX", token).
+        Response response = given().header("TOKEN", token).
             when().get("/consents");
         String form = response.asString();
         response.then().assertThat().statusCode(200);

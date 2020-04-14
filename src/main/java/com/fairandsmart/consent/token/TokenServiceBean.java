@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fairandsmart.consent.manager.ConsentContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -61,7 +62,7 @@ public class TokenServiceBean  implements TokenService {
     }
 
     @Override
-    public ConsentContext readToken(String token) throws TokenServiceException {
+    public ConsentContext readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.FINE, "Reading token");
         DecodedJWT decodedJWT = getDecodedToken(token);
         ConsentContext ctx = new ConsentContext();
@@ -73,17 +74,22 @@ public class TokenServiceBean  implements TokenService {
         return ctx;
     }
 
-    public DecodedJWT getDecodedToken(String token) throws TokenServiceException {
+    public DecodedJWT getDecodedToken(String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException {
         LOGGER.log(Level.FINE, "Decoding token: " + token);
         if ( verifier != null ) {
             LOGGER.log(Level.FINE, "Verifier is not null");
-            DecodedJWT decodedJWT = verifier.verify(token);
-            LOGGER.log(Level.FINE, "Decoded token expiration: " + decodedJWT.getExpiresAt());
-            LOGGER.log(Level.FINE, "Decoded token subject: " + decodedJWT.getSubject());
-            if ( decodedJWT.getExpiresAt().after(new Date()) ) {
-                return decodedJWT;
+            try {
+                DecodedJWT decodedJWT = verifier.verify(token);
+                LOGGER.log(Level.FINE, "Decoded token expiration: " + decodedJWT.getExpiresAt());
+                LOGGER.log(Level.FINE, "Decoded token subject: " + decodedJWT.getSubject());
+                if (decodedJWT.getExpiresAt().after(new Date())) {
+                    return decodedJWT;
+                } else {
+                    throw new TokenExpiredException("Token expires on : " + decodedJWT.getExpiresAt().toString());
+                }
+            } catch ( JWTDecodeException ex ) {
+                throw new InvalidTokenException(ex);
             }
-            throw new TokenServiceException("token is expired");
         }
         throw new TokenServiceException("token verifier is null");
     }

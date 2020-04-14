@@ -10,6 +10,6 @@ public interface TokenService {
 
     String generateToken(ConsentContext ctx, int calendarField, int calendarAmount);
 
-    ConsentContext readToken(String token) throws TokenServiceException;
+    ConsentContext readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException;
 
 }
