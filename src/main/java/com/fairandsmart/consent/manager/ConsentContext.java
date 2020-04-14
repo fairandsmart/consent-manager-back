@@ -10,10 +10,10 @@ public class ConsentContext {
     private String subject;
     @NotNull
     private Orientation orientation;
-    private String header;
+    private String headerKey;
     @NotNull @NotEmpty
-    private List<String> treatments;
-    private String footer;
+    private List<String> treatmentsKeys;
+    private String footerKey;
 
     public String getSubject() {
         return subject;
@@ -41,42 +41,42 @@ public class ConsentContext {
         return this;
     }
 
-    public String getHeader() {
-        return header;
+    public String getHeaderKey() {
+        return headerKey;
     }
 
-    public void setHeader(String header) {
-        this.header = header;
+    public void setHeaderKey(String headerKey) {
+        this.headerKey = headerKey;
     }
 
-    public ConsentContext withHeader(String header) {
-        this.header = header;
+    public ConsentContext withHeaderKey(String headerKey) {
+        this.headerKey = headerKey;
         return this;
     }
 
-    public List<String> getTreatments() {
-        return treatments;
+    public List<String> getTreatmentsKeys() {
+        return treatmentsKeys;
     }
 
-    public void setTreatments(List<String> treatments) {
-        this.treatments = treatments;
+    public void setTreatmentsKeys(List<String> treatmentsKeys) {
+        this.treatmentsKeys = treatmentsKeys;
     }
 
-    public ConsentContext withTreatments(List<String> treatments) {
-        this.treatments = treatments;
+    public ConsentContext withTreatmentsKeys(List<String> treatmentsKeys) {
+        this.treatmentsKeys = treatmentsKeys;
         return this;
     }
 
-    public String getFooter() {
-        return footer;
+    public String getFooterKey() {
+        return footerKey;
     }
 
-    public void setFooter(String footer) {
-        this.footer = footer;
+    public void setFooterKey(String footerKey) {
+        this.footerKey = footerKey;
     }
 
-    public ConsentContext withFooter(String footer) {
-        this.footer = footer;
+    public ConsentContext withFooterKey(String footerKey) {
+        this.footerKey = footerKey;
         return this;
     }
 

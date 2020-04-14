@@ -59,7 +59,7 @@ public class SimpleCollectTest {
                 when().post("/models/informations").
                 then().statusCode(201).header("location", notNullValue());
 
-        //Create treatment 1 mdoel
+        //Create treatment 1 model
         CreateTreatmentDto t1 = new CreateTreatmentDto();
         t1.setKey("T1");
         t1.setCountry("FR");
@@ -71,7 +71,7 @@ public class SimpleCollectTest {
                 when().post("/models/treatments").
                 then().statusCode(201).header("location", notNullValue());
 
-        //Create treatment 2 mdoel
+        //Create treatment 2 model
         CreateTreatmentDto t2 = new CreateTreatmentDto();
         t2.setKey("T2");
         t2.setCountry("FR");
@@ -100,9 +100,9 @@ public class SimpleCollectTest {
         ConsentContext ctx = new ConsentContext()
                 .withSubject("mmichu")
                 .withOrientation(ConsentContext.Orientation.VERTICAL)
-                .withHeader("H1")
-                .withTreatments(Arrays.asList("T1","T2"))
-                .withFooter("F1");
+                .withHeaderKey("H1")
+                .withTreatmentsKeys(Arrays.asList("T1","T2"))
+                .withFooterKey("F1");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx).
@@ -114,13 +114,12 @@ public class SimpleCollectTest {
             when().get("/consents");
         String page = response.asString();
         response.then().assertThat().statusCode(200);
+
         LOGGER.log(Level.INFO, "Consent form page: " + page);
         assertTrue(page.contains("vertical"));
         assertTrue(page.contains("Title h1"));
         assertTrue(page.contains("Body h1"));
         assertTrue(page.contains("Foot h1"));
-
-
 
     }
 

@@ -3,6 +3,8 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentService;
+import com.fairandsmart.consent.manager.entity.Information;
+import com.fairandsmart.consent.manager.entity.Treatment;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
@@ -13,7 +15,9 @@ import io.quarkus.qute.TemplateInstance;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,10 +47,16 @@ public class ConsentsResource {
         LOGGER.log(Level.INFO, "Getting consent form");
         ConsentContext ctx = tokenService.readToken(token);
         HashMap<String, Object> data = new HashMap<>();
-        data.put("information", consentService.findInformationByName(ctx.getHeader()));
-        switch ( ctx.getOrientation() ) {
-            case HORIZONTAL: return horizontal.data(data);
-            default: return vertical.data(data);
+
+        Information headerInfo = consentService.findInformationByName(ctx.getHeaderKey());
+        data.put("header", headerInfo);
+        data.put("headerContent", headerInfo.content.get(headerInfo.defaultLanguage));
+
+        switch (ctx.getOrientation()) {
+            case HORIZONTAL:
+                return horizontal.data(data);
+            default:
+                return vertical.data(data);
         }
     }
 
