@@ -12,5 +12,22 @@
         <p>{headerContent.body}</p>
         <p>{headerContent.footer}</p>
     </div>
+
+    <form method="post" id="consentForm">
+        {#for treatment in treatments}
+        <div>
+            <label>{treatment.name} ({treatment.description}) :</label><input type="checkbox" name="{treatment.name}">
+        </div>
+        {/for}
+
+        <button type="submit">Valider</button>
+    </form>
+
+    <div>
+        <p>{footerContent.title}</p>
+        <p>{footerContent.body}</p>
+        <p>{footerContent.footer}</p>
+    </div>
+
 </body>
 </html>

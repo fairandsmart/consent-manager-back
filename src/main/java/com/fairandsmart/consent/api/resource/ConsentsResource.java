@@ -17,7 +17,6 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 
@@ -27,7 +26,10 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,6 +67,15 @@ public class ConsentsResource {
         data.put("header", header);
         data.put("headerContent", header.getData(header.defaultLocale));
 
+        List<ModelVersion> treatments = new ArrayList<>();
+        for (String key : ctx.getTreatmentsKeys()) {
+            treatments.add(consentService.findActiveModelVersionForKey(key));
+        }
+        data.put("treatments", treatments);
+
+        ModelVersion footer = consentService.findActiveModelVersionForKey(ctx.getFooterKey());
+        data.put("footerContent", footer.getData(footer.defaultLocale));
+
         switch (ctx.getOrientation()) {
             case HORIZONTAL:
                 return horizontal.data(data);
@@ -74,10 +85,27 @@ public class ConsentsResource {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance postConsent() {
+    public TemplateInstance postConsent(@HeaderParam("TOKEN") String token, Map<String, Integer> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "Posting consent");
-        return receipt.data("name", "bob");
+        ConsentContext ctx = tokenService.readToken(token);
+        HashMap<String, Object> data = new HashMap<>();
+
+        ModelVersion header = consentService.findActiveModelVersionForKey(ctx.getHeaderKey());
+        data.put("header", header);
+        data.put("headerContent", header.getData(header.defaultLocale));
+
+        List<ModelVersion> treatments = new ArrayList<>();
+        for (String key : ctx.getTreatmentsKeys()) {
+            treatments.add(consentService.findActiveModelVersionForKey(key));
+        }
+        data.put("treatments", treatments);
+
+        ModelVersion footer = consentService.findActiveModelVersionForKey(ctx.getFooterKey());
+        data.put("footerContent", footer.getData(footer.defaultLocale));
+
+        return receipt.data(data);
     }
 
     @POST
@@ -118,6 +146,5 @@ public class ConsentsResource {
         ModelEntry entry = consentService.getModelEntry(id);
         return Response.created(uri).entity(entry).build();
     }
-
 
 }

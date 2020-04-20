@@ -14,6 +14,7 @@ public class ConsentContext {
     @NotNull @NotEmpty
     private List<String> treatmentsKeys;
     private String footerKey;
+    private String referer;
 
     public String getSubject() {
         return subject;
@@ -77,6 +78,19 @@ public class ConsentContext {
 
     public ConsentContext withFooterKey(String footerKey) {
         this.footerKey = footerKey;
+        return this;
+    }
+
+    public String getReferer() {
+        return referer;
+    }
+
+    public void setReferer(String referer) {
+        this.referer = referer;
+    }
+
+    public ConsentContext withReferer(String referer) {
+        this.referer = referer;
         return this;
     }
 

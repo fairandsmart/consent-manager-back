@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receipt</title>
+</head>
+
+<body>
+    <h1>Receipt</h1>
+
+    <div>
+        {#for item in treatments}
+        <p>{item.name} : {#if treatmentsConsents.get(index) == 1}accepté{#else}refusé{/if}</p>
+        {/for}
+    </div>
+</body>
+</html>
