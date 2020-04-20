@@ -1,16 +1,17 @@
 package com.fairandsmart.consent.usecase;
 
-import com.fairandsmart.consent.api.dto.CreateInformationDto;
-import com.fairandsmart.consent.api.dto.CreateTreatmentDto;
+import com.fairandsmart.consent.api.dto.CreateModelEntryDto;
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.entity.Content;
-import com.fairandsmart.consent.manager.entity.Information;
+import com.fairandsmart.consent.manager.data.Information;
+import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.manager.data.Treatment;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -33,54 +34,55 @@ public class SimpleCollectTest {
                 when().get("/health").
                 then().body("status", equalTo("UP"));
 
-        //Create head information model
-        CreateInformationDto h1 = new CreateInformationDto();
-        h1.setType(Information.Type.HEAD);
-        h1.setCountry("FR");
-        h1.setDefaultLanguage("fr");
+        //Create header model
+        CreateModelEntryDto h1 = new CreateModelEntryDto();
+        h1.setType(ModelEntry.Type.HEADER);
+        h1.setLocale("fr_FR");
+        h1.setKey("h1");
         h1.setName("H1");
         h1.setDescription("Le header H1");
-        h1.setContent(new Content().withTitle("Title h1").withBody("Body h1").withFooter("Foot h1"));
+        h1.setContent(new Information().withTitle("Title h1").withBody("Body h1").withFooter("Foot h1"));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
         given().contentType(ContentType.JSON).body(h1).
-                when().post("/models/informations").
+                when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
 
-        //Create footer information model
-        CreateInformationDto f1 = new CreateInformationDto();
-        f1.setType(Information.Type.HEAD);
-        f1.setCountry("FR");
-        f1.setDefaultLanguage("fr");
+        //Create footer model
+        CreateModelEntryDto f1 = new CreateModelEntryDto();
+        f1.setType(ModelEntry.Type.FOOTER);
+        f1.setLocale("fr_FR");
+        f1.setKey("f1");
         f1.setName("F1");
         f1.setDescription("Le footer F1");
-        f1.setContent(new Content().withTitle("Title f1").withBody("Body f1").withFooter("Foot f1"));
+        f1.setContent(new Information().withTitle("Title f1").withBody("Body f1").withFooter("Foot f1"));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
         given().contentType(ContentType.JSON).body(f1).
-                when().post("/models/informations").
+                when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
 
         //Create treatment 1 model
-        CreateTreatmentDto t1 = new CreateTreatmentDto();
-        t1.setKey("T1");
-        t1.setCountry("FR");
-        t1.setDefaultLanguage("fr");
+        CreateModelEntryDto t1 = new CreateModelEntryDto();
+        t1.setType(ModelEntry.Type.TREATMENT);
+        t1.setLocale("fr_FR");
+        t1.setKey("t1");
         t1.setName("T1");
         t1.setDescription("Le traitement t1");
+        t1.setContent(new Treatment().withData("Your name").withRetention("All your life").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
         given().contentType(ContentType.JSON).body(t1).
-                when().post("/models/treatments").
+                when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
 
-        //Create treatment 2 model
-        CreateTreatmentDto t2 = new CreateTreatmentDto();
-        t2.setKey("T2");
-        t2.setCountry("FR");
-        t2.setDefaultLanguage("fr");
+        CreateModelEntryDto t2 = new CreateModelEntryDto();
+        t2.setType(ModelEntry.Type.TREATMENT);
+        t2.setLocale("fr_FR");
+        t2.setKey("t2");
         t2.setName("T2");
         t2.setDescription("Le traitement t2");
+        t2.setContent(new Treatment().withData("Your email").withRetention("All your life").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
         given().contentType(ContentType.JSON).body(t2).
-                when().post("/models/treatments").
+                when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
 
     }
@@ -100,13 +102,13 @@ public class SimpleCollectTest {
         ConsentContext ctx = new ConsentContext()
                 .withSubject("mmichu")
                 .withOrientation(ConsentContext.Orientation.VERTICAL)
-                .withHeaderKey("H1")
-                .withTreatmentsKeys(Arrays.asList("T1","T2"))
-                .withFooterKey("F1");
+                .withHeaderKey("h1")
+                .withTreatmentsKeys(Arrays.asList("t1","t2"))
+                .withFooterKey("f1");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx).
-            when().post("/admin/token").asString();
+            when().post("/consents/token").asString();
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token : " + token);
 

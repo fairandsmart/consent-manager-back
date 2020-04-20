@@ -1,15 +1,15 @@
-package com.fairandsmart.consent.manager.entity;
+package com.fairandsmart.consent.manager.data;
 
-import javax.persistence.Embeddable;
+public class Information extends ModelData {
 
-@Embeddable
-public class Content {
+    public static final String TYPE = "information";
 
-    public String title;
-    public String body;
-    public String footer;
+    private String title;
+    private String body;
+    private String footer;
 
-    public Content() {
+    public Information() {
+        this.setType(TYPE);
     }
 
     public String getTitle() {
@@ -20,7 +20,7 @@ public class Content {
         this.title = title;
     }
 
-    public Content withTitle(String title) {
+    public Information withTitle(String title) {
         this.title = title;
         return this;
     }
@@ -33,7 +33,7 @@ public class Content {
         this.body = body;
     }
 
-    public Content withBody(String body) {
+    public Information withBody(String body) {
         this.body = body;
         return this;
     }
@@ -46,7 +46,7 @@ public class Content {
         this.footer = footer;
     }
 
-    public Content withFooter(String footer) {
+    public Information withFooter(String footer) {
         this.footer = footer;
         return this;
     }

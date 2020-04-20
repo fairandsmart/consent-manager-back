@@ -1,29 +1,33 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
+import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.manager.entity.Content;
-import com.fairandsmart.consent.manager.entity.Information;
-import com.fairandsmart.consent.manager.entity.Treatment;
-import com.fairandsmart.consent.manager.filter.InformationFilter;
-import com.fairandsmart.consent.manager.filter.TreatmentFilter;
+import com.fairandsmart.consent.manager.data.ModelData;
+import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
 
-import javax.transaction.Transactional;
+import java.util.List;
 
 public interface ConsentService {
 
-    CollectionPage<Information> listInformations(InformationFilter filter);
+    CollectionPage<ModelEntry> listModelEntries(ModelEntryFilter filter) throws AccessDeniedException;
 
-    String createInformation(Information.Type type, String name, String description, String defaultLanguage, String country, Content content) throws ConsentManagerException;
+    String createModelEntry(ModelEntry.Type type, String key, String name, String description, String locale, ModelData content) throws ConsentManagerException, EntityAlreadyExistsException;
 
-    Information getInformation(String id) throws EntityNotFoundException;
+    ModelEntry getModelEntry(String id) throws EntityNotFoundException;
 
-    Information findInformationByName(String name) throws EntityNotFoundException;
+    ModelEntry findModelEntryByKey(String key) throws EntityNotFoundException;
 
-    CollectionPage<Treatment> listTreatments(TreatmentFilter filter);
+    //List<ModelVersion> listModelEntryVersions(String key) throws EntityNotFoundException;
 
-    String createTreatment(String key, String name, String description, String defaultLanguage, String country) throws ConsentManagerException;
+    ModelVersion findActiveModelVersionForKey(String key) throws EntityNotFoundException;
 
-    Treatment getTreatment(String id) throws EntityNotFoundException;
+    //TODO updateModelEntry()
+    //TODO addModelVersion()
+    //TODO deleteModelVersion()
+
 }
