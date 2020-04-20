@@ -67,9 +67,9 @@ public class ConsentsResource {
         data.put("header", header);
         data.put("headerContent", header.getData(header.defaultLocale));
 
-        List<ModelVersion> treatments = new ArrayList<>();
+        List<ModelEntry> treatments = new ArrayList<>();
         for (String key : ctx.getTreatmentsKeys()) {
-            treatments.add(consentService.findActiveModelVersionForKey(key));
+            treatments.add(consentService.findActiveModelVersionForKey(key).entry);
         }
         data.put("treatments", treatments);
 
@@ -96,11 +96,16 @@ public class ConsentsResource {
         data.put("header", header);
         data.put("headerContent", header.getData(header.defaultLocale));
 
-        List<ModelVersion> treatments = new ArrayList<>();
+        List<ModelEntry> treatments = new ArrayList<>();
+        List<Integer> treatmentsConsents = new ArrayList<>();
+        ModelEntry treatment;
         for (String key : ctx.getTreatmentsKeys()) {
-            treatments.add(consentService.findActiveModelVersionForKey(key));
+            treatment = consentService.findActiveModelVersionForKey(key).entry;
+            treatments.add(treatment);
+            treatmentsConsents.add(values.get(treatment.name));
         }
         data.put("treatments", treatments);
+        data.put("treatmentsConsents", treatmentsConsents);
 
         ModelVersion footer = consentService.findActiveModelVersionForKey(ctx.getFooterKey());
         data.put("footerContent", footer.getData(footer.defaultLocale));
