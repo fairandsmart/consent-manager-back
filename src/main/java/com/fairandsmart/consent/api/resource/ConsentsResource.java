@@ -58,13 +58,17 @@ public class ConsentsResource {
 
         ConsentContext ctx = tokenService.readToken(token);
         HashMap<String, Object> data = new HashMap<>();
+
         data.put("header", consentService.findActiveModelVersionForKey(ctx.getHeader()));
+
         List<ModelVersion> elements = new ArrayList<>();
         for (String key : ctx.getElements()) {
             elements.add(consentService.findActiveModelVersionForKey(key));
         }
         data.put("elements", elements);
+
         data.put("footer", consentService.findActiveModelVersionForKey(ctx.getFooter()));
+
         model.setData(data);
 
         switch (ctx.getOrientation()) {
@@ -87,6 +91,24 @@ public class ConsentsResource {
 
         //TODO
         ConsentContext ctx = tokenService.readToken(token);
+
+        HashMap<String, Object> data = new HashMap<>();
+        ModelVersion header = consentService.findActiveModelVersionForKey(ctx.getHeader());
+        data.put("header", header);
+
+        List<ModelVersion> elements = new ArrayList<>();
+        for (String key : ctx.getElements()) {
+            elements.add(consentService.findActiveModelVersionForKey(key));
+        }
+        data.put("elements", elements);
+        data.put("consents", values);
+
+        ModelVersion footer = consentService.findActiveModelVersionForKey(ctx.getFooter());
+        data.put("footer", footer);
+
+        model.setData(data);
+
+        model.setTemplate("receipt.ftl");
 
         return model;
     }

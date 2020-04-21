@@ -139,8 +139,8 @@ public class SimpleCollectTest {
         //PART 3
         //Réponses de l'utilisateur sur le formulaire
         Map<String, Integer> values = new HashMap<>();
-        values.put("T1", 1);
-        values.put("T2", 0);
+        values.put("t1", 1);
+        values.put("t2", 0);
 
         Response postResponse = given().header("TOKEN", token).contentType(ContentType.JSON).
                 body(values).when().post("/consents");
@@ -149,8 +149,8 @@ public class SimpleCollectTest {
 
         LOGGER.log(Level.INFO, "Receipt page: " + postPage);
         assertTrue(postPage.contains("Receipt"));
-        assertTrue(postPage.contains("T1 : accepté"));
-        assertTrue(postPage.contains("T2 : refusé"));
+        assertTrue(postPage.contains("using Your name during All your life for Know everything about you: accepted"));
+        assertTrue(postPage.contains("using Your email during All your life for Know everything about you: refused"));
 
         //PART 4
         //TODO

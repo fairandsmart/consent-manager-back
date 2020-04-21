@@ -8,24 +8,26 @@
     <h1>This is the horizontal layout</h1>
 
     <div>
-        <p>${headerContent.title}</p>
-        <p>${headerContent.body}</p>
-        <p>${headerContent.footer}</p>
+        <#assign currentHeader=data.header.getData(data.header.defaultLocale)>
+        <p>${currentHeader.title}</p>
+        <p>${currentHeader.body}</p>
+        <p>${currentHeader.footer}</p>
     </div>
 
     <form method="post" id="consentForm">
-        <#list treatments as treatment>
+        <#list data.elements as element>
         <div>
-            <label>${treatment.name} (${treatment.description}) :</label><input type="checkbox" name="${treatment.name}">
+            <label>we use ${element.data} during ${element.retention} for ${element.usage}:</label><input type="checkbox" name="plop">
         </div>
         </#list>
         <button type="submit">Valider</button>
     </form>
 
     <div>
-        <p>${footerContent.title}</p>
-        <p>${footerContent.body}</p>
-        <p>${footerContent.footer}</p>
+        <#assign currentFooter=data.footer.getData(data.footer.defaultLocale)>
+        <p>${currentFooter.title}</p>
+        <p>${currentFooter.body}</p>
+        <p>${currentFooter.footer}</p>
     </div>
 
 </body>
