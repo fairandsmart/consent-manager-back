@@ -102,12 +102,12 @@ public class SimpleCollectTest {
         //PART 1
         //Use basic consent context for first generation
         ConsentContext ctx = new ConsentContext()
-                .withSubject("mmichu")
-                .withOrientation(ConsentContext.Orientation.VERTICAL)
-                .withHeaderKey("h1")
-                .withTreatmentsKeys(Arrays.asList("t1","t2"))
-                .withFooterKey("f1")
-                .withReferer("urldetest");
+                .setSubject("mmichu")
+                .setOrientation(ConsentContext.Orientation.VERTICAL)
+                .setHeader("h1")
+                .setElements(Arrays.asList("t1","t2"))
+                .setFooter("f1")
+                .setReferer("urldetest");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx).

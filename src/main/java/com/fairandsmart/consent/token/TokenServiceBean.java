@@ -49,9 +49,9 @@ public class TokenServiceBean  implements TokenService {
         JWTCreator.Builder builder = JWT.create().withIssuer(issuer);
         builder.withExpiresAt(calendar.getTime());
         builder.withSubject(ctx.getSubject());
-        builder.withClaim("header", ctx.getHeaderKey());
-        builder.withClaim("treatments", ctx.getTreatmentsKeys());
-        builder.withClaim("footer", ctx.getFooterKey());
+        builder.withClaim("header", ctx.getHeader());
+        builder.withClaim("elements", ctx.getElements());
+        builder.withClaim("footer", ctx.getFooter());
         builder.withClaim("orientation", ctx.getOrientation().name());
         return builder.sign(algorithm);
     }
@@ -67,9 +67,9 @@ public class TokenServiceBean  implements TokenService {
         DecodedJWT decodedJWT = getDecodedToken(token);
         ConsentContext ctx = new ConsentContext();
         ctx.setSubject(decodedJWT.getSubject());
-        ctx.setHeaderKey(decodedJWT.getClaim("header").asString());
-        ctx.setTreatmentsKeys(decodedJWT.getClaim("treatments").asList(String.class));
-        ctx.setFooterKey(decodedJWT.getClaim("footer").asString());
+        ctx.setHeader(decodedJWT.getClaim("header").asString());
+        ctx.setElements(decodedJWT.getClaim("elements").asList(String.class));
+        ctx.setFooter(decodedJWT.getClaim("footer").asString());
         ctx.setOrientation(ConsentContext.Orientation.valueOf(decodedJWT.getClaim("orientation").asString()));
         return ctx;
     }

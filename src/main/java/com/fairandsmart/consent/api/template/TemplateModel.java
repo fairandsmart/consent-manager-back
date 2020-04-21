@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 
 public class TemplateModel<T> {
 
-    private String templateName;
+    private String template;
     private Locale locale;
     private ResourceBundle bundle;
     private T data;
@@ -14,24 +14,24 @@ public class TemplateModel<T> {
     }
 
     public TemplateModel(String templateName, T data, Locale locale) {
-        this.templateName = templateName;
+        this.template = templateName;
         this.locale = locale;
         this.data = data;
     }
 
     public TemplateModel(String name, T data, Locale locale, ResourceBundle bundle) {
-        this.templateName = templateName;
+        this.template = template;
         this.locale = locale;
         this.data = data;
         this.bundle = bundle;
     }
 
-    public String getTemplateName() {
-        return templateName;
+    public String getTemplate() {
+        return template;
     }
 
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
+    public void setTemplate(String template) {
+        this.template = template;
     }
 
     public Locale getLocale() {
@@ -61,7 +61,7 @@ public class TemplateModel<T> {
     @Override
     public String toString() {
         return "TemplateModel{" +
-                "templateName='" + templateName + '\'' +
+                "template='" + template + '\'' +
                 ", locale=" + locale +
                 ", bundle=" + bundle +
                 ", data=" + data +

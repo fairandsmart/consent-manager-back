@@ -10,21 +10,27 @@ public class ConsentContext {
     private String subject;
     @NotNull
     private Orientation orientation;
-    private String headerKey;
+    private String header;
     @NotNull @NotEmpty
-    private List<String> treatmentsKeys;
-    private String footerKey;
+    private List<String> elements;
+    private String footer;
     private String referer;
+
+    //TODO
+    // Add field for requisite (CHECK, INFORM, RECONSENT, ...) According to existing consent, form will be displayed or not
+    // Add field for receipt (DISPLAY, COOKIE, STORAGE, ...) Allows to specify how the receipt will be stored and propose to client for display or storage
+    // Add field for receipt status : Allows to generate a receipt status boolean if consent conditions are meet after submission (avoid rechecking base)
+
+
+    public ConsentContext() {
+
+    }
 
     public String getSubject() {
         return subject;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public ConsentContext withSubject(String subject) {
+    public ConsentContext setSubject(String subject) {
         this.subject = subject;
         return this;
     }
@@ -33,51 +39,40 @@ public class ConsentContext {
         return orientation;
     }
 
-    public void setOrientation(Orientation orientation) {
-        this.orientation = orientation;
-    }
-
-    public ConsentContext withOrientation(Orientation orientation) {
+    public ConsentContext setOrientation(Orientation orientation) {
         this.orientation = orientation;
         return this;
     }
 
-    public String getHeaderKey() {
-        return headerKey;
+    public String getHeader() {
+        return header;
     }
 
-    public void setHeaderKey(String headerKey) {
-        this.headerKey = headerKey;
-    }
-
-    public ConsentContext withHeaderKey(String headerKey) {
-        this.headerKey = headerKey;
+    public ConsentContext setHeader(String header) {
+        this.header = header;
         return this;
     }
 
-    public List<String> getTreatmentsKeys() {
-        return treatmentsKeys;
+    public List<String> getElements() {
+        return elements;
     }
 
-    public void setTreatmentsKeys(List<String> treatmentsKeys) {
-        this.treatmentsKeys = treatmentsKeys;
-    }
-
-    public ConsentContext withTreatmentsKeys(List<String> treatmentsKeys) {
-        this.treatmentsKeys = treatmentsKeys;
+    public ConsentContext setElements(List<String> elements) {
+        this.elements = elements;
         return this;
     }
 
-    public String getFooterKey() {
-        return footerKey;
+    public ConsentContext addElement(String element) {
+        this.elements.add(element);
+        return this;
     }
 
-    public void setFooterKey(String footerKey) {
-        this.footerKey = footerKey;
+    public String getFooter() {
+        return footer;
     }
 
-    public ConsentContext withFooterKey(String footerKey) {
-        this.footerKey = footerKey;
+    public ConsentContext setFooter(String footer) {
+        this.footer = footer;
         return this;
     }
 
@@ -85,11 +80,7 @@ public class ConsentContext {
         return referer;
     }
 
-    public void setReferer(String referer) {
-        this.referer = referer;
-    }
-
-    public ConsentContext withReferer(String referer) {
+    public ConsentContext setReferer(String referer) {
         this.referer = referer;
         return this;
     }

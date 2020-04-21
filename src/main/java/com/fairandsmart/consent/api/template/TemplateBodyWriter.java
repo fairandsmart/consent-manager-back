@@ -58,7 +58,7 @@ public class TemplateBodyWriter implements MessageBodyWriter<TemplateModel> {
     public void writeTo(TemplateModel model, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
         try {
             LOGGER.log(Level.FINE, "Applying template to model: " + model);
-            Template template = cfg.getTemplate(model.getTemplateName());
+            Template template = cfg.getTemplate(model.getTemplate());
             Writer writer = new OutputStreamWriter(entityStream);
             template.process(model, writer);
         } catch ( TemplateException e ) {

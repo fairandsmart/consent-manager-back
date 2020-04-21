@@ -10,7 +10,6 @@ import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
-import com.fairandsmart.consent.manager.data.ModelData;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
@@ -51,27 +50,28 @@ public class ConsentsResource {
         TemplateModel model = new TemplateModel();
         model.setLocale(Locale.getDefault());
 
+        //TODO :
+        // 1. Load existing consents for elements of this context (applying models invalidation strategy to generate all possibles consent key)
+        // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form
+        // 3. If form have to be displayed, load all models to populate
+        // 4. Generate a new submission token and populate also the
+
         ConsentContext ctx = tokenService.readToken(token);
         HashMap<String, Object> data = new HashMap<>();
-        ModelVersion header = consentService.findActiveModelVersionForKey(ctx.getHeaderKey());
-        data.put("header", header);
-        data.put("headerContent", header.getData(header.defaultLocale));
-        List<ModelData> treatments = new ArrayList<>();
-        for (String key : ctx.getTreatmentsKeys()) {
-            ModelVersion treatment = consentService.findActiveModelVersionForKey(key);
-            treatments.add(treatment.getData(treatment.defaultLocale));
+        data.put("header", consentService.findActiveModelVersionForKey(ctx.getHeader()));
+        List<ModelVersion> elements = new ArrayList<>();
+        for (String key : ctx.getElements()) {
+            elements.add(consentService.findActiveModelVersionForKey(key));
         }
-        data.put("treatments", treatments);
-        ModelVersion footer = consentService.findActiveModelVersionForKey(ctx.getFooterKey());
-        data.put("footerContent", footer.getData(footer.defaultLocale));
-
+        data.put("elements", elements);
+        data.put("footer", consentService.findActiveModelVersionForKey(ctx.getFooter()));
         model.setData(data);
 
         switch (ctx.getOrientation()) {
             case HORIZONTAL:
-                model.setTemplateName("horizontal.ftl");
+                model.setTemplate("horizontal.ftl");
             default:
-                model.setTemplateName("vertical.ftl");
+                model.setTemplate("vertical.ftl");
         }
 
         return model;
@@ -85,20 +85,9 @@ public class ConsentsResource {
         TemplateModel model = new TemplateModel();
         model.setLocale(Locale.getDefault());
 
+        //TODO
         ConsentContext ctx = tokenService.readToken(token);
-        HashMap<String, Object> data = new HashMap<>();
-        ModelVersion header = consentService.findActiveModelVersionForKey(ctx.getHeaderKey());
-        data.put("header", header);
-        data.put("headerContent", header.getData(header.defaultLocale));
-        List<ModelVersion> treatments = new ArrayList<>();
-        for (String key : ctx.getTreatmentsKeys()) {
-            treatments.add(consentService.findActiveModelVersionForKey(key));
-        }
-        data.put("treatments", treatments);
-        ModelVersion footer = consentService.findActiveModelVersionForKey(ctx.getFooterKey());
-        data.put("footerContent", footer.getData(footer.defaultLocale));
 
-        model.setData(data);
         return model;
     }
 
