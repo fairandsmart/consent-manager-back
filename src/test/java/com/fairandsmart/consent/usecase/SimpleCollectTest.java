@@ -68,7 +68,7 @@ public class SimpleCollectTest {
         t1.setKey("t1");
         t1.setName("T1");
         t1.setDescription("Le traitement t1");
-        t1.setContent(new Treatment().withData("Your name").withRetention("All your life").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
+        t1.setContent(new Treatment().withData("Your name").withRetention("All your life").withUsage("Know everything about you").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
         given().contentType(ContentType.JSON).body(t1).
                 when().post("/consents/models").
@@ -80,7 +80,7 @@ public class SimpleCollectTest {
         t2.setKey("t2");
         t2.setName("T2");
         t2.setDescription("Le traitement t2");
-        t2.setContent(new Treatment().withData("Your email").withRetention("All your life").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
+        t2.setContent(new Treatment().withData("Your email").withRetention("All your life").withUsage("Know everything about you").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
         given().contentType(ContentType.JSON).body(t2).
                 when().post("/consents/models").
@@ -129,8 +129,8 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Body h1"));
         assertTrue(page.contains("Foot h1"));
         //Traitements
-        assertTrue(page.contains("Le traitement t1"));
-        assertTrue(page.contains("Le traitement t2"));
+        assertTrue(page.contains("Your name"));
+        assertTrue(page.contains("Your email"));
         //Footer
         assertTrue(page.contains("Title f1"));
         assertTrue(page.contains("Body f1"));

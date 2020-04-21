@@ -2,7 +2,6 @@ package com.fairandsmart.consent.manager.entity;
 
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.data.ModelData;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
 

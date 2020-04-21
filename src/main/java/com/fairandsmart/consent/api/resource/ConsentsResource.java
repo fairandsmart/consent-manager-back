@@ -2,6 +2,7 @@ package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.CreateModelEntryDto;
+import com.fairandsmart.consent.api.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -9,6 +10,7 @@ import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
+import com.fairandsmart.consent.manager.data.ModelData;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
@@ -17,8 +19,6 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
-import io.quarkus.qute.Template;
-import io.quarkus.qute.TemplateInstance;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,10 +26,7 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,65 +44,62 @@ public class ConsentsResource {
     @Inject
     TokenService tokenService;
 
-    @Inject
-    Template horizontal;
-
-    @Inject
-    Template vertical;
-
-    @Inject
-    Template receipt;
-
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getForm(@HeaderParam("TOKEN") String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException, EntityNotFoundException, ModelDataSerializationException {
+    public TemplateModel getForm(@HeaderParam("TOKEN") String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "Getting consent form");
+        TemplateModel model = new TemplateModel();
+        model.setLocale(Locale.getDefault());
+
         ConsentContext ctx = tokenService.readToken(token);
         HashMap<String, Object> data = new HashMap<>();
-
         ModelVersion header = consentService.findActiveModelVersionForKey(ctx.getHeaderKey());
         data.put("header", header);
         data.put("headerContent", header.getData(header.defaultLocale));
-
-        List<ModelVersion> treatments = new ArrayList<>();
+        List<ModelData> treatments = new ArrayList<>();
         for (String key : ctx.getTreatmentsKeys()) {
-            treatments.add(consentService.findActiveModelVersionForKey(key));
+            ModelVersion treatment = consentService.findActiveModelVersionForKey(key);
+            treatments.add(treatment.getData(treatment.defaultLocale));
         }
         data.put("treatments", treatments);
-
         ModelVersion footer = consentService.findActiveModelVersionForKey(ctx.getFooterKey());
         data.put("footerContent", footer.getData(footer.defaultLocale));
 
+        model.setData(data);
+
         switch (ctx.getOrientation()) {
             case HORIZONTAL:
-                return horizontal.data(data);
+                model.setTemplateName("horizontal.ftl");
             default:
-                return vertical.data(data);
+                model.setTemplateName("vertical.ftl");
         }
+
+        return model;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance postConsent(@HeaderParam("TOKEN") String token, Map<String, Integer> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, EntityNotFoundException, ModelDataSerializationException {
+    public TemplateModel postConsent(@HeaderParam("TOKEN") String token, Map<String, Integer> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "Posting consent");
+        TemplateModel model = new TemplateModel();
+        model.setLocale(Locale.getDefault());
+
         ConsentContext ctx = tokenService.readToken(token);
         HashMap<String, Object> data = new HashMap<>();
-
         ModelVersion header = consentService.findActiveModelVersionForKey(ctx.getHeaderKey());
         data.put("header", header);
         data.put("headerContent", header.getData(header.defaultLocale));
-
         List<ModelVersion> treatments = new ArrayList<>();
         for (String key : ctx.getTreatmentsKeys()) {
             treatments.add(consentService.findActiveModelVersionForKey(key));
         }
         data.put("treatments", treatments);
-
         ModelVersion footer = consentService.findActiveModelVersionForKey(ctx.getFooterKey());
         data.put("footerContent", footer.getData(footer.defaultLocale));
 
-        return receipt.data(data);
+        model.setData(data);
+        return model;
     }
 
     @POST
