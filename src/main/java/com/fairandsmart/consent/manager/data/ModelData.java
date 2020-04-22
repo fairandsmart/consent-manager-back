@@ -10,7 +10,7 @@ import java.io.IOException;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
         property = "type")
 @JsonSubTypes({
         @Type(value = Information.class, name = Information.TYPE),

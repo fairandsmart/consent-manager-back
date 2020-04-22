@@ -84,6 +84,7 @@ public class ConsentServiceBean implements ConsentService {
             version.serial = generator.next(version.getClass().getName());
             version.defaultLocale = locale;
             version.availableLocales = locale;
+            version.contentType = data.getType();
             version.content.put(locale, new ModelContent().withModelData(data));
             version.persist();
 

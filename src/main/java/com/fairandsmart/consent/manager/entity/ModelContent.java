@@ -14,7 +14,7 @@ public class ModelContent {
 
     @Lob
     public String data;
-    public Class<? extends ModelData> dataType;
+    public Class<? extends ModelData> type;
 
     public ModelContent() {
     }
@@ -35,7 +35,7 @@ public class ModelContent {
     public ModelData getModelData() throws ModelDataSerializationException {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ModelData body = mapper.readValue(data, dataType);
+            ModelData body = mapper.readValue(data, type);
             return body;
         } catch ( JsonProcessingException e ) {
             throw new ModelDataSerializationException("Unable to deserialize model data", e);
@@ -44,7 +44,7 @@ public class ModelContent {
 
     public void setModelData(ModelData data) throws ModelDataSerializationException {
         try {
-            this.dataType = data.getClass();
+            this.type = data.getClass();
             this.data = data.toJson();
         } catch ( IOException e ) {
             throw new ModelDataSerializationException("Unable to serialize model data", e);
@@ -60,7 +60,7 @@ public class ModelContent {
     public String toString() {
         return "ModelContent{" +
                 "data='" + data + '\'' +
-                ", dataType=" + dataType +
+                ", dataType=" + type +
                 '}';
     }
 }

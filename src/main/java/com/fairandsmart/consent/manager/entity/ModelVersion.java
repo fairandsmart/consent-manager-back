@@ -30,6 +30,7 @@ public class ModelVersion extends PanacheEntityBase {
     public Invalidation invalidation;
     public long creationDate;
     public long modificationDate;
+    public String contentType;
     @ElementCollection(fetch = FetchType.EAGER)
     public Map<String, ModelContent> content = new HashMap<>();
 
@@ -96,6 +97,7 @@ public class ModelVersion extends PanacheEntityBase {
                 ", invalidation=" + invalidation +
                 ", creationDate=" + creationDate +
                 ", modificationDate=" + modificationDate +
+                ", contentType='" + contentType + '\'' +
                 ", content=" + content +
                 '}';
     }

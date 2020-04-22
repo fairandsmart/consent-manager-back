@@ -8,6 +8,7 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
@@ -45,9 +46,9 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel getForm(@HeaderParam("TOKEN") String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException, EntityNotFoundException, ModelDataSerializationException {
+    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "Getting consent form");
-        TemplateModel model = new TemplateModel();
+        TemplateModel<ConsentForm> model = new TemplateModel();
         model.setLocale(Locale.getDefault());
 
         //TODO :
@@ -57,16 +58,14 @@ public class ConsentsResource {
         // 4. Generate a new submission token and populate also the
 
         ConsentContext ctx = tokenService.readToken(token);
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("header", consentService.findActiveModelVersionForKey(ctx.getHeader()));
-        LOGGER.log(Level.INFO, ((ModelVersion)data.get("header")).toString());
-        List<ModelVersion> elements = new ArrayList<>();
+        ConsentForm form = new ConsentForm();
+        form.setHeader(consentService.findActiveModelVersionForKey(ctx.getHeader()));
         for (String key : ctx.getElements()) {
-            elements.add(consentService.findActiveModelVersionForKey(key));
+            form.addElement(consentService.findActiveModelVersionForKey(key));
         }
-        data.put("elements", elements);
-        data.put("footer", consentService.findActiveModelVersionForKey(ctx.getFooter()));
-        model.setData(data);
+        form.setFooter(consentService.findActiveModelVersionForKey(ctx.getFooter()));
+        model.setData(form);
+        LOGGER.log(Level.INFO, form.toString());
 
         switch (ctx.getOrientation()) {
             case HORIZONTAL:
@@ -86,7 +85,6 @@ public class ConsentsResource {
         TemplateModel model = new TemplateModel();
         model.setLocale(Locale.getDefault());
 
-        //TODO
         ConsentContext ctx = tokenService.readToken(token);
 
         HashMap<String, Object> data = new HashMap<>();
