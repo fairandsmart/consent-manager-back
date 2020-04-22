@@ -55,4 +55,12 @@ public class ModelContent {
         this.setModelData(data);
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "ModelContent{" +
+                "data='" + data + '\'' +
+                ", dataType=" + dataType +
+                '}';
+    }
 }

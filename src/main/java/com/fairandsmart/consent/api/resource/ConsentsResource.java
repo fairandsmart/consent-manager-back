@@ -59,6 +59,7 @@ public class ConsentsResource {
         ConsentContext ctx = tokenService.readToken(token);
         HashMap<String, Object> data = new HashMap<>();
         data.put("header", consentService.findActiveModelVersionForKey(ctx.getHeader()));
+        LOGGER.log(Level.INFO, ((ModelVersion)data.get("header")).toString());
         List<ModelVersion> elements = new ArrayList<>();
         for (String key : ctx.getElements()) {
             elements.add(consentService.findActiveModelVersionForKey(key));

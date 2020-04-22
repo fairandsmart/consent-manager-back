@@ -3,6 +3,7 @@ package com.fairandsmart.consent.manager;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 public class ConsentContext {
 
@@ -15,11 +16,26 @@ public class ConsentContext {
     private List<String> elements;
     private String footer;
     private String referer;
+    private String locale;
 
     //TODO
     // Add field for requisite (CHECK, INFORM, RECONSENT, ...) According to existing consent, form will be displayed or not
     // Add field for receipt (DISPLAY, COOKIE, STORAGE, ...) Allows to specify how the receipt will be stored and propose to client for display or storage
     // Add field for receipt status : Allows to generate a receipt status boolean if consent conditions are meet after submission (avoid rechecking base)
+/*
+    private String token;
+    private String requisite;
+    private String receipt;
+    private boolean status;
+
+    private String optoutEmail;
+    private boolean preview;
+    private boolean iframe;
+    private boolean attachments = false;
+    private Map<String, String> userinfos;
+    private Map<String, String> attributes;
+    */
+
 
 
     public ConsentContext() {

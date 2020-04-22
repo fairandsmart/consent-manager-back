@@ -8,24 +8,25 @@
 <h1>This is the vertical layout</h1>
 
 <div>
-    <p>${data.headerContent.title}</p>
-    <p>${data.headerContent.body}</p>
-    <p>${data.headerContent.footer}</p>
+    <p>Header model serial:  ${data['header'].serial}</p>
+    <p>Header model default language: ${data['header'].defaultLocale}</p>
+    <p>Header model data type: ${data['header'].content['fr_FR'].data}</p>
+
 </div>
 
 <form method="post" id="consentForm">
-    <#list data.treatments as treatment>
+    <#list data['elements'] as element>
     <div>
-        <label>we use ${treatment.data} during ${treatment.retention} for ${treatment.usage}:</label><input type="checkbox" name="plop">
+        <p>Element model serial:  ${element.serial}</p>
+        <p>Element model default language: ${element.defaultLocale}</p>
     </div>
     </#list>
     <button type="submit">Valider</button>
 </form>
 
 <div>
-    <p>${data.footerContent.title}</p>
-    <p>${data.footerContent.body}</p>
-    <p>${data.footerContent.footer}</p>
+    <p>Footer model serial:  ${data['footer'].serial}</p>
+    <p>Footer model default language: ${data['footer'].defaultLocale}</p>
 </div>
 
 </body>

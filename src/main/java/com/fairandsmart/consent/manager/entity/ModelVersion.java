@@ -79,4 +79,24 @@ public class ModelVersion extends PanacheEntityBase {
         }
     }
 
+    @Override
+    public String toString() {
+        return "ModelVersion{" +
+                "id=" + id +
+                ", version=" + version +
+                ", entry=" + entry +
+                ", serial='" + serial + '\'' +
+                ", parent='" + parent + '\'' +
+                ", branches='" + branches + '\'' +
+                ", author='" + author + '\'' +
+                ", owner='" + owner + '\'' +
+                ", defaultLocale='" + defaultLocale + '\'' +
+                ", availableLocales='" + availableLocales + '\'' +
+                ", status=" + status +
+                ", invalidation=" + invalidation +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
+                ", content=" + content +
+                '}';
+    }
 }
