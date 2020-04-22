@@ -16,6 +16,8 @@
     <p>${currentHeader.title}</p>
     <p>${currentHeader.body}</p>
     <p>${currentHeader.footer}</p>
+
+    <p>Specific type template: <#include data.header.contentType + ".ftl"></p>
 </div>
 
 <form method="post" id="consentForm">
