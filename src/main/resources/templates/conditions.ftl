@@ -1,1 +1,1 @@
-This is a condition
+TODO template for condition

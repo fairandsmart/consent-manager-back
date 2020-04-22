@@ -5,42 +5,28 @@
 </head>
 
 <body>
+
     <h1>This is the vertical layout</h1>
 
-<div>
-    <p>Header model serial:  ${data.header.serial}</p>
-    <p>Header model default language: ${data.header.defaultLocale}</p>
-    <p>Header model content type: ${data.header.contentType}</p>
+    <form method="post" id="consent" action="">
+        <input name="token" value="${data.token}" hidden/>
 
-    <#assign currentHeader=data.header.getData(data.header.defaultLocale)>
-    <p>${currentHeader.title}</p>
-    <p>${currentHeader.body}</p>
-    <p>${currentHeader.footer}</p>
+        <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
+        <#assign content=data.header.getData(data.header.defaultLocale)>
+        <#include data.header.contentType + ".ftl">
 
-    <p>Specific type template: <#include data.header.contentType + ".ftl"></p>
-</div>
+        <#list data.elements as element>
+            <#assign content=element.getData(element.defaultLocale)>
+            <#include element.contentType + ".ftl">
+        </#list>
 
-<form method="post" id="consentForm">
-    <#list data.elements as element>
-    <div>
-        <p>Element model serial:  ${element.serial}</p>
-        <p>Element model default language: ${element.defaultLocale}</p>
-        <p>Element model content type: ${element.contentType}</p>
-    </div>
-    </#list>
-    <button type="submit">Valider</button>
-</form>
+        <#if data.footer??>
+            <input name="footer" value="${data.footer.entry.key}-${data.footer.serial}" hidden/>
+            <#assign content=data.footer.getData(data.footer.defaultLocale)>
+            <#include data.footer.contentType + ".ftl">
+        </#if>
 
-<div>
-    <p>Footer model serial:  ${data.footer.serial}</p>
-    <p>Footer model default language: ${data.footer.defaultLocale}</p>
-    <p>Footer model content type: ${data.footer.contentType}</p>
-
-    <#assign currentFooter=data.footer.getData(data.footer.defaultLocale)>
-    <p>${currentFooter.title}</p>
-    <p>${currentFooter.body}</p>
-    <p>${currentFooter.footer}</p>
-</div>
-
+        <button type="submit">Valider</button>
+    </form>
 </body>
 </html>

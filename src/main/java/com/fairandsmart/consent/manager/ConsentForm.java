@@ -7,12 +7,21 @@ import java.util.List;
 
 public class ConsentForm {
 
+    private String token;
     private ModelVersion header;
     private List<ModelVersion> elements;
     private ModelVersion footer;
 
     public ConsentForm() {
         elements = new ArrayList<>();
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public ModelVersion getHeader() {

@@ -55,10 +55,11 @@ public class ConsentsResource {
         // 1. Load existing consents for elements of this context (applying models invalidation strategy to generate all possibles consent key)
         // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form
         // 3. If form have to be displayed, load all models to populate
-        // 4. Generate a new submission token and populate also the
+        // 4. Generate a new submission token and populate the form
 
         ConsentContext ctx = tokenService.readToken(token);
         ConsentForm form = new ConsentForm();
+        form.setToken("fake");
         form.setHeader(consentService.findActiveModelVersionForKey(ctx.getHeader()));
         for (String key : ctx.getElements()) {
             form.addElement(consentService.findActiveModelVersionForKey(key));
