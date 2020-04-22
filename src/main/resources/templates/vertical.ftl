@@ -5,13 +5,17 @@
 </head>
 
 <body>
-<h1>This is the vertical layout</h1>
+    <h1>This is the vertical layout</h1>
 
 <div>
     <p>Header model serial:  ${data['header'].serial}</p>
     <p>Header model default language: ${data['header'].defaultLocale}</p>
     <p>Header model data type: ${data['header'].content['fr_FR'].data}</p>
 
+    <#assign currentHeader=data.header.getData(data.header.defaultLocale)>
+    <p>${currentHeader.title}</p>
+    <p>${currentHeader.body}</p>
+    <p>${currentHeader.footer}</p>
 </div>
 
 <form method="post" id="consentForm">
@@ -27,6 +31,11 @@
 <div>
     <p>Footer model serial:  ${data['footer'].serial}</p>
     <p>Footer model default language: ${data['footer'].defaultLocale}</p>
+
+    <#assign currentFooter=data.footer.getData(data.footer.defaultLocale)>
+    <p>${currentFooter.title}</p>
+    <p>${currentFooter.body}</p>
+    <p>${currentFooter.footer}</p>
 </div>
 
 </body>

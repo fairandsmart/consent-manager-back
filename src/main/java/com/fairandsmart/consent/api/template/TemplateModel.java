@@ -19,8 +19,8 @@ public class TemplateModel<T> {
         this.data = data;
     }
 
-    public TemplateModel(String name, T data, Locale locale, ResourceBundle bundle) {
-        this.template = template;
+    public TemplateModel(String templateName, T data, Locale locale, ResourceBundle bundle) {
+        this.template = templateName;
         this.locale = locale;
         this.data = data;
         this.bundle = bundle;
