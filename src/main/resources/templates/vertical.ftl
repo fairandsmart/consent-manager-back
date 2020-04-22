@@ -11,9 +11,11 @@
     <form method="post" id="consent" action="">
         <input name="token" value="${data.token}" hidden/>
 
-        <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
-        <#assign content=data.header.getData(data.header.defaultLocale)>
-        <#include data.header.contentType + ".ftl">
+        <#if data.header??>
+            <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
+            <#assign content=data.header.getData(data.header.defaultLocale)>
+            <#include data.header.contentType + ".ftl">
+        </#if>
 
         <#list data.elements as element>
             <#assign content=element.getData(element.defaultLocale)>
