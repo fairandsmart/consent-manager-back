@@ -17,11 +17,13 @@
             <h1>Vertical</h1>
 
             <div class="close-wrapper">
-                <div>
-                    <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
-                    <#assign content=data.header.getData(data.header.defaultLocale)>
-                    <#include data.header.contentType + ".ftl">
-                </div>
+                <#if data.header??>
+                    <div>
+                        <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
+                        <#assign content=data.header.getData(data.header.defaultLocale)>
+                        <#include data.header.contentType + ".ftl">
+                    </div>
+                </#if>
 
                 <button class="close-btn">×</button>
             </div>
