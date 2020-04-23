@@ -107,7 +107,7 @@ public class SimpleCollectTest {
                 .setHeader("h1")
                 .setElements(Arrays.asList("t1","t2"))
                 .setFooter("f1")
-                .setReferer("urldetest");
+                .setCallback("urldetest");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx).
@@ -123,7 +123,7 @@ public class SimpleCollectTest {
 
         LOGGER.log(Level.INFO, "Consent form page: " + page);
         //Orientation
-        assertTrue(page.contains("vertical"));
+        assertTrue(page.contains("Vertical"));
         //Header
         assertTrue(page.contains("Title h1"));
         assertTrue(page.contains("Body h1"));

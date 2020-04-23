@@ -2,33 +2,49 @@
 <html>
 <head>
     <title>Horizontal</title>
+
+    <style type="text/css">
+    <#include "css/consent.css">
+    <#include "css/horizontal.css">
+    </style>
 </head>
 
 <body>
-    <h1>This is the horizontal layout</h1>
+    <form method="post" id="consent" action="">
+        <div class="left">
+            <input name="token" value="${data.token}" hidden/>
 
-    <div>
-        <#assign currentHeader=data.header.getData(data.header.defaultLocale)>
-        <p>${currentHeader.title}</p>
-        <p>${currentHeader.body}</p>
-        <p>${currentHeader.footer}</p>
-    </div>
+            <div class="header">
+                <h1>Horizontal</h1>
 
-    <form method="post" id="consentForm">
-        <#list data.elements as element>
-        <div>
-            <label>we use ${element.data} during ${element.retention} for ${element.usage}:</label><input type="checkbox" name="plop">
+                <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
+                <#assign content=data.header.getData(data.header.defaultLocale)>
+                <#include data.header.contentType + ".ftl">
+            </div>
         </div>
-        </#list>
-        <button type="submit">Valider</button>
+
+        <div class="right">
+            <div class="close-wrapper">
+                <button class="close-btn">×</button>
+            </div>
+
+            <#list data.elements as element>
+                <#assign content=element.getData(element.defaultLocale)>
+                <#include element.contentType + ".ftl">
+            </#list>
+
+            <div class="footer">
+                <#if data.footer??>
+                    <input name="footer" value="${data.footer.entry.key}-${data.footer.serial}" hidden/>
+                    <#assign content=data.footer.getData(data.footer.defaultLocale)>
+                    <#include data.footer.contentType + ".ftl">
+                </#if>
+
+                <div class="submit-container">
+                    <button type="submit" class="submit">Valider</button>
+                </div>
+            </div>
+        </div>
     </form>
-
-    <div>
-        <#assign currentFooter=data.footer.getData(data.footer.defaultLocale)>
-        <p>${currentFooter.title}</p>
-        <p>${currentFooter.body}</p>
-        <p>${currentFooter.footer}</p>
-    </div>
-
 </body>
 </html>

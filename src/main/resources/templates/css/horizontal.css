@@ -1,0 +1,23 @@
+form {
+    display: flex;
+    flex-direction: row;
+}
+
+.left {
+    background-color: grey;
+    overflow-y: auto;
+    width: 50%;
+}
+
+.right {
+    background-color: lightgrey;
+    overflow-y: auto;
+}
+
+.close-wrapper {
+    text-align: right;
+}
+
+.footer {
+    background-color: darkgrey;
+}
