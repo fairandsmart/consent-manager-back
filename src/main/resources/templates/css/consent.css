@@ -1,6 +1,11 @@
-#consent {
-    margin: auto;
+/* Body */
+
+body {
+    margin: 0;
 }
+
+
+/* Header */
 
 .header {
     padding: 12px;
@@ -10,13 +15,25 @@
     cursor: pointer;
     border: none;
     background: none;
+    font-size: larger;
+    font-weight: bold;
+}
+
+
+/* Content */
+
+.treatments {
+    overflow-y: auto;
 }
 
 .treatment {
     display: flex;
     justify-content: space-between;
-    padding: 12px;
+    padding: 0 12px;
 }
+
+
+/* Footer */
 
 .footer {
     padding: 12px;
@@ -33,127 +50,91 @@
     height: 40px;
     font-size: larger;
     cursor: pointer;
-    /* Same style and color as "Yes" switch */
     border: none;
-    border-radius: 3px;
-    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 2px rgba(0, 0, 0, 0.2);
-    box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 2px rgba(0, 0, 0, 0.2);
-    -webkit-transition: left 0.15s ease-out;
-    -moz-transition: left 0.15s ease-out;
-    -ms-transition: left 0.15s ease-out;
-    -o-transition: left 0.15s ease-out;
-    transition: left 0.15s ease-out;
-    background-color: #65bd63;
-    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #9dd993), color-stop(100%, #65bd63));
-    background-image: -webkit-linear-gradient(top, #9dd993, #65bd63);
-    background-image: -moz-linear-gradient(top, #9dd993, #65bd63);
-    background-image: -ms-linear-gradient(top, #9dd993, #65bd63);
-    background-image: -o-linear-gradient(top, #9dd993, #65bd63);
-    background-image: linear-gradient(top, #9dd993, #65bd63);
+    border-radius: 20px;
+    background-color: #2196F3;
+    color: white;
+    box-shadow: gray 2px 2px 6px;
 }
 
 
 /* Switches */
 
-.switch-container {
-    margin: 0;
-    margin-left: 12px;
-    background-color: false;
-    background-image: -webkit-gradient(radial, center center, 0, center center, 460, color-stop(0%, rgba(255, 255, 255, 0.1)), color-stop(100%, transparent));
-    background-image: -webkit-radial-gradient(center, cover, rgba(255, 255, 255, 0.1), transparent);
-    background-image: -moz-radial-gradient(center, cover, rgba(255, 255, 255, 0.1), transparent);
-    background-image: -ms-radial-gradient(center, cover, rgba(255, 255, 255, 0.1), transparent);
-    background-image: -o-radial-gradient(center, cover, rgba(255, 255, 255, 0.1), transparent);
-    background-image: radial-gradient(center, cover, rgba(255, 255, 255, 0.1), transparent);
-}
-
 .switch {
-    position: relative;
-    height: 26px;
-    width: 120px;
-    background: rgba(0, 0, 0, 0.25);
-    border-radius: 3px;
-    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  display: inline-block;
+  width: 85px;
+  height: 34px;
+  margin: 12px 0px 26px 12px;
 }
 
-.switch-label {
-    position: relative;
-    z-index: 2;
-    float: left;
-    width: 58px;
-    line-height: 26px;
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #888888;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 28px;
+  width: 28px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(30px);
+  -ms-transform: translateX(30px);
+  transform: translateX(30px);
+}
+
+.switch .text {
+	margin-top: 14px;
     text-align: center;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
-    cursor: pointer;
+    font-size: small;
+    width: 64px;
 }
 
-.switch-label:active {
-    font-weight: bold;
+.switch .text.accept {
+	display: none;
+    color: #2196F3;
 }
 
-.switch-label-off {
-    padding-left: 2px;
+.switch .text.refuse {
+	display: block;
+    color: #888888;
 }
 
-.switch-label-on {
-    padding-right: 2px;
+.switch input:checked ~ .text.refuse {
+	display: none;
 }
 
-.switch-input {
-    display: none;
-}
-
-.switch-input:checked + .switch-label {
-    font-weight: bold;
-    color: rgba(0, 0, 0, 0.65);
-    text-shadow: 0 1px rgba(255, 255, 255, 0.25);
-    -webkit-transition: 0.15s ease-out;
-    -moz-transition: 0.15s ease-out;
-    -ms-transition: 0.15s ease-out;
-    -o-transition: 0.15s ease-out;
-    transition: 0.15s ease-out;
-    -webkit-transition-property: color, text-shadow;
-    -moz-transition-property: color, text-shadow;
-    -ms-transition-property: color, text-shadow;
-    -o-transition-property: color, text-shadow;
-    transition-property: color, text-shadow;
-}
-
-.switch-input:checked + .switch-label-on ~ .switch-selection {
-    left: 60px;
-    background-color: #65bd63;
-    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #9dd993), color-stop(100%, #65bd63));
-    background-image: -webkit-linear-gradient(top, #9dd993, #65bd63);
-    background-image: -moz-linear-gradient(top, #9dd993, #65bd63);
-    background-image: -ms-linear-gradient(top, #9dd993, #65bd63);
-    background-image: -o-linear-gradient(top, #9dd993, #65bd63);
-    background-image: linear-gradient(top, #9dd993, #65bd63);
-}
-
-.switch-selection {
-    position: absolute;
-    z-index: 1;
-    top: 2px;
-    left: 2px;
-    display: block;
-    width: 58px;
-    height: 22px;
-    border-radius: 3px;
-    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 2px rgba(0, 0, 0, 0.2);
-    box-shadow: inset 0 1px rgba(255, 255, 255, 0.5), 0 0 2px rgba(0, 0, 0, 0.2);
-    -webkit-transition: left 0.15s ease-out;
-    -moz-transition: left 0.15s ease-out;
-    -ms-transition: left 0.15s ease-out;
-    -o-transition: left 0.15s ease-out;
-    transition: left 0.15s ease-out;
-    background-color: #65bd63;
-    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d99d93), color-stop(100%, #bd6563));
-    background-image: -webkit-linear-gradient(top, #d99d93, #bd6563);
-    background-image: -moz-linear-gradient(top, #d99d93, #bd6563);
-    background-image: -ms-linear-gradient(top, #d99d93, #bd6563);
-    background-image: -o-linear-gradient(top, #d99d93, #bd6563);
-    background-image: linear-gradient(top, #d99d93, #bd6563);
+.switch input:checked ~ .text.accept {
+	display: block;
 }

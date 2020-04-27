@@ -28,10 +28,12 @@
                 <button class="close-btn">×</button>
             </div>
 
-            <#list data.elements as element>
-                <#assign content=element.getData(element.defaultLocale)>
-                <#include element.contentType + ".ftl">
-            </#list>
+            <div class="treatments">
+                <#list data.elements as element>
+                    <#assign content=element.getData(element.defaultLocale)>
+                    <#include element.contentType + ".ftl">
+                </#list>
+            </div>
 
             <div class="footer">
                 <#if data.footer??>

@@ -14,25 +14,27 @@
         <input name="token" value="${data.token}" hidden/>
 
         <div class="header">
-            <h1>Vertical</h1>
-
             <div class="close-wrapper">
-                <#if data.header??>
-                    <div>
-                        <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
-                        <#assign content=data.header.getData(data.header.defaultLocale)>
-                        <#include data.header.contentType + ".ftl">
-                    </div>
-                </#if>
+                <h1>Vertical</h1>
 
                 <button class="close-btn">×</button>
             </div>
+
+            <#if data.header??>
+                <div>
+                    <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
+                    <#assign content=data.header.getData(data.header.defaultLocale)>
+                    <#include data.header.contentType + ".ftl">
+                </div>
+            </#if>
         </div>
 
-        <#list data.elements as element>
-            <#assign content=element.getData(element.defaultLocale)>
-            <#include element.contentType + ".ftl">
-        </#list>
+        <div class="treatments">
+            <#list data.elements as element>
+                <#assign content=element.getData(element.defaultLocale)>
+                <#include element.contentType + ".ftl">
+            </#list>
+        </div>
 
         <div class="footer">
             <#if data.footer??>

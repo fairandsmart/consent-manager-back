@@ -1,16 +1,18 @@
-body {
+/* Body */
+
+form {
+    background-color: lightgrey;
     display: flex;
     flex-direction: column;
-    align-content: center;
+    height: 100vh;
 }
 
-#consent {
-    overflow-y: auto;
-    background-color: lightgrey;
-}
+
+/* Header */
 
 .header {
     background-color: grey;
+    text-align: center;
 }
 
 .close-wrapper {
@@ -18,6 +20,9 @@ body {
     justify-content: space-between;
     align-items: flex-start;
 }
+
+
+/* Footer */
 
 .footer {
     background-color: darkgrey;

@@ -1,22 +1,38 @@
+/* Body */
+
 form {
     display: flex;
     flex-direction: row;
 }
 
 .left {
+    position: absolute;
+    height: 100vh;
+    width: 40%;
     background-color: grey;
     overflow-y: auto;
-    width: 50%;
 }
 
 .right {
+    position: absolute;
+    height: 100vh;
+    width: 60%;
     background-color: lightgrey;
-    overflow-y: auto;
+    margin-left: 40%;
+    display: flex;
+    flex-direction: column;
 }
+
+
+/* Content */
 
 .close-wrapper {
     text-align: right;
+    margin: 12px;
 }
+
+
+/* Footer */
 
 .footer {
     background-color: darkgrey;
