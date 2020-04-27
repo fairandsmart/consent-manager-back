@@ -9,7 +9,6 @@ form {
     position: absolute;
     height: 100vh;
     width: 40%;
-    background-color: grey;
     overflow-y: auto;
 }
 
@@ -17,23 +16,32 @@ form {
     position: absolute;
     height: 100vh;
     width: 60%;
-    background-color: lightgrey;
+    background-color: #eeeeee;
     margin-left: 40%;
     display: flex;
     flex-direction: column;
 }
 
 
-/* Content */
+/* Header */
 
-.close-wrapper {
-    text-align: right;
-    margin: 12px;
+.logo-wrapper {
+    margin: 24px;
 }
+
+
+/* Content */
 
 
 /* Footer */
 
 .footer {
-    background-color: darkgrey;
+    padding: 12px 0px;
+    border-top: 1px solid lightgray;
+    margin: 0px 12px;
+}
+
+.submit-container {
+    text-align: right;
+    margin: 18px;
 }

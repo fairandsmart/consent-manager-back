@@ -11,16 +11,14 @@
 
 <body>
     <form method="post" id="consent" action="">
+        <input name="token" value="${data.token}" hidden/>
+
         <div class="left">
-            <input name="token" value="${data.token}" hidden/>
-
-            <div class="header">
-                <h1>Horizontal</h1>
-
-                <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
-                <#assign content=data.header.getData(data.header.defaultLocale)>
-                <#include data.header.contentType + ".ftl">
+            <div class="logo-wrapper">
+                <img class="logo" src="not_found" alt="logo">
             </div>
+
+            <#include "header.ftl">
         </div>
 
         <div class="right">
@@ -35,17 +33,7 @@
                 </#list>
             </div>
 
-            <div class="footer">
-                <#if data.footer??>
-                    <input name="footer" value="${data.footer.entry.key}-${data.footer.serial}" hidden/>
-                    <#assign content=data.footer.getData(data.footer.defaultLocale)>
-                    <#include data.footer.contentType + ".ftl">
-                </#if>
-
-                <div class="submit-container">
-                    <button type="submit" class="submit">Valider</button>
-                </div>
-            </div>
+            <#include "footer.ftl">
         </div>
     </form>
 </body>
