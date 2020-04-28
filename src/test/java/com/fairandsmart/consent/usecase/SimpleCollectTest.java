@@ -8,15 +8,22 @@ import com.fairandsmart.consent.manager.entity.ModelEntry;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.HttpConnection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.FormElement;
+import org.jsoup.select.Collector;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -119,7 +126,7 @@ public class SimpleCollectTest {
         Response response = given().header("TOKEN", token).
             when().get("/consents");
         String page = response.asString();
-        response.then().assertThat().statusCode(200);
+        response.then().contentType("text/html").assertThat().statusCode(200);
 
         LOGGER.log(Level.INFO, "Consent form page: " + page);
         //Orientation
@@ -136,13 +143,26 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Body f1"));
         assertTrue(page.contains("Foot f1"));
 
-        //PART 3
-        //Réponses de l'utilisateur sur le formulaire
-        Map<String, Integer> values = new HashMap<>();
-        values.put("t1", 1);
-        values.put("t2", 0);
+        Document html = Jsoup.parse(page);
+        Elements inputs = html.getAllElements();
+        List<FormElement> forms = inputs.forms();
+        Map<String, String> values = Collections.EMPTY_MAP;
+        for ( FormElement form : forms ) {
+            if ( form.id().equals("consent") ) {
+                Elements formElements = form.elements();
+                for (Iterator<Element> i = formElements.iterator(); i.hasNext() ; ) {
+                    Element element = i.next();
+                    if ( element.tagName().equals("select") ) {
+                        element.val("accepted");
+                    }
+                }
+                values = form.formData().stream().collect(Collectors.toMap(Connection.KeyVal::key, Connection.KeyVal::value));
+            }
+        }
+        LOGGER.log(Level.INFO, "Form Values: " + values);
 
-        Response postResponse = given().header("TOKEN", token).contentType(ContentType.JSON).
+        //PART 3
+        Response postResponse = given().contentType(ContentType.JSON).
                 body(values).when().post("/consents");
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
