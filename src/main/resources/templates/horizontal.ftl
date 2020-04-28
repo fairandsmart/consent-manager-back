@@ -2,33 +2,39 @@
 <html>
 <head>
     <title>Horizontal</title>
+
+    <style type="text/css">
+    <#include "css/consent.css">
+    <#include "css/horizontal.css">
+    </style>
 </head>
 
 <body>
-    <h1>This is the horizontal layout</h1>
+    <form method="post" id="consent" action="">
+        <input name="token" value="${data.token}" hidden/>
 
-    <div>
-        <#assign currentHeader=data.header.getData(data.header.defaultLocale)>
-        <p>${currentHeader.title}</p>
-        <p>${currentHeader.body}</p>
-        <p>${currentHeader.footer}</p>
-    </div>
+        <div class="left">
+            <div class="logo-wrapper">
+                <img class="logo" src="not_found" alt="logo">
+            </div>
 
-    <form method="post" id="consentForm">
-        <#list data.elements as element>
-        <div>
-            <label>we use ${element.data} during ${element.retention} for ${element.usage}:</label><input type="checkbox" name="plop">
+            <#include "header.ftl">
         </div>
-        </#list>
-        <button type="submit">Valider</button>
+
+        <div class="right">
+            <div class="close-wrapper">
+                <button class="close-btn">×</button>
+            </div>
+
+            <div class="treatments">
+                <#list data.elements as element>
+                    <#assign content=element.getData(element.defaultLocale)>
+                    <#include element.contentType + ".ftl">
+                </#list>
+            </div>
+
+            <#include "footer.ftl">
+        </div>
     </form>
-
-    <div>
-        <#assign currentFooter=data.footer.getData(data.footer.defaultLocale)>
-        <p>${currentFooter.title}</p>
-        <p>${currentFooter.body}</p>
-        <p>${currentFooter.footer}</p>
-    </div>
-
 </body>
 </html>

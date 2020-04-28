@@ -1,0 +1,39 @@
+/* Body */
+
+form {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+
+/* Header */
+
+.logo-wrapper {
+    text-align: center;
+    margin: -24px 0 12px 0;
+}
+
+.header {
+    text-align: center;
+    margin: 0 12px 18px 12px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 18px;
+}
+
+.header h3 {
+    margin: 0;
+}
+
+
+/* Footer */
+
+.footer {
+    background-color: #eeeeee;
+}
+
+.submit-container {
+    text-align: center;
+    margin-top: 18px;
+    margin-bottom: 8px;
+}

@@ -15,7 +15,7 @@ public class ConsentContext {
     @NotNull @NotEmpty
     private List<String> elements;
     private String footer;
-    private String referer;
+    private String callback;
     private String locale;
 
     //TODO
@@ -92,12 +92,12 @@ public class ConsentContext {
         return this;
     }
 
-    public String getReferer() {
-        return referer;
+    public String getCallback() {
+        return callback;
     }
 
-    public ConsentContext setReferer(String referer) {
-        this.referer = referer;
+    public ConsentContext setCallback(String callback) {
+        this.callback = callback;
         return this;
     }
 
