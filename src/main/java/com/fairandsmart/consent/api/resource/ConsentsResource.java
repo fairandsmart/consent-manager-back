@@ -50,6 +50,9 @@ public class ConsentsResource {
         TemplateModel<ConsentForm> model = new TemplateModel();
         model.setLocale(Locale.getDefault());
 
+        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", Locale.getDefault());
+        model.setBundle(bundle);
+
         //TODO :
         // 1. Load existing consents for elements of this context (applying models invalidation strategy to generate all possibles consent key)
         // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form
@@ -80,10 +83,13 @@ public class ConsentsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel postConsent(@HeaderParam("TOKEN") String token, Map<String, Integer> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, EntityNotFoundException {
+    public TemplateModel postConsent(@HeaderParam("TOKEN") String token, Map<String, String> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Posting consent");
         TemplateModel model = new TemplateModel();
         model.setLocale(Locale.getDefault());
+
+        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", Locale.getDefault());
+        model.setBundle(bundle);
 
         ConsentContext ctx = tokenService.readToken(token);
 
@@ -146,5 +152,4 @@ public class ConsentsResource {
         ModelEntry entry = consentService.getModelEntry(id);
         return Response.created(uri).entity(entry).build();
     }
-
 }

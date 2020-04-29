@@ -10,11 +10,9 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
-import org.jsoup.select.Collector;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,11 +95,11 @@ public class SimpleCollectTest {
 
     /**
      * 1 : l'orga génère un context de collecte
-     *      le context contient le nom du user (subject) et les ids des traitements
+     * le context contient le nom du user (subject) et les ids des traitements
      * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
-     *      cas 1 : sujet inconnu car pas de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
+     * cas 1 : sujet inconnu car pas de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
      * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
-     *      cas 1 : tout est bon, un reçu est généré et renvoyé en réponse au user
+     * cas 1 : tout est bon, un reçu est généré et renvoyé en réponse au user
      * 4 : le user retourne à son url initiale qui devrait être contenue dans le reçu ou dans le context
      */
     @Test
@@ -112,20 +110,20 @@ public class SimpleCollectTest {
                 .setSubject("mmichu")
                 .setOrientation(ConsentContext.Orientation.VERTICAL)
                 .setHeader("h1")
-                .setElements(Arrays.asList("t1","t2"))
+                .setElements(Arrays.asList("t1", "t2"))
                 .setFooter("f1")
                 .setCallback("urldetest")
                 .setLocale("fr_FR");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx).
-            when().post("/consents/token").asString();
+                when().post("/consents/token").asString();
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token : " + token);
 
         //PART 2
         Response response = given().header("TOKEN", token).
-            when().get("/consents");
+                when().get("/consents");
         String page = response.asString();
         response.then().contentType("text/html").assertThat().statusCode(200);
 
@@ -148,22 +146,22 @@ public class SimpleCollectTest {
         Elements inputs = html.getAllElements();
         List<FormElement> forms = inputs.forms();
         Map<String, String> values = Collections.EMPTY_MAP;
-        for ( FormElement form : forms ) {
-            if ( form.id().equals("consent") ) {
+        for (FormElement form : forms) {
+            if (form.id().equals("consent")) {
                 Elements formElements = form.elements();
-                for (Iterator<Element> i = formElements.iterator(); i.hasNext() ; ) {
+                /*for (Iterator<Element> i = formElements.iterator(); i.hasNext(); ) {
                     Element element = i.next();
-                    if ( element.tagName().equals("select") ) {
+                    if (element.tagName().equals("select")) {
                         element.val("accepted");
                     }
-                }
+                }*/
                 values = form.formData().stream().collect(Collectors.toMap(Connection.KeyVal::key, Connection.KeyVal::value));
             }
         }
         LOGGER.log(Level.INFO, "Form Values: " + values);
 
         //PART 3
-        Response postResponse = given().contentType(ContentType.JSON).
+        Response postResponse = given().header("TOKEN", token).contentType(ContentType.JSON).
                 body(values).when().post("/consents");
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
@@ -171,7 +169,7 @@ public class SimpleCollectTest {
         LOGGER.log(Level.INFO, "Receipt page: " + postPage);
         assertTrue(postPage.contains("Receipt"));
         assertTrue(postPage.contains("Nous utilisons Votre nom pendant Toute votre vie pour Tout savoir sur vous : accepté"));
-        assertTrue(postPage.contains("Nous utilisons Votre email pendant Toute votre vie pour Tout savoir sur vous : refusé"));
+        assertTrue(postPage.contains("Nous utilisons Votre email pendant Toute votre vie pour Tout savoir sur vous : accepté"));
 
         //PART 4
         //TODO

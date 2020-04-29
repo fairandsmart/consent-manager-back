@@ -13,7 +13,7 @@
     <#assign key="${element.entry.key}-${element.serial}">
 
     <label class="switch">
-      <input type="checkbox" name="consent-${key}" id="consent-${key}" checked>
+      <input type="checkbox" name="treatment-${key}" id="treatment-${key}" checked>
       <span class="slider"></span>
       <div class="text accept"><@readBundle "accept" "missingValue"></@readBundle></div>
       <div class="text refuse"><@readBundle "refuse" "missingValue"></@readBundle></div>
