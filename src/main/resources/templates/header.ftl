@@ -1,12 +1,12 @@
 <#if data.header??>
     <input name="header" value="${data.header.entry.key}-${data.header.serial}" hidden/>
-    <#assign hContent=data.header.getData(data.header.defaultLocale)>
+    <@fetchMultiLangContent data.header></@fetchMultiLangContent>
 
     <div class="header">
-        <h3>${hContent.title}</h3>
+        <h2>${langContent.title}</h2>
 
-        <p>${hContent.body}</p>
+        <p>${langContent.body}</p>
 
-        <a href="http://www.google.com">${hContent.footer}</a>
+        <a href="${langContent.footer}"><@readBundle "readMore" "missingValue"></@readBundle></a>
     </div>
 </#if>

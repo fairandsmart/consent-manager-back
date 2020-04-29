@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Vertical</title>
+    <#include "macros/lang-macros.ftl">
+
+    <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 
     <style type="text/css">
+    <#include "css/common.css">
     <#include "css/consent.css">
     <#include "css/vertical.css">
     </style>
@@ -25,7 +28,7 @@
             <#include "header.ftl">
 
             <#list data.elements as element>
-                <#assign content=element.getData(element.defaultLocale)>
+                <@fetchMultiLangContent element></@fetchMultiLangContent>
                 <#include element.contentType + ".ftl">
             </#list>
         </div>

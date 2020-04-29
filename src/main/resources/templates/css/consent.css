@@ -39,6 +39,7 @@ body {
 .treatments {
     overflow-y: auto;
     padding: 12px;
+    height: 100%;
 }
 
 .treatment {

@@ -1,8 +1,12 @@
 <div class="treatment">
     <div>
-        <p>Nous utilisons <b>${content.data}</b> afin de <b>${content.usage}</b>.</p>
-        <#if content.retention??>
-            <p>Nous conservons ces données pendant une durée de <b>${content.retention}</b>.</p>
+        <#if langContent.title ??>
+            <h3>${langContent.title}</h3>
+        </#if>
+
+        <p>Nous utilisons <b>${langContent.data}</b> pour <b>${langContent.usage}</b>.</p>
+        <#if langContent.retention??>
+            <p>Nous conservons ces données pendant une durée de <b>${langContent.retention}</b>.</p>
         </#if>
     </div>
 
@@ -11,7 +15,7 @@
     <label class="switch">
       <input type="checkbox" name="consent-${key}" id="consent-${key}" checked>
       <span class="slider"></span>
-      <div class="text accept">Accepter</div>
-      <div class="text refuse">Refuser</div>
+      <div class="text accept"><@readBundle "accept" "missingValue"></@readBundle></div>
+      <div class="text refuse"><@readBundle "refuse" "missingValue"></@readBundle></div>
     </label>
 </div>

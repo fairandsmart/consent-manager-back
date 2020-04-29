@@ -38,6 +38,10 @@ public class ModelVersion extends PanacheEntityBase {
         return content.get(locale).getModelData();
     }
 
+    public boolean hasLocale(String locale) {
+        return content.containsKey(locale);
+    }
+
     public enum Invalidation {
         INVALIDATE,
         REFRESH,

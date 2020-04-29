@@ -12,7 +12,8 @@ public class ConsentContext {
     @NotNull
     private Orientation orientation;
     private String header;
-    @NotNull @NotEmpty
+    @NotNull
+    @NotEmpty
     private List<String> elements;
     private String footer;
     private String callback;
@@ -35,7 +36,6 @@ public class ConsentContext {
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
     */
-
 
 
     public ConsentContext() {
@@ -106,4 +106,12 @@ public class ConsentContext {
         VERTICAL
     }
 
+    public String getLocale() {
+        return locale;
+    }
+
+    public ConsentContext setLocale(String locale) {
+        this.locale = locale;
+        return this;
+    }
 }

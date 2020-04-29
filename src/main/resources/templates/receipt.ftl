@@ -11,7 +11,7 @@
         <#list data.elements as element>
         <#assign currentElement=element.getData(element.defaultLocale)>
         <#assign consentValue=data.consents[element.entry.key]>
-        <p>using ${currentElement.data} during ${currentElement.retention} for ${currentElement.usage}: <#if consentValue == 1>accepted<#else>refused</#if></p>
+        <p>Nous utilisons ${currentElement.data} pendant ${currentElement.retention} pour ${currentElement.usage} : <#if consentValue == 1>accepté<#else>refusé</#if></p>
         </#list>
     </div>
 </body>
