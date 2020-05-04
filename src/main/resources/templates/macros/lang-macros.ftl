@@ -1,37 +1,17 @@
+<#-- Langue du modèle -->
 <#assign lang=locale>
-<#assign defLang="en_GB">
 
-<#macro multiLang var={} error_msg="">
-    <#if var[lang]?has_content>
-        ${var[lang]}
-    <#-- <#elseif var[defLang]?has_content>
-        ${var[defLang]} -->
-    <#elseif error_msg?has_content>
-        <span class="fsc-content-error">
-            ${bundle.getString("errorPrefix")} ${bundle.containsKey(error_msg)?then(bundle.getString(error_msg), error_msg)}
-        </span>
-    </#if>
-</#macro>
+<#-- Crée une balise span contenant le message d'erreur récupéré dans le bundle avec la clé error_key -->
+<#macro writeError error_key><span class="fsc-content-error">${bundle.getString("errorPrefix")} ${bundle.containsKey(error_key)?then(bundle.getString(error_key), error_key)}</span></#macro>
 
-<#macro readBundle key="" error_msg="">
-    <#if bundle.containsKey(key)>
-        ${bundle.getString(key)}
-    <#elseif error_msg?has_content>
-        <span class="fsc-content-error">
-            ${bundle.getString("errorPrefix")} ${bundle.containsKey(error_msg)?then(bundle.getString(error_msg), error_msg)}
-        </span>
-    </#if>
-</#macro>
+<#-- Affiche le contenu de var dans la langue du modèle si disponible, sinon affiche le message d'erreur associé à error_key dans le bundle -->
+<#macro multiLang var={} error_key=""><#if var[lang]?has_content>${var[lang]}<#elseif error_key?has_content><@writeError error_key></@writeError></#if></#macro>
 
-<#macro fetchMultiLangContent var={}>
-    <#if var.hasLocale(lang)>
-        <#assign langContent=var.getData(lang)>
-    <#-- <#elseif var[defLang]?has_content>
-        <#assign langContent=var[defLang]> -->
-    <#else>
-        <#assign langContent="error">
-        <span class="fsc-content-error">
-            ${bundle.getString("errorPrefix")} ${bundle.getString("missingValue")}
-        </span>
-    </#if>
-</#macro>
+<#-- Affiche le contenu de var si disponible (non nul, non vide), sinon affiche le message d'erreur associé à error_key dans le bundle -->
+<#macro valueOrError var={} error_key=""><#if var?has_content>${var}<#elseif error_key?has_content><@writeError error_key></@writeError></#if></#macro>
+
+<#-- Affiche la valeur associée à key dans le bundle si disponible, sinon affiche le message d'erreur associé à error_key dans le bundle -->
+<#macro readBundle key="" error_key=""><#if bundle.containsKey(key)>${bundle.getString(key)}<#elseif error_key?has_content><@writeError error_key></@writeError></#if></#macro>
+
+<#-- Récupère les données associées à la langue du modèle dans var, sinon affiche le message d'erreur associé à la clé "missingValue" dans le bundle -->
+<#macro fetchMultiLangContent var={}><#if var.hasLocale(lang)><#assign langContent=var.getData(lang)><#else><#assign langContent="error"><@writeError "missingValue"></@writeError></#if></#macro>

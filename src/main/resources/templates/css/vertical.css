@@ -11,7 +11,7 @@ form {
 
 .logo-wrapper {
     text-align: center;
-    margin: -24px 0 12px 0;
+    margin: -24px 0 12px 0px;
 }
 
 .header {
@@ -22,7 +22,7 @@ form {
 }
 
 .header h3 {
-    margin: 0;
+    margin: 0px;
 }
 
 
@@ -32,8 +32,11 @@ form {
     background-color: #eeeeee;
 }
 
+.accept-all-container {
+    padding: 0 12px;
+}
+
 .submit-container {
     text-align: center;
-    margin-top: 18px;
-    margin-bottom: 8px;
+    margin: 8px 0px;
 }
