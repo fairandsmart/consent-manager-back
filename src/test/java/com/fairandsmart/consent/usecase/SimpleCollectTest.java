@@ -12,6 +12,7 @@ import io.restassured.response.Response;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
@@ -149,14 +150,25 @@ public class SimpleCollectTest {
         Map<String, String> values = Collections.EMPTY_MAP;
         for (FormElement form : forms) {
             if (form.id().equals("consent")) {
-                /*Elements formElements = form.elements();
+                values = form.formData().stream().collect(Collectors.toMap(Connection.KeyVal::key, Connection.KeyVal::value));
+                Elements formElements = form.elements();
                 for (Iterator<Element> i = formElements.iterator(); i.hasNext(); ) {
                     Element element = i.next();
+                    // TODO : simplifier ?? ou pas la peine ?
                     if (element.tagName().equals("select")) {
-                        element.val("accepted");
+                        Element option = element.children().first();
+                        if (!option.id().contains("accept-all")) {
+                            if (option.hasAttr("selected")) {
+                                values.put(option.id().substring(0, option.id().length() - 9), option.val());
+                            } else {
+                                option = element.children().last();
+                                if (option.hasAttr("selected")) {
+                                    values.put(option.id().substring(0, option.id().length() - 8), option.val());
+                                }
+                            }
+                        }
                     }
-                }*/
-                values = form.formData().stream().collect(Collectors.toMap(Connection.KeyVal::key, Connection.KeyVal::value));
+                }
             }
         }
         LOGGER.log(Level.INFO, "Form Values: " + values);
@@ -169,8 +181,8 @@ public class SimpleCollectTest {
 
         LOGGER.log(Level.INFO, "Receipt page: " + postPage);
         assertTrue(postPage.contains("Receipt"));
-        assertTrue(postPage.contains("Nous utilisons Votre nom pendant Toute votre vie pour Tout savoir sur vous : accepté"));
-        assertTrue(postPage.contains("Nous utilisons Votre email pendant Toute votre vie pour Tout savoir sur vous : accepté"));
+        assertTrue(postPage.contains("Nous utilisons Votre nom pendant Toute votre vie pour Tout savoir sur vous : refusé"));
+        assertTrue(postPage.contains("Nous utilisons Votre email pendant Toute votre vie pour Tout savoir sur vous : refusé"));
 
         //PART 4
         //TODO

@@ -10,12 +10,7 @@
                 <p><#if langContent.customAcceptAllText?has_content>${langContent.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle></#if></p>
             </div>
 
-            <label class="switch">
-              <input type="checkbox" name="treatments-all" id="treatments-all">
-              <span class="slider"></span>
-              <div class="text accept"><@readBundle "accept" "missingValue"></@readBundle></div>
-              <div class="text refuse"><@readBundle "refuse" "missingValue"></@readBundle></div>
-            </label>
+            <@toggleSwitch "accept-all"></@toggleSwitch>
         </div>
     </#if>
 

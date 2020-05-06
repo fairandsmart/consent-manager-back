@@ -94,3 +94,7 @@ input:checked + .slider:before {
 .switch input:checked ~ .text.accept {
 	display: block;
 }
+
+.switch-select {
+    display: none;
+}
