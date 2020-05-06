@@ -7,7 +7,7 @@ public class ApiError {
     private String title;
     private String detail;
     private String instance;
-    private String stackrace;
+    private String stacktrace;
 
     public ApiError(int status, String type, String title) {
         this.status = status;
@@ -20,10 +20,10 @@ public class ApiError {
         this.detail = detail;
     }
 
-    public ApiError(int status, String type, String title, String detail, String instance, String stackrace) {
+    public ApiError(int status, String type, String title, String detail, String instance, String stacktrace) {
         this(status, type, title, detail);
         this.instance = instance;
-        this.stackrace = stackrace;
+        this.stacktrace = stacktrace;
     }
 
     public int getStatus() {
@@ -66,11 +66,23 @@ public class ApiError {
         this.instance = instance;
     }
 
-    public String getStackrace() {
-        return stackrace;
+    public String getStacktrace() {
+        return stacktrace;
     }
 
-    public void setStackrace(String stackrace) {
-        this.stackrace = stackrace;
+    public void setStacktrace(String stacktrace) {
+        this.stacktrace = stacktrace;
+    }
+
+    @Override
+    public String toString() {
+        return "ApiError{" +
+                "status=" + status +
+                ", type='" + type + '\'' +
+                ", title='" + title + '\'' +
+                ", detail='" + detail + '\'' +
+                ", instance='" + instance + '\'' +
+                ", stacktrace='" + stacktrace + '\'' +
+                '}';
     }
 }

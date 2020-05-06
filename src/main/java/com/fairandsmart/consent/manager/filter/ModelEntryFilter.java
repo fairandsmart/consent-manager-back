@@ -1,11 +1,9 @@
 package com.fairandsmart.consent.manager.filter;
 
-import com.fairandsmart.consent.manager.entity.ModelEntry;
-
 public class ModelEntryFilter {
 
     private String owner;
-    private ModelEntry.Type type;
+    private String type;
     private int page;
     private int size;
 
@@ -25,15 +23,15 @@ public class ModelEntryFilter {
         return this;
     }
 
-    public ModelEntry.Type getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(ModelEntry.Type type) {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public ModelEntryFilter withType(ModelEntry.Type type) {
+    public ModelEntryFilter withType(String type) {
         this.type = type;
         return this;
     }

@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Constraint(validatedBy={})
 @Retention(RetentionPolicy.RUNTIME)
-@Pattern(regexp="^[0-9a-zA-Z-.]{2,255}$")
+@Pattern(regexp="^[0-9a-zA-Z-_.]{2,255}$")
 public @interface ModelKey {
     String message() default "{invalid.key}";
     Class<?>[] groups() default {};

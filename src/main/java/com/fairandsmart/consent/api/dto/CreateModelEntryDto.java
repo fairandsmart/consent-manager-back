@@ -2,8 +2,7 @@ package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.common.validation.Locale;
 import com.fairandsmart.consent.common.validation.ModelKey;
-import com.fairandsmart.consent.manager.data.ModelData;
-import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.manager.data.ConsentElementData;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -11,8 +10,6 @@ import javax.validation.constraints.Size;
 
 public class CreateModelEntryDto {
 
-    @NotNull
-    private ModelEntry.Type type;
     @NotNull @ModelKey
     private String key;
     @NotNull @Size(min = 2, max = 255)
@@ -22,17 +19,9 @@ public class CreateModelEntryDto {
     @NotNull @Locale
     private String locale;
     @NotNull @Valid
-    private ModelData content;
+    private ConsentElementData content;
 
     public CreateModelEntryDto() {
-    }
-
-    public ModelEntry.Type getType() {
-        return type;
-    }
-
-    public void setType(ModelEntry.Type type) {
-        this.type = type;
     }
 
     public String getKey() {
@@ -67,11 +56,11 @@ public class CreateModelEntryDto {
         this.locale = locale;
     }
 
-    public ModelData getContent() {
+    public ConsentElementData getContent() {
         return content;
     }
 
-    public void setContent(ModelData content) {
+    public void setContent(ConsentElementData content) {
         this.content = content;
     }
 

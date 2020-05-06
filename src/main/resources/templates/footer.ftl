@@ -1,6 +1,6 @@
 <div class="footer">
     <#if data.footer?has_content>
-        <input name="footer" value="${data.footer.entry.key}-${data.footer.serial}" hidden/>
+        <input name="footer" value="${data.footer.identifier}" hidden/>
         <@fetchMultiLangContent data.footer></@fetchMultiLangContent>
     </#if>
 

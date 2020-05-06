@@ -1,15 +1,11 @@
 package com.fairandsmart.consent.token;
 
-import com.fairandsmart.consent.manager.ConsentContext;
-
-import java.util.Map;
-
 public interface TokenService {
 
-    String generateToken(ConsentContext ctx);
+    String generateToken(Tokenizable tokenizable);
 
-    String generateToken(ConsentContext ctx, int calendarField, int calendarAmount);
+    String generateToken(Tokenizable tokenizable, int calendarField, int calendarAmount);
 
-    ConsentContext readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException;
+    Tokenizable readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException;
 
 }

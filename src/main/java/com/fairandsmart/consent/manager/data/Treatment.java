@@ -1,6 +1,6 @@
 package com.fairandsmart.consent.manager.data;
 
-public class Treatment extends ModelData {
+public class Treatment extends ConsentElementData {
 
     public static final String TYPE = "treatment";
 

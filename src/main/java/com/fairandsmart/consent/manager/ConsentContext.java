@@ -1,11 +1,13 @@
 package com.fairandsmart.consent.manager;
 
+import com.fairandsmart.consent.token.Tokenizable;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class ConsentContext {
+public class ConsentContext implements Tokenizable {
 
     @NotNull
     private String subject;
@@ -39,7 +41,7 @@ public class ConsentContext {
 
 
     public ConsentContext() {
-
+        this.elements = new ArrayList<>();
     }
 
     public String getSubject() {
@@ -73,6 +75,14 @@ public class ConsentContext {
         return elements;
     }
 
+    public String getElementsString() {
+        return elements.stream().collect(Collectors.joining(","));
+    }
+
+    public void setElementsString(String elements) {
+        this.setElements(Arrays.asList(elements.split(",")));
+    }
+
     public ConsentContext setElements(List<String> elements) {
         this.elements = elements;
         return this;
@@ -101,11 +111,6 @@ public class ConsentContext {
         return this;
     }
 
-    public enum Orientation {
-        HORIZONTAL,
-        VERTICAL
-    }
-
     public String getLocale() {
         return locale;
     }
@@ -114,4 +119,57 @@ public class ConsentContext {
         this.locale = locale;
         return this;
     }
+
+    @Override
+    public Map<String, String> getClaims() {
+        Map<String, String> claims = new HashMap<>();
+        if ( header != null ) {
+            claims.put("header", this.getHeader());
+        }
+        if ( elements != null && !elements.isEmpty() ) {
+            claims.put("elements", this.getElementsString());
+        }
+        if ( footer != null ) {
+            claims.put("footer", this.getFooter());
+        }
+        if ( locale != null ) {
+            claims.put("locale", this.getLocale());
+        }
+        if ( callback != null ) {
+            claims.put("callback", this.getCallback());
+        }
+        if ( orientation != null ) {
+            claims.put("orientation", this.getOrientation().name());
+        }
+        return claims;
+    }
+
+    @Override
+    public Tokenizable setClaims(Map<String, String> claims) {
+        if ( claims.containsKey("header") ) {
+            this.setHeader(claims.get("header"));
+        }
+        if ( claims.containsKey("elements") ) {
+            this.setElementsString(claims.get("elements"));
+        }
+        if ( claims.containsKey("footer") ) {
+            this.setFooter(claims.get("footer"));
+        }
+        if ( claims.containsKey("locale") ) {
+            this.setLocale(claims.get("locale"));
+        }
+        if ( claims.containsKey("callback") ) {
+            this.setCallback(claims.get("callback"));
+        }
+        if ( claims.containsKey("orientation") ) {
+            this.setOrientation(Orientation.valueOf(claims.get("orientation")));
+        }
+        return this;
+    }
+
+    public enum Orientation {
+        HORIZONTAL,
+        VERTICAL
+    }
+
 }

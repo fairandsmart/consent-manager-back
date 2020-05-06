@@ -1,7 +1,8 @@
 package com.fairandsmart.consent.manager.entity;
 
+import com.fairandsmart.consent.manager.ConsentElementIdentifier;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
-import com.fairandsmart.consent.manager.data.ModelData;
+import com.fairandsmart.consent.manager.data.ConsentElementData;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -9,7 +10,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class ModelVersion extends PanacheEntityBase {
+public class ConsentElementVersion extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -18,7 +19,7 @@ public class ModelVersion extends PanacheEntityBase {
     @Version
     public long version;
     @ManyToOne(fetch = FetchType.EAGER)
-    public ModelEntry entry;
+    public ConsentElementEntry entry;
     public String serial;
     public String parent;
     public String branches;
@@ -30,12 +31,15 @@ public class ModelVersion extends PanacheEntityBase {
     public Invalidation invalidation;
     public long creationDate;
     public long modificationDate;
-    public String contentType;
     @ElementCollection(fetch = FetchType.EAGER)
-    public Map<String, ModelContent> content = new HashMap<>();
+    public Map<String, ConsentElementContent> content = new HashMap<>();
 
-    public ModelData getData(String locale) throws ModelDataSerializationException {
+    public ConsentElementData getData(String locale) throws ModelDataSerializationException {
         return content.get(locale).getModelData();
+    }
+
+    public ConsentElementIdentifier getIdentifier() {
+        return new ConsentElementIdentifier(entry.type, this.serial);
     }
 
     public boolean hasLocale(String locale) {
@@ -86,7 +90,7 @@ public class ModelVersion extends PanacheEntityBase {
 
     @Override
     public String toString() {
-        return "ModelVersion{" +
+        return "ConsentElementVersion{" +
                 "id=" + id +
                 ", version=" + version +
                 ", entry=" + entry +
@@ -101,7 +105,6 @@ public class ModelVersion extends PanacheEntityBase {
                 ", invalidation=" + invalidation +
                 ", creationDate=" + creationDate +
                 ", modificationDate=" + modificationDate +
-                ", contentType='" + contentType + '\'' +
                 ", content=" + content +
                 '}';
     }

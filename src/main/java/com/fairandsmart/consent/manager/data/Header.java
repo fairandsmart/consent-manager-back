@@ -1,6 +1,6 @@
 package com.fairandsmart.consent.manager.data;
 
-public class Header extends ModelData {
+public class Header extends ConsentElementData {
 
     public static final String TYPE = "header";
 

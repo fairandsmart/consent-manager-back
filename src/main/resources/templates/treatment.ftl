@@ -10,5 +10,5 @@
         </#if>
     </div>
 
-    <@toggleSwitch "treatment-${element.entry.key}-${element.serial}"></@toggleSwitch>
+    <@toggleSwitch "${element.identifier}"></@toggleSwitch>
 </div>

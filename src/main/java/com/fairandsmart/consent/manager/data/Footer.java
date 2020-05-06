@@ -1,6 +1,6 @@
 package com.fairandsmart.consent.manager.data;
 
-public class Footer extends ModelData {
+public class Footer extends ConsentElementData {
 
     public static final String TYPE = "footer";
 

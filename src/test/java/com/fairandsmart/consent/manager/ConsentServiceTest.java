@@ -4,8 +4,9 @@ import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.manager.data.Footer;
 import com.fairandsmart.consent.manager.data.Header;
-import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
 import io.quarkus.test.junit.QuarkusTest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -34,10 +35,10 @@ public class ConsentServiceTest {
         header.setBody("body");
         header.setReadMoreLink("readmorelink");
 
-        String idHeader = service.createModelEntry(ModelEntry.Type.HEADER, "existing", "header1", "description", "fr-FR", header);
+        String idHeader = service.createModelEntry("existing", "header1", "description", "fr-FR", header);
         assertNotNull(idHeader);
         try {
-            service.createModelEntry(ModelEntry.Type.HEADER, "existing", "header1", "description", "fr-FR", header);
+            service.createModelEntry("existing", "header1", "description", "fr-FR", header);
             fail("The key should already be used");
         } catch (EntityAlreadyExistsException e) { //ok
         }
@@ -46,9 +47,9 @@ public class ConsentServiceTest {
     @Test
     public void testCreateModelEntry() throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
         LOGGER.info("List existing models for headers or footers");
-        CollectionPage<ModelEntry> headers = service.listModelEntries(new ModelEntryFilter().withOwner(unauthentifiedUser).withType(ModelEntry.Type.HEADER).withPage(1).withSize(5));
+        CollectionPage<ConsentElementEntry> headers = service.listModelEntries(new ModelEntryFilter().withOwner(unauthentifiedUser).withType(Header.TYPE).withPage(1).withSize(5));
         assertEquals(0, headers.getTotalCount());
-        CollectionPage<ModelEntry> footers = service.listModelEntries(new ModelEntryFilter().withOwner(unauthentifiedUser).withType(ModelEntry.Type.FOOTER).withPage(1).withSize(5));
+        CollectionPage<ConsentElementEntry> footers = service.listModelEntries(new ModelEntryFilter().withOwner(unauthentifiedUser).withType(Footer.TYPE).withPage(1).withSize(5));
         assertEquals(0, footers.getTotalCount());
 
         LOGGER.info("Create Header h1");
@@ -56,20 +57,20 @@ public class ConsentServiceTest {
         header.setTitle("title");
         header.setBody("body");
         header.setReadMoreLink("readmorelink");
-        String idHeader = service.createModelEntry(ModelEntry.Type.HEADER, "h1", "header1", "Description de header1", "fr-FR", header);
+        String idHeader = service.createModelEntry("h1", "header1", "Description de header1", "fr-FR", header);
         assertNotNull(idHeader);
 
         LOGGER.info("List existing models for headers or footers");
-        headers = service.listModelEntries(new ModelEntryFilter().withType(ModelEntry.Type.HEADER).withOwner(unauthentifiedUser).withPage(1).withSize(5));
+        headers = service.listModelEntries(new ModelEntryFilter().withType(Header.TYPE).withOwner(unauthentifiedUser).withPage(1).withSize(5));
         assertEquals(1, headers.getTotalCount());
-        footers = service.listModelEntries(new ModelEntryFilter().withType(ModelEntry.Type.FOOTER).withOwner(unauthentifiedUser).withPage(1).withSize(5));
+        footers = service.listModelEntries(new ModelEntryFilter().withType(Footer.TYPE).withOwner(unauthentifiedUser).withPage(1).withSize(5));
         assertEquals(0, footers.getTotalCount());
 
         LOGGER.info("Lookup model h1 by key");
-        ModelEntry entry = service.findModelEntryByKey("h1");
+        ConsentElementEntry entry = service.findModelEntryByKey("h1");
         assertNotNull(entry.id);
         assertNotNull(entry.owner);
-        assertEquals(ModelEntry.Type.HEADER, entry.type);
+        assertEquals(Header.TYPE, entry.type);
         assertEquals("h1", entry.key);
         assertEquals("header1", entry.name);
         assertEquals("Description de header1", entry.description);
