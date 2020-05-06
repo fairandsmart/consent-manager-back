@@ -1,13 +1,13 @@
 <div class="footer">
     <#if data.footer?has_content>
         <input name="footer" value="${data.footer.entry.key}-${data.footer.serial}" hidden/>
-        <@fetchMultiLangContent data.header></@fetchMultiLangContent>
+        <@fetchMultiLangContent data.footer></@fetchMultiLangContent>
     </#if>
 
-    <#if data.showAcceptAll?? && data.showAcceptAll>
+    <#if langContent.showAcceptAll?? && langContent.showAcceptAll>
         <div class="accept-all-container">
             <div>
-                <p><@readBundle "acceptAll" "missingValue"></@readBundle></p>
+                <p><#if langContent.customAcceptAllText?has_content>${langContent.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle></#if></p>
             </div>
 
             <label class="switch">

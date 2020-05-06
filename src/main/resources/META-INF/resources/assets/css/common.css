@@ -18,8 +18,8 @@ html {
 .switch {
   position: relative;
   display: inline-block;
-  width: 64px; /*85px;*/
-  height: 24px; /*34px;*/
+  width: 48px;
+  height: 24px;
   margin: 12px 0px 26px 12px;
 }
 
@@ -46,10 +46,10 @@ html {
 .slider:before {
   position: absolute;
   content: "";
-  height: 20px; /*28px;*/
-  width: 20px; /*28px;*/
-  left: 2px; /*3px;*/
-  bottom: 2px; /*3px;*/
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
@@ -65,16 +65,16 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-  -webkit-transform: translateX(24px); /*translateX(30px);*/
-  -ms-transform: translateX(24px); /*translateX(30px);*/
-  transform: translateX(24px); /*translateX(30px);*/
+  -webkit-transform: translateX(24px);
+  -ms-transform: translateX(24px);
+  transform: translateX(24px);
 }
 
 .switch .text {
-	margin-top: 8px; /*16px;*/
+	margin-top: 8px;
     text-align: center;
     font-size: small;
-    width: 48px; /*64px;*/
+    width: 48px;
 }
 
 .switch .text.accept {

@@ -4,7 +4,7 @@ import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.manager.data.Information;
+import com.fairandsmart.consent.manager.data.Header;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
 import io.quarkus.test.junit.QuarkusTest;
@@ -29,17 +29,17 @@ public class ConsentServiceTest {
 
     @Test
     public void testCreateModelEntryForExistingKey() throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
-        Information info = new Information();
-        info.setTitle("title");
-        info.setBody("body");
-        info.setFooter("footer");
+        Header header = new Header();
+        header.setTitle("title");
+        header.setBody("body");
+        header.setReadMoreLink("readmorelink");
 
-        String idInfo = service.createModelEntry(ModelEntry.Type.HEADER, "existing", "info1", "description", "fr-FR", info);
-        assertNotNull(idInfo);
+        String idHeader = service.createModelEntry(ModelEntry.Type.HEADER, "existing", "header1", "description", "fr-FR", header);
+        assertNotNull(idHeader);
         try {
-            service.createModelEntry(ModelEntry.Type.HEADER, "existing", "info1", "description", "fr-FR", info);
+            service.createModelEntry(ModelEntry.Type.HEADER, "existing", "header1", "description", "fr-FR", header);
             fail("The key should already be used");
-        } catch ( EntityAlreadyExistsException e ) { //ok
+        } catch (EntityAlreadyExistsException e) { //ok
         }
     }
 
@@ -51,13 +51,13 @@ public class ConsentServiceTest {
         CollectionPage<ModelEntry> footers = service.listModelEntries(new ModelEntryFilter().withOwner(unauthentifiedUser).withType(ModelEntry.Type.FOOTER).withPage(1).withSize(5));
         assertEquals(0, footers.getTotalCount());
 
-        LOGGER.info("Create Information Header h1");
-        Information info = new Information();
-        info.setTitle("Title info 1");
-        info.setBody("Body info 1");
-        info.setFooter("Footer info 1");
-        String idInfo = service.createModelEntry(ModelEntry.Type.HEADER, "h1", "info1", "Description de info1", "fr-FR", info);
-        assertNotNull(idInfo);
+        LOGGER.info("Create Header h1");
+        Header header = new Header();
+        header.setTitle("title");
+        header.setBody("body");
+        header.setReadMoreLink("readmorelink");
+        String idHeader = service.createModelEntry(ModelEntry.Type.HEADER, "h1", "header1", "Description de header1", "fr-FR", header);
+        assertNotNull(idHeader);
 
         LOGGER.info("List existing models for headers or footers");
         headers = service.listModelEntries(new ModelEntryFilter().withType(ModelEntry.Type.HEADER).withOwner(unauthentifiedUser).withPage(1).withSize(5));
@@ -71,8 +71,8 @@ public class ConsentServiceTest {
         assertNotNull(entry.owner);
         assertEquals(ModelEntry.Type.HEADER, entry.type);
         assertEquals("h1", entry.key);
-        assertEquals("info1", entry.name);
-        assertEquals("Description de info1", entry.description);
+        assertEquals("header1", entry.name);
+        assertEquals("Description de header1", entry.description);
 
         //TODO List version of that entry and check that the content exists in the root version
         //assertEquals("FR", entry.);

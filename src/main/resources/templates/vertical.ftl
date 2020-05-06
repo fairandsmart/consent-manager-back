@@ -23,9 +23,7 @@
             <button class="close-btn">×</button>
         </div>
 
-        <div class="logo-wrapper">
-            <img class="logo" src="not_found" alt="logo">
-        </div>
+        <#include "logo.ftl">
 
         <div class="treatments">
             <#include "header.ftl">

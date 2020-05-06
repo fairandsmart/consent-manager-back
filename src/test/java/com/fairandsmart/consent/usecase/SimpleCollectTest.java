@@ -2,7 +2,8 @@ package com.fairandsmart.consent.usecase;
 
 import com.fairandsmart.consent.api.dto.CreateModelEntryDto;
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.data.Information;
+import com.fairandsmart.consent.manager.data.Footer;
+import com.fairandsmart.consent.manager.data.Header;
 import com.fairandsmart.consent.manager.data.Treatment;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import io.quarkus.test.junit.QuarkusTest;
@@ -11,7 +12,6 @@ import io.restassured.response.Response;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +47,7 @@ public class SimpleCollectTest {
         h1.setKey("h1");
         h1.setName("H1");
         h1.setDescription("Le header H1");
-        h1.setContent(new Information().withTitle("Title h1").withBody("Body h1").withFooter("Foot h1"));
+        h1.setContent(new Header().withTitle("Title h1").withBody("Body h1").withReadMoreLink("Readmore h1"));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
         given().contentType(ContentType.JSON).body(h1).
                 when().post("/consents/models").
@@ -60,7 +60,7 @@ public class SimpleCollectTest {
         f1.setKey("f1");
         f1.setName("F1");
         f1.setDescription("Le footer F1");
-        f1.setContent(new Information().withTitle("Title f1").withBody("Body f1").withFooter("Foot f1"));
+        f1.setContent(new Footer().withShowAcceptAll(true).withCustomAcceptAllText("J'accepte tout"));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
         given().contentType(ContentType.JSON).body(f1).
                 when().post("/consents/models").
@@ -133,7 +133,7 @@ public class SimpleCollectTest {
         //Header
         assertTrue(page.contains("Title h1"));
         assertTrue(page.contains("Body h1"));
-        assertTrue(page.contains("Foot h1"));
+        //assertTrue(page.contains("Foot h1"));
         //Traitements
         assertTrue(page.contains("Votre nom"));
         assertTrue(page.contains("Votre email"));
@@ -141,6 +141,7 @@ public class SimpleCollectTest {
         /*assertTrue(page.contains("Title f1"));
         assertTrue(page.contains("Body f1"));
         assertTrue(page.contains("Foot f1"));*/
+        // TODO !
 
         Document html = Jsoup.parse(page);
         Elements inputs = html.getAllElements();
@@ -148,8 +149,8 @@ public class SimpleCollectTest {
         Map<String, String> values = Collections.EMPTY_MAP;
         for (FormElement form : forms) {
             if (form.id().equals("consent")) {
-                Elements formElements = form.elements();
-                /*for (Iterator<Element> i = formElements.iterator(); i.hasNext(); ) {
+                /*Elements formElements = form.elements();
+                for (Iterator<Element> i = formElements.iterator(); i.hasNext(); ) {
                     Element element = i.next();
                     if (element.tagName().equals("select")) {
                         element.val("accepted");
@@ -173,7 +174,5 @@ public class SimpleCollectTest {
 
         //PART 4
         //TODO
-
     }
-
 }

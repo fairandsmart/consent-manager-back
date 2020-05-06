@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.manager.data;
 
+@Deprecated
 public class Information extends ModelData {
 
     public static final String TYPE = "information";

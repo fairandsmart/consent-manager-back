@@ -14,6 +14,8 @@ import java.io.IOException;
         property = "type")
 @JsonSubTypes({
         @Type(value = Information.class, name = Information.TYPE),
+        @Type(value = Header.class, name = Header.TYPE),
+        @Type(value = Footer.class, name = Footer.TYPE),
         @Type(value = Treatment.class, name = Treatment.TYPE),
         @Type(value = Conditions.class, name = Conditions.TYPE)
 })
