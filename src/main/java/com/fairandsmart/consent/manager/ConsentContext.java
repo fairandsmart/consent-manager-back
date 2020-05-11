@@ -11,8 +11,9 @@ public class ConsentContext implements Tokenizable {
 
     @NotNull
     private String subject;
+    private String owner;
     @NotNull
-    private Orientation orientation;
+    private ConsentForm.Orientation orientation;
     private String header;
     @NotNull
     @NotEmpty
@@ -26,7 +27,6 @@ public class ConsentContext implements Tokenizable {
     // Add field for receipt (DISPLAY, COOKIE, STORAGE, ...) Allows to specify how the receipt will be stored and propose to client for display or storage
     // Add field for receipt status : Allows to generate a receipt status boolean if consent conditions are meet after submission (avoid rechecking base)
 /*
-    private String token;
     private String requisite;
     private String receipt;
     private boolean status;
@@ -53,11 +53,20 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public Orientation getOrientation() {
+    public String getOwner() {
+        return owner;
+    }
+
+    public ConsentContext setOwner(String owner) {
+        this.owner = owner;
+        return this;
+    }
+
+    public ConsentForm.Orientation getOrientation() {
         return orientation;
     }
 
-    public ConsentContext setOrientation(Orientation orientation) {
+    public ConsentContext setOrientation(ConsentForm.Orientation orientation) {
         this.orientation = orientation;
         return this;
     }
@@ -112,6 +121,9 @@ public class ConsentContext implements Tokenizable {
     }
 
     public String getLocale() {
+        if ( locale == null || locale.isEmpty() ) {
+            return Locale.getDefault().toLanguageTag();
+        }
         return locale;
     }
 
@@ -162,14 +174,9 @@ public class ConsentContext implements Tokenizable {
             this.setCallback(claims.get("callback"));
         }
         if ( claims.containsKey("orientation") ) {
-            this.setOrientation(Orientation.valueOf(claims.get("orientation")));
+            this.setOrientation(ConsentForm.Orientation.valueOf(claims.get("orientation")));
         }
         return this;
-    }
-
-    public enum Orientation {
-        HORIZONTAL,
-        VERTICAL
     }
 
 }

@@ -11,10 +11,12 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Singleton
 public class TokenServiceBean implements TokenService {
@@ -43,7 +45,7 @@ public class TokenServiceBean implements TokenService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.add(calendarField, calendarAmount);
-        JWTCreator.Builder builder = JWT.create().withIssuer(issuer);
+        JWTCreator.Builder builder = JWT.create().withIssuer(tokenizable.getOwner());
         builder.withExpiresAt(calendar.getTime());
         builder.withSubject(tokenizable.getSubject());
         builder.withClaim("payloadClass", tokenizable.getClass().getName());
@@ -68,6 +70,7 @@ public class TokenServiceBean implements TokenService {
             Class clazz = Class.forName(decodedJWT.getClaim("payloadClass").asString());
             Tokenizable tokenizable = (Tokenizable) clazz.newInstance();
             tokenizable.setSubject(decodedJWT.getSubject());
+            tokenizable.setOwner(decodedJWT.getIssuer());
             Map<String, String> claims = new HashMap<>();
             for (Map.Entry<String, Claim> claim :  decodedJWT.getClaims().entrySet() ) {
                 claims.put(claim.getKey(), claim.getValue().asString());

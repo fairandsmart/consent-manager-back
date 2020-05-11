@@ -11,6 +11,8 @@ public class ConsentForm {
     private ConsentElementVersion header;
     private List<ConsentElementVersion> elements;
     private ConsentElementVersion footer;
+    private String locale;
+    private Orientation orientation;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -52,12 +54,36 @@ public class ConsentForm {
         this.footer = footer;
     }
 
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
+    }
+
     @Override
     public String toString() {
         return "ConsentForm{" +
-                "header=" + header +
+                "token='" + token + '\'' +
+                ", header=" + header +
                 ", elements=" + elements +
                 ", footer=" + footer +
+                ", locale='" + locale + '\'' +
+                ", orientation=" + orientation +
                 '}';
+    }
+
+    public enum Orientation {
+        HORIZONTAL,
+        VERTICAL
     }
 }

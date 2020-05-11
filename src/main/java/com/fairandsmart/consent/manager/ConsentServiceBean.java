@@ -15,14 +15,22 @@ import com.fairandsmart.consent.manager.receipt.ConsentReceipt;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
+import com.fairandsmart.consent.token.InvalidTokenException;
+import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
+import com.fairandsmart.consent.token.TokenServiceException;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.time.Instant;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -43,11 +51,17 @@ public class ConsentServiceBean implements ConsentService {
     @Inject
     TokenService tokenService;
 
+    /* MODELS MANAGEMENT */
+
     @Override
     public CollectionPage<ConsentElementEntry> listModelEntries(ModelEntryFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Listing models entries");
         String connectedIdentifier = authentication.getConnectedIdentifier();
+        //TODO Handle cases where an admin is able to list any model entries
+        // For now, authenticated user is enforced as owner of th emodels :
+        filter.setOwner(connectedIdentifier);
         if ( !connectedIdentifier.equals(filter.getOwner()) ) {
+            //This exception is not raised yet, only here to not forgot usage later
             throw new AccessDeniedException("Owner must be the connected user");
         }
         PanacheQuery<ConsentElementEntry> query = ConsentElementEntry.find("owner = ?1 and type = ?2", filter.getOwner(), filter.getType());
@@ -138,14 +152,28 @@ public class ConsentServiceBean implements ConsentService {
         return versions.get(0);
     }
 
+    /* CONSENT MANAGEMENT */
+
     @Override
-    public ConsentForm generateForm(ConsentContext ctx) throws EntityNotFoundException {
+    public String buildToken(ConsentContext ctx) {
+        //TODO Handle cases where an admin is generating a token for another owner
+        // For now, authenticated user is enforced as owner of the token :
+        LOGGER.log(Level.FINE, "Building generate form token for context: " + ctx);
+        ctx.setOwner(authentication.getConnectedIdentifier());
+        return tokenService.generateToken(ctx);
+    }
+
+    @Override
+    public ConsentForm generateForm(String token) throws EntityNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
         //TODO :
         // 1. Load existing records for elements of this context (applying models invalidation strategy)
         //    Adapt ConsentForm to include existing values for each elements
-        // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form
+        // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form or parts of the form
         // 3. If form has to be displayed, load all models to populate
         // 4. Generate a new submission token and populate the form
+        LOGGER.log(Level.FINE, "Generating consent form");
+        ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+
         ConsentForm form = new ConsentForm();
         ConsentElementVersion header = this.findActiveModelVersionForKey(ctx.getHeader());
         form.setHeader(header);
@@ -168,7 +196,8 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentReceipt submitConsent(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
+    @Transactional
+    public ConsentReceipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenServiceException, TokenExpiredException, InvalidTokenException {
 
         //TODO :
         // 0. Generate transaction id
@@ -176,27 +205,33 @@ public class ConsentServiceBean implements ConsentService {
         // 2. Build existing records according to the submitted values
         // 3. Includes relevant records in the receipt
         // 4. According to the context, commit or not the transaction, apply to records
-        // 5.
-        this.checkValuesCoherency(ctx, values);
+        LOGGER.log(Level.FINE, "Submitting consent");
+        ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
         String transaction = UUID.randomUUID().toString();
+        Instant now = Instant.now();
+        this.checkValuesCoherency(ctx, values);
+
         List<ConsentRecord> records = new ArrayList<>();
         for ( Map.Entry<String, String> value : values.entrySet() ) {
             try {
-                ConsentElementIdentifier identifier = ConsentElementIdentifier.deserialize(value.getKey());
+                ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
+                ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(value.getKey());
+                ConsentElementIdentifier footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
                 ConsentRecord record = new ConsentRecord();
                 record.transaction = transaction;
                 record.subject = ctx.getSubject();
-                //TODO extract head serial only
-                record.head = ctx.getHeader();
-                record.type = identifier.getType();
-                record.body = identifier.getSerial();
-                //TODO extract foot serial only
-                record.foot = ctx.getFooter();
+                record.owner = ctx.getOwner();
+                record.head = headId.getSerial();
+                record.type = bodyId.getType();
+                record.body = bodyId.getSerial();
+                record.foot = footId.getSerial();
+                record.serial = headId.getSerial() + "." + bodyId.getSerial() + "." + footId.getSerial();
                 record.value = value.getValue();
-                record.creationTimestamp = System.currentTimeMillis();
+                record.creationTimestamp = now.toEpochMilli();
+                record.expirationTimestamp = now.plus(Period.ofWeeks(52)).toEpochMilli();
                 record.status = ConsentRecord.Status.PENDING;
-
+                record.persist();
                 records.add(record);
             } catch (IllegalIdentifierException e) {
                 //
@@ -205,6 +240,10 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "records: " + records);
 
         ConsentReceipt receipt = new ConsentReceipt();
+        receipt.setLocale(ctx.getLocale());
+        receipt.setTransaction(transaction);
+        receipt.setSubject(ctx.getSubject());
+        receipt.setTimestamp(now.toEpochMilli());
         //receipt.records = records;
         return receipt;
     }

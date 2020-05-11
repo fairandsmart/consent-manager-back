@@ -2,6 +2,7 @@ package com.fairandsmart.consent.usecase;
 
 import com.fairandsmart.consent.api.dto.CreateModelEntryDto;
 import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.data.Footer;
 import com.fairandsmart.consent.manager.data.Header;
 import com.fairandsmart.consent.manager.data.Treatment;
@@ -104,7 +105,7 @@ public class SimpleCollectTest {
         //Use basic consent context for first generation
         ConsentContext ctx = new ConsentContext()
                 .setSubject("mmichu")
-                .setOrientation(ConsentContext.Orientation.VERTICAL)
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setHeader("h1")
                 .setElements(Arrays.asList("t1", "t2"))
                 .setFooter("f1")

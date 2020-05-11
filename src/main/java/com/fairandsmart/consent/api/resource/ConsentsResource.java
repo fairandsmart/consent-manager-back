@@ -14,11 +14,10 @@ import com.fairandsmart.consent.manager.InvalidConsentException;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
 import com.fairandsmart.consent.manager.receipt.ConsentReceipt;
-import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
+import org.apache.commons.lang3.LocaleUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -36,36 +35,34 @@ public class ConsentsResource {
     private static final Logger LOGGER = Logger.getLogger(ConsentsResource.class.getName());
 
     @Inject
-    AuthenticationService authenticationService;
-
-    @Inject
     ConsentService consentService;
-
-    @Inject
-    TokenService tokenService;
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String token, @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language) throws TokenServiceException, InvalidTokenException, TokenExpiredException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Getting consent form");
+    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws TokenServiceException, InvalidTokenException, TokenExpiredException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "GET /consents");
 
-        ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
-        if ( (ctx.getLocale() == null || ctx.getLocale().isEmpty()) && (language != null && !language.isEmpty())) {
-            ctx.setLocale(language);
+        String token;
+        if ( htoken != null && !htoken.isEmpty() ) {
+            token = htoken;
+        } else if ( qtoken != null && !qtoken.isEmpty() ) {
+            token = qtoken;
+        } else {
+            throw new InvalidTokenException("Unable to find any token neither in header, neither as query param");
         }
-        ConsentForm form = consentService.generateForm(ctx);
+
+        ConsentForm form = consentService.generateForm(token);
 
         TemplateModel<ConsentForm> model = new TemplateModel();
-        //TODO use context locale
-        model.setLocale(Locale.getDefault());
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", Locale.getDefault());
+        model.setLocale(LocaleUtils.toLocale(form.getLocale()));
+        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
         model.setBundle(bundle);
         model.setData(form);
-        LOGGER.log(Level.INFO, form.toString());
-        model.setTemplate("vertical.ftl");
-        if (ctx.getOrientation().equals(ConsentContext.Orientation.HORIZONTAL)) {
-            model.setTemplate("horizontal.ftl");
+        model.setTemplate("form-vertical.ftl");
+        if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
+            model.setTemplate("form-horizontal.ftl");
         }
+        LOGGER.log(Level.FINE, model.toString());
         return model;
     }
 
@@ -73,18 +70,20 @@ public class ConsentsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel postConsent(Map<String, String> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, InvalidConsentException {
-        LOGGER.log(Level.INFO, "Posting consent");
+        LOGGER.log(Level.INFO, "POST /consents");
 
-        ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token"));
-        ConsentReceipt receipt = consentService.submitConsent(ctx, values);
+        if ( !values.containsKey("token") ) {
+            throw new InvalidTokenException("unable to find token in form");
+        }
+        ConsentReceipt receipt = consentService.submitConsent(values.get("token"), values);
 
         TemplateModel model = new TemplateModel();
-        model.setLocale(Locale.getDefault());
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", Locale.getDefault());
+        model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
+        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
         model.setBundle(bundle);
         model.setData(receipt);
         model.setTemplate("receipt.ftl");
-
+        LOGGER.log(Level.INFO, model.toString());
         return model;
     }
 
@@ -95,8 +94,7 @@ public class ConsentsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public String generateToken(@Context SecurityContext sec, ConsentContext ctx) {
         LOGGER.log(Level.INFO, "POST /consents/token");
-        LOGGER.log(Level.FINE, "Authenticated user : " + sec.getUserPrincipal().getName());
-        return tokenService.generateToken(ctx);
+        return consentService.buildToken(ctx);
     }
 
     @GET
@@ -110,7 +108,6 @@ public class ConsentsResource {
         ModelEntryFilter filter = new ModelEntryFilter();
         filter.setPage(page);
         filter.setSize(size);
-        filter.setOwner(authenticationService.getConnectedIdentifier());
         filter.setType(type);
         return consentService.listModelEntries(filter);
     }

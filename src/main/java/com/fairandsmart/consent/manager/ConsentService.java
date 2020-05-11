@@ -10,6 +10,9 @@ import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
 import com.fairandsmart.consent.manager.receipt.ConsentReceipt;
+import com.fairandsmart.consent.token.InvalidTokenException;
+import com.fairandsmart.consent.token.TokenExpiredException;
+import com.fairandsmart.consent.token.TokenServiceException;
 
 import java.util.Map;
 
@@ -31,8 +34,18 @@ public interface ConsentService {
     //TODO addModelVersion()
     //TODO deleteModelVersion()
 
-    ConsentForm generateForm(ConsentContext ctx) throws EntityNotFoundException;
+    String buildToken(ConsentContext ctx);
 
-    ConsentReceipt submitConsent(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException;
+    /**
+     * Generate a Consent Form based on the information provided in the
+     *
+     *
+     * @param token
+     * @return
+     * @throws EntityNotFoundException
+     */
+    ConsentForm generateForm(String token) throws EntityNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException;
+
+    ConsentReceipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenServiceException, TokenExpiredException, InvalidTokenException;
 
 }
