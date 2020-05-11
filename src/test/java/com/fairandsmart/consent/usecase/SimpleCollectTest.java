@@ -70,7 +70,7 @@ public class SimpleCollectTest {
         t1.setKey("t1");
         t1.setName("T1");
         t1.setDescription("Le traitement t1");
-        t1.setContent(new Treatment().withData("Votre nom").withRetention("Toute votre vie").withUsage("Tout savoir sur vous").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
+        t1.setContent(new Treatment().withDataBody("Votre nom").withRetentionBody("Toute votre vie").withUsageBody("Tout savoir sur vous").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
         given().contentType(ContentType.JSON).body(t1).
                 when().post("/consents/models").
@@ -81,7 +81,7 @@ public class SimpleCollectTest {
         t2.setKey("t2");
         t2.setName("T2");
         t2.setDescription("Le traitement t2");
-        t2.setContent(new Treatment().withData("Votre email").withRetention("Toute votre vie").withUsage("Tout savoir sur vous").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
+        t2.setContent(new Treatment().withDataBody("Votre email").withRetentionBody("Toute votre vie").withUsageBody("Tout savoir sur vous").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
         given().contentType(ContentType.JSON).body(t2).
                 when().post("/consents/models").

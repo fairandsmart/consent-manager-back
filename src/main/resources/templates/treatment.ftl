@@ -1,14 +1,27 @@
 <div class="treatment">
-    <div>
-        <#if langContent.title?has_content>
-            <h3>${langContent.title}</h3>
+    <@fetchMultiLangContent element></@fetchMultiLangContent>
+
+    <#if langContent?has_content>
+        <div class="treatment-header">
+            <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>
+            <@toggleSwitch "${element.identifier}"></@toggleSwitch>
+        </div>
+
+        <#if langContent.dataTitle?has_content>
+            <h4>${langContent.dataTitle}</h4>
+        </#if>
+        <p><@valueOrError langContent.dataBody "missingValue"></@valueOrError><p>
+
+        <#if langContent.retentionBody?has_content>
+            <#if langContent.retentionTitle?has_content>
+                <h4>${langContent.retentionTitle}</h4>
+            </#if>
+            <p>${langContent.retentionBody}<p>
         </#if>
 
-        <p>Nous utilisons <b><@valueOrError langContent.data "missingValue"></@valueOrError></b> pour <b><@valueOrError langContent.usage "missingValue"></@valueOrError></b>.</p>
-        <#if langContent.retention?has_content>
-            <p>Nous conservons ces données pendant une durée de <b>${langContent.retention}</b>.</p>
+        <#if langContent.usageTitle?has_content>
+            <h4>${langContent.usageTitle}</h4>
         </#if>
-    </div>
-
-    <@toggleSwitch "${element.identifier}"></@toggleSwitch>
+        <p><@valueOrError langContent.usageBody "missingValue"></@valueOrError><p>
+    </#if>
 </div>

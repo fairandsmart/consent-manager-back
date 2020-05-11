@@ -2,6 +2,10 @@
 
 body {
     margin: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
 }
 
 
@@ -48,11 +52,13 @@ body {
 }
 
 .treatment {
-    display: flex;
-    justify-content: space-between;
     padding: 6px 12px;
 }
 
+.treatment-header {
+    display: flex;
+    justify-content: space-between;
+}
 
 /* Footer */
 
@@ -63,6 +69,11 @@ body {
 .accept-all-container {
     display: flex;
     justify-content: space-between;
+}
+
+.accept-all-text {
+    font-weight: bold;
+    margin: 12px 20px 12px 0px;
 }
 
 .submit {
