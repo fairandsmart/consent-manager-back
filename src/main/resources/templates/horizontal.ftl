@@ -33,8 +33,7 @@
 
             <div class="treatments">
                 <#list data.elements as element>
-                    <@fetchMultiLangContent element></@fetchMultiLangContent>
-                    <#include element.contentType + ".ftl">
+                    <#include "treatment.ftl">
                 </#list>
             </div>
 

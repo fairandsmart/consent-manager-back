@@ -6,20 +6,32 @@ form {
 }
 
 .left {
-    position: absolute;
-    height: 100vh;
     width: 40%;
     overflow-y: auto;
 }
 
 .right {
-    position: absolute;
-    height: 100vh;
     width: 60%;
     background-color: #eeeeee;
-    margin-left: 40%;
     display: flex;
     flex-direction: column;
+}
+
+@media screen and (max-width: 1000px) {
+    .left, .right {
+        height: 100vh;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    form {
+        border: 1px solid lightgrey;
+        width: 1000px;
+    }
+
+    .left, .right {
+        max-height: 90vh;
+    }
 }
 
 

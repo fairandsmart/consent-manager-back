@@ -1,5 +1,7 @@
 <div class="treatment">
-    <div>
+    <@fetchMultiLangContent element></@fetchMultiLangContent>
+
+    <#if langContent?has_content>
         <div class="treatment-header">
             <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>
             <@toggleSwitch "treatment-${element.entry.key}-${element.serial}"></@toggleSwitch>
@@ -21,5 +23,5 @@
             <h4>${langContent.usageTitle}</h4>
         </#if>
         <p><@valueOrError langContent.usageBody "missingValue"></@valueOrError><p>
-    </div>
+    </#if>
 </div>

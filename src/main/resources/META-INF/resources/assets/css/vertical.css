@@ -3,7 +3,21 @@
 form {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+}
+
+@media screen and (max-width: 800px) {
+    form {
+        height: 100vh;
+    }
+}
+
+@media screen and (min-width: 800px) {
+    form {
+        margin: auto;
+        border: 1px solid lightgrey;
+        max-height: 90vh;
+        width: 800px;
+    }
 }
 
 
