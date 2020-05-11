@@ -9,8 +9,14 @@
 
         <p><@valueOrError langContent.body "missingValue"></@valueOrError></p>
 
-        <#if langContent.footer?has_content>
-            <a href="${langContent.footer}"><@readBundle "readMore" "missingValue"></@readBundle></a>
+        <#if langContent.readMoreLink?has_content>
+            <a href="${langContent.readMoreLink}">
+                <#if langContent.customReadMoreText?has_content>
+                    ${langContent.customReadMoreText}
+                <#else>
+                    <@readBundle "readMore" "missingValue"></@readBundle>
+                </#if>
+            </a>
         </#if>
     </div>
 </#if>

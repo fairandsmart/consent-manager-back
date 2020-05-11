@@ -4,51 +4,107 @@ public class Treatment extends ModelData {
 
     public static final String TYPE = "treatment";
 
-    public String data;
-    public String retention;
-    public String usage;
+    public String treatmentTitle;
+    public String dataTitle;
+    public String dataBody;
+    public String retentionTitle;
+    public String retentionBody;
+    public String usageTitle;
+    public String usageBody;
     public Purpose purpose;
 
     public Treatment() {
         this.setType(TYPE);
     }
 
-    public String getData() {
-        return data;
+    public String getTreatmentTitle() {
+        return treatmentTitle;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setTreatmentTitle(String treatmentTitle) {
+        this.treatmentTitle = treatmentTitle;
     }
 
-    public Treatment withData(String data) {
-        this.data = data;
+    public Treatment withTreatmentTitle(String treatmentTitle) {
+        this.treatmentTitle = treatmentTitle;
         return this;
     }
 
-    public String getRetention() {
-        return retention;
+    public String getDataTitle() {
+        return dataTitle;
     }
 
-    public void setRetention(String retention) {
-        this.retention = retention;
+    public void setDataTitle(String dataTitle) {
+        this.dataTitle = dataTitle;
     }
 
-    public Treatment withRetention(String retention) {
-        this.retention = retention;
+    public Treatment withDataTitle(String dataTitle) {
+        this.dataTitle = dataTitle;
         return this;
     }
 
-    public String getUsage() {
-        return usage;
+    public String getDataBody() {
+        return dataBody;
     }
 
-    public void setUsage(String usage) {
-        this.usage = usage;
+    public void setDataBody(String dataBody) {
+        this.dataBody = dataBody;
     }
 
-    public Treatment withUsage(String usage) {
-        this.usage = usage;
+    public Treatment withDataBody(String dataBody) {
+        this.dataBody = dataBody;
+        return this;
+    }
+
+    public String getRetentionTitle() {
+        return retentionTitle;
+    }
+
+    public void setRetentionTitle(String retentionTitle) {
+        this.retentionTitle = retentionTitle;
+    }
+
+    public Treatment withRetentionTitle(String retentionTitle) {
+        this.retentionTitle = retentionTitle;
+        return this;
+    }
+
+    public String getRetentionBody() {
+        return retentionBody;
+    }
+
+    public void setRetentionBody(String retentionBody) {
+        this.retentionBody = retentionBody;
+    }
+
+    public Treatment withRetentionBody(String retentionBody) {
+        this.retentionBody = retentionBody;
+        return this;
+    }
+
+    public String getUsageTitle() {
+        return usageTitle;
+    }
+
+    public void setUsageTitle(String usageTitle) {
+        this.usageTitle = usageTitle;
+    }
+
+    public Treatment withUsageTitle(String usageTitle) {
+        this.usageTitle = usageTitle;
+        return this;
+    }
+
+    public String getUsageBody() {
+        return usageBody;
+    }
+
+    public void setUsageBody(String usageBody) {
+        this.usageBody = usageBody;
+    }
+
+    public Treatment withUsageBody(String usageBody) {
+        this.usageBody = usageBody;
         return this;
     }
 

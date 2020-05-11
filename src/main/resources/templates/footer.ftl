@@ -6,8 +6,10 @@
 
     <#if langContent.showAcceptAll?? && langContent.showAcceptAll>
         <div class="accept-all-container">
-            <div>
-                <p><#if langContent.customAcceptAllText?has_content>${langContent.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle></#if></p>
+            <div class="accept-all-text">
+                <#if langContent.customAcceptAllText?has_content>
+                    ${langContent.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle>
+                </#if>
             </div>
 
             <@toggleSwitch "accept-all"></@toggleSwitch>
