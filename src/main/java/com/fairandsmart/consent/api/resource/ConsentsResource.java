@@ -61,7 +61,7 @@ public class ConsentsResource {
 
         ConsentContext ctx = tokenService.readToken(token);
         ConsentForm form = new ConsentForm();
-        form.setToken("fake");
+        form.setToken(token);
         form.setHeader(consentService.findActiveModelVersionForKey(ctx.getHeader()));
         for (String key : ctx.getElements()) {
             form.addElement(consentService.findActiveModelVersionForKey(key));
@@ -70,11 +70,10 @@ public class ConsentsResource {
         model.setData(form);
         LOGGER.log(Level.INFO, form.toString());
 
-        switch (ctx.getOrientation()) {
-            case HORIZONTAL:
-                model.setTemplate("horizontal.ftl");
-            default:
-                model.setTemplate("vertical.ftl");
+        if (ctx.getOrientation() == ConsentContext.Orientation.HORIZONTAL) {
+            model.setTemplate("horizontal.ftl");
+        } else {
+            model.setTemplate("vertical.ftl");
         }
 
         return model;
