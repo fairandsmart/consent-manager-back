@@ -1,16 +1,19 @@
 package com.fairandsmart.consent.manager;
 
+import com.fairandsmart.consent.token.Tokenizable;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class ConsentContext {
+public class ConsentContext implements Tokenizable {
 
     @NotNull
     private String subject;
+    private String owner;
     @NotNull
-    private Orientation orientation;
+    private ConsentForm.Orientation orientation;
     private String header;
     @NotNull
     @NotEmpty
@@ -24,7 +27,6 @@ public class ConsentContext {
     // Add field for receipt (DISPLAY, COOKIE, STORAGE, ...) Allows to specify how the receipt will be stored and propose to client for display or storage
     // Add field for receipt status : Allows to generate a receipt status boolean if consent conditions are meet after submission (avoid rechecking base)
 /*
-    private String token;
     private String requisite;
     private String receipt;
     private boolean status;
@@ -39,7 +41,7 @@ public class ConsentContext {
 
 
     public ConsentContext() {
-
+        this.elements = new ArrayList<>();
     }
 
     public String getSubject() {
@@ -51,11 +53,20 @@ public class ConsentContext {
         return this;
     }
 
-    public Orientation getOrientation() {
+    public String getOwner() {
+        return owner;
+    }
+
+    public ConsentContext setOwner(String owner) {
+        this.owner = owner;
+        return this;
+    }
+
+    public ConsentForm.Orientation getOrientation() {
         return orientation;
     }
 
-    public ConsentContext setOrientation(Orientation orientation) {
+    public ConsentContext setOrientation(ConsentForm.Orientation orientation) {
         this.orientation = orientation;
         return this;
     }
@@ -71,6 +82,14 @@ public class ConsentContext {
 
     public List<String> getElements() {
         return elements;
+    }
+
+    public String getElementsString() {
+        return elements.stream().collect(Collectors.joining(","));
+    }
+
+    public void setElementsString(String elements) {
+        this.setElements(Arrays.asList(elements.split(",")));
     }
 
     public ConsentContext setElements(List<String> elements) {
@@ -101,12 +120,10 @@ public class ConsentContext {
         return this;
     }
 
-    public enum Orientation {
-        HORIZONTAL,
-        VERTICAL
-    }
-
     public String getLocale() {
+        if ( locale == null || locale.isEmpty() ) {
+            return Locale.getDefault().toLanguageTag();
+        }
         return locale;
     }
 
@@ -114,4 +131,52 @@ public class ConsentContext {
         this.locale = locale;
         return this;
     }
+
+    @Override
+    public Map<String, String> getClaims() {
+        Map<String, String> claims = new HashMap<>();
+        if ( header != null ) {
+            claims.put("header", this.getHeader());
+        }
+        if ( elements != null && !elements.isEmpty() ) {
+            claims.put("elements", this.getElementsString());
+        }
+        if ( footer != null ) {
+            claims.put("footer", this.getFooter());
+        }
+        if ( locale != null ) {
+            claims.put("locale", this.getLocale());
+        }
+        if ( callback != null ) {
+            claims.put("callback", this.getCallback());
+        }
+        if ( orientation != null ) {
+            claims.put("orientation", this.getOrientation().name());
+        }
+        return claims;
+    }
+
+    @Override
+    public Tokenizable setClaims(Map<String, String> claims) {
+        if ( claims.containsKey("header") ) {
+            this.setHeader(claims.get("header"));
+        }
+        if ( claims.containsKey("elements") ) {
+            this.setElementsString(claims.get("elements"));
+        }
+        if ( claims.containsKey("footer") ) {
+            this.setFooter(claims.get("footer"));
+        }
+        if ( claims.containsKey("locale") ) {
+            this.setLocale(claims.get("locale"));
+        }
+        if ( claims.containsKey("callback") ) {
+            this.setCallback(claims.get("callback"));
+        }
+        if ( claims.containsKey("orientation") ) {
+            this.setOrientation(ConsentForm.Orientation.valueOf(claims.get("orientation")));
+        }
+        return this;
+    }
+
 }

@@ -21,6 +21,7 @@ public class ConsentRecord extends PanacheEntityBase {
     public String owner;
     public String subject;
     public String transaction;
+    public String parent;
     public String serial;
     public String type;
     public String head;
@@ -37,5 +38,25 @@ public class ConsentRecord extends PanacheEntityBase {
         OBSOLETE
     }
 
-
+    @Override
+    public String toString() {
+        return "ConsentRecord{" +
+                "id=" + id +
+                ", version=" + version +
+                ", creationTimestamp=" + creationTimestamp +
+                ", expirationTimestamp=" + expirationTimestamp +
+                ", owner='" + owner + '\'' +
+                ", subject='" + subject + '\'' +
+                ", transaction='" + transaction + '\'' +
+                ", parent='" + parent + '\'' +
+                ", serial='" + serial + '\'' +
+                ", type='" + type + '\'' +
+                ", head='" + head + '\'' +
+                ", body='" + body + '\'' +
+                ", foot='" + foot + '\'' +
+                ", value='" + value + '\'' +
+                ", status=" + status +
+                ", attributes=" + attributes +
+                '}';
+    }
 }

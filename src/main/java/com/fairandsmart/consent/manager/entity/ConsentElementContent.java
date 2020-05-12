@@ -1,7 +1,7 @@
 package com.fairandsmart.consent.manager.entity;
 
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
-import com.fairandsmart.consent.manager.data.ModelData;
+import com.fairandsmart.consent.manager.data.ConsentElementData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -10,13 +10,13 @@ import javax.persistence.Lob;
 import java.io.IOException;
 
 @Embeddable
-public class ModelContent {
+public class ConsentElementContent {
 
     @Lob
     public String data;
-    public Class<? extends ModelData> type;
+    public Class<? extends ConsentElementData> dataClass;
 
-    public ModelContent() {
+    public ConsentElementContent() {
     }
 
     public String getData() {
@@ -27,40 +27,40 @@ public class ModelContent {
         this.data = data;
     }
 
-    public ModelContent withData(String data) {
+    public ConsentElementContent withData(String data) {
         this.data = data;
         return this;
     }
 
-    public ModelData getModelData() throws ModelDataSerializationException {
+    public ConsentElementData getModelData() throws ModelDataSerializationException {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ModelData body = mapper.readValue(data, type);
+            ConsentElementData body = mapper.readValue(data, dataClass);
             return body;
         } catch ( JsonProcessingException e ) {
-            throw new ModelDataSerializationException("Unable to deserialize model data", e);
+            throw new ModelDataSerializationException("Unable to deserialize element data", e);
         }
     }
 
-    public void setModelData(ModelData data) throws ModelDataSerializationException {
+    public void setModelData(ConsentElementData data) throws ModelDataSerializationException {
         try {
-            this.type = data.getClass();
+            this.dataClass = data.getClass();
             this.data = data.toJson();
         } catch ( IOException e ) {
-            throw new ModelDataSerializationException("Unable to serialize model data", e);
+            throw new ModelDataSerializationException("Unable to serialize element data", e);
         }
     }
 
-    public ModelContent withModelData(ModelData data) throws ModelDataSerializationException {
+    public ConsentElementContent withModelData(ConsentElementData data) throws ModelDataSerializationException {
         this.setModelData(data);
         return this;
     }
 
     @Override
     public String toString() {
-        return "ModelContent{" +
+        return "ConsentElementContent{" +
                 "data='" + data + '\'' +
-                ", dataType=" + type +
+                ", dataClass=" + dataClass +
                 '}';
     }
 }

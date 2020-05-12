@@ -1,6 +1,6 @@
 package com.fairandsmart.consent.manager;
 
-import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,11 @@ import java.util.List;
 public class ConsentForm {
 
     private String token;
-    private ModelVersion header;
-    private List<ModelVersion> elements;
-    private ModelVersion footer;
+    private ConsentElementVersion header;
+    private List<ConsentElementVersion> elements;
+    private ConsentElementVersion footer;
+    private String locale;
+    private Orientation orientation;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -24,40 +26,64 @@ public class ConsentForm {
         this.token = token;
     }
 
-    public ModelVersion getHeader() {
+    public ConsentElementVersion getHeader() {
         return header;
     }
 
-    public void setHeader(ModelVersion header) {
+    public void setHeader(ConsentElementVersion header) {
         this.header = header;
     }
 
-    public List<ModelVersion> getElements() {
+    public List<ConsentElementVersion> getElements() {
         return elements;
     }
 
-    public void setElements(List<ModelVersion> elements) {
+    public void setElements(List<ConsentElementVersion> elements) {
         this.elements = elements;
     }
 
-    public void addElement(ModelVersion element) {
+    public void addElement(ConsentElementVersion element) {
         this.elements.add(element);
     }
 
-    public ModelVersion getFooter() {
+    public ConsentElementVersion getFooter() {
         return footer;
     }
 
-    public void setFooter(ModelVersion footer) {
+    public void setFooter(ConsentElementVersion footer) {
         this.footer = footer;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
     }
 
     @Override
     public String toString() {
         return "ConsentForm{" +
-                "header=" + header +
+                "token='" + token + '\'' +
+                ", header=" + header +
                 ", elements=" + elements +
                 ", footer=" + footer +
+                ", locale='" + locale + '\'' +
+                ", orientation=" + orientation +
                 '}';
+    }
+
+    public enum Orientation {
+        HORIZONTAL,
+        VERTICAL
     }
 }

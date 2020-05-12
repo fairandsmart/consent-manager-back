@@ -2,7 +2,7 @@ package com.fairandsmart.consent.manager.data;
 
 import com.fairandsmart.consent.manager.receipt.Controller;
 
-public class Header extends ModelData {
+public class Header extends ConsentElementData {
 
     public static final String TYPE = "header";
 

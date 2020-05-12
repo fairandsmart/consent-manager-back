@@ -11,7 +11,7 @@
 
     <link rel="stylesheet" href="/assets/css/common.css">
     <link rel="stylesheet" href="/assets/css/consent.css">
-    <link rel="stylesheet" href="/assets/css/horizontal.css">
+    <link rel="stylesheet" href="/assets/css/vertical.css">
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
@@ -20,25 +20,22 @@
     <form method="post" id="consent" action="">
         <input name="token" value="${data.token}" hidden/>
 
-        <div class="left">
-            <#include "logo.ftl">
+        <div class="close-wrapper">
+            <button class="close-btn">×</button>
+        </div>
 
+        <#include "logo.ftl">
+
+        <div class="treatments">
             <#include "header.ftl">
+
+            <#list data.elements as element>
+                <@fetchMultiLangContent element></@fetchMultiLangContent>
+                <#include element.entry.type + ".ftl">
+            </#list>
         </div>
 
-        <div class="right">
-            <div class="close-wrapper">
-                <button class="close-btn">×</button>
-            </div>
-
-            <div class="treatments">
-                <#list data.elements as element>
-                    <#include "treatment.ftl">
-                </#list>
-            </div>
-
-            <#include "footer.ftl">
-        </div>
+        <#include "footer.ftl">
     </form>
 </body>
 

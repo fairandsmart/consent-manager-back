@@ -5,19 +5,21 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fairandsmart.consent.manager.ConsentContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Singleton
-public class TokenServiceBean  implements TokenService {
+public class TokenServiceBean implements TokenService {
 
     private static final Logger LOGGER = Logger.getLogger(TokenService.class.getName());
 
@@ -26,9 +28,6 @@ public class TokenServiceBean  implements TokenService {
 
     @ConfigProperty(name = "consent.token.issuer")
     String issuer;
-
-    @ConfigProperty(name = "consent.token.systemid")
-    String systemId;
 
     private static JWTVerifier verifier;
     private static Algorithm algorithm;
@@ -41,42 +40,53 @@ public class TokenServiceBean  implements TokenService {
     }
 
     @Override
-    public String generateToken(ConsentContext ctx, int calendarField, int calendarAmount) {
-        LOGGER.log(Level.FINE, "Generating token for subject: " + ctx.getSubject());
+    public String generateToken(Tokenizable tokenizable, int calendarField, int calendarAmount) {
+        LOGGER.log(Level.INFO, "Generating token");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.add(calendarField, calendarAmount);
-        JWTCreator.Builder builder = JWT.create().withIssuer(issuer);
+        JWTCreator.Builder builder = JWT.create().withIssuer(tokenizable.getOwner());
         builder.withExpiresAt(calendar.getTime());
-        builder.withSubject(ctx.getSubject());
-        builder.withClaim("header", ctx.getHeader());
-        builder.withClaim("elements", ctx.getElements());
-        builder.withClaim("footer", ctx.getFooter());
-        builder.withClaim("orientation", ctx.getOrientation().name());
+        builder.withSubject(tokenizable.getSubject());
+        builder.withClaim("payloadClass", tokenizable.getClass().getName());
+        tokenizable.getClaims().forEach((key, value) -> builder.withClaim(key, value));
         return builder.sign(algorithm);
     }
 
     @Override
-    public String generateToken(ConsentContext ctx) {
-        return this.generateToken(ctx, Calendar.HOUR, 4);
+    public String generateToken(Tokenizable tokenizable) {
+        return this.generateToken(tokenizable, Calendar.HOUR, 4);
     }
 
     @Override
-    public ConsentContext readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException {
-        LOGGER.log(Level.FINE, "Reading token");
+    public Tokenizable readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException {
+        LOGGER.log(Level.INFO, "Reading token");
         DecodedJWT decodedJWT = getDecodedToken(token);
-        ConsentContext ctx = new ConsentContext();
-        ctx.setSubject(decodedJWT.getSubject());
-        ctx.setHeader(decodedJWT.getClaim("header").asString());
-        ctx.setElements(decodedJWT.getClaim("elements").asList(String.class));
-        ctx.setFooter(decodedJWT.getClaim("footer").asString());
-        ctx.setOrientation(ConsentContext.Orientation.valueOf(decodedJWT.getClaim("orientation").asString()));
-        return ctx;
+
+        if (!decodedJWT.getClaims().containsKey("payloadClass")) {
+            throw new InvalidTokenException("token must contains a payloadClass claim");
+        }
+        try {
+            Class clazz = Class.forName(decodedJWT.getClaim("payloadClass").asString());
+            Tokenizable tokenizable = (Tokenizable) clazz.newInstance();
+            tokenizable.setSubject(decodedJWT.getSubject());
+            tokenizable.setOwner(decodedJWT.getIssuer());
+            Map<String, String> claims = new HashMap<>();
+            for (Map.Entry<String, Claim> claim :  decodedJWT.getClaims().entrySet() ) {
+                claims.put(claim.getKey(), claim.getValue().asString());
+            }
+            tokenizable.setClaims(claims);
+            return tokenizable;
+        } catch (ClassNotFoundException e) {
+            throw new TokenServiceException("Unable to load class of tokenized object");
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new TokenServiceException("Unable to build tokenizable", e);
+        }
     }
 
-    public DecodedJWT getDecodedToken(String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException {
-        LOGGER.log(Level.FINE, "Decoding token: " + token);
-        if ( verifier != null ) {
+    private DecodedJWT getDecodedToken(String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException {
+        LOGGER.log(Level.INFO, "Decoding token: " + token);
+        if (verifier != null) {
             LOGGER.log(Level.FINE, "Verifier is not null");
             try {
                 DecodedJWT decodedJWT = verifier.verify(token);
@@ -87,7 +97,7 @@ public class TokenServiceBean  implements TokenService {
                 } else {
                     throw new TokenExpiredException("Token expires on : " + decodedJWT.getExpiresAt().toString());
                 }
-            } catch ( JWTDecodeException ex ) {
+            } catch (JWTDecodeException ex) {
                 throw new InvalidTokenException(ex);
             }
         }

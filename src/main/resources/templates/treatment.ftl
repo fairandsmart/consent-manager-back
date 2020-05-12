@@ -5,7 +5,7 @@
         <#-- Header -->
         <div class="treatment-header">
             <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>
-            <@toggleSwitch "treatment-${element.entry.key}-${element.serial}"></@toggleSwitch>
+            <@toggleSwitch "${element.identifier}"></@toggleSwitch>
         </div>
 
         <#-- Data -->

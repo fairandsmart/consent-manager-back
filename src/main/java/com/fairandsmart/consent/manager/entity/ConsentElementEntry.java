@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-public class ModelEntry extends PanacheEntityBase {
+public class ConsentElementEntry extends PanacheEntityBase {
 
     @JsonIgnore
     @Transient
@@ -20,7 +20,7 @@ public class ModelEntry extends PanacheEntityBase {
     public UUID id;
     @Version
     public long version;
-    public Type type;
+    public String type;
     public String key;
     public String name;
     public String description;
@@ -28,12 +28,12 @@ public class ModelEntry extends PanacheEntityBase {
     public String branches;
 
     public static boolean isKeyAlreadyExistsForOwner(String owner, String key) {
-        return ModelEntry.count("owner = ?1 and key = ?2", owner, key) > 0;
+        return ConsentElementEntry.count("owner = ?1 and key = ?2", owner, key) > 0;
     }
 
     @Override
     public String toString() {
-        return "ModelEntry{" +
+        return "ConsentElementEntry{" +
                 "id=" + id +
                 ", version=" + version +
                 ", type=" + type +
@@ -43,13 +43,6 @@ public class ModelEntry extends PanacheEntityBase {
                 ", owner='" + owner + '\'' +
                 ", branches='" + branches + '\'' +
                 '}';
-    }
-
-    public enum Type {
-        HEADER,
-        FOOTER,
-        TREATMENT,
-        CONDITIONS;
     }
 
 }

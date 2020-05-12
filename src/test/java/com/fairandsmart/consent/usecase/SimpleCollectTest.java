@@ -2,10 +2,10 @@ package com.fairandsmart.consent.usecase;
 
 import com.fairandsmart.consent.api.dto.CreateModelEntryDto;
 import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.data.Footer;
 import com.fairandsmart.consent.manager.data.Header;
 import com.fairandsmart.consent.manager.data.Treatment;
-import com.fairandsmart.consent.manager.entity.ModelEntry;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -43,7 +43,6 @@ public class SimpleCollectTest {
 
         //Create header model
         CreateModelEntryDto h1 = new CreateModelEntryDto();
-        h1.setType(ModelEntry.Type.HEADER);
         h1.setLocale("fr_FR");
         h1.setKey("h1");
         h1.setName("H1");
@@ -56,7 +55,6 @@ public class SimpleCollectTest {
 
         //Create footer model
         CreateModelEntryDto f1 = new CreateModelEntryDto();
-        f1.setType(ModelEntry.Type.FOOTER);
         f1.setLocale("fr_FR");
         f1.setKey("f1");
         f1.setName("F1");
@@ -69,7 +67,6 @@ public class SimpleCollectTest {
 
         //Create treatment 1 model
         CreateModelEntryDto t1 = new CreateModelEntryDto();
-        t1.setType(ModelEntry.Type.TREATMENT);
         t1.setLocale("fr_FR");
         t1.setKey("t1");
         t1.setName("T1");
@@ -81,7 +78,6 @@ public class SimpleCollectTest {
                 then().statusCode(201).header("location", notNullValue());
 
         CreateModelEntryDto t2 = new CreateModelEntryDto();
-        t2.setType(ModelEntry.Type.TREATMENT);
         t2.setLocale("fr_FR");
         t2.setKey("t2");
         t2.setName("T2");
@@ -109,7 +105,7 @@ public class SimpleCollectTest {
         //Use basic consent context for first generation
         ConsentContext ctx = new ConsentContext()
                 .setSubject("mmichu")
-                .setOrientation(ConsentContext.Orientation.VERTICAL)
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setHeader("h1")
                 .setElements(Arrays.asList("t1", "t2"))
                 .setFooter("f1")
@@ -173,7 +169,7 @@ public class SimpleCollectTest {
         LOGGER.log(Level.INFO, "Form Values: " + values);
 
         //PART 3
-        Response postResponse = given().header("TOKEN", token).contentType(ContentType.JSON).
+        Response postResponse = given().contentType(ContentType.JSON).
                 body(values).when().post("/consents");
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
