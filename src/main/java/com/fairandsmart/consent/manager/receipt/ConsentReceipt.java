@@ -5,22 +5,19 @@ import java.util.List;
 public class ConsentReceipt {
 
     private String transaction;
-    //TODO Include invalidated serials ?
     private String jurisdiction;
+    private String locale;
     private long timestamp;
     private String processor;
-    private List<NameValuePair> attributes;
     private String subject;
     private List<NameValuePair> subjectDetails;
     private Controller dataController;
     private String headerNotice;
     private List<Record> records;
-    private List<Sharing> sharings;
     private String footerNotice;
-    private boolean containsSensitivePersonalInformation;
-    private String privacyPolicyUrl;
+    private List<NameValuePair> attributes;
     private List<Attachment> attachments;
-    private String locale;
+    private String privacyPolicyUrl;
     //TODO Include modification url ?
 
     public ConsentReceipt() {
@@ -106,28 +103,12 @@ public class ConsentReceipt {
         this.records = records;
     }
 
-    public List<Sharing> getSharings() {
-        return sharings;
-    }
-
-    public void setSharings(List<Sharing> sharings) {
-        this.sharings = sharings;
-    }
-
     public String getFooterNotice() {
         return footerNotice;
     }
 
     public void setFooterNotice(String footerNotice) {
         this.footerNotice = footerNotice;
-    }
-
-    public boolean isContainsSensitivePersonalInformation() {
-        return containsSensitivePersonalInformation;
-    }
-
-    public void setContainsSensitivePersonalInformation(boolean containsSensitivePersonalInformation) {
-        this.containsSensitivePersonalInformation = containsSensitivePersonalInformation;
     }
 
     public String getPrivacyPolicyUrl() {
