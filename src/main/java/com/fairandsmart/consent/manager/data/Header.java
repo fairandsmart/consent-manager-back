@@ -17,8 +17,6 @@ public class Header extends ConsentElementData {
     private boolean showJurisdiction = false;
     private String collectionMethod;
     private boolean showCollectionMethod = false;
-    private String consentProcessor;
-    private boolean showConsentProcessor = false;
     private Controller dataController;
     private boolean showDataController = false;
     private String scope;
@@ -133,32 +131,6 @@ public class Header extends ConsentElementData {
 
     public Header withShowCollectionMethod(boolean showCollectionMethod) {
         this.showCollectionMethod = showCollectionMethod;
-        return this;
-    }
-
-    public String getConsentProcessor() {
-        return consentProcessor;
-    }
-
-    public void setConsentProcessor(String consentProcessor) {
-        this.consentProcessor = consentProcessor;
-    }
-
-    public Header withConsentProcessor(String consentProcessor) {
-        this.consentProcessor = consentProcessor;
-        return this;
-    }
-
-    public boolean isShowConsentProcessor() {
-        return showConsentProcessor;
-    }
-
-    public void setShowConsentProcessor(boolean showConsentProcessor) {
-        this.showConsentProcessor = showConsentProcessor;
-    }
-
-    public Header withShowConsentProcessor(boolean showConsentProcessor) {
-        this.showConsentProcessor = showConsentProcessor;
         return this;
     }
 

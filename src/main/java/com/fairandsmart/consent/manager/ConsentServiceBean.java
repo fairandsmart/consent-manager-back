@@ -175,6 +175,9 @@ public class ConsentServiceBean implements ConsentService {
         ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
         ConsentForm form = new ConsentForm();
+        form.setLocale(ctx.getLocale());
+        form.setOrientation(ctx.getOrientation());
+
         ConsentElementVersion header = this.findActiveModelVersionForKey(ctx.getHeader());
         form.setHeader(header);
         ctx.setHeader(header.getIdentifier().serialize());

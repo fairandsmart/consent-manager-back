@@ -4,7 +4,13 @@
         <@fetchMultiLangContent data.footer></@fetchMultiLangContent>
     </#if>
 
-    <#if langContent.showAcceptAll?? && langContent.showAcceptAll>
+    <#if langContent.body?has_content>
+        <div class="footer-body">
+            ${langContent.body}
+        </div>
+    </#if>
+
+    <#if langContent.showAcceptAll>
         <div class="accept-all-container">
             <div class="accept-all-text">
                 <#if langContent.customAcceptAllText?has_content>

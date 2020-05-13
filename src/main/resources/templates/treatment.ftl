@@ -34,7 +34,7 @@
         </p>
 
         <#-- Data controller -->
-        <#if langContent.showDataController>
+        <#if langContent.showDataController && langContent.dataController?has_content>
             <#assign dataController=langContent.dataController>
             <#include "dataController.ftl">
         </#if>

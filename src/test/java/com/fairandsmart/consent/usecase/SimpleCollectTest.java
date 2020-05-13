@@ -47,7 +47,11 @@ public class SimpleCollectTest {
         h1.setKey("h1");
         h1.setName("H1");
         h1.setDescription("Le header H1");
-        h1.setContent(new Header().withTitle("Title h1").withBody("Body h1").withPrivacyPolicyUrl("Readmore h1"));
+        h1.setContent(new Header()
+                .withTitle("Title h1")
+                .withBody("Body h1")
+                .withPrivacyPolicyUrl("Readmore h1")
+        );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
         given().contentType(ContentType.JSON).body(h1).
                 when().post("/consents/models").
@@ -59,7 +63,10 @@ public class SimpleCollectTest {
         f1.setKey("f1");
         f1.setName("F1");
         f1.setDescription("Le footer F1");
-        f1.setContent(new Footer().withShowAcceptAll(true).withCustomAcceptAllText("J'accepte tout"));
+        f1.setContent(new Footer()
+                .withShowAcceptAll(true)
+                .withCustomAcceptAllText("J'accepte tout")
+        );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
         given().contentType(ContentType.JSON).body(f1).
                 when().post("/consents/models").
@@ -71,7 +78,13 @@ public class SimpleCollectTest {
         t1.setKey("t1");
         t1.setName("T1");
         t1.setDescription("Le traitement t1");
-        t1.setContent(new Treatment().withDataBody("Votre nom").withRetentionBody("Toute votre vie").withUsageBody("Tout savoir sur vous").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
+        t1.setContent(new Treatment()
+                .withTreatmentTitle("Titre du traitement t1")
+                .withDataBody("Nous avons besoin de votre nom.")
+                .withRetentionBody("Nous le garderons pendant toute votre vie.")
+                .withUsageBody("Nous pourrons ainsi tout savoir sur vous.")
+                .withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE)
+        );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
         given().contentType(ContentType.JSON).body(t1).
                 when().post("/consents/models").
@@ -82,12 +95,17 @@ public class SimpleCollectTest {
         t2.setKey("t2");
         t2.setName("T2");
         t2.setDescription("Le traitement t2");
-        t2.setContent(new Treatment().withDataBody("Votre email").withRetentionBody("Toute votre vie").withUsageBody("Tout savoir sur vous").withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE));
+        t2.setContent(new Treatment()
+                .withTreatmentTitle("Titre du traitement t2")
+                .withDataBody("Nous voulons votre email.")
+                .withRetentionBody("Nous le conserverons 3 ans.")
+                .withUsageBody("Nous pourrons ainsi vous contacter.")
+                .withPurpose(Treatment.Purpose.CONSENT_MARKETING)
+        );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
         given().contentType(ContentType.JSON).body(t2).
                 when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
-
     }
 
     /**
@@ -125,19 +143,25 @@ public class SimpleCollectTest {
 
         LOGGER.log(Level.INFO, "Consent form page: " + page);
         //Orientation
-        //assertTrue(page.contains("Vertical"));
+        assertFalse(page.contains("class=\"right\"")); // Vertical
         //Header
         assertTrue(page.contains("Title h1"));
         assertTrue(page.contains("Body h1"));
-        //assertTrue(page.contains("Foot h1"));
-        //Traitements
-        assertTrue(page.contains("Votre nom"));
-        assertTrue(page.contains("Votre email"));
+        assertTrue(page.contains("href=\"Readmore h1\""));
+        //Treatment 1
+        assertTrue(page.contains("Titre du traitement t1"));
+        assertTrue(page.contains("votre nom"));
+        assertTrue(page.contains("toute votre vie"));
+        assertTrue(page.contains("tout savoir sur vous"));
+        assertTrue(page.contains("consent_core_service.png"));
+        //Treatment 2
+        assertTrue(page.contains("Titre du traitement t2"));
+        assertTrue(page.contains("votre email"));
+        assertTrue(page.contains("3 ans"));
+        assertTrue(page.contains("vous contacter"));
+        assertTrue(page.contains("consent_marketing.png"));
         //Footer
-        /*assertTrue(page.contains("Title f1"));
-        assertTrue(page.contains("Body f1"));
-        assertTrue(page.contains("Foot f1"));*/
-        // TODO !
+        assertTrue(page.contains("accept-all-switch"));
 
         Document html = Jsoup.parse(page);
         Elements inputs = html.getAllElements();
@@ -153,10 +177,10 @@ public class SimpleCollectTest {
                     if (element.tagName().equals("select")) {
                         Element option = element.children().first();
                         if (!option.id().contains("accept-all")) {
-                            if (option.hasAttr("selected")) {
+                            if (option.hasAttr("selected")) { // option: accepted
                                 values.put(option.id().substring(0, option.id().length() - 9), option.val());
                             } else {
-                                option = element.children().last();
+                                option = element.children().last(); // option: refused
                                 if (option.hasAttr("selected")) {
                                     values.put(option.id().substring(0, option.id().length() - 8), option.val());
                                 }
@@ -176,10 +200,6 @@ public class SimpleCollectTest {
 
         LOGGER.log(Level.INFO, "Receipt page: " + postPage);
         assertTrue(postPage.contains("Receipt"));
-        assertTrue(postPage.contains("Nous utilisons Votre nom pendant Toute votre vie pour Tout savoir sur vous : refusé"));
-        assertTrue(postPage.contains("Nous utilisons Votre email pendant Toute votre vie pour Tout savoir sur vous : refusé"));
-
-        //PART 4
         //TODO
     }
 }

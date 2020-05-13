@@ -49,6 +49,7 @@ public class TokenServiceBean implements TokenService {
         builder.withExpiresAt(calendar.getTime());
         builder.withSubject(tokenizable.getSubject());
         builder.withClaim("payloadClass", tokenizable.getClass().getName());
+        builder.withIssuer(issuer);
         tokenizable.getClaims().forEach((key, value) -> builder.withClaim(key, value));
         return builder.sign(algorithm);
     }

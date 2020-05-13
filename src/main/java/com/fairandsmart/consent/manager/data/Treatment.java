@@ -25,7 +25,7 @@ public class Treatment extends ConsentElementData {
     public boolean containsMedicalData = false;
     // Data controller
     private Controller dataController;
-    private boolean showDataController;
+    private boolean showDataController = true;
     // Third parties (name: description)
     private Map<String, String> thirdParties;
 

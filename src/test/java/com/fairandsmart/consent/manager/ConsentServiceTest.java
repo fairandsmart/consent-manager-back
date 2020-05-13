@@ -29,7 +29,7 @@ public class ConsentServiceTest {
     ConsentService service;
 
     @Test
-    public void testCreateModelEntryForExistingKey() throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
+    public void testCreateModelEntryForExistingKey() throws ConsentManagerException, EntityAlreadyExistsException {
         Header header = new Header();
         header.setTitle("title");
         header.setBody("body");
@@ -80,7 +80,5 @@ public class ConsentServiceTest {
         //assertEquals("Title info 1", information.content.get(information.defaultLanguage).title);
         //assertEquals("Body info 1", information.content.get(information.defaultLanguage).body);
         //assertEquals("Footer info 1", information.content.get(information.defaultLanguage).footer);
-
     }
-
 }
