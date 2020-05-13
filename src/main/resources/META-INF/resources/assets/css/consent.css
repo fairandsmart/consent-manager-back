@@ -20,6 +20,7 @@ body {
 }
 
 .header a {
+    font-weight: normal;
     text-decoration: none;
     color: #2196F3;
 }
@@ -46,19 +47,36 @@ body {
 /* Content */
 
 .treatments {
-    overflow-y: auto;
+    overflow-y: scroll;
     padding: 12px;
     height: 100%;
 }
 
 .treatment {
-    padding: 6px 12px;
+    padding: 6px 0px 6px 12px;
 }
 
 .treatment-header {
     display: flex;
     justify-content: space-between;
 }
+
+.block-wrapper {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    background-color: rgba(220,220,220,0.5);
+    text-align: left;
+}
+
+.block-wrapper h4 {
+    margin-top: 0px;
+}
+
+.block-wrapper ul {
+    margin: 0px;
+}
+
 
 /* Footer */
 

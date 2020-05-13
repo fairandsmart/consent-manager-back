@@ -2,22 +2,24 @@ package com.fairandsmart.consent.manager.receipt;
 
 public class Controller {
 
-    private boolean isActingBehalfCompany;
-    private String company;
-    private String name;
-    private String address;
-    private String email;
-    private String phoneNumber;
-
-    public Controller() {
-    }
+    public boolean actingBehalfCompany;
+    public String company;
+    public String name;
+    public String address;
+    public String email;
+    public String phoneNumber;
 
     public boolean isActingBehalfCompany() {
-        return isActingBehalfCompany;
+        return actingBehalfCompany;
     }
 
     public void setActingBehalfCompany(boolean actingBehalfCompany) {
-        isActingBehalfCompany = actingBehalfCompany;
+        this.actingBehalfCompany = actingBehalfCompany;
+    }
+
+    public Controller withActingBehalfCompany(boolean actingBehalfCompany) {
+        this.actingBehalfCompany = actingBehalfCompany;
+        return this;
     }
 
     public String getCompany() {
@@ -28,12 +30,22 @@ public class Controller {
         this.company = company;
     }
 
+    public Controller withCompany(String company) {
+        this.company = company;
+        return this;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Controller withName(String name) {
+        this.name = name;
+        return this;
     }
 
     public String getAddress() {
@@ -44,6 +56,11 @@ public class Controller {
         this.address = address;
     }
 
+    public Controller withAddress(String address) {
+        this.address = address;
+        return this;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -52,11 +69,21 @@ public class Controller {
         this.email = email;
     }
 
+    public Controller withEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public Controller withPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        return this;
     }
 }

@@ -33,7 +33,7 @@ public class ConsentServiceTest {
         Header header = new Header();
         header.setTitle("title");
         header.setBody("body");
-        header.setReadMoreLink("readmorelink");
+        header.setPrivacyPolicyUrl("readmorelink");
 
         String idHeader = service.createModelEntry("existing", "header1", "description", "fr-FR", header);
         assertNotNull(idHeader);
@@ -56,7 +56,7 @@ public class ConsentServiceTest {
         Header header = new Header();
         header.setTitle("title");
         header.setBody("body");
-        header.setReadMoreLink("readmorelink");
+        header.setPrivacyPolicyUrl("readmorelink");
         String idHeader = service.createModelEntry("h1", "header1", "Description de header1", "fr-FR", header);
         assertNotNull(idHeader);
 

@@ -47,7 +47,7 @@ public class SimpleCollectTest {
         h1.setKey("h1");
         h1.setName("H1");
         h1.setDescription("Le header H1");
-        h1.setContent(new Header().withTitle("Title h1").withBody("Body h1").withReadMoreLink("Readmore h1"));
+        h1.setContent(new Header().withTitle("Title h1").withBody("Body h1").withPrivacyPolicyUrl("Readmore h1"));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
         given().contentType(ContentType.JSON).body(h1).
                 when().post("/consents/models").
@@ -113,14 +113,13 @@ public class SimpleCollectTest {
                 .setLocale("fr_FR");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx).
-                when().post("/consents/token").asString();
+        String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx)
+                .when().post("/consents/token").asString();
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token : " + token);
 
         //PART 2
-        Response response = given().header("TOKEN", token).
-                when().get("/consents");
+        Response response = given().header("TOKEN", token).when().get("/consents");
         String page = response.asString();
         response.then().contentType("text/html").assertThat().statusCode(200);
 

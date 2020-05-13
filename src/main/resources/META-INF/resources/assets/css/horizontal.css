@@ -7,7 +7,7 @@ form {
 
 .left {
     width: 40%;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .right {
