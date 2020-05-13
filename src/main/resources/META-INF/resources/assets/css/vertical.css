@@ -46,6 +46,10 @@ form {
     background-color: #eeeeee;
 }
 
+.footer-body {
+    padding: 0px 12px;
+}
+
 .accept-all-container {
     padding: 0 12px;
 }

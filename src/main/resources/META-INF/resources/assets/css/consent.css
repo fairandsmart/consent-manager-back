@@ -84,6 +84,13 @@ body {
     padding: 12px;
 }
 
+.footer-body {
+    font-style: italic;
+    margin: 12px 0px;
+    max-height: 100px;
+    overflow-y: scroll;
+}
+
 .accept-all-container {
     display: flex;
     justify-content: space-between;
