@@ -1,4 +1,6 @@
-package com.fairandsmart.consent.manager.data;
+package com.fairandsmart.consent.manager.model;
+
+import com.fairandsmart.consent.manager.entity.ConsentElementData;
 
 public class Conditions extends ConsentElementData {
 

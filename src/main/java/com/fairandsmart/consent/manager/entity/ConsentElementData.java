@@ -1,5 +1,9 @@
-package com.fairandsmart.consent.manager.data;
+package com.fairandsmart.consent.manager.entity;
 
+import com.fairandsmart.consent.manager.model.Conditions;
+import com.fairandsmart.consent.manager.model.Footer;
+import com.fairandsmart.consent.manager.model.Header;
+import com.fairandsmart.consent.manager.model.Treatment;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

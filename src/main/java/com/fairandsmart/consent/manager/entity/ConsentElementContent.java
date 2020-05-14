@@ -1,7 +1,6 @@
 package com.fairandsmart.consent.manager.entity;
 
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
-import com.fairandsmart.consent.manager.data.ConsentElementData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

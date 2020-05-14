@@ -7,13 +7,10 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.ConsentForm;
-import com.fairandsmart.consent.manager.ConsentService;
-import com.fairandsmart.consent.manager.InvalidConsentException;
+import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
-import com.fairandsmart.consent.manager.receipt.ConsentReceipt;
+import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenServiceException;
@@ -24,6 +21,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.xml.bind.JAXBException;
 import java.net.URI;
 import java.util.*;
 import java.util.logging.Level;
@@ -69,13 +67,13 @@ public class ConsentsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel postConsent(Map<String, String> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, InvalidConsentException {
+    public TemplateModel postConsent(Map<String, String> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, InvalidConsentException, IllegalIdentifierException, JAXBException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "POST /consents");
 
         if ( !values.containsKey("token") ) {
             throw new InvalidTokenException("unable to find token in form");
         }
-        ConsentReceipt receipt = consentService.submitConsent(values.get("token"), values);
+        Receipt receipt = consentService.submitConsent(values.get("token"), values);
 
         TemplateModel model = new TemplateModel();
         model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));

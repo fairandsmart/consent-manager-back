@@ -1,6 +1,4 @@
-package com.fairandsmart.consent.manager.receipt;
-
-import com.fairandsmart.consent.manager.data.Treatment;
+package com.fairandsmart.consent.manager.model;
 
 public class Sharing {
 

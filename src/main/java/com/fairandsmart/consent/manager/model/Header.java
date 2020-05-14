@@ -1,6 +1,6 @@
-package com.fairandsmart.consent.manager.data;
+package com.fairandsmart.consent.manager.model;
 
-import com.fairandsmart.consent.manager.receipt.Controller;
+import com.fairandsmart.consent.manager.entity.ConsentElementData;
 
 public class Header extends ConsentElementData {
 

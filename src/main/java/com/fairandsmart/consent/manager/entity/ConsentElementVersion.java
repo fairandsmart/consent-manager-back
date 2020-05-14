@@ -2,7 +2,6 @@ package com.fairandsmart.consent.manager.entity;
 
 import com.fairandsmart.consent.manager.ConsentElementIdentifier;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
-import com.fairandsmart.consent.manager.data.ConsentElementData;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
 

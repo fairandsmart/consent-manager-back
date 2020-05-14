@@ -1,13 +1,18 @@
-package com.fairandsmart.consent.manager.receipt;
+package com.fairandsmart.consent.manager.model;
+
+import javax.xml.bind.annotation.XmlElement;
 
 public class Controller {
 
-    public boolean actingBehalfCompany;
-    public String company;
-    public String name;
-    public String address;
-    public String email;
-    public String phoneNumber;
+    private boolean actingBehalfCompany;
+    private String company;
+    private String name;
+    private String address;
+    private String email;
+    private String phoneNumber;
+
+    public Controller() {
+    }
 
     public boolean isActingBehalfCompany() {
         return actingBehalfCompany;

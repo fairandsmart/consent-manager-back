@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 
 public class ConsentContext implements Tokenizable {
 
+    private static final String USERINFOS_PREFIX = "userinfos_";
+    private static final String ATTRIUTES_PREFIX = "attributes_";
+
     @NotNull
     private String subject;
     private String owner;
@@ -21,27 +24,19 @@ public class ConsentContext implements Tokenizable {
     private String footer;
     private String callback;
     private String locale;
-
-    //TODO
-    // Add field for requisite (CHECK, INFORM, RECONSENT, ...) According to existing consent, form will be displayed or not
-    // Add field for receipt (DISPLAY, COOKIE, STORAGE, ...) Allows to specify how the receipt will be stored and propose to client for display or storage
-    // Add field for receipt status : Allows to generate a receipt status boolean if consent conditions are meet after submission (avoid rechecking base)
-/*
-    private String requisite;
-    private String receipt;
-    private boolean status;
-
-    private String optoutEmail;
-    private boolean preview;
-    private boolean iframe;
-    private boolean attachments = false;
+    private ReceiptFormType formType = ReceiptFormType.FULL;
+    private ReceiptDeliveryType receiptDeliveryType = ReceiptDeliveryType.DISPLAY;
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
-    */
+    private String optoutEmail;
+    private boolean preview = false;
+    private boolean iframe = false;
 
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
+        this.userinfos = new HashMap<>();
+        this.attributes = new HashMap<>();
     }
 
     public String getSubject() {
@@ -132,6 +127,69 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public ReceiptFormType getFormType() {
+        return formType;
+    }
+
+    public ConsentContext setFormType(ReceiptFormType formType) {
+        this.formType = formType;
+        return this;
+    }
+
+    public ReceiptDeliveryType getReceiptDeliveryType() {
+        return receiptDeliveryType;
+    }
+
+    public ConsentContext setReceiptDeliveryType(ReceiptDeliveryType receiptDeliveryType) {
+        this.receiptDeliveryType = receiptDeliveryType;
+        return this;
+    }
+
+    public Map<String, String> getUserinfos() {
+        return userinfos;
+    }
+
+    public ConsentContext setUserinfos(Map<String, String> userinfos) {
+        this.userinfos = userinfos;
+        return this;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public ConsentContext setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+        return this;
+    }
+
+    public String getOptoutEmail() {
+        return optoutEmail;
+    }
+
+    public ConsentContext setOptoutEmail(String optoutEmail) {
+        this.optoutEmail = optoutEmail;
+        return this;
+    }
+
+    public boolean isPreview() {
+        return preview;
+    }
+
+    public ConsentContext setPreview(boolean preview) {
+        this.preview = preview;
+        return this;
+    }
+
+    public boolean isIframe() {
+        return iframe;
+    }
+
+    public ConsentContext setIframe(boolean iframe) {
+        this.iframe = iframe;
+        return this;
+    }
+
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
@@ -153,6 +211,27 @@ public class ConsentContext implements Tokenizable {
         if ( orientation != null ) {
             claims.put("orientation", this.getOrientation().name());
         }
+        if ( formType != null ) {
+            claims.put("formType", this.getFormType().name());
+        }
+        if ( receiptDeliveryType != null ) {
+            claims.put("receiptDeliveryType", this.getReceiptDeliveryType().name());
+        }
+        if ( optoutEmail != null ) {
+            claims.put("optoutEmail", this.getOptoutEmail());
+        }
+        if ( userinfos != null && !userinfos.isEmpty() ) {
+            for ( Map.Entry<String, String> entry : userinfos.entrySet() ) {
+                claims.put(USERINFOS_PREFIX + entry.getKey(), entry.getValue());
+            }
+        }
+        if ( attributes != null && !attributes.isEmpty() ) {
+            for ( Map.Entry<String, String> entry : attributes.entrySet() ) {
+                claims.put(ATTRIUTES_PREFIX + entry.getKey(), entry.getValue());
+            }
+        }
+        claims.put("preview", Boolean.toString(this.isPreview()));
+        claims.put("iframe", Boolean.toString(this.isIframe()));
         return claims;
     }
 
@@ -176,7 +255,52 @@ public class ConsentContext implements Tokenizable {
         if ( claims.containsKey("orientation") ) {
             this.setOrientation(ConsentForm.Orientation.valueOf(claims.get("orientation")));
         }
+        if ( claims.containsKey("formType") ) {
+            this.setFormType(ReceiptFormType.valueOf(claims.get("formType")));
+        }
+        if ( claims.containsKey("receiptDeliveryType") ) {
+            this.setReceiptDeliveryType(ReceiptDeliveryType.valueOf(claims.get("receiptDeliveryType")));
+        }
+        if ( claims.containsKey("optoutEmail") ) {
+            this.setOptoutEmail(claims.get("optoutEmail"));
+        }
+        if ( claims.containsKey("preview") ) {
+            this.setPreview(Boolean.parseBoolean(claims.get("preview")));
+        }
+        if ( claims.containsKey("iframe") ) {
+            this.setIframe(Boolean.parseBoolean(claims.get("iframe")));
+        }
+        claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
+                entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
+        );
+        claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(ATTRIUTES_PREFIX)).forEach(
+                entry -> this.getAttributes().put(entry.getKey().substring(ATTRIUTES_PREFIX.length()), entry.getValue())
+        );
         return this;
+    }
+
+    /**
+     * PARTIAL form will only display treatments that are not consented
+     * FULL will force form for all treatments, even already consented
+     */
+    public enum ReceiptFormType {
+        PARTIAL,
+        FULL
+    }
+
+    /**
+     * NONE no receipt is generated
+     * GENERATE receipt is generated and stored server side, nothing is returned to caller
+     * DISPLAY receipt html template is rendered to user with options to store or download
+     * STORE receipt is stored in a cookie or local storage of the caller browser
+     * DOWNLOAD receipt is forced to download by the caller
+     */
+    public enum ReceiptDeliveryType {
+        NONE,
+        GENERATE,
+        DISPLAY,
+        STORE,
+        DOWNLOAD
     }
 
 }

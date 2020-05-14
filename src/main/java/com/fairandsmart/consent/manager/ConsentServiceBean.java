@@ -5,13 +5,16 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.manager.data.ConsentElementData;
+import com.fairandsmart.consent.manager.entity.ConsentElementData;
 import com.fairandsmart.consent.manager.entity.ConsentRecord;
 import com.fairandsmart.consent.manager.entity.ConsentElementContent;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
-import com.fairandsmart.consent.manager.receipt.ConsentReceipt;
+import com.fairandsmart.consent.manager.model.Footer;
+import com.fairandsmart.consent.manager.model.Header;
+import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.model.Treatment;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
@@ -21,16 +24,15 @@ import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.xml.bind.JAXBException;
 import java.time.Instant;
 import java.time.Period;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -50,6 +52,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @Inject
     TokenService tokenService;
+
+    @ConfigProperty(name = "consent.processor")
+    String processor;
 
     /* MODELS MANAGEMENT */
 
@@ -100,7 +105,7 @@ public class ConsentServiceBean implements ConsentService {
             version.creationDate = System.currentTimeMillis();
             version.modificationDate = version.creationDate;
             version.invalidation = ConsentElementVersion.Invalidation.INVALIDATE;
-            version.status = ConsentElementVersion.Status.DRAFT;
+            version.status = ConsentElementVersion.Status.ACTIVE;
             version.serial = generator.next(version.getClass().getName());
             version.defaultLocale = locale;
             version.availableLocales = locale;
@@ -141,13 +146,27 @@ public class ConsentServiceBean implements ConsentService {
     public ConsentElementVersion findActiveModelVersionForKey(String key) throws EntityNotFoundException {
         LOGGER.log(Level.FINE, "Finding active model version for key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        //TODO for now we only works with DRAFT
-        List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", connectedIdentifier, key, ConsentElementVersion.Status.DRAFT).list();
+        //TODO for now we only works with ACTIVE
+        List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", connectedIdentifier, key, ConsentElementVersion.Status.ACTIVE).list();
         if ( versions.isEmpty() ) {
             throw new EntityNotFoundException("Unable to find an entry for key: " + key);
         }
         if ( versions.size() > 1 ) {
             LOGGER.log(Level.WARNING, "Found more than one active version, this is an incoherency");
+        }
+        return versions.get(0);
+    }
+
+    @Override
+    public ConsentElementVersion findModelVersionForSerial(String serial) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Finding model version for serial: " + serial);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and serial = ?2", connectedIdentifier, serial).list();
+        if ( versions.isEmpty() ) {
+            throw new EntityNotFoundException("Unable to find a version for serial: " + serial);
+        }
+        if ( versions.size() > 1 ) {
+            LOGGER.log(Level.WARNING, "Found more than one version with serial, this is an incoherency, serial should be unique");
         }
         return versions.get(0);
     }
@@ -200,14 +219,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ConsentReceipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenServiceException, TokenExpiredException, InvalidTokenException {
-
-        //TODO :
-        // 0. Generate transaction id
-        // 1. Check values coherency and ids according to context
-        // 2. Build existing records according to the submitted values
-        // 3. Includes relevant records in the receipt
-        // 4. According to the context, commit or not the transaction, apply to records
+    public Receipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenServiceException, TokenExpiredException, InvalidTokenException, IllegalIdentifierException, EntityNotFoundException, ModelDataSerializationException, JAXBException {
         LOGGER.log(Level.FINE, "Submitting consent");
         ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
@@ -215,12 +227,12 @@ public class ConsentServiceBean implements ConsentService {
         Instant now = Instant.now();
         this.checkValuesCoherency(ctx, values);
 
+        ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
+        ConsentElementIdentifier footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
         List<ConsentRecord> records = new ArrayList<>();
         for ( Map.Entry<String, String> value : values.entrySet() ) {
             try {
-                ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
                 ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(value.getKey());
-                ConsentElementIdentifier footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
                 ConsentRecord record = new ConsentRecord();
                 record.transaction = transaction;
                 record.subject = ctx.getSubject();
@@ -233,22 +245,45 @@ public class ConsentServiceBean implements ConsentService {
                 record.value = value.getValue();
                 record.creationTimestamp = now.toEpochMilli();
                 record.expirationTimestamp = now.plus(Period.ofWeeks(52)).toEpochMilli();
-                record.status = ConsentRecord.Status.PENDING;
+                record.status = ConsentRecord.Status.ACTIVE;
                 record.persist();
                 records.add(record);
-            } catch (IllegalIdentifierException e) {
+            } catch ( IllegalIdentifierException e ) {
                 //
             }
         }
         LOGGER.log(Level.INFO, "records: " + records);
 
-        ConsentReceipt receipt = new ConsentReceipt();
-        receipt.setLocale(ctx.getLocale());
-        receipt.setTransaction(transaction);
-        receipt.setSubject(ctx.getSubject());
-        receipt.setTimestamp(now.toEpochMilli());
-        //receipt.records = records;
-        return receipt;
+        if ( !ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE) ) {
+            Header header = (Header) systemFindModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
+            Footer footer = (Footer) systemFindModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
+            Map<Treatment, ConsentRecord> trecords = new HashMap<>();
+            records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
+                try {
+                    Treatment t = (Treatment) systemFindModelVersionForSerial(r.body).getData(ctx.getLocale());
+                    trecords.put(t, r);
+                } catch (EntityNotFoundException | ModelDataSerializationException e) { }
+            });
+            Receipt receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
+            //TODO store receipt in the local store;
+            LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
+            return receipt;
+        } else {
+            return null;
+        }
+    }
+
+    /* INTERNAL */
+
+    private ConsentElementVersion systemFindModelVersionForSerial(String serial) throws EntityNotFoundException {
+        List<ConsentElementVersion> versions = ConsentElementVersion.find("serial = ?1", serial).list();
+        if ( versions.isEmpty() ) {
+            throw new EntityNotFoundException("Unable to find a version for serial: " + serial);
+        }
+        if ( versions.size() > 1 ) {
+            LOGGER.log(Level.WARNING, "Found more than one version with serial, this is an incoherency, serial should be unique");
+        }
+        return versions.get(0);
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {

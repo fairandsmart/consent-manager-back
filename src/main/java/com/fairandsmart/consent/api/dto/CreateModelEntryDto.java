@@ -2,7 +2,7 @@ package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.common.validation.Locale;
 import com.fairandsmart.consent.common.validation.ModelKey;
-import com.fairandsmart.consent.manager.data.ConsentElementData;
+import com.fairandsmart.consent.manager.entity.ConsentElementData;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
