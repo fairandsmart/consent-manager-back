@@ -7,19 +7,7 @@
     <div class="header">
         <h2><@valueOrError langContent.title "missingValue"></@valueOrError></h2>
 
-        <p><@valueOrError langContent.body "missingValue"></@valueOrError></p>
-
-        <#if langContent.privacyPolicyUrl?has_content>
-            <p>
-                <a href="${langContent.privacyPolicyUrl}">
-                    <#if langContent.customPrivacyPolicyText?has_content>
-                        ${langContent.customPrivacyPolicyText}
-                    <#else>
-                        <@readBundle "privacyPolicyButton" "missingValue"></@readBundle>
-                    </#if>
-                </a>
-            </p>
-        </#if>
+        <p class="treatment-body"><@valueOrError langContent.body "missingValue"></@valueOrError></p>
 
         <#-- Data controller -->
         <#if langContent.showDataController>
@@ -27,11 +15,12 @@
             <#include "dataController.ftl">
         </#if>
 
+        <#-- Other header data -->
         <#if langContent.showJurisdiction || langContent.showCollectionMethod || langContent.showDataController || langContent.showScope>
             <div class="block-wrapper">
                 <h4><@readBundle "defaultAdditionalInfoTitle"></@readBundle></h4>
 
-                <ul>
+                <ul class="treatment-body">
                     <#if langContent.showJurisdiction>
                         <li><@readBundle "headerJurisdictionLabel"></@readBundle> <@valueOrError langContent.jurisdiction "missingValue"></@valueOrError></li>
                     </#if>
@@ -49,6 +38,18 @@
                     </#if>
                 </ul>
             </div>
+        </#if>
+
+        <#if langContent.privacyPolicyUrl?has_content>
+            <p>
+                <a href="${langContent.privacyPolicyUrl}">
+                    <#if langContent.customPrivacyPolicyText?has_content>
+                        ${langContent.customPrivacyPolicyText}
+                    <#else>
+                        <@readBundle "privacyPolicyButton" "missingValue"></@readBundle>
+                    </#if>
+                </a>
+            </p>
         </#if>
     </div>
 </#if>

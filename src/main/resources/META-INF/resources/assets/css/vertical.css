@@ -14,7 +14,9 @@ form {
 @media screen and (min-width: 800px) {
     form {
         margin: auto;
-        border: 1px solid lightgrey;
+        border: 1px solid #eeeeee;
+        border-radius: 4px;
+        box-shadow: 4px 4px 8px gray;
         max-height: 90vh;
         width: 800px;
     }
@@ -25,24 +27,20 @@ form {
 
 .logo-wrapper {
     text-align: center;
-    margin: -24px 0 12px 0px;
+    margin-top: -24px;
 }
 
 .header {
     text-align: center;
-    margin: 0 12px 18px 12px;
+    margin: 0 0px 18px 12px;
     border-bottom: 1px solid #eee;
-    padding-bottom: 18px;
-}
-
-.header h3 {
-    margin: 0px;
 }
 
 
 /* Footer */
 
 .footer {
+    padding: 12px 24px;
     background-color: #eeeeee;
 }
 
@@ -56,5 +54,5 @@ form {
 
 .submit-container {
     text-align: center;
-    margin: 8px 0px;
+    margin: 8px 0px 16px 0px;
 }

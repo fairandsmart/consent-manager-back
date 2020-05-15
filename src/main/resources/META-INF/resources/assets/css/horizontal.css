@@ -7,7 +7,8 @@ form {
 
 .left {
     width: 40%;
-    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
 }
 
 .right {
@@ -25,7 +26,9 @@ form {
 
 @media screen and (min-width: 1000px) {
     form {
-        border: 1px solid lightgrey;
+        border: 1px solid #eeeeee;
+        border-radius: 4px;
+        box-shadow: 4px 4px 8px gray;
         width: 1000px;
     }
 
@@ -39,13 +42,26 @@ form {
 
 .logo-wrapper {
     margin: 24px;
+    margin-bottom: 0px;
+}
+
+.left-content {
+    overflow-y: scroll;
+}
+
+.right .content-fade {
+    background: linear-gradient(#eeeeee, rgba(238, 238, 238, 0));
 }
 
 
 /* Content */
 
 .treatments {
-    padding-top: 0px;
+    padding-top: 12px;
+}
+
+.right .block-wrapper {
+   background-color: #e0e0e0;
 }
 
 
@@ -54,7 +70,7 @@ form {
 .footer {
     padding: 12px 0px;
     border-top: 1px solid lightgray;
-    margin: 0px 24px;
+    margin: 0px 36px;
 }
 
 .submit-container {
