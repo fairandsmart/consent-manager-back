@@ -15,6 +15,9 @@ import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
+import com.fairandsmart.consent.manager.store.ReceiptStore;
+import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
@@ -52,6 +55,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @Inject
     TokenService tokenService;
+
+    @Inject
+    ReceiptStore store;
 
     @ConfigProperty(name = "consent.processor")
     String processor;
@@ -183,7 +189,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentForm generateForm(String token) throws EntityNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
+    public ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
         //TODO :
         // 1. Load existing records for elements of this context (applying models invalidation strategy)
         //    Adapt ConsentForm to include existing values for each elements
@@ -191,85 +197,95 @@ public class ConsentServiceBean implements ConsentService {
         // 3. If form has to be displayed, load all models to populate
         // 4. Generate a new submission token and populate the form
         LOGGER.log(Level.FINE, "Generating consent form");
-        ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+        try {
+            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
-        ConsentForm form = new ConsentForm();
-        form.setLocale(ctx.getLocale());
-        form.setOrientation(ctx.getOrientation());
+            ConsentForm form = new ConsentForm();
+            form.setLocale(ctx.getLocale());
+            form.setOrientation(ctx.getOrientation());
 
-        ConsentElementVersion header = this.findActiveModelVersionForKey(ctx.getHeader());
-        form.setHeader(header);
-        ctx.setHeader(header.getIdentifier().serialize());
+            ConsentElementVersion header = this.findActiveModelVersionForKey(ctx.getHeader());
+            form.setHeader(header);
+            ctx.setHeader(header.getIdentifier().serialize());
 
-        List<String> elementsIdentifiers = new ArrayList<>();
-        for (String key : ctx.getElements()) {
-            ConsentElementVersion element = this.findActiveModelVersionForKey(key);
-            form.addElement(element);
-            elementsIdentifiers.add(element.getIdentifier().serialize());
+            List<String> elementsIdentifiers = new ArrayList<>();
+            for (String key : ctx.getElements()) {
+                ConsentElementVersion element = this.findActiveModelVersionForKey(key);
+                form.addElement(element);
+                elementsIdentifiers.add(element.getIdentifier().serialize());
+            }
+            ctx.setElements(elementsIdentifiers);
+
+            ConsentElementVersion footer = this.findActiveModelVersionForKey(ctx.getFooter());
+            form.setFooter(footer);
+            ctx.setFooter(footer.getIdentifier().serialize());
+
+            form.setToken(tokenService.generateToken(ctx));
+            return form;
+        } catch ( TokenServiceException e ) {
+            throw new ConsentServiceException("Unable to generate consent form", e);
         }
-        ctx.setElements(elementsIdentifiers);
-
-        ConsentElementVersion footer = this.findActiveModelVersionForKey(ctx.getFooter());
-        form.setFooter(footer);
-        ctx.setFooter(footer.getIdentifier().serialize());
-
-        form.setToken(tokenService.generateToken(ctx));
-        return form;
     }
 
     @Override
     @Transactional
-    public Receipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenServiceException, TokenExpiredException, InvalidTokenException, IllegalIdentifierException, EntityNotFoundException, ModelDataSerializationException, JAXBException {
+    public Receipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
         LOGGER.log(Level.FINE, "Submitting consent");
-        ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+        try {
+            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
-        String transaction = UUID.randomUUID().toString();
-        Instant now = Instant.now();
-        this.checkValuesCoherency(ctx, values);
+            String transaction = UUID.randomUUID().toString();
+            Instant now = Instant.now();
+            this.checkValuesCoherency(ctx, values);
 
-        ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
-        ConsentElementIdentifier footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
-        List<ConsentRecord> records = new ArrayList<>();
-        for ( Map.Entry<String, String> value : values.entrySet() ) {
-            try {
-                ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(value.getKey());
-                ConsentRecord record = new ConsentRecord();
-                record.transaction = transaction;
-                record.subject = ctx.getSubject();
-                record.owner = ctx.getOwner();
-                record.head = headId.getSerial();
-                record.type = bodyId.getType();
-                record.body = bodyId.getSerial();
-                record.foot = footId.getSerial();
-                record.serial = headId.getSerial() + "." + bodyId.getSerial() + "." + footId.getSerial();
-                record.value = value.getValue();
-                record.creationTimestamp = now.toEpochMilli();
-                record.expirationTimestamp = now.plus(Period.ofWeeks(52)).toEpochMilli();
-                record.status = ConsentRecord.Status.ACTIVE;
-                record.persist();
-                records.add(record);
-            } catch ( IllegalIdentifierException e ) {
-                //
-            }
-        }
-        LOGGER.log(Level.INFO, "records: " + records);
-
-        if ( !ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE) ) {
-            Header header = (Header) systemFindModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
-            Footer footer = (Footer) systemFindModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
-            Map<Treatment, ConsentRecord> trecords = new HashMap<>();
-            records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
+            ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
+            ConsentElementIdentifier footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
+            List<ConsentRecord> records = new ArrayList<>();
+            for (Map.Entry<String, String> value : values.entrySet()) {
                 try {
-                    Treatment t = (Treatment) systemFindModelVersionForSerial(r.body).getData(ctx.getLocale());
-                    trecords.put(t, r);
-                } catch (EntityNotFoundException | ModelDataSerializationException e) { }
-            });
-            Receipt receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
-            //TODO store receipt in the local store;
-            LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
-            return receipt;
-        } else {
-            return null;
+                    ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(value.getKey());
+                    ConsentRecord record = new ConsentRecord();
+                    record.transaction = transaction;
+                    record.subject = ctx.getSubject();
+                    record.owner = ctx.getOwner();
+                    record.head = headId.getSerial();
+                    record.type = bodyId.getType();
+                    record.body = bodyId.getSerial();
+                    record.foot = footId.getSerial();
+                    record.serial = headId.getSerial() + "." + bodyId.getSerial() + "." + footId.getSerial();
+                    record.value = value.getValue();
+                    record.creationTimestamp = now.toEpochMilli();
+                    record.expirationTimestamp = now.plus(Period.ofWeeks(52)).toEpochMilli();
+                    record.status = ConsentRecord.Status.ACTIVE;
+                    record.persist();
+                    records.add(record);
+                } catch (IllegalIdentifierException e) {
+                    //
+                }
+            }
+            LOGGER.log(Level.INFO, "records: " + records);
+
+            if (!ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
+                Header header = (Header) systemFindModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
+                Footer footer = (Footer) systemFindModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
+                Map<Treatment, ConsentRecord> trecords = new HashMap<>();
+                records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
+                    try {
+                        Treatment t = (Treatment) systemFindModelVersionForSerial(r.body).getData(ctx.getLocale());
+                        trecords.put(t, r);
+                    } catch (EntityNotFoundException | ModelDataSerializationException e) {
+                    }
+                });
+                Receipt receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
+                LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
+                store.put(receipt.getTransaction(), receipt.toXmlBytes());
+                return receipt;
+            } else {
+                return null;
+            }
+        } catch (TokenServiceException | EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException e ) {
+            //TODO rollback transaction
+            throw new ConsentServiceException("Unable to submit consent", e);
         }
     }
 
