@@ -13,7 +13,6 @@ import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.commons.lang3.LocaleUtils;
 
 import javax.annotation.security.RolesAllowed;
@@ -21,9 +20,9 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.xml.bind.JAXBException;
 import java.net.URI;
-import java.util.*;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,7 +36,7 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws TokenServiceException, InvalidTokenException, TokenExpiredException, EntityNotFoundException {
+    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws  InvalidTokenException, TokenExpiredException, EntityNotFoundException, ConsentServiceException {
         LOGGER.log(Level.INFO, "GET /consents");
 
         String token;
@@ -67,7 +66,7 @@ public class ConsentsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel postConsent(Map<String, String> values) throws TokenServiceException, TokenExpiredException, InvalidTokenException, InvalidConsentException, IllegalIdentifierException, JAXBException, ModelDataSerializationException, EntityNotFoundException {
+    public TemplateModel postConsent(Map<String, String> values) throws TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
 
         if ( !values.containsKey("token") ) {

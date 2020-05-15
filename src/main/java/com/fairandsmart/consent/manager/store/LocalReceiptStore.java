@@ -4,6 +4,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
@@ -24,7 +25,7 @@ public class LocalReceiptStore implements ReceiptStore {
     private Path base;
 
     @PostConstruct
-    private void init() {
+    public void init() {
         if ( home.contains("~") ) {
             home.replaceFirst("~", System.getProperty("user.home"));
         }
@@ -59,11 +60,19 @@ public class LocalReceiptStore implements ReceiptStore {
     }
 
     @Override
-    public String put(InputStream is) throws ReceiptStoreException {
-        String key = UUID.randomUUID().toString();
+    public void put(String key, byte[] input) throws ReceiptStoreException, ReceiptAlreadyExistsException {
+        try (InputStream is = new ByteArrayInputStream(input)) {
+            this.put(key, is);
+        } catch (IOException e) {
+            throw new ReceiptStoreException("unexpected error during stream copy", e);
+        }
+    }
+
+    @Override
+    public void put(String key, InputStream is) throws ReceiptStoreException, ReceiptAlreadyExistsException {
         Path file = Paths.get(base.toString(), key);
         if ( Files.exists(file) ) {
-            throw new ReceiptStoreException("unable to create file, key already exists");
+            throw new ReceiptAlreadyExistsException("unable to create file, key already exists");
         }
         try {
             Files.copy(is, file, StandardCopyOption.REPLACE_EXISTING);
@@ -72,7 +81,6 @@ public class LocalReceiptStore implements ReceiptStore {
             throw new ReceiptStoreException("unexpected error during stream copy", e);
         }
         LOGGER.log(Level.FINE, "New content stored with key: " + key);
-        return key;
     }
 
     @Override

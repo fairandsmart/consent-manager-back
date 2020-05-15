@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.*;
+import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,6 +168,15 @@ public class Receipt {
         marshaller.marshal(this, writer);
         writer.flush();
         return writer.toString();
+    }
+
+    public byte[] toXmlBytes() throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        marshaller.marshal(this, out);
+        return out.toByteArray();
     }
 
 
