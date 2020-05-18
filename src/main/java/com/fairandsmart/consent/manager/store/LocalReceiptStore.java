@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,14 +19,15 @@ public class LocalReceiptStore implements ReceiptStore {
 
 
     @ConfigProperty(name = "consent.home")
-    public String home;
+    String home;
 
     private Path base;
 
     @PostConstruct
     public void init() {
-        if ( home.contains("~") ) {
-            home.replaceFirst("~", System.getProperty("user.home"));
+        if ( home.startsWith("~") ) {
+            home = System.getProperty("user.home") + home.substring(1);
+            LOGGER.log(Level.INFO, "Setting service home relative to user home directory: " + home);
         }
         this.base = Paths.get(home, RECEIPT_STORE_HOME);
         LOGGER.log(Level.INFO, "Initializing store with base folder: " + base);

@@ -96,6 +96,7 @@ public class ConsentsResource {
 
     @GET
     @Path("/models")
+    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<ConsentElementEntry> listModelEntries(
             @QueryParam("page") @DefaultValue("1") int page,
@@ -111,6 +112,7 @@ public class ConsentsResource {
 
     @POST
     @Path("/models")
+    @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createModelEntry(@Valid CreateModelEntryDto dto, @Context UriInfo uriInfo) throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
