@@ -23,13 +23,17 @@
         <div class="left">
             <#include "logo.ftl">
 
-            <#include "header.ftl">
+            <div class="left-content">
+                <#include "header.ftl">
+            </div>
         </div>
 
         <div class="right">
             <div class="close-wrapper">
                 <button class="close-btn">×</button>
             </div>
+
+            <div class="content-fade"></div>
 
             <div class="treatments">
                 <#list data.elements as element>

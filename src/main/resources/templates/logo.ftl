@@ -8,3 +8,5 @@
         </#if>
     </#if>
 </div>
+
+<div class="content-fade"></div>
