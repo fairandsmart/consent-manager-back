@@ -2,7 +2,7 @@ package com.fairandsmart.consent.security;
 
 public interface AuthenticationService {
 
-    boolean isAuthentified();
+    boolean isAuthenticated();
 
     String getConnectedIdentifier();
 

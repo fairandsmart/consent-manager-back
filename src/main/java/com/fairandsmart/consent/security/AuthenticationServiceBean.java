@@ -1,10 +1,10 @@
 package com.fairandsmart.consent.security;
 
+import io.quarkus.security.identity.SecurityIdentity;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.SecurityContext;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class AuthenticationServiceBean implements AuthenticationService {
@@ -12,16 +12,16 @@ public class AuthenticationServiceBean implements AuthenticationService {
     @ConfigProperty(name = "consent.security.auth.unauthenticated")
     String unauthentifiedUser;
 
-    @Context
-    SecurityContext security;
+    @Inject
+    SecurityIdentity identity;
 
     @Override
-    public boolean isAuthentified() {
-        return ( security == null || security.getUserPrincipal() == null || security.getUserPrincipal().getName() == null || !security.getUserPrincipal().getName().equals(unauthentifiedUser));
+    public boolean isAuthenticated() {
+        return identity != null && identity.getPrincipal() != null && identity.getPrincipal().getName() != null && !identity.getPrincipal().getName().equals(unauthentifiedUser);
     }
 
     @Override
     public String getConnectedIdentifier() {
-        return (security != null && security.getUserPrincipal() != null) ? security.getUserPrincipal().getName() : unauthentifiedUser;
+        return (identity != null && identity.getPrincipal() != null) ? identity.getPrincipal().getName() : unauthentifiedUser;
     }
 }

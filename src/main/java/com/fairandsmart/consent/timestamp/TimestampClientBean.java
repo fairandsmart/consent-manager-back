@@ -56,20 +56,14 @@ public class TimestampClientBean implements TimestampClient {
             ASN1ObjectIdentifier algoId = null;
             switch (hashAlgo.toLowerCase()) {
                 case "sha1" :
-                    algoId = TSPAlgorithms.SHA1;
-                    break;
                 case "sha-1" :
                     algoId = TSPAlgorithms.SHA1;
                     break;
                 case "sha256" :
-                    algoId = TSPAlgorithms.SHA256;
-                    break;
                 case "sha-256" :
                     algoId = TSPAlgorithms.SHA256;
                     break;
                 case "sha512" :
-                    algoId = TSPAlgorithms.SHA512;
-                    break;
                 case "sha-512" :
                     algoId = TSPAlgorithms.SHA512;
                     break;
