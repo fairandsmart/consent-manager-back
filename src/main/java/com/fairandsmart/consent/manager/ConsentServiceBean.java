@@ -5,11 +5,7 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.manager.entity.ConsentElementData;
-import com.fairandsmart.consent.manager.entity.ConsentRecord;
-import com.fairandsmart.consent.manager.entity.ConsentElementContent;
-import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
-import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
+import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
@@ -65,7 +61,7 @@ public class ConsentServiceBean implements ConsentService {
     /* MODELS MANAGEMENT */
 
     @Override
-    public CollectionPage<ConsentElementEntry> listModelEntries(ModelEntryFilter filter) throws AccessDeniedException {
+    public CollectionPage<ConsentElementEntry> listEntries(ModelEntryFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Listing models entries");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         //TODO Handle cases where an admin is able to list any model entries
@@ -87,8 +83,8 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public String createModelEntry(String key, String name, String description, String locale, ConsentElementData data) throws ConsentManagerException, EntityAlreadyExistsException {
-        LOGGER.log(Level.FINE, "Creating new model entry");
+    public String createEntry(String key, String name, String description, String locale, ConsentElementData data) throws ConsentManagerException, EntityAlreadyExistsException {
+        LOGGER.log(Level.FINE, "Creating new entry");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         if ( ConsentElementEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
@@ -111,7 +107,7 @@ public class ConsentServiceBean implements ConsentService {
             version.creationDate = System.currentTimeMillis();
             version.modificationDate = version.creationDate;
             version.invalidation = ConsentElementVersion.Invalidation.INVALIDATE;
-            version.status = ConsentElementVersion.Status.ACTIVE;
+            version.status = ConsentElementVersion.Status.DRAFT;
             version.serial = generator.next(version.getClass().getName());
             version.defaultLocale = locale;
             version.availableLocales = locale;
@@ -120,42 +116,44 @@ public class ConsentServiceBean implements ConsentService {
 
             return entry.id.toString();
         } catch ( SerialGeneratorException ex ) {
-            throw new ConsentManagerException("unable to generate serial number for information model");
+            throw new ConsentManagerException("unable to generate serial number for initial version");
         } catch ( ModelDataSerializationException ex ) {
-            throw new ConsentManagerException("unable to serialise model data");
+            throw new ConsentManagerException("unable to serialise data");
         }
     }
 
     @Override
-    public ConsentElementEntry getModelEntry(String id) throws EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Getting model entry for id: " + id);
+    public ConsentElementEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException {
+        LOGGER.log(Level.FINE, "Getting entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         ConsentElementEntry entry = ConsentElementEntry.findById(UUID.fromString(id));
-        if ( entry == null || !entry.owner.equals(connectedIdentifier) ) {
-            throw new EntityNotFoundException("Unable to find an entry for id: " + id);
+        if ( entry == null ) {
+            throw new EntityNotFoundException("unable to find an entry for id: " + id);
+        }
+        if ( !entry.owner.equals(connectedIdentifier) ) {
+            throw new AccessDeniedException("only owner can access entry");
         }
         return entry;
     }
 
     @Override
-    public ConsentElementEntry findModelEntryByKey(String key) throws EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Finding model entry for key: " + key);
+    public ConsentElementEntry findEntryByKey(String key) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Finding entry for key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         List<ConsentElementEntry> entries = ConsentElementEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).list();
         if ( entries.isEmpty() ) {
-            throw new EntityNotFoundException("Unable to find an entry for key: " + key);
+            throw new EntityNotFoundException("unable to find an entry for key: " + key);
         }
         return entries.get(0);
     }
 
     @Override
-    public ConsentElementVersion findActiveModelVersionForKey(String key) throws EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Finding active model version for key: " + key);
+    public ConsentElementVersion findActiveVersionForEntry(String key) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Finding active version for entry with key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        //TODO for now we only works with ACTIVE
         List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", connectedIdentifier, key, ConsentElementVersion.Status.ACTIVE).list();
         if ( versions.isEmpty() ) {
-            throw new EntityNotFoundException("Unable to find an entry for key: " + key);
+            throw new EntityNotFoundException("unable to find an entry for key: " + key);
         }
         if ( versions.size() > 1 ) {
             LOGGER.log(Level.WARNING, "Found more than one active version, this is an incoherency");
@@ -164,17 +162,57 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentElementVersion findModelVersionForSerial(String serial) throws EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Finding model version for serial: " + serial);
+    public ConsentElementVersion findVersionBySerial(String serial) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Finding version for serial: " + serial);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and serial = ?2", connectedIdentifier, serial).list();
         if ( versions.isEmpty() ) {
-            throw new EntityNotFoundException("Unable to find a version for serial: " + serial);
+            throw new EntityNotFoundException("unable to find a version for serial: " + serial);
         }
         if ( versions.size() > 1 ) {
             LOGGER.log(Level.WARNING, "Found more than one version with serial, this is an incoherency, serial should be unique");
         }
         return versions.get(0);
+    }
+
+    @Override
+    public List<ConsentElementVersion> listVersionsForEntry(String key) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Listing versions for entry with key: " + key);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.key = ?2", connectedIdentifier, key).list();
+        if ( versions.isEmpty() ) {
+            throw new EntityNotFoundException("unable to find any version for key: " + key);
+        }
+        return versions;
+    }
+
+    @Override
+    @Transactional
+    public void updateEntry(String key, String name, String description) throws EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Updating entry for key: " + key);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        ConsentElementEntry entry = ConsentElementEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).firstResult();
+        if ( entry == null ) {
+            throw new EntityNotFoundException("unable to find an entry for key: " + key);
+        }
+        LOGGER.log(Level.INFO, "Entry: " + entry);
+        entry.name = name;
+        entry.description = description;
+        entry.persistAndFlush();
+        LOGGER.log(Level.INFO, "Entry: " + entry);
+    }
+
+    @Override
+    public void updateContent(String key, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException {
+        throw new ConsentManagerException("NOT IMPLEMENTED");
+    }
+
+    @Override
+    public void deleteEntry(String key) throws ConsentManagerException, EntityNotFoundException {
+        //TODO Analyse this behaviour to check if delete is possible.
+        // Maybe allow delete if all versions are draft or if there is no Record for any version
+        // Maybe also use a status DELETED to avoid display but to keep versions in the base.
+        throw new ConsentManagerException("NOT IMPLEMENTED");
     }
 
     /* CONSENT MANAGEMENT */
@@ -204,19 +242,19 @@ public class ConsentServiceBean implements ConsentService {
             form.setLocale(ctx.getLocale());
             form.setOrientation(ctx.getOrientation());
 
-            ConsentElementVersion header = this.findActiveModelVersionForKey(ctx.getHeader());
+            ConsentElementVersion header = this.findActiveVersionForEntry(ctx.getHeader());
             form.setHeader(header);
             ctx.setHeader(header.getIdentifier().serialize());
 
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
-                ConsentElementVersion element = this.findActiveModelVersionForKey(key);
+                ConsentElementVersion element = this.findActiveVersionForEntry(key);
                 form.addElement(element);
                 elementsIdentifiers.add(element.getIdentifier().serialize());
             }
             ctx.setElements(elementsIdentifiers);
 
-            ConsentElementVersion footer = this.findActiveModelVersionForKey(ctx.getFooter());
+            ConsentElementVersion footer = this.findActiveVersionForEntry(ctx.getFooter());
             form.setFooter(footer);
             ctx.setFooter(footer.getIdentifier().serialize());
 
@@ -256,7 +294,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.value = value.getValue();
                     record.creationTimestamp = now.toEpochMilli();
                     record.expirationTimestamp = now.plus(Period.ofWeeks(52)).toEpochMilli();
-                    record.status = ConsentRecord.Status.ACTIVE;
+                    record.status = ConsentRecord.Status.COMMITTED;
                     record.persist();
                     records.add(record);
                 } catch (IllegalIdentifierException e) {

@@ -13,27 +13,30 @@ import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ConsentService {
 
-    CollectionPage<ConsentElementEntry> listModelEntries(ModelEntryFilter filter) throws AccessDeniedException;
+    CollectionPage<ConsentElementEntry> listEntries(ModelEntryFilter filter) throws AccessDeniedException;
 
-    String createModelEntry(String key, String name, String description, String locale, ConsentElementData content) throws ConsentManagerException, EntityAlreadyExistsException;
+    String createEntry(String key, String name, String description, String locale, ConsentElementData content) throws ConsentManagerException, EntityAlreadyExistsException;
 
-    ConsentElementEntry getModelEntry(String id) throws EntityNotFoundException;
+    ConsentElementEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException;
 
-    ConsentElementEntry findModelEntryByKey(String key) throws EntityNotFoundException;
+    ConsentElementEntry findEntryByKey(String key) throws EntityNotFoundException;
 
-    //List<ModelVersion> listModelEntryVersions(String key) throws EntityNotFoundException;
+    List<ConsentElementVersion> listVersionsForEntry(String key) throws EntityNotFoundException;
 
-    ConsentElementVersion findActiveModelVersionForKey(String key) throws EntityNotFoundException;
+    ConsentElementVersion findActiveVersionForEntry(String key) throws EntityNotFoundException;
 
-    //TODO updateModelEntry()
-    //TODO addModelVersion()
-    //TODO deleteModelVersion()
+    ConsentElementVersion findVersionBySerial(String serial) throws EntityNotFoundException;
 
-    ConsentElementVersion findModelVersionForSerial(String serial) throws EntityNotFoundException;
+    void updateEntry(String key, String name, String description) throws EntityNotFoundException;
+
+    void updateContent(String key, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
+
+    void deleteEntry(String key) throws ConsentManagerException, EntityNotFoundException;
 
     String buildToken(ConsentContext ctx);
 

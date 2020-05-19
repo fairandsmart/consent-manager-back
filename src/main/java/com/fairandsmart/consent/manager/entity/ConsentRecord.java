@@ -34,8 +34,8 @@ public class ConsentRecord extends PanacheEntityBase {
 
     public enum Status {
         PENDING,
-        ACTIVE,
-        OBSOLETE
+        COMMITTED,
+        EXPIRED
     }
 
     @Override
