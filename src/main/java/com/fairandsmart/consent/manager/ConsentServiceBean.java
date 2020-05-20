@@ -73,7 +73,7 @@ public class ConsentServiceBean implements ConsentService {
         }
         PanacheQuery<ConsentElementEntry> query = ConsentElementEntry.find("owner = ?1 and type in ?2", filter.getOwner(), filter.getTypes());
         CollectionPage<ConsentElementEntry> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage()-1, filter.getSize())).list());
+        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
         result.setTotalPages(query.pageCount());
