@@ -13,6 +13,7 @@ public class ConsentElementContent {
 
     @Lob
     public String data;
+    public String author;
     public Class<? extends ConsentElementData> dataClass;
 
     public ConsentElementContent() {
@@ -31,7 +32,20 @@ public class ConsentElementContent {
         return this;
     }
 
-    public ConsentElementData getModelData() throws ModelDataSerializationException {
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public ConsentElementContent withAuthor(String author) {
+        this.author = author;
+        return this;
+    }
+
+    public ConsentElementData getDataObject() throws ModelDataSerializationException {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ConsentElementData body = mapper.readValue(data, dataClass);
@@ -41,7 +55,7 @@ public class ConsentElementContent {
         }
     }
 
-    public void setModelData(ConsentElementData data) throws ModelDataSerializationException {
+    public void setDataObject(ConsentElementData data) throws ModelDataSerializationException {
         try {
             this.dataClass = data.getClass();
             this.data = data.toJson();
@@ -50,8 +64,8 @@ public class ConsentElementContent {
         }
     }
 
-    public ConsentElementContent withModelData(ConsentElementData data) throws ModelDataSerializationException {
-        this.setModelData(data);
+    public ConsentElementContent withDataObject(ConsentElementData data) throws ModelDataSerializationException {
+        this.setDataObject(data);
         return this;
     }
 

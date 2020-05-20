@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
@@ -42,43 +43,62 @@ public class SimpleCollectTest {
 
         //Create header model
         CreateEntryDto h1 = new CreateEntryDto();
-        h1.setLocale("fr_FR");
         h1.setKey("h1");
+        h1.setType(Header.TYPE);
         h1.setName("H1");
         h1.setDescription("Le header H1");
-        h1.setContent(new Header()
-                .withTitle("Title h1")
-                .withBody("Body h1")
-                .withPrivacyPolicyUrl("Readmore h1")
-        );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(h1).
                 when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
 
+        //TODO Set data and activate entry
+        /*
+        h1.setLocale("fr_FR");
+        h1.setContent(new Header()
+                .withTitle("Title h1")
+                .withBody("Body h1")
+                .withPrivacyPolicyUrl("Readmore h1")
+        );
+        */
+
         //Create footer model
         CreateEntryDto f1 = new CreateEntryDto();
-        f1.setLocale("fr_FR");
         f1.setKey("f1");
+        f1.setType(Footer.TYPE);
         f1.setName("F1");
         f1.setDescription("Le footer F1");
-        f1.setContent(new Footer()
-                .withShowAcceptAll(true)
-                .withCustomAcceptAllText("J'accepte tout")
-        );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(f1).
                 when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
 
+        //TODO Set data and activate entry
+        /*
+        f1.setLocale("fr_FR");
+        f1.setContent(new Footer()
+                .withShowAcceptAll(true)
+                .withCustomAcceptAllText("J'accepte tout")
+        );
+        */
+
+
         //Create treatment 1 model
         CreateEntryDto t1 = new CreateEntryDto();
-        t1.setLocale("fr_FR");
         t1.setKey("t1");
+        t1.setType(Treatment.TYPE);
         t1.setName("T1");
         t1.setDescription("Le traitement t1");
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(t1).
+                when().post("/consents/models").
+                then().statusCode(201).header("location", notNullValue());
+
+        /*
+        t1.setLocale("fr_FR");
         t1.setContent(new Treatment()
                 .withTreatmentTitle("Titre du traitement t1")
                 .withDataBody("Nous avons besoin de votre nom.")
@@ -86,17 +106,22 @@ public class SimpleCollectTest {
                 .withUsageBody("Nous pourrons ainsi tout savoir sur vous.")
                 .withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE)
         );
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
+
+         */
+
+        CreateEntryDto t2 = new CreateEntryDto();
+        t2.setKey("t2");
+        t2.setType(Treatment.TYPE);
+        t2.setName("T2");
+        t2.setDescription("Le traitement t2");
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
         given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(t1).
+                contentType(ContentType.JSON).body(t2).
                 when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
 
-        CreateEntryDto t2 = new CreateEntryDto();
+        /*
         t2.setLocale("fr_FR");
-        t2.setKey("t2");
-        t2.setName("T2");
-        t2.setDescription("Le traitement t2");
         t2.setContent(new Treatment()
                 .withTreatmentTitle("Titre du traitement t2")
                 .withDataBody("Nous voulons votre email.")
@@ -104,11 +129,8 @@ public class SimpleCollectTest {
                 .withUsageBody("Nous pourrons ainsi vous contacter.")
                 .withPurpose(Treatment.Purpose.CONSENT_MARKETING)
         );
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
-        given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(t2).
-                when().post("/consents/models").
-                then().statusCode(201).header("location", notNullValue());
+
+         */
     }
 
     /**

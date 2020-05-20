@@ -119,7 +119,7 @@ public class ConsentsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEntry(@Valid CreateEntryDto dto, @Context UriInfo uriInfo) throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "POST /consents/models");
-        String id = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getLocale(), dto.getContent());
+        String id = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
         URI uri = uriInfo.getRequestUriBuilder().path(id).build();
         ConsentElementEntry entry = consentService.getEntry(id);
         return Response.created(uri).entity(entry).build();

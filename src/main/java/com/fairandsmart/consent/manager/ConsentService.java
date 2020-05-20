@@ -20,13 +20,13 @@ public interface ConsentService {
 
     CollectionPage<ConsentElementEntry> listEntries(EntryFilter filter) throws AccessDeniedException;
 
-    String createEntry(String key, String name, String description, String locale, ConsentElementData content) throws ConsentManagerException, EntityAlreadyExistsException;
+    String createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException;
 
     ConsentElementEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException;
 
     ConsentElementEntry findEntryByKey(String key) throws EntityNotFoundException;
 
-    List<ConsentElementVersion> listVersionsForEntry(String key) throws EntityNotFoundException;
+    List<ConsentElementVersion> listVersionsForEntry(String key) throws ConsentManagerException;
 
     ConsentElementVersion findActiveVersionForEntry(String key) throws EntityNotFoundException;
 
@@ -34,7 +34,11 @@ public interface ConsentService {
 
     void updateEntry(String key, String name, String description) throws EntityNotFoundException;
 
-    void updateContent(String key, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
+    void updateEntryContent(String key, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
+
+    void activateEntry(String key, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
+
+    void archiveEntry(String key, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
 
     void deleteEntry(String key) throws ConsentManagerException, EntityNotFoundException;
 
