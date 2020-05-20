@@ -150,16 +150,20 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional()
-    public void updateEntry(String key, String name, String description) throws EntityNotFoundException {
+    public ConsentElementEntry updateEntry(String key, String name, String description) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Updating entry for key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         ConsentElementEntry entry = ConsentElementEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).firstResult();
         if ( entry == null ) {
             throw new EntityNotFoundException("unable to find an entry for key: " + key);
         }
+        if ( !entry.owner.equals(connectedIdentifier) ) {
+            throw new AccessDeniedException("only owner can update entry");
+        }
         entry.name = name;
         entry.description = description;
         entry.persist();
+        return entry;
     }
 
     @Override

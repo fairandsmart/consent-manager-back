@@ -32,7 +32,7 @@ public interface ConsentService {
 
     ConsentElementVersion findVersionBySerial(String serial) throws EntityNotFoundException;
 
-    void updateEntry(String key, String name, String description) throws EntityNotFoundException;
+    ConsentElementEntry updateEntry(String key, String name, String description) throws EntityNotFoundException, AccessDeniedException;
 
     void updateEntryContent(String key, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
 

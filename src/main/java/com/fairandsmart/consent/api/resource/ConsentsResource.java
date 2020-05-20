@@ -2,6 +2,7 @@ package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.CreateEntryDto;
+import com.fairandsmart.consent.api.dto.UpdateEntryDto;
 import com.fairandsmart.consent.api.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -9,6 +10,7 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
+import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
 import com.fairandsmart.consent.manager.filter.EntryFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
@@ -24,7 +26,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -104,7 +105,7 @@ public class ConsentsResource {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("types") List<String> types) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "GET /consents/models");
+        LOGGER.log(Level.INFO, "GET /consents/entries");
         EntryFilter filter = new EntryFilter();
         filter.setPage(page);
         filter.setSize(size);
@@ -118,7 +119,7 @@ public class ConsentsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEntry(@Valid CreateEntryDto dto, @Context UriInfo uriInfo) throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
-        LOGGER.log(Level.INFO, "POST /consents/models");
+        LOGGER.log(Level.INFO, "POST /consents/entries");
         String id = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
         URI uri = uriInfo.getRequestUriBuilder().path(id).build();
         ConsentElementEntry entry = consentService.getEntry(id);
@@ -129,8 +130,28 @@ public class ConsentsResource {
     @Path("/entries/{id}")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentElementEntry getEntry(@PathParam("id") @Valid UUID id) throws EntityNotFoundException, AccessDeniedException {
-        LOGGER.log(Level.INFO, "GET /consents/models/" + id);
-        return consentService.getEntry(id.toString());
+    public ConsentElementEntry getEntry(@PathParam("id") String id) throws EntityNotFoundException, AccessDeniedException {
+        LOGGER.log(Level.INFO, "GET /consents/entries/" + id);
+        return consentService.getEntry(id);
+    }
+
+    @PUT
+    @Path("/entries/{id}")
+    @RolesAllowed("admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ConsentElementEntry updateEntry(@PathParam("id") String id, UpdateEntryDto dto) throws EntityNotFoundException, AccessDeniedException {
+        LOGGER.log(Level.INFO, "PUT /consents/entries/" + id);
+        ConsentElementEntry entry = consentService.getEntry(id);
+        return consentService.updateEntry(entry.key, dto.getName(), dto.getDescription());
+    }
+
+    @GET
+    @Path("/entries/{id}/versions")
+    @RolesAllowed("admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ConsentElementVersion> listEntryVersions(@PathParam("id") String id) throws EntityNotFoundException, ConsentManagerException {
+        LOGGER.log(Level.INFO, "GET /consents/entries/" + id + "/versions");
+        ConsentElementEntry entry = consentService.getEntry(id);
+        return consentService.listVersionsForEntry(entry.key);
     }
 }
