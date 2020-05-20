@@ -2,14 +2,14 @@ package com.fairandsmart.consent.manager.filter;
 
 import java.util.List;
 
-public class ModelEntryFilter {
+public class EntryFilter {
 
     private String owner;
     private List<String> types;
     private int page;
     private int size;
 
-    public ModelEntryFilter() {
+    public EntryFilter() {
     }
 
     public String getOwner() {
@@ -20,7 +20,7 @@ public class ModelEntryFilter {
         this.owner = owner;
     }
 
-    public ModelEntryFilter withOwner(String owner) {
+    public EntryFilter withOwner(String owner) {
         this.owner = owner;
         return this;
     }
@@ -33,7 +33,7 @@ public class ModelEntryFilter {
         this.types = types;
     }
 
-    public ModelEntryFilter withTypes(List<String> types) {
+    public EntryFilter withTypes(List<String> types) {
         this.types = types;
         return this;
     }
@@ -46,7 +46,7 @@ public class ModelEntryFilter {
         this.page = page;
     }
 
-    public ModelEntryFilter withPage(int page) {
+    public EntryFilter withPage(int page) {
         this.page = page;
         return this;
     }
@@ -59,7 +59,7 @@ public class ModelEntryFilter {
         this.size = size;
     }
 
-    public ModelEntryFilter withSize(int size) {
+    public EntryFilter withSize(int size) {
         this.size = size;
         return this;
     }

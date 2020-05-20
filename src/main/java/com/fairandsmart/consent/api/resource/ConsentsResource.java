@@ -1,7 +1,7 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.api.dto.CreateModelEntryDto;
+import com.fairandsmart.consent.api.dto.CreateEntryDto;
 import com.fairandsmart.consent.api.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -9,7 +9,7 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
-import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
+import com.fairandsmart.consent.manager.filter.EntryFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
@@ -97,7 +97,7 @@ public class ConsentsResource {
     }
 
     @GET
-    @Path("/models")
+    @Path("/entries")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<ConsentElementEntry> listEntries(
@@ -105,7 +105,7 @@ public class ConsentsResource {
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("types") List<String> types) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /consents/models");
-        ModelEntryFilter filter = new ModelEntryFilter();
+        EntryFilter filter = new EntryFilter();
         filter.setPage(page);
         filter.setSize(size);
         filter.setTypes(types);
@@ -113,11 +113,11 @@ public class ConsentsResource {
     }
 
     @POST
-    @Path("/models")
+    @Path("/entries")
     @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createModelEntry(@Valid CreateModelEntryDto dto, @Context UriInfo uriInfo) throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
+    public Response createEntry(@Valid CreateEntryDto dto, @Context UriInfo uriInfo) throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "POST /consents/models");
         String id = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getLocale(), dto.getContent());
         URI uri = uriInfo.getRequestUriBuilder().path(id).build();
@@ -126,10 +126,10 @@ public class ConsentsResource {
     }
 
     @GET
-    @Path("/models/{id}")
+    @Path("/entries/{id}")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentElementEntry getModelEntry(@PathParam("id") @Valid UUID id) throws EntityNotFoundException, AccessDeniedException {
+    public ConsentElementEntry getEntry(@PathParam("id") @Valid UUID id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /consents/models/" + id);
         return consentService.getEntry(id.toString());
     }

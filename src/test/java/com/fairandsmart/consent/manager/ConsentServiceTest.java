@@ -4,13 +4,11 @@ import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.manager.entity.ConsentElementData;
 import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
 import com.fairandsmart.consent.manager.model.Controller;
-import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
-import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
+import com.fairandsmart.consent.manager.filter.EntryFilter;
 import io.quarkus.test.junit.QuarkusTest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
@@ -53,7 +51,7 @@ public class ConsentServiceTest {
     @Transactional
     public void testCreateAndUpdateHeaderEntry() throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException, ModelDataSerializationException {
         LOGGER.info("List existing entries for headers");
-        CollectionPage<ConsentElementEntry> headers = service.listEntries(new ModelEntryFilter().withOwner(unauthentifiedUser).withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
+        CollectionPage<ConsentElementEntry> headers = service.listEntries(new EntryFilter().withOwner(unauthentifiedUser).withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
         long headersCountBeforeCreate = headers.getTotalCount();
 
         LOGGER.info("Create Header h1");
@@ -85,7 +83,7 @@ public class ConsentServiceTest {
         assertNotNull(idHeader);
 
         LOGGER.info("List existing entries for headers");
-        headers = service.listEntries(new ModelEntryFilter().withTypes(Collections.singletonList(Header.TYPE)).withOwner(unauthentifiedUser).withPage(1).withSize(5));
+        headers = service.listEntries(new EntryFilter().withTypes(Collections.singletonList(Header.TYPE)).withOwner(unauthentifiedUser).withPage(1).withSize(5));
         assertEquals(headersCountBeforeCreate + 1, headers.getTotalCount());
 
         LOGGER.info("Lookup entry h1 by key");

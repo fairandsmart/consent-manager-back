@@ -8,7 +8,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class CreateModelEntryDto {
+public class CreateEntryDto {
 
     @NotNull @ModelKey
     private String key;
@@ -21,7 +21,7 @@ public class CreateModelEntryDto {
     @NotNull @Valid
     private ConsentElementData content;
 
-    public CreateModelEntryDto() {
+    public CreateEntryDto() {
     }
 
     public String getKey() {

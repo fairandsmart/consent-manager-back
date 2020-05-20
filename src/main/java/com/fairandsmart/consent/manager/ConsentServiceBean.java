@@ -6,7 +6,7 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.*;
-import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
+import com.fairandsmart.consent.manager.filter.EntryFilter;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Receipt;
@@ -61,7 +61,7 @@ public class ConsentServiceBean implements ConsentService {
     /* MODELS MANAGEMENT */
 
     @Override
-    public CollectionPage<ConsentElementEntry> listEntries(ModelEntryFilter filter) throws AccessDeniedException {
+    public CollectionPage<ConsentElementEntry> listEntries(EntryFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Listing models entries");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         //TODO Handle cases where an admin is able to list any model entries

@@ -1,6 +1,6 @@
 package com.fairandsmart.consent.usecase;
 
-import com.fairandsmart.consent.api.dto.CreateModelEntryDto;
+import com.fairandsmart.consent.api.dto.CreateEntryDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.model.Footer;
@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,7 +41,7 @@ public class SimpleCollectTest {
                 then().body("status", equalTo("UP"));
 
         //Create header model
-        CreateModelEntryDto h1 = new CreateModelEntryDto();
+        CreateEntryDto h1 = new CreateEntryDto();
         h1.setLocale("fr_FR");
         h1.setKey("h1");
         h1.setName("H1");
@@ -59,7 +58,7 @@ public class SimpleCollectTest {
                 then().statusCode(201).header("location", notNullValue());
 
         //Create footer model
-        CreateModelEntryDto f1 = new CreateModelEntryDto();
+        CreateEntryDto f1 = new CreateEntryDto();
         f1.setLocale("fr_FR");
         f1.setKey("f1");
         f1.setName("F1");
@@ -75,7 +74,7 @@ public class SimpleCollectTest {
                 then().statusCode(201).header("location", notNullValue());
 
         //Create treatment 1 model
-        CreateModelEntryDto t1 = new CreateModelEntryDto();
+        CreateEntryDto t1 = new CreateEntryDto();
         t1.setLocale("fr_FR");
         t1.setKey("t1");
         t1.setName("T1");
@@ -93,7 +92,7 @@ public class SimpleCollectTest {
                 when().post("/consents/models").
                 then().statusCode(201).header("location", notNullValue());
 
-        CreateModelEntryDto t2 = new CreateModelEntryDto();
+        CreateEntryDto t2 = new CreateEntryDto();
         t2.setLocale("fr_FR");
         t2.setKey("t2");
         t2.setName("T2");

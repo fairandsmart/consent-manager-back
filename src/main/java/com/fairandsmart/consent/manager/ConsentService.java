@@ -8,7 +8,7 @@ import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.ConsentElementData;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
-import com.fairandsmart.consent.manager.filter.ModelEntryFilter;
+import com.fairandsmart.consent.manager.filter.EntryFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 public interface ConsentService {
 
-    CollectionPage<ConsentElementEntry> listEntries(ModelEntryFilter filter) throws AccessDeniedException;
+    CollectionPage<ConsentElementEntry> listEntries(EntryFilter filter) throws AccessDeniedException;
 
     String createEntry(String key, String name, String description, String locale, ConsentElementData content) throws ConsentManagerException, EntityAlreadyExistsException;
 
