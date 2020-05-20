@@ -235,6 +235,10 @@ public class ConsentServiceBean implements ConsentService {
             // Apply revocation if needed to existing records (for all compatible serials)
             // Update compatible of the latest
             // Update status
+            throw new ConsentManagerException("unable to activate entry, current status is not draft");
+        } else {
+            //TODO This is first version, it's simple to activate
+            throw new ConsentManagerException("unable to activate entry, current status is not draft");
         }
     }
 
