@@ -23,6 +23,8 @@ import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static freemarker.template.Configuration.VERSION_2_3_30;
+
 @Provider
 @Singleton
 @Produces(MediaType.TEXT_HTML)
@@ -39,7 +41,7 @@ public class ApiErrorBodyWriter implements MessageBodyWriter<ApiError> {
     @PostConstruct
     public void init() {
         LOGGER.log(Level.INFO, "Initializing ApiErrorBodyWriter");
-        cfg = new Configuration();
+        cfg = new Configuration(VERSION_2_3_30);
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         cfg.setClassForTemplateLoading(TemplateBodyWriter.class, "/templates");

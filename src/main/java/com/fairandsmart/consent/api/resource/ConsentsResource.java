@@ -21,8 +21,10 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,15 +100,15 @@ public class ConsentsResource {
     @Path("/models")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public CollectionPage<ConsentElementEntry> listModelEntries(
+    public CollectionPage<ConsentElementEntry> listEntries(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("25") int size,
-            @QueryParam("type") String type) throws AccessDeniedException {
+            @QueryParam("types") List<String> types) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /consents/models");
         ModelEntryFilter filter = new ModelEntryFilter();
         filter.setPage(page);
         filter.setSize(size);
-        filter.setType(type);
+        filter.setTypes(types);
         return consentService.listEntries(filter);
     }
 
@@ -121,5 +123,14 @@ public class ConsentsResource {
         URI uri = uriInfo.getRequestUriBuilder().path(id).build();
         ConsentElementEntry entry = consentService.getEntry(id);
         return Response.created(uri).entity(entry).build();
+    }
+
+    @GET
+    @Path("/models/{id}")
+    @RolesAllowed("admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ConsentElementEntry getModelEntry(@PathParam("id") @Valid UUID id) throws EntityNotFoundException, AccessDeniedException {
+        LOGGER.log(Level.INFO, "GET /consents/models/" + id);
+        return consentService.getEntry(id.toString());
     }
 }

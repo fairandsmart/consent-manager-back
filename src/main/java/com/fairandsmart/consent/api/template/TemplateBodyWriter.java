@@ -22,6 +22,8 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 
+import static freemarker.template.Configuration.VERSION_2_3_30;
+
 @Provider
 @Singleton
 @Produces(MediaType.TEXT_HTML)
@@ -38,7 +40,7 @@ public class TemplateBodyWriter implements MessageBodyWriter<TemplateModel> {
     @PostConstruct
     public void init() {
         LOGGER.log(Level.INFO, "Initializing TemplateBodyWriter");
-        cfg = new Configuration();
+        cfg = new Configuration(VERSION_2_3_30);
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         cfg.setClassForTemplateLoading(TemplateBodyWriter.class, "/templates");

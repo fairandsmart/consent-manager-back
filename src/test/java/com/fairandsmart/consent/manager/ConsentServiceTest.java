@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +53,7 @@ public class ConsentServiceTest {
     @Transactional
     public void testCreateAndUpdateHeaderEntry() throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException, ModelDataSerializationException {
         LOGGER.info("List existing entries for headers");
-        CollectionPage<ConsentElementEntry> headers = service.listEntries(new ModelEntryFilter().withOwner(unauthentifiedUser).withType(Header.TYPE).withPage(1).withSize(5));
+        CollectionPage<ConsentElementEntry> headers = service.listEntries(new ModelEntryFilter().withOwner(unauthentifiedUser).withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
         long headersCountBeforeCreate = headers.getTotalCount();
 
         LOGGER.info("Create Header h1");
@@ -84,7 +85,7 @@ public class ConsentServiceTest {
         assertNotNull(idHeader);
 
         LOGGER.info("List existing entries for headers");
-        headers = service.listEntries(new ModelEntryFilter().withType(Header.TYPE).withOwner(unauthentifiedUser).withPage(1).withSize(5));
+        headers = service.listEntries(new ModelEntryFilter().withTypes(Collections.singletonList(Header.TYPE)).withOwner(unauthentifiedUser).withPage(1).withSize(5));
         assertEquals(headersCountBeforeCreate + 1, headers.getTotalCount());
 
         LOGGER.info("Lookup entry h1 by key");

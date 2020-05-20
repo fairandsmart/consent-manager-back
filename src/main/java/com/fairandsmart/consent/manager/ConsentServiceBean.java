@@ -71,7 +71,7 @@ public class ConsentServiceBean implements ConsentService {
             //This exception is not raised yet, only here to not forgot usage later
             throw new AccessDeniedException("Owner must be the connected user");
         }
-        PanacheQuery<ConsentElementEntry> query = ConsentElementEntry.find("owner = ?1 and type = ?2", filter.getOwner(), filter.getType());
+        PanacheQuery<ConsentElementEntry> query = ConsentElementEntry.find("owner = ?1 and type in ?2", filter.getOwner(), filter.getTypes());
         CollectionPage<ConsentElementEntry> result = new CollectionPage<>();
         result.setValues(query.page(Page.of(filter.getPage()-1, filter.getSize())).list());
         result.setPageSize(filter.getSize());
