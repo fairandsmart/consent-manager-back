@@ -6,18 +6,22 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
+import com.fairandsmart.consent.manager.entity.ConsentRecord;
 import com.fairandsmart.consent.manager.filter.EntryFilter;
 import com.fairandsmart.consent.manager.model.Controller;
+import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
+import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.token.InvalidTokenException;
+import com.fairandsmart.consent.token.TokenExpiredException;
+import com.fairandsmart.consent.token.TokenServiceException;
 import io.quarkus.test.junit.QuarkusTest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -168,7 +172,86 @@ public class ConsentServiceTest {
         version = service.findActiveVersionByKey("h1");
         assertEquals(versions.get(0), version);
         assertEquals(ConsentElementVersion.Status.ACTIVE, version.status);
+    }
 
+    @Test
+    @Transactional
+    public void testCreateAndReadRecord() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, TokenServiceException, IllegalIdentifierException {
+        LOGGER.log(Level.INFO, "Creating, updating and activating entries");
+        String id = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
+        assertNotNull(id);
+        String headerSerial = service.updateEntryContent(id, "fr_FR", new Header().withTitle("Header title").withBody("Header body")).serial;
+        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
+        id = service.createEntry("t1", "treatment1", "Description de treatment1", Treatment.TYPE);
+        assertNotNull(id);
+        String treatment1Serial = service.updateEntryContent(id, "fr_FR", new Treatment().withTreatmentTitle("Treatment1").withDataBody("Data1").withRetentionBody("Retention1").withUsageBody("Usage1").withPurpose(Treatment.Purpose.CONSENT_MARKETING)).serial;
+        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
+        id = service.createEntry("t2", "treatment2", "Description de treatment2", Treatment.TYPE);
+        assertNotNull(id);
+        String treatment2Serial = service.updateEntryContent(id, "fr_FR", new Treatment().withTreatmentTitle("Treatment2").withDataBody("Data2").withRetentionBody("Retention2").withUsageBody("Usage2").withPurpose(Treatment.Purpose.CONSENT_IMPROVED_SERVICE)).serial;
+        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
+        id = service.createEntry("f1", "footer1", "Description de footer1", Footer.TYPE);
+        assertNotNull(id);
+        String footerSerial = service.updateEntryContent(id, "fr_FR", new Footer().withBody("Footer body")).serial;
+        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
+
+        LOGGER.info("Listing existing entries");
+        List<String> types = new ArrayList<>();
+        types.add(Header.TYPE);
+        types.add(Treatment.TYPE);
+        types.add(Footer.TYPE);
+        CollectionPage<ConsentElementEntry> entries = service.listEntries(new EntryFilter().withTypes(types).withPage(1).withSize(5));
+        assertEquals(4, entries.getTotalCount());
+
+        LOGGER.log(Level.INFO, "Creating READ context and token");
+        ConsentContext readCtx = new ConsentContext()
+                .setOwner(unauthentifiedUser)
+                .setSubject("mmichu")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setHeader("h1")
+                .setElements(Arrays.asList("t1", "t2"))
+                .setFooter("f1")
+                .setLocale("fr_FR");
+        String readToken = service.buildToken(readCtx); // TODO : actuellement, il faut changer la valeur de consent.security.auth.unauthenticated en sheldon ; cf le TODO de buildToken
+
+        LOGGER.log(Level.INFO, "Reading consent records before submit");
+        List<ConsentRecord> records = service.listConsentRecords(readCtx);
+        assertEquals(0, records.size());
+
+        LOGGER.log(Level.INFO, "First consent form");
+        ConsentForm form = service.generateForm(readToken);
+        assertEquals(2, form.getElements().size());
+        assertEquals(0, form.getPreviousValues().size());
+
+        LOGGER.log(Level.INFO, "Creating POST context and token");
+        ConsentContext postCtx = new ConsentContext()
+                .setOwner(unauthentifiedUser)
+                .setSubject("mmichu")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setHeader("element/header/" + headerSerial)
+                .setElements(Arrays.asList("element/treatment/" + treatment1Serial, "element/treatment/" + treatment2Serial))
+                .setFooter("element/footer/" + footerSerial)
+                .setLocale("fr_FR");
+        String postToken = service.buildToken(postCtx); // TODO : actuellement, il faut changer la valeur de consent.security.auth.unauthenticated en sheldon ; cf le TODO de buildToken
+
+        LOGGER.log(Level.INFO, "Submitting first consent (creating record)");
+        Map<String, String> values = new HashMap<>();
+        values.put("header", "element/header/" + headerSerial);
+        values.put("element/treatment/" + treatment1Serial, "accepted");
+        values.put("element/treatment/" + treatment2Serial, "refused");
+        values.put("footer", "element/footer/" + footerSerial);
+        service.submitConsent(postToken, values);
+
+        LOGGER.log(Level.INFO, "Reading consent records after submit");
+        records = service.listConsentRecords(readCtx);
+        assertEquals(2, records.size());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(treatment1Serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(treatment2Serial)).count());
+
+        LOGGER.log(Level.INFO, "Second consent form");
+        form = service.generateForm(readToken);
+        assertEquals(2, form.getElements().size());
+        assertEquals(2, form.getPreviousValues().size());
     }
 
 }

@@ -30,8 +30,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
@@ -207,7 +207,6 @@ public class SimpleCollectTest {
                 .setHeader("h1")
                 .setElements(Arrays.asList("t1", "t2"))
                 .setFooter("f1")
-                .setCallback("urldetest")
                 .setLocale("fr_FR");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 

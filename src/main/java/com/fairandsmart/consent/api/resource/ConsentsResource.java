@@ -11,7 +11,7 @@ import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
 import com.fairandsmart.consent.manager.filter.EntryFilter;
-import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import org.apache.commons.lang3.LocaleUtils;
@@ -22,9 +22,7 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -99,7 +97,7 @@ public class ConsentsResource {
     public Response updateEntryStatus(@PathParam("id") @Valid @UUID String id, UpdateEntryStatusDto dto) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "PUT /consents/entries/" + id + "/status");
         LOGGER.log(Level.INFO, "dto: " + dto);
-        switch ( dto.getStatus() ) {
+        switch (dto.getStatus()) {
             case DRAFT:
                 return Response.status(Response.Status.CONFLICT).build();
             case ACTIVE:
@@ -138,9 +136,9 @@ public class ConsentsResource {
         LOGGER.log(Level.INFO, "GET /consents");
 
         String token;
-        if ( htoken != null && !htoken.isEmpty() ) {
+        if (htoken != null && !htoken.isEmpty()) {
             token = htoken;
-        } else if ( qtoken != null && !qtoken.isEmpty() ) {
+        } else if (qtoken != null && !qtoken.isEmpty()) {
             token = qtoken;
         } else {
             throw new AccessDeniedException("Unable to find token neither in header nor as query param");
@@ -167,7 +165,7 @@ public class ConsentsResource {
     public TemplateModel postConsent(Map<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
 
-        if ( !values.containsKey("token") ) {
+        if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
         }
         Receipt receipt = consentService.submitConsent(values.get("token"), values);

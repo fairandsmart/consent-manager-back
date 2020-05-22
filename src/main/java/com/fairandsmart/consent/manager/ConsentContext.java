@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class ConsentContext implements Tokenizable {
 
     private static final String USERINFOS_PREFIX = "userinfos_";
-    private static final String ATTRIUTES_PREFIX = "attributes_";
+    private static final String ATTRIBUTES_PREFIX = "attributes_";
 
     @NotNull
     private String subject;
@@ -31,7 +31,6 @@ public class ConsentContext implements Tokenizable {
     private String optoutEmail;
     private boolean preview = false;
     private boolean iframe = false;
-
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
@@ -116,7 +115,7 @@ public class ConsentContext implements Tokenizable {
     }
 
     public String getLocale() {
-        if ( locale == null || locale.isEmpty() ) {
+        if (locale == null || locale.isEmpty()) {
             return Locale.getDefault().toLanguageTag();
         }
         return locale;
@@ -193,41 +192,41 @@ public class ConsentContext implements Tokenizable {
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
-        if ( header != null ) {
+        if (header != null) {
             claims.put("header", this.getHeader());
         }
-        if ( elements != null && !elements.isEmpty() ) {
+        if (elements != null && !elements.isEmpty()) {
             claims.put("elements", this.getElementsString());
         }
-        if ( footer != null ) {
+        if (footer != null) {
             claims.put("footer", this.getFooter());
         }
-        if ( locale != null ) {
+        if (locale != null) {
             claims.put("locale", this.getLocale());
         }
-        if ( callback != null ) {
+        if (callback != null) {
             claims.put("callback", this.getCallback());
         }
-        if ( orientation != null ) {
+        if (orientation != null) {
             claims.put("orientation", this.getOrientation().name());
         }
-        if ( formType != null ) {
+        if (formType != null) {
             claims.put("formType", this.getFormType().name());
         }
-        if ( receiptDeliveryType != null ) {
+        if (receiptDeliveryType != null) {
             claims.put("receiptDeliveryType", this.getReceiptDeliveryType().name());
         }
-        if ( optoutEmail != null ) {
+        if (optoutEmail != null) {
             claims.put("optoutEmail", this.getOptoutEmail());
         }
-        if ( userinfos != null && !userinfos.isEmpty() ) {
-            for ( Map.Entry<String, String> entry : userinfos.entrySet() ) {
+        if (userinfos != null && !userinfos.isEmpty()) {
+            for (Map.Entry<String, String> entry : userinfos.entrySet()) {
                 claims.put(USERINFOS_PREFIX + entry.getKey(), entry.getValue());
             }
         }
-        if ( attributes != null && !attributes.isEmpty() ) {
-            for ( Map.Entry<String, String> entry : attributes.entrySet() ) {
-                claims.put(ATTRIUTES_PREFIX + entry.getKey(), entry.getValue());
+        if (attributes != null && !attributes.isEmpty()) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                claims.put(ATTRIBUTES_PREFIX + entry.getKey(), entry.getValue());
             }
         }
         claims.put("preview", Boolean.toString(this.isPreview()));
@@ -237,44 +236,44 @@ public class ConsentContext implements Tokenizable {
 
     @Override
     public Tokenizable setClaims(Map<String, String> claims) {
-        if ( claims.containsKey("header") ) {
+        if (claims.containsKey("header")) {
             this.setHeader(claims.get("header"));
         }
-        if ( claims.containsKey("elements") ) {
+        if (claims.containsKey("elements")) {
             this.setElementsString(claims.get("elements"));
         }
-        if ( claims.containsKey("footer") ) {
+        if (claims.containsKey("footer")) {
             this.setFooter(claims.get("footer"));
         }
-        if ( claims.containsKey("locale") ) {
+        if (claims.containsKey("locale")) {
             this.setLocale(claims.get("locale"));
         }
-        if ( claims.containsKey("callback") ) {
+        if (claims.containsKey("callback")) {
             this.setCallback(claims.get("callback"));
         }
-        if ( claims.containsKey("orientation") ) {
+        if (claims.containsKey("orientation")) {
             this.setOrientation(ConsentForm.Orientation.valueOf(claims.get("orientation")));
         }
-        if ( claims.containsKey("formType") ) {
+        if (claims.containsKey("formType")) {
             this.setFormType(ReceiptFormType.valueOf(claims.get("formType")));
         }
-        if ( claims.containsKey("receiptDeliveryType") ) {
+        if (claims.containsKey("receiptDeliveryType")) {
             this.setReceiptDeliveryType(ReceiptDeliveryType.valueOf(claims.get("receiptDeliveryType")));
         }
-        if ( claims.containsKey("optoutEmail") ) {
+        if (claims.containsKey("optoutEmail")) {
             this.setOptoutEmail(claims.get("optoutEmail"));
         }
-        if ( claims.containsKey("preview") ) {
+        if (claims.containsKey("preview")) {
             this.setPreview(Boolean.parseBoolean(claims.get("preview")));
         }
-        if ( claims.containsKey("iframe") ) {
+        if (claims.containsKey("iframe")) {
             this.setIframe(Boolean.parseBoolean(claims.get("iframe")));
         }
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
                 entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
         );
-        claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(ATTRIUTES_PREFIX)).forEach(
-                entry -> this.getAttributes().put(entry.getKey().substring(ATTRIUTES_PREFIX.length()), entry.getValue())
+        claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(ATTRIBUTES_PREFIX)).forEach(
+                entry -> this.getAttributes().put(entry.getKey().substring(ATTRIBUTES_PREFIX.length()), entry.getValue())
         );
         return this;
     }

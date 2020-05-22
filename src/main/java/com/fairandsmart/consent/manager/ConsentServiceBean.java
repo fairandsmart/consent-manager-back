@@ -65,9 +65,9 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Listing models entries");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         //TODO Handle cases where an admin is able to list any model entries
-        // For now, authenticated user is enforced as owner of th emodels :
+        // For now, authenticated user is enforced as owner of the models :
         filter.setOwner(connectedIdentifier);
-        if ( !connectedIdentifier.equals(filter.getOwner()) ) {
+        if (!connectedIdentifier.equals(filter.getOwner())) {
             //This exception is not raised yet, only here to not forgot usage later
             throw new AccessDeniedException("Owner must be the connected user");
         }
@@ -86,7 +86,7 @@ public class ConsentServiceBean implements ConsentService {
     public String createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "Creating new entry");
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        if ( ConsentElementEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
+        if (ConsentElementEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
         }
         ConsentElementEntry entry = new ConsentElementEntry();
@@ -106,7 +106,7 @@ public class ConsentServiceBean implements ConsentService {
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
         ConsentElementEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
-        if ( !entry.owner.equals(connectedIdentifier) ) {
+        if (!entry.owner.equals(connectedIdentifier)) {
             throw new AccessDeniedException("only owner can access entry");
         }
         return entry;
@@ -140,7 +140,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Listing versions for entry with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, id).list();
-        if ( versions.isEmpty() ) {
+        if (versions.isEmpty()) {
             return versions;
         } else {
             LOGGER.log(Level.INFO, "Ordering existing versions: " + versions);
@@ -155,7 +155,7 @@ public class ConsentServiceBean implements ConsentService {
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
         ConsentElementEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
-        if ( !entry.owner.equals(connectedIdentifier) ) {
+        if (!entry.owner.equals(connectedIdentifier)) {
             throw new AccessDeniedException("only owner can access entry");
         }
         entry.name = name;
@@ -171,17 +171,17 @@ public class ConsentServiceBean implements ConsentService {
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> eoptional = ConsentElementEntry.findByIdOptional(id);
         ConsentElementEntry entry = eoptional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
-        if ( !entry.owner.equals(connectedIdentifier) ) {
+        if (!entry.owner.equals(connectedIdentifier)) {
             throw new AccessDeniedException("only owner can access entry");
         }
-        if ( !entry.type.equals(data.getType()) ) {
+        if (!entry.type.equals(data.getType())) {
             throw new ConsentManagerException("Entry data type mismatch, need type: " + entry.type);
         }
         Optional<ConsentElementVersion> voptional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
         ConsentElementVersion latest = voptional.orElse(null);
         try {
             long now = System.currentTimeMillis();
-            if ( latest == null ) {
+            if (latest == null) {
                 LOGGER.log(Level.INFO, "No existing version found, creating first one");
                 latest = new ConsentElementVersion();
                 latest.entry = entry;
@@ -215,9 +215,9 @@ public class ConsentServiceBean implements ConsentService {
             latest.modificationDate = now;
             latest.persist();
             return latest;
-        } catch ( SerialGeneratorException ex ) {
+        } catch (SerialGeneratorException ex) {
             throw new ConsentManagerException("unable to generate serial number for new version");
-        } catch ( ModelDataSerializationException ex ) {
+        } catch (ModelDataSerializationException ex) {
             throw new ConsentManagerException("unable to serialise data");
         }
     }
@@ -285,6 +285,8 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
+            List<ConsentRecord> previousConsents = listConsentRecords(ctx);
+
             ConsentForm form = new ConsentForm();
             form.setLocale(ctx.getLocale());
             form.setOrientation(ctx.getOrientation());
@@ -296,6 +298,8 @@ public class ConsentServiceBean implements ConsentService {
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
                 ConsentElementVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
+                previousConsents.stream().filter(record -> record.body.equals(element.serial)).findFirst()
+                        .ifPresent(record -> form.addPreviousValue(element.serial, record.value));
                 form.addElement(element);
                 elementsIdentifiers.add(element.getIdentifier().serialize());
             }
@@ -307,7 +311,7 @@ public class ConsentServiceBean implements ConsentService {
 
             form.setToken(tokenService.generateToken(ctx));
             return form;
-        } catch ( TokenServiceException e ) {
+        } catch (TokenServiceException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
         }
     }
@@ -368,10 +372,37 @@ public class ConsentServiceBean implements ConsentService {
             } else {
                 return null;
             }
-        } catch (TokenServiceException | EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException e ) {
+        } catch (TokenServiceException | EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException e) {
             //TODO rollback transaction
             throw new ConsentServiceException("Unable to submit consent", e);
         }
+    }
+
+    @Override
+    public List<ConsentRecord> listConsentRecords(ConsentContext ctx) {
+        LOGGER.log(Level.INFO, "Reading consent records");
+        List<ConsentRecord> records = new ArrayList<>();
+
+        try {
+            ConsentElementVersion headerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            ConsentElementVersion footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+
+            for (String elementKey : ctx.getElements()) {
+                ConsentElementVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
+                ConsentRecord.find(
+                        "subject = ?1 and head = ?2 and body = ?3 and foot = ?4",
+                        ctx.getSubject(),
+                        headerVersion.serial,
+                        elementVersion.serial,
+                        footerVersion.serial
+                ).stream().forEach(r -> records.add((ConsentRecord) r));
+            }
+        } catch (EntityNotFoundException e) {
+            LOGGER.log(Level.WARNING, "Entity not found exception: " + e.getMessage());
+        }
+
+        LOGGER.log(Level.INFO, "Found " + records.size() + " record(s)");
+        return records;
     }
 
     /* INTERNAL */
@@ -387,20 +418,20 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
-        if ( ctx.getHeader() == null && values.containsKey("header") ) {
+        if (ctx.getHeader() == null && values.containsKey("header")) {
             throw new InvalidConsentException("submitted header incoherency, expected: null got: " + values.get("header"));
         }
-        if ( ctx.getHeader() != null && !ctx.getHeader().isEmpty() && (!values.containsKey("header") || !values.get("header").equals(ctx.getHeader())) ) {
+        if (ctx.getHeader() != null && !ctx.getHeader().isEmpty() && (!values.containsKey("header") || !values.get("header").equals(ctx.getHeader()))) {
             throw new InvalidConsentException("submitted header incoherency, expected: " + ctx.getHeader() + " got: " + values.get("header"));
         }
-        if ( ctx.getFooter() == null && values.containsKey("footer") ) {
+        if (ctx.getFooter() == null && values.containsKey("footer")) {
             throw new InvalidConsentException("submitted footer incoherency, expected: null got: " + values.get("footer"));
         }
-        if ( ctx.getFooter() != null && !ctx.getFooter().isEmpty() && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter())) ) {
+        if (ctx.getFooter() != null && !ctx.getFooter().isEmpty() && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter()))) {
             throw new InvalidConsentException("submitted footer incoherency, expected: " + ctx.getFooter() + " got: " + values.get("footer"));
         }
         Map<String, String> submittedElementValues = values.entrySet().stream().filter(e -> e.getKey().startsWith("element")).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-        if ( !new HashSet<>(ctx.getElements()).equals(submittedElementValues.keySet()) ) {
+        if (!new HashSet<>(ctx.getElements()).equals(submittedElementValues.keySet())) {
             throw new InvalidConsentException("submitted elements incoherency");
         }
     }

@@ -8,6 +8,7 @@ import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.ConsentElementData;
 import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
 import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
+import com.fairandsmart.consent.manager.entity.ConsentRecord;
 import com.fairandsmart.consent.manager.filter.EntryFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
@@ -47,5 +48,7 @@ public interface ConsentService {
     ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
 
     Receipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
+
+    List<ConsentRecord> listConsentRecords(ConsentContext ctx);
 
 }

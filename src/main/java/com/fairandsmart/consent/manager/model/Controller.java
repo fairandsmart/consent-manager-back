@@ -1,7 +1,5 @@
 package com.fairandsmart.consent.manager.model;
 
-import javax.xml.bind.annotation.XmlElement;
-
 public class Controller {
 
     private boolean actingBehalfCompany;
