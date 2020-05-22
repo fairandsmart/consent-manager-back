@@ -36,7 +36,7 @@ public class ConsentServiceTest {
 
     @Test
     public void testCreateEntryForExistingKey() throws EntityAlreadyExistsException {
-        UUID id = service.createEntry("existing", "header1", "description", "header");
+        String id = service.createEntry("existing", "header1", "description", "header");
         assertNotNull(id);
         assertThrows(EntityAlreadyExistsException.class, () -> {
             service.createEntry("existing", "header1", "description", "header");
@@ -50,7 +50,7 @@ public class ConsentServiceTest {
         CollectionPage<ConsentElementEntry> headers = service.listEntries(new EntryFilter().withOwner(unauthentifiedUser).withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
         long headersCountBeforeCreate = headers.getTotalCount();
 
-        UUID id = service.createEntry("e1", "entry1", "Description de entry1", Header.TYPE);
+        String id = service.createEntry("e1", "entry1", "Description de entry1", Header.TYPE);
         assertNotNull(id);
 
         LOGGER.info("List existing entries for headers");
@@ -74,7 +74,7 @@ public class ConsentServiceTest {
         assertEquals("Entry Name Updated", entry.name);
         assertEquals("Entry Description Updated", entry.description);
 
-        UUID fakeid = UUID.randomUUID();
+        String fakeid = UUID.randomUUID().toString();
         assertThrows(EntityNotFoundException.class, () -> {
             service.updateEntry(fakeid, "Entry Name Updated", "Entry Description Updated");
         });
@@ -91,7 +91,7 @@ public class ConsentServiceTest {
         CollectionPage<ConsentElementEntry> headers = service.listEntries(new EntryFilter().withOwner(unauthentifiedUser).withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
         long headersCountBeforeCreate = headers.getTotalCount();
 
-        UUID id = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
+        String id = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
         assertNotNull(id);
 
         LOGGER.info("List versions");

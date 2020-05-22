@@ -13,7 +13,7 @@ public class ConsentRecord extends PanacheEntityBase {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    public UUID id;
+    public String id;
     @Version
     public long version;
     public long creationTimestamp;

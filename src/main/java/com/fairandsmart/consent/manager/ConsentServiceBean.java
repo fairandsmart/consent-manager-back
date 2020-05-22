@@ -83,7 +83,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public UUID createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
+    public String createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "Creating new entry");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         if ( ConsentElementEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
@@ -101,7 +101,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentElementEntry getEntry(UUID id) throws EntityNotFoundException, AccessDeniedException {
+    public ConsentElementEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Getting entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
@@ -137,20 +137,21 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public List<ConsentElementVersion> listVersionsForEntry(UUID id) throws ConsentManagerException {
+    public List<ConsentElementVersion> listVersionsForEntry(String id) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "Listing versions for entry with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, id).list();
-        if ( !versions.isEmpty() ) {
-            return ConsentElementVersion.HistoryHelper.orderVersions(versions);
-        } else {
+        if ( versions.isEmpty() ) {
             return versions;
+        } else {
+            LOGGER.log(Level.INFO, "Ordering existing versions: " + versions);
+            return ConsentElementVersion.HistoryHelper.orderVersions(versions);
         }
     }
 
     @Override
     @Transactional()
-    public ConsentElementEntry updateEntry(UUID id, String name, String description) throws EntityNotFoundException, AccessDeniedException {
+    public ConsentElementEntry updateEntry(String id, String name, String description) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Updating entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
@@ -166,7 +167,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ConsentElementVersion updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException {
+    public ConsentElementVersion updateEntryContent(String id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating entry content for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> eoptional = ConsentElementEntry.findByIdOptional(id);
@@ -188,13 +189,9 @@ public class ConsentServiceBean implements ConsentService {
                 latest.owner = connectedIdentifier;
                 latest.branches = DEFAULT_BRANCHE;
                 latest.creationDate = now;
-                latest.modificationDate = now;
                 latest.status = ConsentElementVersion.Status.DRAFT;
                 latest.serial = generator.next(ConsentElementVersion.class.getName());
                 latest.defaultLocale = locale;
-                latest.availableLocales = locale;
-                latest.content.put(locale, new ConsentElementContent().withDataObject(data).withAuthor(connectedIdentifier));
-                latest.persist();
             }
             if (!latest.status.equals(ConsentElementVersion.Status.DRAFT)) {
                 LOGGER.log(Level.INFO, "Latest version is not draft, need to create a new version before update");
@@ -209,7 +206,6 @@ public class ConsentServiceBean implements ConsentService {
                 newversion.defaultLocale = latest.defaultLocale;
                 newversion.availableLocales = latest.availableLocales;
                 newversion.content = latest.content;
-                newversion.persist();
 
                 latest.child = newversion.serial;
                 latest.persist();
@@ -229,7 +225,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public void activateEntry(UUID id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
+    public void activateEntry(String id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Activating content for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
@@ -253,12 +249,12 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public void archiveEntry(UUID id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
+    public void archiveEntry(String id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
         throw new ConsentManagerException("NOT IMPLEMENTED");
     }
 
     @Override
-    public void deleteEntry(UUID id) throws ConsentManagerException, EntityNotFoundException {
+    public void deleteEntry(String id) throws ConsentManagerException, EntityNotFoundException {
         //TODO Analyse this behaviour to check if delete is possible.
         // Maybe allow delete if all versions are draft or if there is no Record for any version
         // Maybe also use a status DELETED to avoid display but to keep versions in the base.
@@ -322,7 +318,7 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
-            String transaction = UUID.randomUUID().toString();
+            String transaction = java.util.UUID.randomUUID().toString();
             Instant now = Instant.now();
             this.checkValuesCoherency(ctx, values);
 

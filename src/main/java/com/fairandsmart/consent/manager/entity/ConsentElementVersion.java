@@ -16,7 +16,7 @@ public class ConsentElementVersion extends PanacheEntityBase {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    public UUID id;
+    public String id;
     @Version
     public long version;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -27,7 +27,7 @@ public class ConsentElementVersion extends PanacheEntityBase {
     public String branches;
     public String owner;
     public String defaultLocale;
-    public String availableLocales;
+    public String availableLocales = "";
     @Enumerated(EnumType.STRING)
     public Status status;
     @Enumerated(EnumType.STRING)
@@ -47,7 +47,12 @@ public class ConsentElementVersion extends PanacheEntityBase {
     }
 
     public void addAvailableLocale(String locale) {
-        List<String> locales = Arrays.asList(availableLocales.split(","));
+        List<String> locales;
+        if ( availableLocales.isEmpty() ) {
+            locales = new ArrayList<>();
+        } else {
+            locales = Arrays.asList(availableLocales.split(","));
+        }
         if ( !locales.contains(locale) ) {
             locales.add(locale);
             availableLocales = locales.stream().collect(Collectors.joining(","));
@@ -95,11 +100,11 @@ public class ConsentElementVersion extends PanacheEntityBase {
     public static class HistoryHelper {
 
         public static ConsentElementVersion findRootVersion(List<ConsentElementVersion> versions) throws ConsentManagerException {
-            return versions.stream().filter(v -> v.parent == null).findFirst().orElseThrow(() -> new ConsentManagerException("unable to find root version"));
+            return versions.stream().filter(v -> v.parent.isEmpty()).findFirst().orElseThrow(() -> new ConsentManagerException("unable to find root version"));
         }
 
         public static ConsentElementVersion findVersion(String serial, List<ConsentElementVersion> versions) {
-            return versions.stream().filter(v -> v.serial == serial).findFirst().orElseGet(null);
+            return versions.stream().filter(v -> v.serial.equals(serial)).findFirst().orElse(null);
         }
 
         public static List<ConsentElementVersion> orderVersions(List<ConsentElementVersion> versions) throws ConsentManagerException {
@@ -109,10 +114,10 @@ public class ConsentElementVersion extends PanacheEntityBase {
             List<ConsentElementVersion> ordered = new ArrayList<>();
             ordered.add(ConsentElementVersion.HistoryHelper.findRootVersion(versions));
             String next = ordered.get(0).child;
-            while ( next != null ) {
+            while ( next != null && !next.isEmpty() ) {
                 ConsentElementVersion version = findVersion(next, versions);
                 ordered.add(version);
-                next = version.serial;
+                next = version.child;
             }
             if ( ordered.size() != versions.size() ) {
                 throw new ConsentManagerException("error while ordering versions");

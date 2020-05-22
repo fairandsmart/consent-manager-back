@@ -70,7 +70,7 @@ public class SimpleCollectTest {
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(ch1).
                 when().put("/consents/entries/" + eh1.id + "/content").
-                then().statusCode(204);
+                then().statusCode(200);
 
         UpdateEntryStatusDto status = new UpdateEntryStatusDto();
         status.setStatus(ConsentElementVersion.Status.ACTIVE);
@@ -103,7 +103,7 @@ public class SimpleCollectTest {
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(cf1).
                 when().put("/consents/entries/" + ef1.id + "/content").
-                then().statusCode(204);
+                then().statusCode(200);
 
         status = new UpdateEntryStatusDto();
         status.setStatus(ConsentElementVersion.Status.ACTIVE);
@@ -140,7 +140,7 @@ public class SimpleCollectTest {
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(ct1).
                 when().put("/consents/entries/" + et1.id + "/content").
-                then().statusCode(204);
+                then().statusCode(200);
 
         status = new UpdateEntryStatusDto();
         status.setStatus(ConsentElementVersion.Status.ACTIVE);
@@ -176,7 +176,7 @@ public class SimpleCollectTest {
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(ct2).
                 when().put("/consents/entries/" + et2.id + "/content").
-                then().statusCode(204);
+                then().statusCode(200);
 
         status = new UpdateEntryStatusDto();
         status.setStatus(ConsentElementVersion.Status.ACTIVE);

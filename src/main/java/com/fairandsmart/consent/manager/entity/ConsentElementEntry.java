@@ -5,7 +5,6 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
 public class ConsentElementEntry extends PanacheEntityBase {
@@ -17,7 +16,7 @@ public class ConsentElementEntry extends PanacheEntityBase {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    public UUID id;
+    public String id;
     @Version
     public long version;
     public String type;
