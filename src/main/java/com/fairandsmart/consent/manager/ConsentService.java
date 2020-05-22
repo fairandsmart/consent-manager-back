@@ -35,7 +35,7 @@ public interface ConsentService {
 
     ConsentElementEntry updateEntry(UUID id, String name, String description) throws EntityNotFoundException, AccessDeniedException;
 
-    void updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
+    ConsentElementVersion updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
 
     void activateEntry(UUID id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
 

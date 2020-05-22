@@ -166,7 +166,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public void updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException {
+    public ConsentElementVersion updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating entry content for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> eoptional = ConsentElementEntry.findByIdOptional(id);
@@ -219,6 +219,7 @@ public class ConsentServiceBean implements ConsentService {
             latest.content.put(locale, new ConsentElementContent().withDataObject(data).withAuthor(connectedIdentifier));
             latest.modificationDate = now;
             latest.persist();
+            return latest;
         } catch ( SerialGeneratorException ex ) {
             throw new ConsentManagerException("unable to generate serial number for new version");
         } catch ( ModelDataSerializationException ex ) {

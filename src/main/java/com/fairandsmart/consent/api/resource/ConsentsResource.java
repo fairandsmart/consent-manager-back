@@ -87,10 +87,9 @@ public class ConsentsResource {
     @Path("/entries/{id}/content")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateEntryContent(@PathParam("id") UUID id, UpdateEntryContentDto dto) throws EntityNotFoundException, ConsentManagerException {
+    public ConsentElementVersion updateEntryContent(@PathParam("id") UUID id, UpdateEntryContentDto dto) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "PUT /consents/entries/" + id + "/content");
-        consentService.updateEntryContent(id, dto.getLocale(), dto.getContent());
-        //TODO Check what kind of return expected here
+        return consentService.updateEntryContent(id, dto.getLocale(), dto.getContent());
     }
 
     @PUT

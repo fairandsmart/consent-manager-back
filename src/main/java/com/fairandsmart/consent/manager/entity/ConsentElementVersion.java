@@ -28,7 +28,9 @@ public class ConsentElementVersion extends PanacheEntityBase {
     public String owner;
     public String defaultLocale;
     public String availableLocales;
+    @Enumerated(EnumType.STRING)
     public Status status;
+    @Enumerated(EnumType.STRING)
     public Revocation revocation;
     public String compatibility;
     public long creationDate;

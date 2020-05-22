@@ -28,7 +28,7 @@ public class ConsentRecord extends PanacheEntityBase {
     public String body;
     public String foot;
     public String value;
-
+    @Enumerated(EnumType.STRING)
     public Status status;
     @ElementCollection(fetch = FetchType.EAGER)
     public Map<String, String> attributes;
