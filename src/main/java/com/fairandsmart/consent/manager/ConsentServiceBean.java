@@ -124,8 +124,7 @@ public class ConsentServiceBean implements ConsentService {
     public ConsentElementVersion findActiveVersionByKey(String key) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding active version for entry with key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", connectedIdentifier, key, ConsentElementVersion.Status.ACTIVE).singleResultOptional();
-        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
+        return systemFindActiveVersionByKey(connectedIdentifier, key);
     }
 
     @Override
@@ -226,7 +225,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public void activateEntry(String id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Activating content for id: " + id);
+        LOGGER.log(Level.INFO, "Activating entry with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
         ConsentElementVersion latest = optional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + id));
@@ -250,6 +249,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public void archiveEntry(String id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Archiving entry with id: " + id);
         throw new ConsentManagerException("NOT IMPLEMENTED");
     }
 
@@ -258,6 +258,7 @@ public class ConsentServiceBean implements ConsentService {
         //TODO Analyse this behaviour to check if delete is possible.
         // Maybe allow delete if all versions are draft or if there is no Record for any version
         // Maybe also use a status DELETED to avoid display but to keep versions in the base.
+        LOGGER.log(Level.INFO, "Deleting entry with id: " + id);
         throw new ConsentManagerException("NOT IMPLEMENTED");
     }
 
@@ -288,19 +289,19 @@ public class ConsentServiceBean implements ConsentService {
             form.setLocale(ctx.getLocale());
             form.setOrientation(ctx.getOrientation());
 
-            ConsentElementVersion header = this.findActiveVersionByKey(ctx.getHeader());
+            ConsentElementVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
             form.setHeader(header);
             ctx.setHeader(header.getIdentifier().serialize());
 
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
-                ConsentElementVersion element = this.findActiveVersionByKey(key);
+                ConsentElementVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
                 form.addElement(element);
                 elementsIdentifiers.add(element.getIdentifier().serialize());
             }
             ctx.setElements(elementsIdentifiers);
 
-            ConsentElementVersion footer = this.findActiveVersionByKey(ctx.getFooter());
+            ConsentElementVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
             form.setFooter(footer);
             ctx.setFooter(footer.getIdentifier().serialize());
 
@@ -375,15 +376,14 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
+    private ConsentElementVersion systemFindActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
+        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ConsentElementVersion.Status.ACTIVE).singleResultOptional();
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
+    }
+
     private ConsentElementVersion systemFindModelVersionForSerial(String serial) throws EntityNotFoundException {
-        List<ConsentElementVersion> versions = ConsentElementVersion.find("serial = ?1", serial).list();
-        if ( versions.isEmpty() ) {
-            throw new EntityNotFoundException("Unable to find a version for serial: " + serial);
-        }
-        if ( versions.size() > 1 ) {
-            LOGGER.log(Level.WARNING, "Found more than one version with serial, this is an incoherency, serial should be unique");
-        }
-        return versions.get(0);
+        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("serial = ?1", serial).singleResultOptional();
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {

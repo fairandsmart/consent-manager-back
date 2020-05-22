@@ -87,10 +87,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     public void testCreateAndUpdateHeaderContent() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, ModelDataSerializationException {
-        LOGGER.info("List existing entries for headers");
-        CollectionPage<ConsentElementEntry> headers = service.listEntries(new EntryFilter().withOwner(unauthentifiedUser).withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
-        long headersCountBeforeCreate = headers.getTotalCount();
-
+        LOGGER.info("Create entry");
         String id = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
         assertNotNull(id);
 
@@ -134,7 +131,6 @@ public class ConsentServiceTest {
         assertEquals(unauthentifiedUser, versions.get(0).owner);
         assertNotNull(versions.get(0).serial);
         assertEquals(unauthentifiedUser, versions.get(0).content.get("fr_FR").author);
-
         Header data = (Header) versions.get(0).getData("fr_FR");
         assertEquals("title", data.getTitle());
         assertEquals("body", data.getBody());
@@ -158,15 +154,20 @@ public class ConsentServiceTest {
         assertEquals("Email", data.getDataController().getEmail());
         assertEquals("Phone Number", data.getDataController().getPhoneNumber());
 
+        ConsentElementVersion version = service.getVersionBySerial(versions.get(0).serial);
+        assertEquals(versions.get(0), version);
+
         //At this point no version is active
         assertThrows(EntityNotFoundException.class, () -> {
             service.findActiveVersionByKey("h1");
         });
 
-        ConsentElementVersion version = service.getVersionBySerial(versions.get(0).serial);
-        assertNotNull(version);
-        assertEquals(versions.get(0), version);
+        LOGGER.log(Level.INFO, "Activate entry");
+        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
 
+        version = service.findActiveVersionByKey("h1");
+        assertEquals(versions.get(0), version);
+        assertEquals(ConsentElementVersion.Status.ACTIVE, version.status);
 
     }
 
