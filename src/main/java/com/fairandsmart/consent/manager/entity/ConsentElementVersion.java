@@ -22,8 +22,8 @@ public class ConsentElementVersion extends PanacheEntityBase {
     @ManyToOne(fetch = FetchType.EAGER)
     public ConsentElementEntry entry;
     public String serial;
-    public String parent;
-    public String child;
+    public String parent = "";
+    public String child = "";
     public String branches;
     public String owner;
     public String defaultLocale;

@@ -62,7 +62,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public CollectionPage<ConsentElementEntry> listEntries(EntryFilter filter) throws AccessDeniedException {
-        LOGGER.log(Level.FINE, "Listing models entries");
+        LOGGER.log(Level.INFO, "Listing models entries");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         //TODO Handle cases where an admin is able to list any model entries
         // For now, authenticated user is enforced as owner of th emodels :
@@ -84,7 +84,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public UUID createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
-        LOGGER.log(Level.FINE, "Creating new entry");
+        LOGGER.log(Level.INFO, "Creating new entry");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         if ( ConsentElementEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
@@ -102,7 +102,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ConsentElementEntry getEntry(UUID id) throws EntityNotFoundException, AccessDeniedException {
-        LOGGER.log(Level.FINE, "Getting entry for id: " + id);
+        LOGGER.log(Level.INFO, "Getting entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
         ConsentElementEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
@@ -114,7 +114,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ConsentElementEntry findEntryByKey(String key) throws EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Finding entry for key: " + key);
+        LOGGER.log(Level.INFO, "Finding entry for key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> optional = ConsentElementEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
@@ -122,7 +122,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ConsentElementVersion findActiveVersionByKey(String key) throws EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Finding active version for entry with key: " + key);
+        LOGGER.log(Level.INFO, "Finding active version for entry with key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", connectedIdentifier, key, ConsentElementVersion.Status.ACTIVE).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
@@ -130,7 +130,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ConsentElementVersion getVersionBySerial(String serial) throws EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Finding version for serial: " + serial);
+        LOGGER.log(Level.INFO, "Finding version for serial: " + serial);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and serial = ?2", connectedIdentifier, serial).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for serial: " + serial));
@@ -138,7 +138,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public List<ConsentElementVersion> listVersionsForEntry(UUID id) throws ConsentManagerException {
-        LOGGER.log(Level.FINE, "Listing versions for entry with id: " + id);
+        LOGGER.log(Level.INFO, "Listing versions for entry with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, id).list();
         if ( !versions.isEmpty() ) {
@@ -151,7 +151,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional()
     public ConsentElementEntry updateEntry(UUID id, String name, String description) throws EntityNotFoundException, AccessDeniedException {
-        LOGGER.log(Level.FINE, "Updating entry for id: " + id);
+        LOGGER.log(Level.INFO, "Updating entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
         ConsentElementEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
@@ -166,8 +166,8 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public void updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException, AccessDeniedException {
-        LOGGER.log(Level.FINE, "Updating entry content for id: " + id);
+    public void updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Updating entry content for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementEntry> eoptional = ConsentElementEntry.findByIdOptional(id);
         ConsentElementEntry entry = eoptional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
@@ -182,7 +182,7 @@ public class ConsentServiceBean implements ConsentService {
         try {
             long now = System.currentTimeMillis();
             if ( latest == null ) {
-                LOGGER.log(Level.FINE, "No existing version found, creating first one");
+                LOGGER.log(Level.INFO, "No existing version found, creating first one");
                 latest = new ConsentElementVersion();
                 latest.entry = entry;
                 latest.owner = connectedIdentifier;
@@ -197,7 +197,7 @@ public class ConsentServiceBean implements ConsentService {
                 latest.persist();
             }
             if (!latest.status.equals(ConsentElementVersion.Status.DRAFT)) {
-                LOGGER.log(Level.FINE, "Latest version is not draft, need to create a new version before update");
+                LOGGER.log(Level.INFO, "Latest version is not draft, need to create a new version before update");
                 ConsentElementVersion newversion = new ConsentElementVersion();
                 newversion.entry = latest.entry;
                 newversion.owner = connectedIdentifier;
@@ -227,23 +227,27 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
+    @Transactional
     public void activateEntry(UUID id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Activating content for id: " + id);
+        LOGGER.log(Level.INFO, "Activating content for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, null).singleResultOptional();
+        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
         ConsentElementVersion latest = optional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + id));
         if (!latest.status.equals(ConsentElementVersion.Status.DRAFT)) {
             throw new ConsentManagerException("unable to activate entry, current status is not draft");
         }
-        if (latest.parent != null) {
+        if (!latest.parent.isEmpty()) {
             //TODO :
             // Apply revocation if needed to existing records (for all compatible serials)
             // Update compatible of the latest
             // Update status
             throw new ConsentManagerException("unable to activate entry, current status is not draft");
         } else {
-            //TODO This is first version, it's simple to activate
-            throw new ConsentManagerException("unable to activate entry, current status is not draft");
+            latest.status = ConsentElementVersion.Status.ACTIVE;
+            latest.modificationDate = System.currentTimeMillis();
+            latest.revocation = revocation;
+            //TODO Check if we need to set compatibility serials here now...
+            latest.persist();
         }
     }
 
@@ -266,7 +270,7 @@ public class ConsentServiceBean implements ConsentService {
     public String buildToken(ConsentContext ctx) {
         //TODO Handle cases where an admin is generating a token for another owner
         // For now, authenticated user is enforced as owner of the token :
-        LOGGER.log(Level.FINE, "Building generate form token for context: " + ctx);
+        LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
         ctx.setOwner(authentication.getConnectedIdentifier());
         return tokenService.generateToken(ctx);
     }
@@ -279,7 +283,7 @@ public class ConsentServiceBean implements ConsentService {
         // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form or parts of the form
         // 3. If form has to be displayed, load all models to populate
         // 4. Generate a new submission token and populate the form
-        LOGGER.log(Level.FINE, "Generating consent form");
+        LOGGER.log(Level.INFO, "Generating consent form");
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
@@ -313,7 +317,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public Receipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
-        LOGGER.log(Level.FINE, "Submitting consent");
+        LOGGER.log(Level.INFO, "Submitting consent");
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 

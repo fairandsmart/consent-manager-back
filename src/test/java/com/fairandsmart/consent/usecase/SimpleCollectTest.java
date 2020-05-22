@@ -1,8 +1,12 @@
 package com.fairandsmart.consent.usecase;
 
 import com.fairandsmart.consent.api.dto.CreateEntryDto;
+import com.fairandsmart.consent.api.dto.UpdateEntryContentDto;
+import com.fairandsmart.consent.api.dto.UpdateEntryStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
+import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
+import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Treatment;
@@ -18,6 +22,7 @@ import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.transaction.Transactional;
 import javax.validation.Validation;
 import java.util.*;
 import java.util.logging.Level;
@@ -48,20 +53,33 @@ public class SimpleCollectTest {
         h1.setName("H1");
         h1.setDescription("Le header H1");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
-        given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(h1).
-                when().post("/consents/entries").
-                then().statusCode(201).header("location", notNullValue());
+        Response response = given().auth().basic("sheldon", "password").
+                                contentType(ContentType.JSON).body(h1).
+                                when().post("/consents/entries");
+        response.then().statusCode(201).header("location", notNullValue());
+        ConsentElementEntry eh1 = response.body().as(ConsentElementEntry.class);
 
-        //TODO Set data and activate entry
-        /*
-        h1.setLocale("fr_FR");
-        h1.setContent(new Header()
+        UpdateEntryContentDto ch1 = new UpdateEntryContentDto();
+        ch1.setLocale("fr_FR");
+        ch1.setContent(new Header()
                 .withTitle("Title h1")
                 .withBody("Body h1")
                 .withPrivacyPolicyUrl("Readmore h1")
         );
-        */
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ch1).size());
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(ch1).
+                when().put("/consents/entries/" + eh1.id + "/content").
+                then().statusCode(204);
+
+        UpdateEntryStatusDto status = new UpdateEntryStatusDto();
+        status.setStatus(ConsentElementVersion.Status.ACTIVE);
+        status.setRevocation(ConsentElementVersion.Revocation.SUPPORTS);
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(status).
+                when().put("/consents/entries/" + eh1.id + "/status").
+                then().statusCode(204);
+
 
         //Create footer model
         CreateEntryDto f1 = new CreateEntryDto();
@@ -70,19 +88,30 @@ public class SimpleCollectTest {
         f1.setName("F1");
         f1.setDescription("Le footer F1");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
-        given().auth().basic("sheldon", "password").
+        response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(f1).
-                when().post("/consents/entries").
-                then().statusCode(201).header("location", notNullValue());
+                when().post("/consents/entries");
+        response.then().statusCode(201).header("location", notNullValue());
+        ConsentElementEntry ef1 = response.body().as(ConsentElementEntry.class);
 
-        //TODO Set data and activate entry
-        /*
-        f1.setLocale("fr_FR");
-        f1.setContent(new Footer()
-                .withShowAcceptAll(true)
-                .withCustomAcceptAllText("J'accepte tout")
-        );
-        */
+        UpdateEntryContentDto cf1 = new UpdateEntryContentDto();
+        cf1.setLocale("fr_FR");
+        cf1.setContent(new Footer()
+                        .withShowAcceptAll(true)
+                        .withCustomAcceptAllText("J'accepte tout"));
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(cf1).size());
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(cf1).
+                when().put("/consents/entries/" + ef1.id + "/content").
+                then().statusCode(204);
+
+        status = new UpdateEntryStatusDto();
+        status.setStatus(ConsentElementVersion.Status.ACTIVE);
+        status.setRevocation(ConsentElementVersion.Revocation.SUPPORTS);
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(status).
+                when().put("/consents/entries/" + ef1.id + "/status").
+                then().statusCode(204);
 
 
         //Create treatment 1 model
@@ -92,22 +121,35 @@ public class SimpleCollectTest {
         t1.setName("T1");
         t1.setDescription("Le traitement t1");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
-        given().auth().basic("sheldon", "password").
+        response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(t1).
-                when().post("/consents/entries").
-                then().statusCode(201).header("location", notNullValue());
+                when().post("/consents/entries");
+        response.then().statusCode(201).header("location", notNullValue());
+        ConsentElementEntry et1 = response.body().as(ConsentElementEntry.class);
 
-        /*
-        t1.setLocale("fr_FR");
-        t1.setContent(new Treatment()
+        UpdateEntryContentDto ct1 = new UpdateEntryContentDto();
+        ct1.setLocale("fr_FR");
+        ct1.setContent(new Treatment()
                 .withTreatmentTitle("Titre du traitement t1")
                 .withDataBody("Nous avons besoin de votre nom.")
                 .withRetentionBody("Nous le garderons pendant toute votre vie.")
                 .withUsageBody("Nous pourrons ainsi tout savoir sur vous.")
                 .withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE)
         );
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ct1).size());
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(ct1).
+                when().put("/consents/entries/" + et1.id + "/content").
+                then().statusCode(204);
 
-         */
+        status = new UpdateEntryStatusDto();
+        status.setStatus(ConsentElementVersion.Status.ACTIVE);
+        status.setRevocation(ConsentElementVersion.Revocation.SUPPORTS);
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(status).
+                when().put("/consents/entries/" + et1.id + "/status").
+                then().statusCode(204);
+
 
         CreateEntryDto t2 = new CreateEntryDto();
         t2.setKey("t2");
@@ -115,22 +157,35 @@ public class SimpleCollectTest {
         t2.setName("T2");
         t2.setDescription("Le traitement t2");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
-        given().auth().basic("sheldon", "password").
+        response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(t2).
-                when().post("/consents/entries").
-                then().statusCode(201).header("location", notNullValue());
+                when().post("/consents/entries");
+        response.then().statusCode(201).header("location", notNullValue());
+        ConsentElementEntry et2 = response.body().as(ConsentElementEntry.class);
 
-        /*
-        t2.setLocale("fr_FR");
-        t2.setContent(new Treatment()
+        UpdateEntryContentDto ct2 = new UpdateEntryContentDto();
+        ct2.setLocale("fr_FR");
+        ct2.setContent(new Treatment()
                 .withTreatmentTitle("Titre du traitement t2")
                 .withDataBody("Nous voulons votre email.")
                 .withRetentionBody("Nous le conserverons 3 ans.")
                 .withUsageBody("Nous pourrons ainsi vous contacter.")
                 .withPurpose(Treatment.Purpose.CONSENT_MARKETING)
         );
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ct2).size());
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(ct2).
+                when().put("/consents/entries/" + et2.id + "/content").
+                then().statusCode(204);
 
-         */
+        status = new UpdateEntryStatusDto();
+        status.setStatus(ConsentElementVersion.Status.ACTIVE);
+        status.setRevocation(ConsentElementVersion.Revocation.SUPPORTS);
+        given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(status).
+                when().put("/consents/entries/" + et2.id + "/status").
+                then().statusCode(204);
+
     }
 
     /**
