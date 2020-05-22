@@ -83,7 +83,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public String createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
+    public UUID createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
         LOGGER.log(Level.FINE, "Creating new entry");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         if ( ConsentElementEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
@@ -97,14 +97,14 @@ public class ConsentServiceBean implements ConsentService {
         entry.branches = DEFAULT_BRANCHE;
         entry.owner = connectedIdentifier;
         entry.persist();
-        return entry.id.toString();
+        return entry.id;
     }
 
     @Override
-    public ConsentElementEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException {
+    public ConsentElementEntry getEntry(UUID id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Getting entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(UUID.fromString(id));
+        Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
         ConsentElementEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         if ( !entry.owner.equals(connectedIdentifier) ) {
             throw new AccessDeniedException("only owner can access entry");
@@ -121,7 +121,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentElementVersion findActiveVersionForEntry(String key) throws EntityNotFoundException {
+    public ConsentElementVersion findActiveVersionByKey(String key) throws EntityNotFoundException {
         LOGGER.log(Level.FINE, "Finding active version for entry with key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", connectedIdentifier, key, ConsentElementVersion.Status.ACTIVE).singleResultOptional();
@@ -129,7 +129,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentElementVersion findVersionBySerial(String serial) throws EntityNotFoundException {
+    public ConsentElementVersion getVersionBySerial(String serial) throws EntityNotFoundException {
         LOGGER.log(Level.FINE, "Finding version for serial: " + serial);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and serial = ?2", connectedIdentifier, serial).singleResultOptional();
@@ -137,10 +137,10 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public List<ConsentElementVersion> listVersionsForEntry(String key) throws ConsentManagerException {
-        LOGGER.log(Level.FINE, "Listing versions for entry with key: " + key);
+    public List<ConsentElementVersion> listVersionsForEntry(UUID id) throws ConsentManagerException {
+        LOGGER.log(Level.FINE, "Listing versions for entry with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.key = ?2", connectedIdentifier, key).list();
+        List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, id).list();
         if ( !versions.isEmpty() ) {
             return ConsentElementVersion.HistoryHelper.orderVersions(versions);
         } else {
@@ -150,15 +150,13 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional()
-    public ConsentElementEntry updateEntry(String key, String name, String description) throws EntityNotFoundException, AccessDeniedException {
-        LOGGER.log(Level.FINE, "Updating entry for key: " + key);
+    public ConsentElementEntry updateEntry(UUID id, String name, String description) throws EntityNotFoundException, AccessDeniedException {
+        LOGGER.log(Level.FINE, "Updating entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        ConsentElementEntry entry = ConsentElementEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).firstResult();
-        if ( entry == null ) {
-            throw new EntityNotFoundException("unable to find an entry for key: " + key);
-        }
+        Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
+        ConsentElementEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         if ( !entry.owner.equals(connectedIdentifier) ) {
-            throw new AccessDeniedException("only owner can update entry");
+            throw new AccessDeniedException("only owner can access entry");
         }
         entry.name = name;
         entry.description = description;
@@ -168,15 +166,18 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public void updateEntryContent(String key, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Updating content for key: " + key);
+    public void updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException, AccessDeniedException {
+        LOGGER.log(Level.FINE, "Updating entry content for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementEntry> eoptional = ConsentElementEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).singleResultOptional();
-        ConsentElementEntry entry = eoptional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
+        Optional<ConsentElementEntry> eoptional = ConsentElementEntry.findByIdOptional(id);
+        ConsentElementEntry entry = eoptional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
+        if ( !entry.owner.equals(connectedIdentifier) ) {
+            throw new AccessDeniedException("only owner can access entry");
+        }
         if ( !entry.type.equals(data.getType()) ) {
             throw new ConsentManagerException("Entry data type mismatch, need type: " + entry.type);
         }
-        Optional<ConsentElementVersion> voptional = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and child = ?3", connectedIdentifier, key, "").singleResultOptional();
+        Optional<ConsentElementVersion> voptional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
         ConsentElementVersion latest = voptional.orElse(null);
         try {
             long now = System.currentTimeMillis();
@@ -226,11 +227,11 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public void activateEntry(String key, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.FINE, "Activating content for key: " + key);
+    public void activateEntry(UUID id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Activating content for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and key = ?2 and child = ?3", connectedIdentifier, key, null).singleResultOptional();
-        ConsentElementVersion latest = optional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with key: " + key));
+        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, null).singleResultOptional();
+        ConsentElementVersion latest = optional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + id));
         if (!latest.status.equals(ConsentElementVersion.Status.DRAFT)) {
             throw new ConsentManagerException("unable to activate entry, current status is not draft");
         }
@@ -247,12 +248,12 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public void archiveEntry(String key, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
+    public void archiveEntry(UUID id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
         throw new ConsentManagerException("NOT IMPLEMENTED");
     }
 
     @Override
-    public void deleteEntry(String key) throws ConsentManagerException, EntityNotFoundException {
+    public void deleteEntry(UUID id) throws ConsentManagerException, EntityNotFoundException {
         //TODO Analyse this behaviour to check if delete is possible.
         // Maybe allow delete if all versions are draft or if there is no Record for any version
         // Maybe also use a status DELETED to avoid display but to keep versions in the base.
@@ -286,19 +287,19 @@ public class ConsentServiceBean implements ConsentService {
             form.setLocale(ctx.getLocale());
             form.setOrientation(ctx.getOrientation());
 
-            ConsentElementVersion header = this.findActiveVersionForEntry(ctx.getHeader());
+            ConsentElementVersion header = this.findActiveVersionByKey(ctx.getHeader());
             form.setHeader(header);
             ctx.setHeader(header.getIdentifier().serialize());
 
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
-                ConsentElementVersion element = this.findActiveVersionForEntry(key);
+                ConsentElementVersion element = this.findActiveVersionByKey(key);
                 form.addElement(element);
                 elementsIdentifiers.add(element.getIdentifier().serialize());
             }
             ctx.setElements(elementsIdentifiers);
 
-            ConsentElementVersion footer = this.findActiveVersionForEntry(ctx.getFooter());
+            ConsentElementVersion footer = this.findActiveVersionByKey(ctx.getFooter());
             form.setFooter(footer);
             ctx.setFooter(footer.getIdentifier().serialize());
 

@@ -50,7 +50,7 @@ public class SimpleCollectTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(h1).
-                when().post("/consents/models").
+                when().post("/consents/entries").
                 then().statusCode(201).header("location", notNullValue());
 
         //TODO Set data and activate entry
@@ -72,7 +72,7 @@ public class SimpleCollectTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(f1).
-                when().post("/consents/models").
+                when().post("/consents/entries").
                 then().statusCode(201).header("location", notNullValue());
 
         //TODO Set data and activate entry
@@ -94,7 +94,7 @@ public class SimpleCollectTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(t1).
-                when().post("/consents/models").
+                when().post("/consents/entries").
                 then().statusCode(201).header("location", notNullValue());
 
         /*
@@ -117,7 +117,7 @@ public class SimpleCollectTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
         given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(t2).
-                when().post("/consents/models").
+                when().post("/consents/entries").
                 then().statusCode(201).header("location", notNullValue());
 
         /*

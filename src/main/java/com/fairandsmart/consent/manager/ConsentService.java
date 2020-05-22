@@ -15,32 +15,33 @@ import com.fairandsmart.consent.token.TokenExpiredException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public interface ConsentService {
 
     CollectionPage<ConsentElementEntry> listEntries(EntryFilter filter) throws AccessDeniedException;
 
-    String createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException;
+    UUID createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException;
 
-    ConsentElementEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException;
+    ConsentElementEntry getEntry(UUID id) throws EntityNotFoundException, AccessDeniedException;
 
     ConsentElementEntry findEntryByKey(String key) throws EntityNotFoundException;
 
-    List<ConsentElementVersion> listVersionsForEntry(String key) throws ConsentManagerException;
+    ConsentElementVersion findActiveVersionByKey(String key) throws EntityNotFoundException;
 
-    ConsentElementVersion findActiveVersionForEntry(String key) throws EntityNotFoundException;
+    List<ConsentElementVersion> listVersionsForEntry(UUID id) throws ConsentManagerException;
 
-    ConsentElementVersion findVersionBySerial(String serial) throws EntityNotFoundException;
+    ConsentElementVersion getVersionBySerial(String serial) throws EntityNotFoundException;
 
-    ConsentElementEntry updateEntry(String key, String name, String description) throws EntityNotFoundException, AccessDeniedException;
+    ConsentElementEntry updateEntry(UUID id, String name, String description) throws EntityNotFoundException, AccessDeniedException;
 
-    void updateEntryContent(String key, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
+    void updateEntryContent(UUID id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
 
-    void activateEntry(String key, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
+    void activateEntry(UUID id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
 
-    void archiveEntry(String key, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
+    void archiveEntry(UUID id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
 
-    void deleteEntry(String key) throws ConsentManagerException, EntityNotFoundException;
+    void deleteEntry(UUID id) throws ConsentManagerException, EntityNotFoundException;
 
     String buildToken(ConsentContext ctx);
 

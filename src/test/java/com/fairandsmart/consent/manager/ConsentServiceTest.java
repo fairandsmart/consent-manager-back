@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,8 +36,8 @@ public class ConsentServiceTest {
 
     @Test
     public void testCreateEntryForExistingKey() throws EntityAlreadyExistsException {
-        String header = service.createEntry("existing", "header1", "description", "header");
-        assertNotNull(header);
+        UUID id = service.createEntry("existing", "header1", "description", "header");
+        assertNotNull(id);
         assertThrows(EntityAlreadyExistsException.class, () -> {
             service.createEntry("existing", "header1", "description", "header");
         });
@@ -49,8 +50,8 @@ public class ConsentServiceTest {
         CollectionPage<ConsentElementEntry> headers = service.listEntries(new EntryFilter().withOwner(unauthentifiedUser).withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
         long headersCountBeforeCreate = headers.getTotalCount();
 
-        String idHeader = service.createEntry("e1", "header1", "Description de header1", Header.TYPE);
-        assertNotNull(idHeader);
+        UUID id = service.createEntry("e1", "entry1", "Description de entry1", Header.TYPE);
+        assertNotNull(id);
 
         LOGGER.info("List existing entries for headers");
         headers = service.listEntries(new EntryFilter().withTypes(Collections.singletonList(Header.TYPE)).withOwner(unauthentifiedUser).withPage(1).withSize(5));
@@ -63,22 +64,23 @@ public class ConsentServiceTest {
         assertNotNull(entry.owner);
         assertEquals(Header.TYPE, entry.type);
         assertEquals("e1", entry.key);
-        assertEquals("header1", entry.name);
-        assertEquals("Description de header1", entry.description);
+        assertEquals("entry1", entry.name);
+        assertEquals("Description de entry1", entry.description);
 
         LOGGER.info("Update entry with key e1");
-        service.updateEntry("e1", "Entry Name Updated", "Entry Description Updated");
+        service.updateEntry(id, "Entry Name Updated", "Entry Description Updated");
         entry = service.findEntryByKey("e1");
         LOGGER.log(Level.INFO, "Entry: " + entry);
         assertEquals("Entry Name Updated", entry.name);
         assertEquals("Entry Description Updated", entry.description);
 
+        UUID fakeid = UUID.randomUUID();
         assertThrows(EntityNotFoundException.class, () -> {
-            service.updateEntry("e2", "Entry Name Updated", "Entry Description Updated");
+            service.updateEntry(fakeid, "Entry Name Updated", "Entry Description Updated");
         });
 
         LOGGER.info("Check no version exists");
-        List<ConsentElementVersion> versions = service.listVersionsForEntry("e1");
+        List<ConsentElementVersion> versions = service.listVersionsForEntry(id);
         assertEquals(0, versions.size());
     }
 
@@ -89,11 +91,11 @@ public class ConsentServiceTest {
         CollectionPage<ConsentElementEntry> headers = service.listEntries(new EntryFilter().withOwner(unauthentifiedUser).withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
         long headersCountBeforeCreate = headers.getTotalCount();
 
-        String idHeader = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
-        assertNotNull(idHeader);
+        UUID id = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
+        assertNotNull(id);
 
         LOGGER.info("List versions");
-        List<ConsentElementVersion> versions = service.listVersionsForEntry("h1");
+        List<ConsentElementVersion> versions = service.listVersionsForEntry(id);
         assertEquals(0, versions.size());
 
         LOGGER.info("Create Header h1");
@@ -121,10 +123,10 @@ public class ConsentServiceTest {
         header.setShowShortNoticeLink(true);
         header.setShowScope(true);
         header.setShowJurisdiction(true);
-        service.updateEntryContent("h1", "fr_FR", header);
+        service.updateEntryContent(id, "fr_FR", header);
 
         LOGGER.info("List versions");
-        versions = service.listVersionsForEntry("h1");
+        versions = service.listVersionsForEntry(id);
         assertEquals(1, versions.size());
         assertEquals("fr_FR", versions.get(0).availableLocales);
         assertEquals("fr_FR", versions.get(0).defaultLocale);
@@ -158,10 +160,10 @@ public class ConsentServiceTest {
 
         //At this point no version is active
         assertThrows(EntityNotFoundException.class, () -> {
-            service.findActiveVersionForEntry("h1");
+            service.findActiveVersionByKey("h1");
         });
 
-        ConsentElementVersion version = service.findVersionBySerial(versions.get(0).serial);
+        ConsentElementVersion version = service.getVersionBySerial(versions.get(0).serial);
         assertNotNull(version);
         assertEquals(versions.get(0), version);
 

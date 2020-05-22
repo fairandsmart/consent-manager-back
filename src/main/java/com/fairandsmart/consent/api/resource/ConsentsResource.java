@@ -26,6 +26,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -120,8 +121,8 @@ public class ConsentsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEntry(@Valid CreateEntryDto dto, @Context UriInfo uriInfo) throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "POST /consents/entries");
-        String id = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
-        URI uri = uriInfo.getRequestUriBuilder().path(id).build();
+        UUID id = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
+        URI uri = uriInfo.getRequestUriBuilder().path(id.toString()).build();
         ConsentElementEntry entry = consentService.getEntry(id);
         return Response.created(uri).entity(entry).build();
     }
@@ -130,7 +131,7 @@ public class ConsentsResource {
     @Path("/entries/{id}")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentElementEntry getEntry(@PathParam("id") String id) throws EntityNotFoundException, AccessDeniedException {
+    public ConsentElementEntry getEntry(@PathParam("id") UUID id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /consents/entries/" + id);
         return consentService.getEntry(id);
     }
@@ -139,19 +140,17 @@ public class ConsentsResource {
     @Path("/entries/{id}")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentElementEntry updateEntry(@PathParam("id") String id, UpdateEntryDto dto) throws EntityNotFoundException, AccessDeniedException {
+    public ConsentElementEntry updateEntry(@PathParam("id") UUID id, UpdateEntryDto dto) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "PUT /consents/entries/" + id);
-        ConsentElementEntry entry = consentService.getEntry(id);
-        return consentService.updateEntry(entry.key, dto.getName(), dto.getDescription());
+        return consentService.updateEntry(id, dto.getName(), dto.getDescription());
     }
 
     @GET
     @Path("/entries/{id}/versions")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ConsentElementVersion> listEntryVersions(@PathParam("id") String id) throws EntityNotFoundException, ConsentManagerException {
+    public List<ConsentElementVersion> listEntryVersions(@PathParam("id") UUID id) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "GET /consents/entries/" + id + "/versions");
-        ConsentElementEntry entry = consentService.getEntry(id);
-        return consentService.listVersionsForEntry(entry.key);
+        return consentService.listVersionsForEntry(id);
     }
 }
