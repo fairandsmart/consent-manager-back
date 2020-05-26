@@ -487,16 +487,9 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ModelVersion headerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
             ModelVersion footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
-
             for (String elementKey : ctx.getElements()) {
                 ModelVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
-                Record.find(
-                        "subject = ?1 and head = ?2 and body = ?3 and foot = ?4",
-                        ctx.getSubject(),
-                        headerVersion.serial,
-                        elementVersion.serial,
-                        footerVersion.serial
-                ).stream().forEach(r -> records.add((Record) r));
+                Record.find("subject = ?1 and head = ?2 and body = ?3 and foot = ?4", ctx.getSubject(), headerVersion.serial, elementVersion.serial, footerVersion.serial ).stream().forEach(r -> records.add((Record) r));
             }
         } catch (EntityNotFoundException e) {
             LOGGER.log(Level.WARNING, "Entity not found exception: " + e.getMessage());

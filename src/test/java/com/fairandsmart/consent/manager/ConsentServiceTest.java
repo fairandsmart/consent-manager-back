@@ -6,6 +6,7 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.model.Controller;
 import com.fairandsmart.consent.manager.model.Footer;
@@ -181,30 +182,34 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     public void testCreateAndReadRecord() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, TokenServiceException, IllegalIdentifierException {
+
         LOGGER.log(Level.INFO, "Creating, updating and activating entries");
-        String id = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
-        assertNotNull(id);
-        String headerSerial = service.updateEntryContent(id, "fr_FR", new Header().withTitle("Header title").withBody("Header body")).serial;
-        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
-        id = service.createEntry("t1", "treatment1", "Description de treatment1", Treatment.TYPE);
-        assertNotNull(id);
-        String treatment1Serial = service.updateEntryContent(id, "fr_FR", new Treatment().withTreatmentTitle("Treatment1").withDataBody("Data1").withRetentionBody("Retention1").withUsageBody("Usage1").withPurpose(Treatment.Purpose.CONSENT_MARKETING)).serial;
-        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
-        id = service.createEntry("t2", "treatment2", "Description de treatment2", Treatment.TYPE);
-        assertNotNull(id);
-        String treatment2Serial = service.updateEntryContent(id, "fr_FR", new Treatment().withTreatmentTitle("Treatment2").withDataBody("Data2").withRetentionBody("Retention2").withUsageBody("Usage2").withPurpose(Treatment.Purpose.CONSENT_IMPROVED_SERVICE)).serial;
-        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
-        id = service.createEntry("f1", "footer1", "Description de footer1", Footer.TYPE);
-        assertNotNull(id);
-        String footerSerial = service.updateEntryContent(id, "fr_FR", new Footer().withBody("Footer body")).serial;
-        service.activateEntry(id, ConsentElementVersion.Revocation.SUPPORTS);
+        ModelEntry eh1 = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
+        assertNotNull(eh1);
+        ModelVersion vh1 = service.createVersion(eh1.id, "fr_FR", new Header().withTitle("Header title").withBody("Header body"));
+        service.updateVersionStatus(vh1.id, ModelVersion.Status.ACTIVE);
+
+        ModelEntry et1 = service.createEntry("t1", "treatment1", "Description de treatment1", Treatment.TYPE);
+        assertNotNull(et1);
+        ModelVersion vt1 = service.createVersion(et1.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment1").withDataBody("Data1").withRetentionBody("Retention1").withUsageBody("Usage1").withPurpose(Treatment.Purpose.CONSENT_MARKETING));
+        service.updateVersionStatus(vt1.id, ModelVersion.Status.ACTIVE);
+
+        ModelEntry et2 = service.createEntry("t2", "treatment2", "Description de treatment2", Treatment.TYPE);
+        assertNotNull(et2);
+        ModelVersion vt2 = service.createVersion(et2.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment2").withDataBody("Data2").withRetentionBody("Retention2").withUsageBody("Usage2").withPurpose(Treatment.Purpose.CONSENT_IMPROVED_SERVICE));
+        service.updateVersionStatus(vt2.id, ModelVersion.Status.ACTIVE);
+
+        ModelEntry ef1 = service.createEntry("f1", "footer1", "Description de footer1", Footer.TYPE);
+        assertNotNull(ef1);
+        ModelVersion vf1 = service.createVersion(ef1.id, "fr_FR", new Footer().withBody("Footer body"));
+        service.updateVersionStatus(vf1.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.info("Listing existing entries");
         List<String> types = new ArrayList<>();
         types.add(Header.TYPE);
         types.add(Treatment.TYPE);
         types.add(Footer.TYPE);
-        CollectionPage<ConsentElementEntry> entries = service.listEntries(new EntryFilter().withTypes(types).withPage(1).withSize(5));
+        CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         assertEquals(4, entries.getTotalCount());
 
         LOGGER.log(Level.INFO, "Creating READ context and token");
@@ -219,7 +224,7 @@ public class ConsentServiceTest {
         String readToken = service.buildToken(readCtx); // TODO : actuellement, il faut changer la valeur de consent.security.auth.unauthenticated en sheldon ; cf le TODO de buildToken
 
         LOGGER.log(Level.INFO, "Reading consent records before submit");
-        List<ConsentRecord> records = service.listConsentRecords(readCtx);
+        List<Record> records = service.listRecords(readCtx);
         assertEquals(0, records.size());
 
         LOGGER.log(Level.INFO, "First consent form");
@@ -232,25 +237,25 @@ public class ConsentServiceTest {
                 .setOwner(unauthentifiedUser)
                 .setSubject("mmichu")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setHeader("element/header/" + headerSerial)
-                .setElements(Arrays.asList("element/treatment/" + treatment1Serial, "element/treatment/" + treatment2Serial))
-                .setFooter("element/footer/" + footerSerial)
+                .setHeader("element/header/" + vh1.serial)
+                .setElements(Arrays.asList("element/treatment/" + vt1.serial, "element/treatment/" + vt2.serial))
+                .setFooter("element/footer/" + vf1.serial)
                 .setLocale("fr_FR");
         String postToken = service.buildToken(postCtx); // TODO : actuellement, il faut changer la valeur de consent.security.auth.unauthenticated en sheldon ; cf le TODO de buildToken
 
         LOGGER.log(Level.INFO, "Submitting first consent (creating record)");
         Map<String, String> values = new HashMap<>();
-        values.put("header", "element/header/" + headerSerial);
-        values.put("element/treatment/" + treatment1Serial, "accepted");
-        values.put("element/treatment/" + treatment2Serial, "refused");
-        values.put("footer", "element/footer/" + footerSerial);
+        values.put("header", "element/header/" + vh1.serial);
+        values.put("element/treatment/" + vt1.serial, "accepted");
+        values.put("element/treatment/" + vt2.serial, "refused");
+        values.put("footer", "element/footer/" + vf1.serial);
         service.submitConsent(postToken, values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
-        records = service.listConsentRecords(readCtx);
+        records = service.listRecords(readCtx);
         assertEquals(2, records.size());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(treatment1Serial)).count());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(treatment2Serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(vt1.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(vt2.serial)).count());
 
         LOGGER.log(Level.INFO, "Second consent form");
         form = service.generateForm(readToken);
