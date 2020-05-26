@@ -53,7 +53,7 @@ public interface ConsentService {
 
     ModelVersion updateVersionType(String versionId, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException;
 
-    ModelVersion updateVersionStatus(String versionId, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion updateVersionStatus(String versionId, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException;
 
     void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 

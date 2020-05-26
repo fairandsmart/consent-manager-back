@@ -90,16 +90,16 @@ public class ConsentServiceTest {
 
     @Test
     @Transactional
-    public void testCreateAndUpdateHeaderContent() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, ModelDataSerializationException {
+    public void testCreateAndUpdateHeaderContent() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, ModelDataSerializationException, InvalidStatusException {
         LOGGER.info("Create entry");
-        String entryId = service.createEntry("h1", "header1", "Description de header1", Header.TYPE).id;
+        String entryId = service.createEntry("h10", "header10", "Description de header 10", Header.TYPE).id;
         assertNotNull(entryId);
 
         LOGGER.info("List versions");
         List<ModelVersion> versions = service.getVersionHistoryForKey(entryId);
         assertEquals(0, versions.size());
 
-        LOGGER.info("Create Header h1");
+        LOGGER.info("Create Header h10");
         Controller controller = new Controller();
         controller.setName("Name");
         controller.setCompany("Company");
@@ -163,17 +163,17 @@ public class ConsentServiceTest {
 
         //At this point no version is active
         assertThrows(EntityNotFoundException.class, () -> {
-            service.findActiveVersionForKey("h1");
+            service.findActiveVersionForKey("h10");
         });
 
         LOGGER.log(Level.INFO, "Activate entry");
         service.updateVersionStatus(versionId, ModelVersion.Status.ACTIVE);
 
-        version = service.findActiveVersionForKey("h1");
+        version = service.findActiveVersionForKey("h10");
         assertEquals(versions.get(0), version);
         assertEquals(ModelVersion.Status.ACTIVE, version.status);
 
-        version = service.findLatestVersionForKey("h1");
+        version = service.findLatestVersionForKey("h10");
         assertEquals(versions.get(0), version);
         assertEquals(ModelVersion.Status.ACTIVE, version.status);
 
@@ -181,7 +181,7 @@ public class ConsentServiceTest {
 
     @Test
     @Transactional
-    public void testCreateAndReadRecord() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, TokenServiceException, IllegalIdentifierException {
+    public void testCreateAndReadRecord() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
 
         LOGGER.log(Level.INFO, "Creating, updating and activating entries");
         ModelEntry eh1 = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);

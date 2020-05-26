@@ -7,6 +7,7 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
+import com.fairandsmart.consent.manager.InvalidStatusException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -127,7 +128,7 @@ public class ModelsResource {
     @PUT
     @Path("/{id}/versions/{vid}/status")
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelVersion updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Status status) throws EntityNotFoundException, ConsentManagerException {
+    public ModelVersion updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Status status) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/status");
         return consentService.updateVersionStatus(vid, status);
     }

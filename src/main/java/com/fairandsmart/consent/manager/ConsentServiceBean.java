@@ -154,7 +154,7 @@ public class ConsentServiceBean implements ConsentService {
         ModelVersion latest = voptional.orElse(null);
         try {
             long now = System.currentTimeMillis();
-            if ( latest == null ) {
+            if (latest == null) {
                 LOGGER.log(Level.INFO, "No existing version found, creating first one");
                 latest = new ModelVersion();
                 latest.entry = entry;
@@ -164,6 +164,9 @@ public class ConsentServiceBean implements ConsentService {
                 latest.status = ModelVersion.Status.DRAFT;
                 latest.serial = generator.next(ModelVersion.class.getName());
                 latest.defaultLocale = locale;
+                latest.type = ModelVersion.Type.MINOR;
+            } else if (latest.status.equals(ModelVersion.Status.DRAFT)) {
+                throw new ConsentManagerException("A draft version already exists, unable to create new one");
             } else {
                 LOGGER.log(Level.INFO, "Latest version found, creating new one");
                 ModelVersion newversion = new ModelVersion();
@@ -177,6 +180,9 @@ public class ConsentServiceBean implements ConsentService {
                 newversion.defaultLocale = latest.defaultLocale;
                 newversion.availableLocales = latest.availableLocales;
                 newversion.content = latest.content;
+                newversion.counterparts = latest.counterparts;
+                newversion.type = ModelVersion.Type.MINOR;
+                newversion.addCounterpart(latest.serial);
 
                 latest.child = newversion.serial;
                 latest.persist();
@@ -311,57 +317,62 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
         LOGGER.log(Level.INFO, "Updating status for version with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
-        if ( !version.status.equals(ModelVersion.Status.DRAFT) ) {
-            throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
+        if ( !version.child.isEmpty() ) {
+            throw new ConsentManagerException("Unable to update status of a version that is not the latest");
         }
-        //TODO
-        throw new ConsentManagerException("NOT IMPLEMENTED");
+        if ( status.equals(ModelVersion.Status.DRAFT) ) {
+            throw new InvalidStatusException("Unable to update a version to DRAFT status");
+        }
+        if ( status.equals(ModelVersion.Status.ACTIVE) ) {
+            if ( !version.status.equals(ModelVersion.Status.DRAFT) ) {
+                throw new InvalidStatusException("Only DRAFT version can be set ACTIVE");
+            } else {
+                if ( !version.parent.isEmpty() ) {
+                    ModelVersion parent = ModelVersion.findById(version.parent);
+                    parent.modificationDate = System.currentTimeMillis();
+                    parent.status = ModelVersion.Status.ARCHIVED;
+                    parent.persist();
+                }
+                version.status = ModelVersion.Status.ACTIVE;
+                version.modificationDate = System.currentTimeMillis();
+                if ( version.type.equals(ModelVersion.Type.MAJOR) ) {
+                    version.counterparts = "";
+                }
+                version.persist();
+            }
+        }
+        if ( status.equals(ModelVersion.Status.ARCHIVED) ) {
+            if ( !version.status.equals(ModelVersion.Status.ACTIVE) ) {
+                throw new InvalidStatusException("Only ACTIVE version can be set ARCHIVED");
+            } else {
+                version.modificationDate = System.currentTimeMillis();
+                version.status = ModelVersion.Status.ARCHIVED;
+                version.persist();
+            }
+        }
+        return version;
     }
 
     @Override
     @Transactional
     public void deleteVersion(String id) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Deleting version with id: " + id);
-        throw new ConsentManagerException("NOT IMPLEMENTED");
-    }
-
-    /*
-    @Override
-    @Transactional
-    public void activateVersion(String id, ModelVersion.Type revocation) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Activating entry with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
-        ModelVersion latest = optional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + id));
-        if (!latest.status.equals(ModelVersion.Status.DRAFT)) {
-            throw new ConsentManagerException("unable to activate entry, current status is not draft");
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
+        ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
+        if ( !version.child.isEmpty() ) {
+            throw new ConsentManagerException("Unable to delete version that is not last one");
         }
-        if (!latest.parent.isEmpty()) {
-            //TODO :
-            // Apply revocation if needed to existing records (for all compatible serials)
-            // Update compatible of the latest
-            // Update status
-            throw new ConsentManagerException("unable to activate entry, current status is not draft");
-        } else {
-            latest.status = ModelVersion.Status.ACTIVE;
-            latest.modificationDate = System.currentTimeMillis();
-            latest.type = revocation;
-            //TODO Check if we need to set compatibility serials here now...
-            latest.persist();
+        if ( !version.status.equals(ModelVersion.Status.DRAFT) ) {
+            throw new ConsentManagerException("Unable to delete version that is not DRAFT");
         }
+        version.delete();
     }
-
-    @Override
-    public void archiveEntry(String id, ModelVersion.Type revocation) throws ConsentManagerException {
-        LOGGER.log(Level.INFO, "Archiving entry with id: " + id);
-        throw new ConsentManagerException("NOT IMPLEMENTED");
-    }
-    */
 
     /* CONSENT MANAGEMENT */
 

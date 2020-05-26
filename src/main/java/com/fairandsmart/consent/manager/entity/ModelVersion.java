@@ -59,6 +59,19 @@ public class ModelVersion extends PanacheEntityBase {
         }
     }
 
+    public void addCounterpart(String counterpart) {
+        List<String> cp;
+        if ( counterparts.isEmpty() ) {
+            cp = new ArrayList<>();
+        } else {
+            cp = Arrays.asList(counterparts.split(","));
+        }
+        if ( !cp.contains(counterpart) ) {
+            cp.add(counterpart);
+            counterparts = cp.stream().collect(Collectors.joining(","));
+        }
+    }
+
     public boolean hasLocale(String locale) {
         return content.containsKey(locale);
     }
