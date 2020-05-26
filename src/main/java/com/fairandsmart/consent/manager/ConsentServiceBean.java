@@ -6,7 +6,7 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.*;
-import com.fairandsmart.consent.manager.filter.EntryFilter;
+import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Receipt;
@@ -36,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.fairandsmart.consent.manager.entity.ConsentElementEntry.DEFAULT_BRANCHE;
+import static com.fairandsmart.consent.manager.entity.ModelEntry.DEFAULT_BRANCHE;
 
 @ApplicationScoped
 public class ConsentServiceBean implements ConsentService {
@@ -61,18 +61,11 @@ public class ConsentServiceBean implements ConsentService {
     /* MODELS MANAGEMENT */
 
     @Override
-    public CollectionPage<ConsentElementEntry> listEntries(EntryFilter filter) throws AccessDeniedException {
+    public CollectionPage<ModelEntry> listEntries(ModelFilter filter) {
         LOGGER.log(Level.INFO, "Listing models entries");
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        //TODO Handle cases where an admin is able to list any model entries
-        // For now, authenticated user is enforced as owner of th emodels :
-        filter.setOwner(connectedIdentifier);
-        if ( !connectedIdentifier.equals(filter.getOwner()) ) {
-            //This exception is not raised yet, only here to not forgot usage later
-            throw new AccessDeniedException("Owner must be the connected user");
-        }
-        PanacheQuery<ConsentElementEntry> query = ConsentElementEntry.find("owner = ?1 and type in ?2", filter.getOwner(), filter.getTypes());
-        CollectionPage<ConsentElementEntry> result = new CollectionPage<>();
+        PanacheQuery<ModelEntry> query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());
+        CollectionPage<ModelEntry> result = new CollectionPage<>();
         result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
@@ -83,13 +76,13 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public String createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
+    public ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "Creating new entry");
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        if ( ConsentElementEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
+        if ( ModelEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
         }
-        ConsentElementEntry entry = new ConsentElementEntry();
+        ModelEntry entry = new ModelEntry();
         entry.type = type;
         entry.key = key;
         entry.name = name;
@@ -97,67 +90,36 @@ public class ConsentServiceBean implements ConsentService {
         entry.branches = DEFAULT_BRANCHE;
         entry.owner = connectedIdentifier;
         entry.persist();
-        return entry.id;
+        return entry;
     }
 
     @Override
-    public ConsentElementEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException {
+    public ModelEntry getEntry(String id) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Getting entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
-        ConsentElementEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
+        Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
+        ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         if ( !entry.owner.equals(connectedIdentifier) ) {
-            throw new AccessDeniedException("only owner can access entry");
+            new AccessDeniedException("access denied to version with id: " + id);
         }
         return entry;
     }
 
     @Override
-    public ConsentElementEntry findEntryByKey(String key) throws EntityNotFoundException {
+    public ModelEntry findEntryForKey(String key) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding entry for key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementEntry> optional = ConsentElementEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).singleResultOptional();
+        Optional<ModelEntry> optional = ModelEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
     }
 
     @Override
-    public ConsentElementVersion findActiveVersionByKey(String key) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding active version for entry with key: " + key);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        return systemFindActiveVersionByKey(connectedIdentifier, key);
-    }
-
-    @Override
-    public ConsentElementVersion getVersionBySerial(String serial) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding version for serial: " + serial);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and serial = ?2", connectedIdentifier, serial).singleResultOptional();
-        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for serial: " + serial));
-    }
-
-    @Override
-    public List<ConsentElementVersion> listVersionsForEntry(String id) throws ConsentManagerException {
-        LOGGER.log(Level.INFO, "Listing versions for entry with id: " + id);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        List<ConsentElementVersion> versions = ConsentElementVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, id).list();
-        if ( versions.isEmpty() ) {
-            return versions;
-        } else {
-            LOGGER.log(Level.INFO, "Ordering existing versions: " + versions);
-            return ConsentElementVersion.HistoryHelper.orderVersions(versions);
-        }
-    }
-
-    @Override
-    @Transactional()
-    public ConsentElementEntry updateEntry(String id, String name, String description) throws EntityNotFoundException, AccessDeniedException {
+    @Transactional
+    public ModelEntry updateEntry(String id, String name, String description) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementEntry> optional = ConsentElementEntry.findByIdOptional(id);
-        ConsentElementEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
-        if ( !entry.owner.equals(connectedIdentifier) ) {
-            throw new AccessDeniedException("only owner can access entry");
-        }
+        Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", id, connectedIdentifier).singleResultOptional();
+        ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         entry.name = name;
         entry.description = description;
         entry.persist();
@@ -166,41 +128,51 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ConsentElementVersion updateEntryContent(String id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Updating entry content for id: " + id);
+    public void deleteEntry(String id) throws ConsentManagerException {
+        LOGGER.log(Level.INFO, "Deleting entry with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementEntry> eoptional = ConsentElementEntry.findByIdOptional(id);
-        ConsentElementEntry entry = eoptional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
-        if ( !entry.owner.equals(connectedIdentifier) ) {
-            throw new AccessDeniedException("only owner can access entry");
+        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, id).list();
+        if ( versions.isEmpty() || versions.stream().allMatch(v -> v.status.equals(ModelVersion.Status.DRAFT))) {
+            ModelEntry.deleteById(id);
+        } else {
+            //TODO Maybe allow this but ensure that all corresponding records are going to be deleted... and that receipt may be corrupted.
+            throw new ConsentManagerException("unable to delete entry that have not only DRAFT versions");
         }
+    }
+
+    @Override
+    @Transactional
+    public ModelVersion createVersion(String entryId, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Creating new version for entry with id: " + entryId);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", entryId, connectedIdentifier).singleResultOptional();
+        ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + entryId));
         if ( !entry.type.equals(data.getType()) ) {
             throw new ConsentManagerException("Entry data type mismatch, need type: " + entry.type);
         }
-        Optional<ConsentElementVersion> voptional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
-        ConsentElementVersion latest = voptional.orElse(null);
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, entryId, "").singleResultOptional();
+        ModelVersion latest = voptional.orElse(null);
         try {
             long now = System.currentTimeMillis();
             if ( latest == null ) {
                 LOGGER.log(Level.INFO, "No existing version found, creating first one");
-                latest = new ConsentElementVersion();
+                latest = new ModelVersion();
                 latest.entry = entry;
                 latest.owner = connectedIdentifier;
                 latest.branches = DEFAULT_BRANCHE;
                 latest.creationDate = now;
-                latest.status = ConsentElementVersion.Status.DRAFT;
-                latest.serial = generator.next(ConsentElementVersion.class.getName());
+                latest.status = ModelVersion.Status.DRAFT;
+                latest.serial = generator.next(ModelVersion.class.getName());
                 latest.defaultLocale = locale;
-            }
-            if (!latest.status.equals(ConsentElementVersion.Status.DRAFT)) {
-                LOGGER.log(Level.INFO, "Latest version is not draft, need to create a new version before update");
-                ConsentElementVersion newversion = new ConsentElementVersion();
+            } else {
+                LOGGER.log(Level.INFO, "Latest version found, creating new one");
+                ModelVersion newversion = new ModelVersion();
                 newversion.entry = latest.entry;
                 newversion.owner = connectedIdentifier;
                 newversion.branches = DEFAULT_BRANCHE;
                 newversion.creationDate = now;
-                newversion.status = ConsentElementVersion.Status.DRAFT;
-                newversion.serial = generator.next(ConsentElementVersion.class.getName());
+                newversion.status = ModelVersion.Status.DRAFT;
+                newversion.serial = generator.next(ModelVersion.class.getName());
                 newversion.parent = latest.serial;
                 newversion.defaultLocale = latest.defaultLocale;
                 newversion.availableLocales = latest.availableLocales;
@@ -211,25 +183,162 @@ public class ConsentServiceBean implements ConsentService {
                 latest = newversion;
             }
             latest.addAvailableLocale(locale);
-            latest.content.put(locale, new ConsentElementContent().withDataObject(data).withAuthor(connectedIdentifier));
+            latest.content.put(locale, new ModelContent().withDataObject(data).withAuthor(connectedIdentifier));
             latest.modificationDate = now;
             latest.persist();
             return latest;
         } catch ( SerialGeneratorException ex ) {
-            throw new ConsentManagerException("unable to generate serial number for new version");
+            throw new ConsentManagerException("unable to generate serial number for new version", ex);
         } catch ( ModelDataSerializationException ex ) {
-            throw new ConsentManagerException("unable to serialise data");
+            throw new ConsentManagerException("unable to serialise data", ex);
+        }
+    }
+
+    @Override
+    public ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Finding active version for entry with key: " + key);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        return systemFindActiveVersionByKey(connectedIdentifier, key);
+    }
+
+    @Override
+    public ModelVersion findActiveVersionForEntry(String entryId) throws EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Finding active version for entry with id: " + entryId);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        return systemFindActiveVersionByEntryId(connectedIdentifier, entryId);
+    }
+
+    @Override
+    public ModelVersion findLatestVersionForKey(String key) throws EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Finding latest version for entry with key: " + key);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.key = ?2 and child = ?3", connectedIdentifier, key, "").singleResultOptional();
+        return voptional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with key: " + key));
+    }
+
+    @Override
+    public ModelVersion findLatestVersionForEntry(String entryId) throws EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Finding latest version for entry with id: " + entryId);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, entryId, "").singleResultOptional();
+        return voptional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + entryId));
+    }
+
+    @Override
+    public ModelVersion getVersion(String id) throws EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Finding version for id: " + id);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        Optional<ModelVersion> optional = ModelVersion.findByIdOptional(id);
+        ModelVersion version = optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for id: " + id));
+        if ( !version.owner.equals(connectedIdentifier) ) {
+            new AccessDeniedException("access denied to version with id: " + id);
+        }
+        return version;
+    }
+
+    @Override
+    public ModelVersion findVersionForSerial(String serial) throws EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Finding version for serial: " + serial);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and serial = ?2", connectedIdentifier, serial).singleResultOptional();
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for serial: " + serial));
+    }
+
+    @Override
+    public List<ModelVersion> getVersionHistoryForKey(String key) throws ConsentManagerException {
+        LOGGER.log(Level.INFO, "Listing versions for entry with key: " + key);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.key = ?2", connectedIdentifier, key).list();
+        if ( !versions.isEmpty() ) {
+            return ModelVersion.HistoryHelper.orderVersions(versions);
+        }
+        return versions;
+    }
+
+    @Override
+    public List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException {
+        LOGGER.log(Level.INFO, "Listing versions for entry with id: " + entryId);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, entryId).list();
+        if ( !versions.isEmpty() ) {
+            return ModelVersion.HistoryHelper.orderVersions(versions);
+        }
+        return versions;
+    }
+
+    @Override
+    @Transactional
+    public ModelVersion updateVersion(String id, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Updating content for version with id: " + id);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
+        ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
+        if ( !version.entry.type.equals(data.getType()) ) {
+            throw new ConsentManagerException("Entry data type mismatch, need type: " + version.entry.type);
+        }
+        if ( !version.child.isEmpty() ) {
+            throw new ConsentManagerException("Unable to update content for version that is not last one");
+        }
+        try {
+            version.addAvailableLocale(locale);
+            version.content.put(locale, new ModelContent().withDataObject(data).withAuthor(connectedIdentifier));
+            version.modificationDate = System.currentTimeMillis();
+            version.persist();
+            return version;
+        } catch ( ModelDataSerializationException ex ) {
+            throw new ConsentManagerException("unable to serialise data", ex);
         }
     }
 
     @Override
     @Transactional
-    public void activateEntry(String id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion updateVersionType(String id, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Updating type for version with id: " + id);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
+        ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
+        if ( !version.child.isEmpty() ) {
+            throw new ConsentManagerException("Unable to update type for version that is not last one");
+        }
+        if ( !version.status.equals(ModelVersion.Status.DRAFT) ) {
+            throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
+        }
+        version.type = type;
+        version.modificationDate = System.currentTimeMillis();
+        version.persist();
+        return version;
+    }
+
+    @Override
+    @Transactional
+    public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Updating status for version with id: " + id);
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
+        ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
+        if ( !version.status.equals(ModelVersion.Status.DRAFT) ) {
+            throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
+        }
+        //TODO
+        throw new ConsentManagerException("NOT IMPLEMENTED");
+    }
+
+    @Override
+    @Transactional
+    public void deleteVersion(String id) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Deleting version with id: " + id);
+        throw new ConsentManagerException("NOT IMPLEMENTED");
+    }
+
+    /*
+    @Override
+    @Transactional
+    public void activateVersion(String id, ModelVersion.Type revocation) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Activating entry with id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
-        ConsentElementVersion latest = optional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + id));
-        if (!latest.status.equals(ConsentElementVersion.Status.DRAFT)) {
+        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, id, "").singleResultOptional();
+        ModelVersion latest = optional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + id));
+        if (!latest.status.equals(ModelVersion.Status.DRAFT)) {
             throw new ConsentManagerException("unable to activate entry, current status is not draft");
         }
         if (!latest.parent.isEmpty()) {
@@ -239,34 +348,26 @@ public class ConsentServiceBean implements ConsentService {
             // Update status
             throw new ConsentManagerException("unable to activate entry, current status is not draft");
         } else {
-            latest.status = ConsentElementVersion.Status.ACTIVE;
+            latest.status = ModelVersion.Status.ACTIVE;
             latest.modificationDate = System.currentTimeMillis();
-            latest.revocation = revocation;
+            latest.type = revocation;
             //TODO Check if we need to set compatibility serials here now...
             latest.persist();
         }
     }
 
     @Override
-    public void archiveEntry(String id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException {
+    public void archiveEntry(String id, ModelVersion.Type revocation) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "Archiving entry with id: " + id);
         throw new ConsentManagerException("NOT IMPLEMENTED");
     }
-
-    @Override
-    public void deleteEntry(String id) throws ConsentManagerException, EntityNotFoundException {
-        //TODO Analyse this behaviour to check if delete is possible.
-        // Maybe allow delete if all versions are draft or if there is no Record for any version
-        // Maybe also use a status DELETED to avoid display but to keep versions in the base.
-        LOGGER.log(Level.INFO, "Deleting entry with id: " + id);
-        throw new ConsentManagerException("NOT IMPLEMENTED");
-    }
+    */
 
     /* CONSENT MANAGEMENT */
 
     @Override
     public String buildToken(ConsentContext ctx) {
-        //TODO Handle cases where an admin is generating a token for another owner
+        //TODO Handle cases where super user is generating a token for another owner
         // For now, authenticated user is enforced as owner of the token :
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
         ctx.setOwner(authentication.getConnectedIdentifier());
@@ -289,19 +390,19 @@ public class ConsentServiceBean implements ConsentService {
             form.setLocale(ctx.getLocale());
             form.setOrientation(ctx.getOrientation());
 
-            ConsentElementVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            ModelVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
             form.setHeader(header);
             ctx.setHeader(header.getIdentifier().serialize());
 
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
-                ConsentElementVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
+                ModelVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
                 form.addElement(element);
                 elementsIdentifiers.add(element.getIdentifier().serialize());
             }
             ctx.setElements(elementsIdentifiers);
 
-            ConsentElementVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+            ModelVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
             form.setFooter(footer);
             ctx.setFooter(footer.getIdentifier().serialize());
 
@@ -325,11 +426,11 @@ public class ConsentServiceBean implements ConsentService {
 
             ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
             ConsentElementIdentifier footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
-            List<ConsentRecord> records = new ArrayList<>();
+            List<Record> records = new ArrayList<>();
             for (Map.Entry<String, String> value : values.entrySet()) {
                 try {
                     ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(value.getKey());
-                    ConsentRecord record = new ConsentRecord();
+                    Record record = new Record();
                     record.transaction = transaction;
                     record.subject = ctx.getSubject();
                     record.owner = ctx.getOwner();
@@ -341,7 +442,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.value = value.getValue();
                     record.creationTimestamp = now.toEpochMilli();
                     record.expirationTimestamp = now.plus(Period.ofWeeks(52)).toEpochMilli();
-                    record.status = ConsentRecord.Status.COMMITTED;
+                    record.status = Record.Status.COMMITTED;
                     record.persist();
                     records.add(record);
                 } catch (IllegalIdentifierException e) {
@@ -353,7 +454,7 @@ public class ConsentServiceBean implements ConsentService {
             if (!ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
                 Header header = (Header) systemFindModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
                 Footer footer = (Footer) systemFindModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
-                Map<Treatment, ConsentRecord> trecords = new HashMap<>();
+                Map<Treatment, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
                     try {
                         Treatment t = (Treatment) systemFindModelVersionForSerial(r.body).getData(ctx.getLocale());
@@ -376,13 +477,18 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
-    private ConsentElementVersion systemFindActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
-        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ConsentElementVersion.Status.ACTIVE).singleResultOptional();
-        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
+    private ModelVersion systemFindActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
+        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key));
     }
 
-    private ConsentElementVersion systemFindModelVersionForSerial(String serial) throws EntityNotFoundException {
-        Optional<ConsentElementVersion> optional = ConsentElementVersion.find("serial = ?1", serial).singleResultOptional();
+    private ModelVersion systemFindActiveVersionByEntryId(String owner, String entryId) throws EntityNotFoundException {
+        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and status = ?3", owner, entryId, ModelVersion.Status.ACTIVE).singleResultOptional();
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId));
+    }
+
+    private ModelVersion systemFindModelVersionForSerial(String serial) throws EntityNotFoundException {
+        Optional<ModelVersion> optional = ModelVersion.find("serial = ?1", serial).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
     }
 

@@ -1,6 +1,6 @@
 package com.fairandsmart.consent.manager;
 
-import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
+import com.fairandsmart.consent.manager.entity.ModelVersion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,9 @@ import java.util.List;
 public class ConsentForm {
 
     private String token;
-    private ConsentElementVersion header;
-    private List<ConsentElementVersion> elements;
-    private ConsentElementVersion footer;
+    private ModelVersion header;
+    private List<ModelVersion> elements;
+    private ModelVersion footer;
     private String locale;
     private Orientation orientation;
 
@@ -26,31 +26,31 @@ public class ConsentForm {
         this.token = token;
     }
 
-    public ConsentElementVersion getHeader() {
+    public ModelVersion getHeader() {
         return header;
     }
 
-    public void setHeader(ConsentElementVersion header) {
+    public void setHeader(ModelVersion header) {
         this.header = header;
     }
 
-    public List<ConsentElementVersion> getElements() {
+    public List<ModelVersion> getElements() {
         return elements;
     }
 
-    public void setElements(List<ConsentElementVersion> elements) {
+    public void setElements(List<ModelVersion> elements) {
         this.elements = elements;
     }
 
-    public void addElement(ConsentElementVersion element) {
+    public void addElement(ModelVersion element) {
         this.elements.add(element);
     }
 
-    public ConsentElementVersion getFooter() {
+    public ModelVersion getFooter() {
         return footer;
     }
 
-    public void setFooter(ConsentElementVersion footer) {
+    public void setFooter(ModelVersion footer) {
         this.footer = footer;
     }
 

@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Record {
+public class Consent {
 
     private String serial;
     private String data;
@@ -22,7 +22,7 @@ public class Record {
     private List<Sharing> sharings;
     private String value;
 
-    public Record() {
+    public Consent() {
     }
 
     public String getSerial() {

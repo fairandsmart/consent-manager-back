@@ -303,4 +303,24 @@ public class ConsentContext implements Tokenizable {
         DOWNLOAD
     }
 
+    @Override
+    public String toString() {
+        return "ConsentContext{" +
+                "subject='" + subject + '\'' +
+                ", owner='" + owner + '\'' +
+                ", orientation=" + orientation +
+                ", header='" + header + '\'' +
+                ", elements=" + elements +
+                ", footer='" + footer + '\'' +
+                ", callback='" + callback + '\'' +
+                ", locale='" + locale + '\'' +
+                ", formType=" + formType +
+                ", receiptDeliveryType=" + receiptDeliveryType +
+                ", userinfos=" + userinfos +
+                ", attributes=" + attributes +
+                ", optoutEmail='" + optoutEmail + '\'' +
+                ", preview=" + preview +
+                ", iframe=" + iframe +
+                '}';
+    }
 }

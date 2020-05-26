@@ -1,13 +1,13 @@
 package com.fairandsmart.consent.manager.model;
 
-import com.fairandsmart.consent.manager.entity.ConsentElementData;
+import com.fairandsmart.consent.manager.entity.ModelData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Treatment extends ConsentElementData {
+public class Treatment extends ModelData {
 
     public static final String TYPE = "treatment";
 

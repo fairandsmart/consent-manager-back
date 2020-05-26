@@ -4,6 +4,7 @@
     <#include "macros/lang-macros.ftl">
     <#include "macros/elements-macros.ftl">
     <title>Receipt</title>
+    <meta charset="UTF-8">
     <style>
         body { font-family: Monaco, "DejaVu Sans Mono", "Lucida Console", "Andale Mono", monospace; font-size: medium; text-transform: uppercase; }
         .spaced { margin-bottom: 18px; }
@@ -21,11 +22,11 @@
     <div><span class="receipt-label"><@readBundle "language"></@readBundle>: </span><@readBundle localeLanguageBundleKey "unknown language key"></@readBundle></div>
     <div class="spaced"><span class="receipt-label"><@readBundle "receipt_id"></@readBundle>: </span>#${data.transaction}</div>
 
-    <#list data.records as record>
-        <div><span class="receipt-label"><@readBundle "data_collected"></@readBundle>: </span>${record.data}</div>
-        <#if record.retention??><div><span class="receipt-label"><@readBundle "data_retention"></@readBundle>: </span>${record.retention}</div></#if>
-        <div><span class="receipt-label"><@readBundle "data_usage"></@readBundle>: </span>${record.usage}</div>
-        <div class="spaced record-value"><span class="receipt-label"><@readBundle "subject_consent"></@readBundle>: </span>${record.value}</div>
+    <#list data.consents as consent>
+        <div><span class="receipt-label"><@readBundle "data_collected"></@readBundle>: </span>${consent.data}</div>
+        <#if consent.retention??><div><span class="receipt-label"><@readBundle "data_retention"></@readBundle>: </span>${consent.retention}</div></#if>
+        <div><span class="receipt-label"><@readBundle "data_usage"></@readBundle>: </span>${consent.usage}</div>
+        <div class="spaced consent-value"><span class="receipt-label"><@readBundle "subject_consent"></@readBundle>: </span>${consent.value}</div>
     </#list>
 
     <div class="spaced"><span class="receipt-label"><@readBundle "subject_id"></@readBundle>: </span>${data.subject}</div>

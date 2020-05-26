@@ -5,10 +5,10 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.manager.entity.ConsentElementData;
-import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
-import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
-import com.fairandsmart.consent.manager.filter.EntryFilter;
+import com.fairandsmart.consent.manager.entity.ModelData;
+import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
@@ -18,29 +18,43 @@ import java.util.Map;
 
 public interface ConsentService {
 
-    CollectionPage<ConsentElementEntry> listEntries(EntryFilter filter) throws AccessDeniedException;
+    CollectionPage<ModelEntry> listEntries(ModelFilter filter);
 
-    String createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException;
+    ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException;
 
-    ConsentElementEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException;
+    ModelEntry getEntry(String entryId) throws EntityNotFoundException, AccessDeniedException;
 
-    ConsentElementEntry findEntryByKey(String key) throws EntityNotFoundException;
+    ModelEntry findEntryForKey(String key) throws EntityNotFoundException;
 
-    ConsentElementVersion findActiveVersionByKey(String key) throws EntityNotFoundException;
+    ModelEntry updateEntry(String entryId, String name, String description) throws EntityNotFoundException, AccessDeniedException;
 
-    List<ConsentElementVersion> listVersionsForEntry(String id) throws ConsentManagerException;
+    void deleteEntry(String entryId) throws ConsentManagerException, EntityNotFoundException;
 
-    ConsentElementVersion getVersionBySerial(String serial) throws EntityNotFoundException;
+    ModelVersion createVersion(String entryId, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException;
 
-    ConsentElementEntry updateEntry(String id, String name, String description) throws EntityNotFoundException, AccessDeniedException;
+    ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException;
 
-    ConsentElementVersion updateEntryContent(String id, String locale, ConsentElementData data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion findActiveVersionForEntry(String entryId) throws EntityNotFoundException;
 
-    void activateEntry(String id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion findLatestVersionForKey(String key) throws EntityNotFoundException;
 
-    void archiveEntry(String id, ConsentElementVersion.Revocation revocation) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion findLatestVersionForEntry(String entryId) throws EntityNotFoundException;
 
-    void deleteEntry(String id) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion findVersionForSerial(String serial) throws EntityNotFoundException;
+
+    ModelVersion getVersion(String versionId) throws EntityNotFoundException;
+
+    List<ModelVersion> getVersionHistoryForKey(String key) throws ConsentManagerException;
+
+    List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException;
+
+    ModelVersion updateVersion(String versionId, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException;
+
+    ModelVersion updateVersionType(String versionId, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException;
+
+    ModelVersion updateVersionStatus(String versionId, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException;
+
+    void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 
     String buildToken(ConsentContext ctx);
 

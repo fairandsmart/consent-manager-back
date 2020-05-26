@@ -9,14 +9,14 @@ import javax.persistence.Lob;
 import java.io.IOException;
 
 @Embeddable
-public class ConsentElementContent {
+public class ModelContent {
 
     @Lob
     public String data;
     public String author;
-    public Class<? extends ConsentElementData> dataClass;
+    public Class<? extends ModelData> dataClass;
 
-    public ConsentElementContent() {
+    public ModelContent() {
     }
 
     public String getData() {
@@ -27,7 +27,7 @@ public class ConsentElementContent {
         this.data = data;
     }
 
-    public ConsentElementContent withData(String data) {
+    public ModelContent withData(String data) {
         this.data = data;
         return this;
     }
@@ -40,22 +40,22 @@ public class ConsentElementContent {
         this.author = author;
     }
 
-    public ConsentElementContent withAuthor(String author) {
+    public ModelContent withAuthor(String author) {
         this.author = author;
         return this;
     }
 
-    public ConsentElementData getDataObject() throws ModelDataSerializationException {
+    public ModelData getDataObject() throws ModelDataSerializationException {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ConsentElementData body = mapper.readValue(data, dataClass);
+            ModelData body = mapper.readValue(data, dataClass);
             return body;
         } catch ( JsonProcessingException e ) {
             throw new ModelDataSerializationException("Unable to deserialize element data", e);
         }
     }
 
-    public void setDataObject(ConsentElementData data) throws ModelDataSerializationException {
+    public void setDataObject(ModelData data) throws ModelDataSerializationException {
         try {
             this.dataClass = data.getClass();
             this.data = data.toJson();
@@ -64,14 +64,14 @@ public class ConsentElementContent {
         }
     }
 
-    public ConsentElementContent withDataObject(ConsentElementData data) throws ModelDataSerializationException {
+    public ModelContent withDataObject(ModelData data) throws ModelDataSerializationException {
         this.setDataObject(data);
         return this;
     }
 
     @Override
     public String toString() {
-        return "ConsentElementContent{" +
+        return "ModelContent{" +
                 "data='" + data + '\'' +
                 ", dataClass=" + dataClass +
                 '}';

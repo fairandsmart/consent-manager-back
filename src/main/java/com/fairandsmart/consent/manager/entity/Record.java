@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Entity
-public class ConsentRecord extends PanacheEntityBase {
+public class Record extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -41,7 +41,7 @@ public class ConsentRecord extends PanacheEntityBase {
 
     @Override
     public String toString() {
-        return "ConsentRecord{" +
+        return "Record{" +
                 "id=" + id +
                 ", version=" + version +
                 ", creationTimestamp=" + creationTimestamp +

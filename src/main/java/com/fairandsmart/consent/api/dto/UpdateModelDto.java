@@ -3,14 +3,14 @@ package com.fairandsmart.consent.api.dto;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class UpdateEntryDto {
+public class UpdateModelDto {
 
     @NotNull @Size(min = 2, max = 255)
     private String name;
     @Size(max = 2500)
     private String description;
 
-    public UpdateEntryDto() {
+    public UpdateModelDto() {
     }
 
     public String getName() {

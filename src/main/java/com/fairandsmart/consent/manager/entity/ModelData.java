@@ -22,7 +22,7 @@ import java.io.IOException;
         @Type(value = Treatment.class, name = Treatment.TYPE),
         @Type(value = Conditions.class, name = Conditions.TYPE)
 })
-public abstract class ConsentElementData {
+public abstract class ModelData {
 
     private String type;
 

@@ -1,12 +1,11 @@
 package com.fairandsmart.consent.usecase;
 
-import com.fairandsmart.consent.api.dto.CreateEntryDto;
-import com.fairandsmart.consent.api.dto.UpdateEntryContentDto;
-import com.fairandsmart.consent.api.dto.UpdateEntryStatusDto;
+import com.fairandsmart.consent.api.dto.CreateModelDto;
+import com.fairandsmart.consent.api.dto.ContentDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
-import com.fairandsmart.consent.manager.entity.ConsentElementEntry;
-import com.fairandsmart.consent.manager.entity.ConsentElementVersion;
+import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Treatment;
@@ -21,8 +20,8 @@ import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.omg.PortableInterceptor.ACTIVE;
 
-import javax.transaction.Transactional;
 import javax.validation.Validation;
 import java.util.*;
 import java.util.logging.Level;
@@ -47,7 +46,7 @@ public class SimpleCollectTest {
                 then().body("status", equalTo("UP"));
 
         //Create header model
-        CreateEntryDto h1 = new CreateEntryDto();
+        CreateModelDto h1 = new CreateModelDto();
         h1.setKey("h1");
         h1.setType(Header.TYPE);
         h1.setName("H1");
@@ -55,11 +54,12 @@ public class SimpleCollectTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
         Response response = given().auth().basic("sheldon", "password").
                                 contentType(ContentType.JSON).body(h1).
-                                when().post("/consents/entries");
+                                when().post("/models");
         response.then().statusCode(201).header("location", notNullValue());
-        ConsentElementEntry eh1 = response.body().as(ConsentElementEntry.class);
+        ModelEntry eh1 = response.body().as(ModelEntry.class);
 
-        UpdateEntryContentDto ch1 = new UpdateEntryContentDto();
+        //Create header model version
+        ContentDto ch1 = new ContentDto();
         ch1.setLocale("fr_FR");
         ch1.setContent(new Header()
                 .withTitle("Title h1")
@@ -67,22 +67,23 @@ public class SimpleCollectTest {
                 .withPrivacyPolicyUrl("Readmore h1")
         );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ch1).size());
-        given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(ch1).
-                when().put("/consents/entries/" + eh1.id + "/content").
-                then().statusCode(200);
+        response = given().auth().basic("sheldon", "password").
+                   contentType(ContentType.JSON).body(ch1).
+                   when().post("/models/" + eh1.id + "/versions");
+        response.then().statusCode(200);
+        ModelVersion vh1 = response.body().as(ModelVersion.class);
 
-        UpdateEntryStatusDto status = new UpdateEntryStatusDto();
-        status.setStatus(ConsentElementVersion.Status.ACTIVE);
-        status.setRevocation(ConsentElementVersion.Revocation.SUPPORTS);
-        given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(status).
-                when().put("/consents/entries/" + eh1.id + "/status").
-                then().statusCode(204);
+        //Activate header model version
+        response = given().auth().basic("sheldon", "password").
+                   contentType(ContentType.JSON).body(ModelVersion.Status.ACTIVE).
+                   when().put("/models/" + eh1.id + "/versions/" + vh1.id);
+        response.then().statusCode(200);
+        vh1 = response.body().as(ModelVersion.class);
+        assertEquals(ModelVersion.Status.ACTIVE, vh1.status);
 
 
         //Create footer model
-        CreateEntryDto f1 = new CreateEntryDto();
+        CreateModelDto f1 = new CreateModelDto();
         f1.setKey("f1");
         f1.setType(Footer.TYPE);
         f1.setName("F1");
@@ -90,32 +91,34 @@ public class SimpleCollectTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
         response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(f1).
-                when().post("/consents/entries");
+                when().post("/models");
         response.then().statusCode(201).header("location", notNullValue());
-        ConsentElementEntry ef1 = response.body().as(ConsentElementEntry.class);
+        ModelEntry ef1 = response.body().as(ModelEntry.class);
 
-        UpdateEntryContentDto cf1 = new UpdateEntryContentDto();
+        //Create footer model version
+        ContentDto cf1 = new ContentDto();
         cf1.setLocale("fr_FR");
         cf1.setContent(new Footer()
                         .withShowAcceptAll(true)
                         .withCustomAcceptAllText("J'accepte tout"));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(cf1).size());
-        given().auth().basic("sheldon", "password").
+        response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(cf1).
-                when().put("/consents/entries/" + ef1.id + "/content").
-                then().statusCode(200);
+                when().post("/models/" + ef1.id + "/versions");
+        response.then().statusCode(200);
+        ModelVersion vf1 = response.body().as(ModelVersion.class);
 
-        status = new UpdateEntryStatusDto();
-        status.setStatus(ConsentElementVersion.Status.ACTIVE);
-        status.setRevocation(ConsentElementVersion.Revocation.SUPPORTS);
-        given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(status).
-                when().put("/consents/entries/" + ef1.id + "/status").
-                then().statusCode(204);
+        //Activate footer model version
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(ModelVersion.Status.ACTIVE).
+                when().put("/models/" + ef1.id + "/versions/" + vf1.id);
+        response.then().statusCode(200);
+        vf1 = response.body().as(ModelVersion.class);
+        assertEquals(ModelVersion.Status.ACTIVE, vf1.status);
 
 
         //Create treatment 1 model
-        CreateEntryDto t1 = new CreateEntryDto();
+        CreateModelDto t1 = new CreateModelDto();
         t1.setKey("t1");
         t1.setType(Treatment.TYPE);
         t1.setName("T1");
@@ -123,11 +126,12 @@ public class SimpleCollectTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
         response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(t1).
-                when().post("/consents/entries");
+                when().post("/models");
         response.then().statusCode(201).header("location", notNullValue());
-        ConsentElementEntry et1 = response.body().as(ConsentElementEntry.class);
+        ModelEntry et1 = response.body().as(ModelEntry.class);
 
-        UpdateEntryContentDto ct1 = new UpdateEntryContentDto();
+        //Create treatment 1 model version
+        ContentDto ct1 = new ContentDto();
         ct1.setLocale("fr_FR");
         ct1.setContent(new Treatment()
                 .withTreatmentTitle("Titre du traitement t1")
@@ -137,21 +141,22 @@ public class SimpleCollectTest {
                 .withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE)
         );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ct1).size());
-        given().auth().basic("sheldon", "password").
+        response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(ct1).
-                when().put("/consents/entries/" + et1.id + "/content").
-                then().statusCode(200);
+                when().post("/models/" + et1.id + "/versions");
+        response.then().statusCode(200);
+        ModelVersion vt1 = response.body().as(ModelVersion.class);
 
-        status = new UpdateEntryStatusDto();
-        status.setStatus(ConsentElementVersion.Status.ACTIVE);
-        status.setRevocation(ConsentElementVersion.Revocation.SUPPORTS);
-        given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(status).
-                when().put("/consents/entries/" + et1.id + "/status").
-                then().statusCode(204);
+        //Activate treatment 1 model version
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(ModelVersion.Status.ACTIVE).
+                when().put("/models/" + et1.id + "/versions/" + vt1.id);
+        response.then().statusCode(200);
+        vt1 = response.body().as(ModelVersion.class);
+        assertEquals(ModelVersion.Status.ACTIVE, vt1.status);
 
 
-        CreateEntryDto t2 = new CreateEntryDto();
+        CreateModelDto t2 = new CreateModelDto();
         t2.setKey("t2");
         t2.setType(Treatment.TYPE);
         t2.setName("T2");
@@ -159,11 +164,12 @@ public class SimpleCollectTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
         response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(t2).
-                when().post("/consents/entries");
+                when().post("/models");
         response.then().statusCode(201).header("location", notNullValue());
-        ConsentElementEntry et2 = response.body().as(ConsentElementEntry.class);
+        ModelEntry et2 = response.body().as(ModelEntry.class);
 
-        UpdateEntryContentDto ct2 = new UpdateEntryContentDto();
+        //Create treatment 2 model version
+        ContentDto ct2 = new ContentDto();
         ct2.setLocale("fr_FR");
         ct2.setContent(new Treatment()
                 .withTreatmentTitle("Titre du traitement t2")
@@ -173,18 +179,19 @@ public class SimpleCollectTest {
                 .withPurpose(Treatment.Purpose.CONSENT_MARKETING)
         );
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ct2).size());
-        given().auth().basic("sheldon", "password").
+        response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(ct2).
-                when().put("/consents/entries/" + et2.id + "/content").
-                then().statusCode(200);
+                when().post("/models/" + et2.id + "/versions");
+        response.then().statusCode(200);
+        ModelVersion vt2 = response.body().as(ModelVersion.class);
 
-        status = new UpdateEntryStatusDto();
-        status.setStatus(ConsentElementVersion.Status.ACTIVE);
-        status.setRevocation(ConsentElementVersion.Revocation.SUPPORTS);
-        given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(status).
-                when().put("/consents/entries/" + et2.id + "/status").
-                then().statusCode(204);
+        //Activate treatment 1 model version
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(ModelVersion.Status.ACTIVE).
+                when().put("/models/" + et2.id + "/versions/" + vt2.id);
+        response.then().statusCode(200);
+        vt2 = response.body().as(ModelVersion.class);
+        assertEquals(ModelVersion.Status.ACTIVE, vt2.status);
 
     }
 

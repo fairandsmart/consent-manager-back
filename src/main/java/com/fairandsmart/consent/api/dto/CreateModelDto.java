@@ -5,7 +5,7 @@ import com.fairandsmart.consent.common.validation.ModelKey;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class CreateEntryDto {
+public class CreateModelDto {
 
     @NotNull @ModelKey
     private String key;
@@ -16,7 +16,7 @@ public class CreateEntryDto {
     @NotNull
     private String type;
 
-    public CreateEntryDto() {
+    public CreateModelDto() {
     }
 
     public String getKey() {

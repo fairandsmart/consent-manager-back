@@ -7,7 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 @Entity
-public class ConsentElementEntry extends PanacheEntityBase {
+public class ModelEntry extends PanacheEntityBase {
 
     @JsonIgnore
     @Transient
@@ -27,12 +27,12 @@ public class ConsentElementEntry extends PanacheEntityBase {
     public String branches;
 
     public static boolean isKeyAlreadyExistsForOwner(String owner, String key) {
-        return ConsentElementEntry.count("owner = ?1 and key = ?2", owner, key) > 0;
+        return ModelEntry.count("owner = ?1 and key = ?2", owner, key) > 0;
     }
 
     @Override
     public String toString() {
-        return "ConsentElementEntry{" +
+        return "ModelEntry{" +
                 "id=" + id +
                 ", version=" + version +
                 ", type=" + type +

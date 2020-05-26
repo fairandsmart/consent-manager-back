@@ -1,7 +1,7 @@
 package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.entity.ConsentRecord;
+import com.fairandsmart.consent.manager.entity.Record;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -29,9 +29,9 @@ public class Receipt {
     private List<NameValuePair> subjectDetails;
     private Controller dataController;
     private String headerNotice;
-    @XmlElementWrapper(name="records")
-    @XmlElement(name="record")
-    private List<Record> records;
+    @XmlElementWrapper(name="consents")
+    @XmlElement(name="consent")
+    private List<Consent> consents;
     private String footerNotice;
     @XmlElementWrapper(name="attributes")
     @XmlElement(name="attribute")
@@ -43,7 +43,7 @@ public class Receipt {
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
-        records = new ArrayList<>();
+        consents = new ArrayList<>();
         attributes = new ArrayList<>();
         attachments = new ArrayList<>();
     }
@@ -120,12 +120,12 @@ public class Receipt {
         this.headerNotice = headerNotice;
     }
 
-    public List<Record> getRecords() {
-        return records;
+    public List<Consent> getConsents() {
+        return consents;
     }
 
-    public void setRecords(List<Record> records) {
-        this.records = records;
+    public void setConsents(List<Consent> consents) {
+        this.consents = consents;
     }
 
     public String getFooterNotice() {
@@ -180,7 +180,7 @@ public class Receipt {
     }
 
 
-    public static Receipt build(String transaction, String processor, long timestamp, ConsentContext ctx, Header header, Footer footer, Map<Treatment, ConsentRecord> records) {
+    public static Receipt build(String transaction, String processor, long timestamp, ConsentContext ctx, Header header, Footer footer, Map<Treatment, Record> records) {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
         receipt.setLocale(ctx.getLocale());
@@ -194,8 +194,8 @@ public class Receipt {
         receipt.setPrivacyPolicyUrl(header.getPrivacyPolicyUrl());
         receipt.setHeaderNotice(header.getTitle() + " " + header.getBody());
         receipt.setFooterNotice(footer.getBody());
-        for ( Map.Entry<Treatment, ConsentRecord> record : records.entrySet() ) {
-            Record trecord = new Record();
+        for ( Map.Entry<Treatment, Record> record : records.entrySet() ) {
+            Consent trecord = new Consent();
             trecord.setSerial(record.getValue().serial);
             trecord.setData(record.getKey().getDataBody());
             trecord.setRetention(record.getKey().getRetentionBody());
@@ -204,7 +204,7 @@ public class Receipt {
             trecord.setController(record.getKey().getDataController());
             trecord.setValue(record.getValue().value);
             //TODO include specific treatment sharing information
-            receipt.getRecords().add(trecord);
+            receipt.getConsents().add(trecord);
         }
         return receipt;
     }

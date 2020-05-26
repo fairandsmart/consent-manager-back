@@ -1,8 +1,8 @@
 package com.fairandsmart.consent.manager.model;
 
-import com.fairandsmart.consent.manager.entity.ConsentElementData;
+import com.fairandsmart.consent.manager.entity.ModelData;
 
-public class Conditions extends ConsentElementData {
+public class Conditions extends ModelData {
 
     public static final String TYPE = "conditions";
 
