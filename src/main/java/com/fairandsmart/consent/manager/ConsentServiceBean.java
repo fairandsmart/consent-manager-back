@@ -386,6 +386,8 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
+            List<Record> previousConsents = listRecords(ctx);
+
             ConsentForm form = new ConsentForm();
             form.setLocale(ctx.getLocale());
             form.setOrientation(ctx.getOrientation());
@@ -397,6 +399,8 @@ public class ConsentServiceBean implements ConsentService {
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
                 ModelVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
+                previousConsents.stream().filter(record -> record.body.equals(element.serial)).findFirst()
+                        .ifPresent(record -> form.addPreviousValue(element.serial, record.value));
                 form.addElement(element);
                 elementsIdentifiers.add(element.getIdentifier().serialize());
             }
@@ -469,10 +473,37 @@ public class ConsentServiceBean implements ConsentService {
             } else {
                 return null;
             }
-        } catch (TokenServiceException | EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException e ) {
+        } catch (TokenServiceException | EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException e) {
             //TODO rollback transaction
             throw new ConsentServiceException("Unable to submit consent", e);
         }
+    }
+
+    @Override
+    public List<Record> listRecords(ConsentContext ctx) {
+        LOGGER.log(Level.INFO, "Listing records");
+        List<Record> records = new ArrayList<>();
+
+        try {
+            ModelVersion headerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            ModelVersion footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+
+            for (String elementKey : ctx.getElements()) {
+                ModelVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
+                Record.find(
+                        "subject = ?1 and head = ?2 and body = ?3 and foot = ?4",
+                        ctx.getSubject(),
+                        headerVersion.serial,
+                        elementVersion.serial,
+                        footerVersion.serial
+                ).stream().forEach(r -> records.add((Record) r));
+            }
+        } catch (EntityNotFoundException e) {
+            LOGGER.log(Level.WARNING, "Entity not found exception: " + e.getMessage());
+        }
+
+        LOGGER.log(Level.INFO, "Found " + records.size() + " record(s)");
+        return records;
     }
 
     /* INTERNAL */

@@ -12,17 +12,17 @@ public class Treatment extends ModelData {
     public static final String TYPE = "treatment";
 
     // Main text
-    public String treatmentTitle;
-    public String dataTitle;
-    public String dataBody;
-    public String retentionTitle;
-    public String retentionBody;
-    public String usageTitle;
-    public String usageBody;
-    public List<Purpose> purposes;
+    private String treatmentTitle;
+    private String dataTitle;
+    private String dataBody;
+    private String retentionTitle;
+    private String retentionBody;
+    private String usageTitle;
+    private String usageBody;
+    private List<Purpose> purposes;
     // Sensitive data
-    public boolean containsSensitiveData = false;
-    public boolean containsMedicalData = false;
+    private boolean containsSensitiveData = false;
+    private boolean containsMedicalData = false;
     // Data controller
     private Controller dataController;
     private boolean showDataController = true;

@@ -5,7 +5,9 @@
         <#-- Header -->
         <div class="treatment-header">
             <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>
-            <@toggleSwitch "${element.identifier}"></@toggleSwitch>
+
+            <#assign isChecked=(data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted")>
+            <@toggleSwitch "${element.identifier}" isChecked></@toggleSwitch>
         </div>
 
         <#-- Data -->

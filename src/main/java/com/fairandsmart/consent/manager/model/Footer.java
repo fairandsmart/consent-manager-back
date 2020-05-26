@@ -8,7 +8,7 @@ public class Footer extends ModelData {
 
     private String body;
     private boolean showAcceptAll = false;
-    private String customAcceptAllText; /* Version par défaut dans le bundle */
+    private String customAcceptAllText;
 
     public Footer() {
         this.setType(TYPE);

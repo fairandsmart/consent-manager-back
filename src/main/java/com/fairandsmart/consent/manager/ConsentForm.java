@@ -3,7 +3,9 @@ package com.fairandsmart.consent.manager;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ConsentForm {
 
@@ -13,9 +15,11 @@ public class ConsentForm {
     private ModelVersion footer;
     private String locale;
     private Orientation orientation;
+    private Map<String, String> previousValues;
 
     public ConsentForm() {
         elements = new ArrayList<>();
+        previousValues = new HashMap<>();
     }
 
     public String getToken() {
@@ -68,6 +72,18 @@ public class ConsentForm {
 
     public void setOrientation(Orientation orientation) {
         this.orientation = orientation;
+    }
+
+    public Map<String, String> getPreviousValues() {
+        return previousValues;
+    }
+
+    public void setPreviousValues(Map<String, String> previousValues) {
+        this.previousValues = previousValues;
+    }
+
+    public void addPreviousValue(String key, String value) {
+        this.previousValues.put(key, value);
     }
 
     @Override
