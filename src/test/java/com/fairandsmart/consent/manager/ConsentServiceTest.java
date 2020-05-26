@@ -224,7 +224,7 @@ public class ConsentServiceTest {
         String readToken = service.buildToken(readCtx); // TODO : actuellement, il faut changer la valeur de consent.security.auth.unauthenticated en sheldon ; cf le TODO de buildToken
 
         LOGGER.log(Level.INFO, "Reading consent records before submit");
-        List<Record> records = service.listRecords(readCtx);
+        List<Record> records = service.listRecordsFromContext(readCtx);
         assertEquals(0, records.size());
 
         LOGGER.log(Level.INFO, "First consent form");
@@ -252,7 +252,7 @@ public class ConsentServiceTest {
         service.submitConsent(postToken, values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
-        records = service.listRecords(readCtx);
+        records = service.listRecordsFromContext(readCtx);
         assertEquals(2, records.size());
         assertEquals(1, records.stream().filter(r -> r.body.equals(vt1.serial)).count());
         assertEquals(1, records.stream().filter(r -> r.body.equals(vt2.serial)).count());

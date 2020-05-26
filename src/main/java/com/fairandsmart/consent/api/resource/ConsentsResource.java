@@ -1,9 +1,12 @@
 package com.fairandsmart.consent.api.resource;
 
+import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.*;
+import com.fairandsmart.consent.manager.entity.Record;
+import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
@@ -15,8 +18,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,9 +46,9 @@ public class ConsentsResource {
         LOGGER.log(Level.INFO, "GET /consents");
 
         String token;
-        if ( htoken != null && !htoken.isEmpty() ) {
+        if (htoken != null && !htoken.isEmpty()) {
             token = htoken;
-        } else if ( qtoken != null && !qtoken.isEmpty() ) {
+        } else if (qtoken != null && !qtoken.isEmpty()) {
             token = qtoken;
         } else {
             throw new AccessDeniedException("Unable to find token neither in header nor as query param");
@@ -73,7 +75,7 @@ public class ConsentsResource {
     public TemplateModel postConsent(Map<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
 
-        if ( !values.containsKey("token") ) {
+        if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
         }
         Receipt receipt = consentService.submitConsent(values.get("token"), values);
@@ -86,6 +88,21 @@ public class ConsentsResource {
         model.setTemplate("receipt.ftl");
         LOGGER.log(Level.INFO, model.toString());
         return model;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/records")
+    public CollectionPage<Record> listRecords(
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("25") int size,
+            @QueryParam("query") String query) {
+        LOGGER.log(Level.INFO, "GET /records");
+        RecordFilter filter = new RecordFilter();
+        filter.setPage(page);
+        filter.setSize(size);
+        filter.setQuery(query);
+        return consentService.listRecords(filter);
     }
 
 }

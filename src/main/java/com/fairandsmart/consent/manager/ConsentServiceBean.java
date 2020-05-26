@@ -7,6 +7,7 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
+import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Receipt;
@@ -94,13 +95,13 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ModelEntry getEntry(String id) throws EntityNotFoundException {
+    public ModelEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Getting entry for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         if ( !entry.owner.equals(connectedIdentifier) ) {
-            new AccessDeniedException("access denied to version with id: " + id);
+            throw new AccessDeniedException("access denied to version with id: " + id);
         }
         return entry;
     }
@@ -397,7 +398,7 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
-            List<Record> previousConsents = listRecords(ctx);
+            List<Record> previousConsents = listRecordsFromContext(ctx);
 
             ConsentForm form = new ConsentForm();
             form.setLocale(ctx.getLocale());
@@ -491,7 +492,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public List<Record> listRecords(ConsentContext ctx) {
+    public List<Record> listRecordsFromContext(ConsentContext ctx) {
         LOGGER.log(Level.INFO, "Listing records");
         List<Record> records = new ArrayList<>();
 
@@ -508,6 +509,24 @@ public class ConsentServiceBean implements ConsentService {
 
         LOGGER.log(Level.INFO, "Found " + records.size() + " record(s)");
         return records;
+    }
+
+    @Override
+    public CollectionPage<Record> listRecords(RecordFilter filter) {
+        LOGGER.log(Level.INFO, "Listing records");
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        PanacheQuery<Record> query = Record.find(
+                "owner = ?1 and subject like ?2 and status = ?3",
+                connectedIdentifier,
+                "*" + filter.getQuery() + "*",
+                Record.Status.COMMITTED);
+        CollectionPage<Record> result = new CollectionPage<>();
+        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
+        result.setPageSize(filter.getSize());
+        result.setPage(filter.getPage());
+        result.setTotalPages(query.pageCount());
+        result.setTotalCount(query.count());
+        return result;
     }
 
     /* INTERNAL */
