@@ -76,7 +76,7 @@ public class ModelsResource {
     @GET
     @Path("/{id}/versions")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ModelVersion> listEntryVersions(@PathParam("id") @Valid @UUID String id) throws ConsentManagerException {
+    public List<ModelVersion> listVersions(@PathParam("id") @Valid @UUID String id) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions");
         return consentService.getVersionHistoryForEntry(id);
     }

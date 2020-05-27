@@ -67,7 +67,7 @@ public class ConsentServiceBean implements ConsentService {
         String connectedIdentifier = authentication.getConnectedIdentifier();
         PanacheQuery<ModelEntry> query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());
         CollectionPage<ModelEntry> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).firstPage().list());
+        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
         result.setTotalPages(query.pageCount());
@@ -522,7 +522,7 @@ public class ConsentServiceBean implements ConsentService {
                 "%" + filter.getQuery() + "%",
                 Record.Status.COMMITTED);
         CollectionPage<Record> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).firstPage().list());
+        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
         result.setTotalPages(query.pageCount());
