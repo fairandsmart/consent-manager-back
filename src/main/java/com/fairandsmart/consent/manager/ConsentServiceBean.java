@@ -67,7 +67,7 @@ public class ConsentServiceBean implements ConsentService {
         String connectedIdentifier = authentication.getConnectedIdentifier();
         PanacheQuery<ModelEntry> query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());
         CollectionPage<ModelEntry> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
+        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).firstPage().list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
         result.setTotalPages(query.pageCount());
@@ -232,13 +232,13 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ModelVersion getVersion(String id) throws EntityNotFoundException {
+    public ModelVersion getVersion(String id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Finding version for id: " + id);
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelVersion> optional = ModelVersion.findByIdOptional(id);
         ModelVersion version = optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for id: " + id));
         if ( !version.owner.equals(connectedIdentifier) ) {
-            new AccessDeniedException("access denied to version with id: " + id);
+            throw new AccessDeniedException("access denied to version with id: " + id);
         }
         return version;
     }
@@ -476,6 +476,7 @@ public class ConsentServiceBean implements ConsentService {
                         Treatment t = (Treatment) systemFindModelVersionForSerial(r.body).getData(ctx.getLocale());
                         trecords.put(t, r);
                     } catch (EntityNotFoundException | ModelDataSerializationException e) {
+                        //
                     }
                 });
                 Receipt receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
@@ -518,10 +519,10 @@ public class ConsentServiceBean implements ConsentService {
         PanacheQuery<Record> query = Record.find(
                 "owner = ?1 and subject like ?2 and status = ?3",
                 connectedIdentifier,
-                "*" + filter.getQuery() + "*",
+                "%" + filter.getQuery() + "%",
                 Record.Status.COMMITTED);
         CollectionPage<Record> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
+        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).firstPage().list());
         result.setPageSize(filter.getSize());
         result.setPage(filter.getPage());
         result.setTotalPages(query.pageCount());
@@ -533,12 +534,12 @@ public class ConsentServiceBean implements ConsentService {
 
     private ModelVersion systemFindActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
         Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
-        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key));
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key + " and owner: " + owner));
     }
 
     private ModelVersion systemFindActiveVersionByEntryId(String owner, String entryId) throws EntityNotFoundException {
         Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and status = ?3", owner, entryId, ModelVersion.Status.ACTIVE).singleResultOptional();
-        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId));
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId + " and owner: " + owner));
     }
 
     private ModelVersion systemFindModelVersionForSerial(String serial) throws EntityNotFoundException {
@@ -559,7 +560,7 @@ public class ConsentServiceBean implements ConsentService {
         if ( ctx.getFooter() != null && !ctx.getFooter().isEmpty() && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter())) ) {
             throw new InvalidConsentException("submitted footer incoherency, expected: " + ctx.getFooter() + " got: " + values.get("footer"));
         }
-        Map<String, String> submittedElementValues = values.entrySet().stream().filter(e -> e.getKey().startsWith("element")).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+        Map<String, String> submittedElementValues = values.entrySet().stream().filter(e -> e.getKey().startsWith("element")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         if ( !new HashSet<>(ctx.getElements()).equals(submittedElementValues.keySet()) ) {
             throw new InvalidConsentException("submitted elements incoherency");
         }

@@ -56,7 +56,7 @@ public class ConsentsResource {
 
         ConsentForm form = consentService.generateForm(token);
 
-        TemplateModel<ConsentForm> model = new TemplateModel();
+        TemplateModel<ConsentForm> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(form.getLocale()));
         ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
         model.setBundle(bundle);
@@ -72,7 +72,7 @@ public class ConsentsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel postConsent(Map<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
+    public TemplateModel<Receipt> postConsent(Map<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
 
         if (!values.containsKey("token")) {
@@ -80,7 +80,7 @@ public class ConsentsResource {
         }
         Receipt receipt = consentService.submitConsent(values.get("token"), values);
 
-        TemplateModel model = new TemplateModel();
+        TemplateModel<Receipt> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
         ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
         model.setBundle(bundle);
@@ -91,12 +91,12 @@ public class ConsentsResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/records")
+    @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<Record> listRecords(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("25") int size,
-            @QueryParam("query") String query) {
+            @QueryParam("query") @DefaultValue("") String query) {
         LOGGER.log(Level.INFO, "GET /records");
         RecordFilter filter = new RecordFilter();
         filter.setPage(page);

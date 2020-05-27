@@ -14,7 +14,6 @@ import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Treatment;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenServiceException;
 import io.quarkus.test.junit.QuarkusTest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;

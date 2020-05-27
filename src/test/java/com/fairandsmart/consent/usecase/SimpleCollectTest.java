@@ -55,7 +55,7 @@ public class SimpleCollectTest {
         Response response = given().auth().basic("sheldon", "password").
                                 contentType(ContentType.JSON).body(h1).
                                 when().post("/models");
-        response.then().statusCode(201).header("location", notNullValue());
+        response.then().statusCode(200);
         ModelEntry eh1 = response.body().as(ModelEntry.class);
 
         //Create header model version
@@ -75,8 +75,8 @@ public class SimpleCollectTest {
 
         //Activate header model version
         response = given().auth().basic("sheldon", "password").
-                   contentType(ContentType.JSON).body(ModelVersion.Status.ACTIVE).
-                   when().put("/models/" + eh1.id + "/versions/" + vh1.id);
+                   contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
+                   when().put("/models/" + eh1.id + "/versions/" + vh1.id + "/status");
         response.then().statusCode(200);
         vh1 = response.body().as(ModelVersion.class);
         assertEquals(ModelVersion.Status.ACTIVE, vh1.status);
@@ -92,7 +92,7 @@ public class SimpleCollectTest {
         response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(f1).
                 when().post("/models");
-        response.then().statusCode(201).header("location", notNullValue());
+        response.then().statusCode(200);
         ModelEntry ef1 = response.body().as(ModelEntry.class);
 
         //Create footer model version
@@ -110,8 +110,8 @@ public class SimpleCollectTest {
 
         //Activate footer model version
         response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(ModelVersion.Status.ACTIVE).
-                when().put("/models/" + ef1.id + "/versions/" + vf1.id);
+                contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
+                when().put("/models/" + ef1.id + "/versions/" + vf1.id + "/status");
         response.then().statusCode(200);
         vf1 = response.body().as(ModelVersion.class);
         assertEquals(ModelVersion.Status.ACTIVE, vf1.status);
@@ -127,7 +127,7 @@ public class SimpleCollectTest {
         response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(t1).
                 when().post("/models");
-        response.then().statusCode(201).header("location", notNullValue());
+        response.then().statusCode(200);
         ModelEntry et1 = response.body().as(ModelEntry.class);
 
         //Create treatment 1 model version
@@ -149,13 +149,14 @@ public class SimpleCollectTest {
 
         //Activate treatment 1 model version
         response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(ModelVersion.Status.ACTIVE).
-                when().put("/models/" + et1.id + "/versions/" + vt1.id);
+                contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
+                when().put("/models/" + et1.id + "/versions/" + vt1.id + "/status");
         response.then().statusCode(200);
         vt1 = response.body().as(ModelVersion.class);
         assertEquals(ModelVersion.Status.ACTIVE, vt1.status);
 
 
+        //Create treatment 2 model
         CreateModelDto t2 = new CreateModelDto();
         t2.setKey("t2");
         t2.setType(Treatment.TYPE);
@@ -165,7 +166,7 @@ public class SimpleCollectTest {
         response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.JSON).body(t2).
                 when().post("/models");
-        response.then().statusCode(201).header("location", notNullValue());
+        response.then().statusCode(200);
         ModelEntry et2 = response.body().as(ModelEntry.class);
 
         //Create treatment 2 model version
@@ -187,12 +188,11 @@ public class SimpleCollectTest {
 
         //Activate treatment 1 model version
         response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(ModelVersion.Status.ACTIVE).
-                when().put("/models/" + et2.id + "/versions/" + vt2.id);
+                contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
+                when().put("/models/" + et2.id + "/versions/" + vt2.id + "/status");
         response.then().statusCode(200);
         vt2 = response.body().as(ModelVersion.class);
         assertEquals(ModelVersion.Status.ACTIVE, vt2.status);
-
     }
 
     /**
@@ -257,8 +257,7 @@ public class SimpleCollectTest {
             if (form.id().equals("consent")) {
                 values = form.formData().stream().collect(Collectors.toMap(Connection.KeyVal::key, Connection.KeyVal::value));
                 Elements formElements = form.elements();
-                for (Iterator<Element> i = formElements.iterator(); i.hasNext(); ) {
-                    Element element = i.next();
+                for (Element element : formElements) {
                     // TODO : simplifier ?? ou pas la peine ?
                     if (element.tagName().equals("select")) {
                         Element option = element.children().first();

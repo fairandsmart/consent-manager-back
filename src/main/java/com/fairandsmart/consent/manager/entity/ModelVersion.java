@@ -3,14 +3,15 @@ package com.fairandsmart.consent.manager.entity;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.manager.ConsentElementIdentifier;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ModelVersion extends PanacheEntityBase {
 
     @Id
@@ -55,7 +56,7 @@ public class ModelVersion extends PanacheEntityBase {
         }
         if ( !locales.contains(locale) ) {
             locales.add(locale);
-            availableLocales = locales.stream().collect(Collectors.joining(","));
+            availableLocales = String.join(",", locales);
         }
     }
 
@@ -68,7 +69,7 @@ public class ModelVersion extends PanacheEntityBase {
         }
         if ( !cp.contains(counterpart) ) {
             cp.add(counterpart);
-            counterparts = cp.stream().collect(Collectors.joining(","));
+            counterparts = String.join(",", cp);
         }
     }
 

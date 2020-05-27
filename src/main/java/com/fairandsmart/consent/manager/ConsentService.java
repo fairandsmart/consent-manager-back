@@ -44,7 +44,7 @@ public interface ConsentService {
 
     ModelVersion findVersionForSerial(String serial) throws EntityNotFoundException;
 
-    ModelVersion getVersion(String versionId) throws EntityNotFoundException;
+    ModelVersion getVersion(String versionId) throws EntityNotFoundException, AccessDeniedException;
 
     List<ModelVersion> getVersionHistoryForKey(String key) throws ConsentManagerException;
 

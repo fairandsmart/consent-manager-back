@@ -112,7 +112,7 @@ public class ModelsResource {
     @GET
     @Path("/{id}/versions/{vid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelVersion getVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException {
+    public ModelVersion getVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid);
         return consentService.getVersion(vid);
     }
