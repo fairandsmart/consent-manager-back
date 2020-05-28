@@ -33,8 +33,8 @@ public class ConsentsResource {
     @POST
     @Path("/token")
     @RolesAllowed("admin")
-    @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public String generateToken(@Context SecurityContext sec, ConsentContext ctx) {
         LOGGER.log(Level.INFO, "POST /consents/token");
         return consentService.buildToken(ctx);

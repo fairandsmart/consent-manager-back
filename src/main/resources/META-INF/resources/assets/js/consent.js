@@ -1,5 +1,3 @@
-console.log("todo");
-
 /* Gestion du bouton "Tout accepter" */
 var acceptAll = document.getElementById("accept-all-switch");
 const hasAcceptAll = acceptAll != null && acceptAll != undefined;
