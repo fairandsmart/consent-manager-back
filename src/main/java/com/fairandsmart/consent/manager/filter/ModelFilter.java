@@ -7,6 +7,8 @@ public class ModelFilter {
     private List<String> types;
     private int page;
     private int size;
+    private String order;
+    private String direction;
 
     public ModelFilter() {
     }
@@ -50,12 +52,40 @@ public class ModelFilter {
         return this;
     }
 
+    public String getOrder() {
+        return order;
+    }
+
+    public void setOrder(String order) {
+        this.order = order;
+    }
+
+    public ModelFilter withOrder(String order) {
+        this.order = order;
+        return this;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
+
+    public ModelFilter withDirection(String direction) {
+        this.direction = direction;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "ModelFilter{" +
                 "types=" + types +
                 ", page=" + page +
                 ", size=" + size +
+                ", order='" + order + '\'' +
+                ", direction='" + direction + '\'' +
                 '}';
     }
 }

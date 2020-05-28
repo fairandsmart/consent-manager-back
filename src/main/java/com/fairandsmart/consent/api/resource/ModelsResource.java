@@ -40,11 +40,15 @@ public class ModelsResource {
     public CollectionPage<ModelEntry> listEntries(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("25") int size,
+            @QueryParam("order") @DefaultValue("key") String order,
+            @QueryParam("direction") @DefaultValue("asc") String direction,
             @QueryParam("types") List<String> types) {
         LOGGER.log(Level.INFO, "GET /models");
         ModelFilter filter = new ModelFilter();
         filter.setPage(page);
         filter.setSize(size);
+        filter.setOrder(order);
+        filter.setDirection(direction);
         filter.setTypes(types);
         return consentService.listEntries(filter);
     }

@@ -24,6 +24,7 @@ import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -65,7 +66,14 @@ public class ConsentServiceBean implements ConsentService {
     public CollectionPage<ModelEntry> listEntries(ModelFilter filter) {
         LOGGER.log(Level.INFO, "Listing models entries");
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        PanacheQuery<ModelEntry> query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());
+        PanacheQuery<ModelEntry> query;
+        if (!filter.getOrder().isEmpty()) {
+            Sort.Direction direction = filter.getDirection().equalsIgnoreCase("desc") ? Sort.Direction.Descending : Sort.Direction.Ascending;
+            Sort sort = Sort.by(filter.getOrder(), direction);
+            query = ModelEntry.find("owner = ?1 and type in ?2", sort, connectedIdentifier, filter.getTypes());
+        } else {
+            query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());
+        }
         CollectionPage<ModelEntry> result = new CollectionPage<>();
         result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
         result.setPageSize(filter.getSize());
@@ -565,4 +573,5 @@ public class ConsentServiceBean implements ConsentService {
             throw new InvalidConsentException("submitted elements incoherency");
         }
     }
+
 }
