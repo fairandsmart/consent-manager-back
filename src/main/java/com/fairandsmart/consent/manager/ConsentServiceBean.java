@@ -186,15 +186,15 @@ public class ConsentServiceBean implements ConsentService {
                 newversion.creationDate = now;
                 newversion.status = ModelVersion.Status.DRAFT;
                 newversion.serial = generator.next(ModelVersion.class.getName());
-                newversion.parent = latest.serial;
+                newversion.parent = latest.id;
                 newversion.defaultLocale = latest.defaultLocale;
                 newversion.availableLocales = latest.availableLocales;
-                newversion.content = latest.content;
+                newversion.content.putAll(latest.content);
                 newversion.counterparts = latest.counterparts;
                 newversion.type = ModelVersion.Type.MINOR;
                 newversion.addCounterpart(latest.serial);
 
-                latest.child = newversion.serial;
+                latest.child = newversion.id;
                 latest.persist();
                 latest = newversion;
             }
