@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.SecurityContext;
 import java.util.*;
 import java.util.logging.Level;
@@ -70,15 +71,15 @@ public class ConsentsResource {
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<Receipt> postConsent(Map<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
+    public TemplateModel<Receipt> postConsent(MultivaluedMap<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
 
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
         }
-        Receipt receipt = consentService.submitConsent(values.get("token"), values);
+        Receipt receipt = consentService.submitConsent(values.get("token").get(0), values);
 
         TemplateModel<Receipt> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));

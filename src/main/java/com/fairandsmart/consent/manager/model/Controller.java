@@ -2,7 +2,7 @@ package com.fairandsmart.consent.manager.model;
 
 public class Controller {
 
-    private boolean actingBehalfCompany;
+    private boolean actingBehalfCompany = false;
     private String company;
     private String name;
     private String address;

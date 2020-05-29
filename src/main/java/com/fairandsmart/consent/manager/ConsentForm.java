@@ -16,6 +16,7 @@ public class ConsentForm {
     private String locale;
     private Orientation orientation;
     private Map<String, String> previousValues;
+    private boolean preview;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -86,6 +87,14 @@ public class ConsentForm {
         this.previousValues.put(key, value);
     }
 
+    public boolean isPreview() {
+        return preview;
+    }
+
+    public void setPreview(boolean preview) {
+        this.preview = preview;
+    }
+
     @Override
     public String toString() {
         return "ConsentForm{" +
@@ -95,6 +104,7 @@ public class ConsentForm {
                 ", footer=" + footer +
                 ", locale='" + locale + '\'' +
                 ", orientation=" + orientation +
+                ", preview=" + preview +
                 '}';
     }
 

@@ -31,6 +31,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
 import java.time.Instant;
 import java.time.Period;
@@ -411,6 +412,7 @@ public class ConsentServiceBean implements ConsentService {
             ConsentForm form = new ConsentForm();
             form.setLocale(ctx.getLocale());
             form.setOrientation(ctx.getOrientation());
+            form.setPreview(ctx.isPreview());
 
             ModelVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
             form.setHeader(header);
@@ -439,7 +441,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Receipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
+    public Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidConsentException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
         LOGGER.log(Level.INFO, "Submitting consent");
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
@@ -451,7 +453,7 @@ public class ConsentServiceBean implements ConsentService {
             ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
             ConsentElementIdentifier footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
             List<Record> records = new ArrayList<>();
-            for (Map.Entry<String, String> value : values.entrySet()) {
+            for (MultivaluedMap.Entry<String, List<String>> value : values.entrySet()) {
                 try {
                     ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(value.getKey());
                     Record record = new Record();
@@ -463,7 +465,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.body = bodyId.getSerial();
                     record.foot = footId.getSerial();
                     record.serial = headId.getSerial() + "." + bodyId.getSerial() + "." + footId.getSerial();
-                    record.value = value.getValue();
+                    record.value = value.getValue().get(0);
                     record.creationTimestamp = now.toEpochMilli();
                     record.expirationTimestamp = now.plus(Period.ofWeeks(52)).toEpochMilli();
                     record.status = Record.Status.COMMITTED;
@@ -555,20 +557,22 @@ public class ConsentServiceBean implements ConsentService {
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
     }
 
-    private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
+    private void checkValuesCoherency(ConsentContext ctx, MultivaluedMap<String, String> values) throws InvalidConsentException {
         if ( ctx.getHeader() == null && values.containsKey("header") ) {
-            throw new InvalidConsentException("submitted header incoherency, expected: null got: " + values.get("header"));
+            throw new InvalidConsentException("submitted header incoherency, expected: null got: " + values.get("header").get(0));
         }
-        if ( ctx.getHeader() != null && !ctx.getHeader().isEmpty() && (!values.containsKey("header") || !values.get("header").equals(ctx.getHeader())) ) {
-            throw new InvalidConsentException("submitted header incoherency, expected: " + ctx.getHeader() + " got: " + values.get("header"));
+        if ( ctx.getHeader() != null && !ctx.getHeader().isEmpty() && (!values.containsKey("header") || !values.get("header").get(0).equals(ctx.getHeader())) ) {
+            throw new InvalidConsentException("submitted header incoherency, expected: " + ctx.getHeader() + " got: " + values.get("header").get(0));
         }
         if ( ctx.getFooter() == null && values.containsKey("footer") ) {
-            throw new InvalidConsentException("submitted footer incoherency, expected: null got: " + values.get("footer"));
+            throw new InvalidConsentException("submitted footer incoherency, expected: null got: " + values.get("footer").get(0));
         }
-        if ( ctx.getFooter() != null && !ctx.getFooter().isEmpty() && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter())) ) {
-            throw new InvalidConsentException("submitted footer incoherency, expected: " + ctx.getFooter() + " got: " + values.get("footer"));
+        if ( ctx.getFooter() != null && !ctx.getFooter().isEmpty() && (!values.containsKey("footer") || !values.get("footer").get(0).equals(ctx.getFooter())) ) {
+            throw new InvalidConsentException("submitted footer incoherency, expected: " + ctx.getFooter() + " got: " + values.get("footer").get(0));
         }
-        Map<String, String> submittedElementValues = values.entrySet().stream().filter(e -> e.getKey().startsWith("element")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, String> submittedElementValues = values.entrySet().stream()
+                .filter(e -> e.getKey().startsWith("element"))
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0)));
         if ( !new HashSet<>(ctx.getElements()).equals(submittedElementValues.keySet()) ) {
             throw new InvalidConsentException("submitted elements incoherency");
         }

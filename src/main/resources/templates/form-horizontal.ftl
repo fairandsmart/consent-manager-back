@@ -17,8 +17,8 @@
 </head>
 
 <body>
-    <form method="post" id="consent" action="">
-        <input name="token" value="${data.token}" hidden/>
+    <form method="post" id="consent" action="#" class="consent_form">
+        <input name="token" id="token" value="${data.token}" hidden/>
 
         <div class="left">
             <#include "logo.ftl">
@@ -30,7 +30,7 @@
 
         <div class="right">
             <div class="close-wrapper">
-                <button class="close-btn">×</button>
+                <button type="button" class="close-btn">×</button>
             </div>
 
             <div class="content-fade"></div>

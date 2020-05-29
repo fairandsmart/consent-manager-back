@@ -23,6 +23,10 @@
     </#if>
 
     <div class="submit-container">
-        <button type="submit" class="submit"><@readBundle "submit" "missingValue"></@readBundle></button>
+        <#if data.preview>
+            <button type="submit" class="submit" disabled><@readBundle "submit" "missingValue"></@readBundle></button>
+        <#else>
+            <button type="submit" class="submit" (click)="submitConsent()"><@readBundle "submit" "missingValue"></@readBundle></button>
+        </#if>
     </div>
 </div>
