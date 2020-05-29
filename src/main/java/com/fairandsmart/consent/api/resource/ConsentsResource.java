@@ -4,6 +4,7 @@ import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
@@ -14,6 +15,7 @@ import org.apache.commons.lang3.LocaleUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -97,12 +99,16 @@ public class ConsentsResource {
     public CollectionPage<Record> listRecords(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("25") int size,
-            @QueryParam("query") @DefaultValue("") String query) {
+            @QueryParam("query") @DefaultValue("") String query,
+            @QueryParam("order") @DefaultValue("id") String order,
+            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
         LOGGER.log(Level.INFO, "GET /records");
         RecordFilter filter = new RecordFilter();
         filter.setPage(page);
         filter.setSize(size);
         filter.setQuery(query);
+        filter.setOrder(order);
+        filter.setDirection(direction);
         return consentService.listRecords(filter);
     }
 

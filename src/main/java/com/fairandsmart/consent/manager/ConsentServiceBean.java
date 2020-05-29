@@ -186,15 +186,15 @@ public class ConsentServiceBean implements ConsentService {
                 newversion.creationDate = now;
                 newversion.status = ModelVersion.Status.DRAFT;
                 newversion.serial = generator.next(ModelVersion.class.getName());
-                newversion.parent = latest.serial;
+                newversion.parent = latest.id;
                 newversion.defaultLocale = latest.defaultLocale;
                 newversion.availableLocales = latest.availableLocales;
-                newversion.content = latest.content;
+                newversion.content.putAll(latest.content);
                 newversion.counterparts = latest.counterparts;
                 newversion.type = ModelVersion.Type.MINOR;
                 newversion.addCounterpart(latest.serial);
 
-                latest.child = newversion.serial;
+                latest.child = newversion.id;
                 latest.persist();
                 latest = newversion;
             }
@@ -526,11 +526,22 @@ public class ConsentServiceBean implements ConsentService {
     public CollectionPage<Record> listRecords(RecordFilter filter) {
         LOGGER.log(Level.INFO, "Listing records");
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        PanacheQuery<Record> query = Record.find(
-                "owner = ?1 and subject like ?2 and status = ?3",
-                connectedIdentifier,
-                "%" + filter.getQuery() + "%",
-                Record.Status.COMMITTED);
+        PanacheQuery<Record> query;
+        Sort sort = SortUtil.fromFilter(filter);
+        if (sort != null) {
+            query = Record.find(
+                    "owner = ?1 and subject like ?2 and status = ?3",
+                    sort,
+                    connectedIdentifier,
+                    "%" + filter.getQuery() + "%",
+                    Record.Status.COMMITTED);
+        } else {
+            query = Record.find(
+                    "owner = ?1 and subject like ?2 and status = ?3",
+                    connectedIdentifier,
+                    "%" + filter.getQuery() + "%",
+                    Record.Status.COMMITTED);
+        }
         CollectionPage<Record> result = new CollectionPage<>();
         result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
         result.setPageSize(filter.getSize());
