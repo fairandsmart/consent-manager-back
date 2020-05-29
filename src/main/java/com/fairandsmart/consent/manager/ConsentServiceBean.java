@@ -5,6 +5,7 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.util.SortUtil;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
@@ -67,9 +68,8 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Listing models entries");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         PanacheQuery<ModelEntry> query;
-        if (!filter.getOrder().isEmpty()) {
-            Sort.Direction direction = filter.getDirection().equalsIgnoreCase("desc") ? Sort.Direction.Descending : Sort.Direction.Ascending;
-            Sort sort = Sort.by(filter.getOrder(), direction);
+        Sort sort = SortUtil.fromFilter(filter);
+        if (sort != null) {
             query = ModelEntry.find("owner = ?1 and type in ?2", sort, connectedIdentifier, filter.getTypes());
         } else {
             query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());

@@ -5,13 +5,13 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.InvalidStatusException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
-import com.sun.jndi.toolkit.url.Uri;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ public class ModelsResource {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("order") @DefaultValue("key") String order,
-            @QueryParam("direction") @DefaultValue("asc") String direction,
+            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
             @QueryParam("types") List<String> types) {
         LOGGER.log(Level.INFO, "GET /models");
         ModelFilter filter = new ModelFilter();
