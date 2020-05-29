@@ -185,15 +185,15 @@ public class ConsentServiceBean implements ConsentService {
                 newversion.creationDate = now;
                 newversion.status = ModelVersion.Status.DRAFT;
                 newversion.serial = generator.next(ModelVersion.class.getName());
-                newversion.parent = latest.serial;
+                newversion.parent = latest.id;
                 newversion.defaultLocale = latest.defaultLocale;
                 newversion.availableLocales = latest.availableLocales;
-                newversion.content = latest.content;
+                newversion.content.putAll(latest.content);
                 newversion.counterparts = latest.counterparts;
                 newversion.type = ModelVersion.Type.MINOR;
                 newversion.addCounterpart(latest.serial);
 
-                latest.child = newversion.serial;
+                latest.child = newversion.id;
                 latest.persist();
                 latest = newversion;
             }
@@ -387,9 +387,8 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public String buildToken(ConsentContext ctx) {
-        //TODO Handle cases where super user is generating a token for another owner
-        // For now, authenticated user is enforced as owner of the token :
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
+
         ctx.setOwner(authentication.getConnectedIdentifier());
         return tokenService.generateToken(ctx);
     }
@@ -406,7 +405,7 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
-            List<Record> previousConsents = listRecordsFromContext(ctx);
+            List<Record> previousConsents = findRecordsForContext(ctx);
 
             ConsentForm form = new ConsentForm();
             form.setLocale(ctx.getLocale());
@@ -501,7 +500,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public List<Record> listRecordsFromContext(ConsentContext ctx) {
+    public List<Record> findRecordsForContext(ConsentContext ctx) {
         LOGGER.log(Level.INFO, "Listing records");
         List<Record> records = new ArrayList<>();
 
@@ -510,7 +509,7 @@ public class ConsentServiceBean implements ConsentService {
             ModelVersion footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
             for (String elementKey : ctx.getElements()) {
                 ModelVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
-                Record.find("subject = ?1 and head = ?2 and body = ?3 and foot = ?4", ctx.getSubject(), headerVersion.serial, elementVersion.serial, footerVersion.serial ).stream().forEach(r -> records.add((Record) r));
+                Record.find("subject = ?1 and head in ?2 and body in ?3 and foot in ?4", ctx.getSubject(), headerVersion.getSerials(), elementVersion.getSerials(), footerVersion.getSerials() ).stream().forEach(r -> records.add((Record) r));
             }
         } catch (EntityNotFoundException e) {
             LOGGER.log(Level.WARNING, "Entity not found exception: " + e.getMessage());

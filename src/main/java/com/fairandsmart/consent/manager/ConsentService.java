@@ -64,7 +64,7 @@ public interface ConsentService {
 
     Receipt submitConsent(String token, Map<String, String> values) throws InvalidConsentException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
 
-    List<Record> listRecordsFromContext(ConsentContext ctx);
+    List<Record> findRecordsForContext(ConsentContext ctx);
 
     CollectionPage<Record> listRecords(RecordFilter filter);
 }

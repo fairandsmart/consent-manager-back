@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -33,7 +34,7 @@ public class ModelVersion extends PanacheEntityBase {
     public Status status;
     @Enumerated(EnumType.STRING)
     public Type type;
-    public String counterparts;
+    public String counterparts = "";
     public long creationDate;
     public long modificationDate;
     @ElementCollection(fetch = FetchType.EAGER)
@@ -61,16 +62,33 @@ public class ModelVersion extends PanacheEntityBase {
     }
 
     public void addCounterpart(String counterpart) {
-        List<String> cp;
-        if ( counterparts == null || counterparts.isEmpty() ) {
-            cp = new ArrayList<>();
-        } else {
-            cp = Arrays.asList(counterparts.split(","));
-        }
+        List<String> cp = getCounterParts();
         if ( !cp.contains(counterpart) ) {
             cp.add(counterpart);
-            counterparts = String.join(",", cp);
+            this.setCounterParts(cp);
         }
+    }
+
+    public void setCounterParts(List<String> counterparts) {
+        if ( counterparts.isEmpty() ) {
+            this.counterparts = "";
+        } else {
+            this.counterparts = String.join(",", counterparts);
+        }
+    }
+
+    public List<String> getCounterParts() {
+        if ( counterparts == null || counterparts.isEmpty() ) {
+            return new ArrayList<>();
+        } else {
+            return Arrays.stream(counterparts.split(",")).collect(Collectors.toList());
+        }
+    }
+
+    public List<String> getSerials() {
+        List<String> serials = this.getCounterParts();
+        serials.add(this.serial);
+        return serials;
     }
 
     public boolean hasLocale(String locale) {

@@ -19,4 +19,5 @@ public class AuthenticationServiceBean implements AuthenticationService {
     public String getConnectedIdentifier() {
         return (identity != null && identity.getPrincipal() != null && identity.getPrincipal().getName() != null && identity.getPrincipal().getName().length() > 0) ? identity.getPrincipal().getName() : unauthentifiedUser;
     }
+
 }

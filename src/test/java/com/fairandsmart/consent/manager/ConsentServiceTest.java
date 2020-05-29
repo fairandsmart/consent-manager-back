@@ -12,11 +12,14 @@ import com.fairandsmart.consent.manager.model.Controller;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.security.AuthenticationServiceBean;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -30,12 +33,19 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConsentServiceTest {
 
     private static final Logger LOGGER = Logger.getLogger(ConsentServiceTest.class.getName());
+    private static final String TEST_USER = "sheldon";
 
-    @ConfigProperty(name = "consent.security.auth.unauthenticated")
-    String unauthentifiedUser;
 
     @Inject
     ConsentService service;
+
+    @BeforeAll
+    public static void setup() {
+        LOGGER.info("Applying mock to Authentication Service");
+        AuthenticationServiceBean mock = Mockito.mock(AuthenticationServiceBean.class);
+        Mockito.when(mock.getConnectedIdentifier()).thenReturn(TEST_USER);
+        QuarkusMock.installMockForType(mock, AuthenticationServiceBean.class);
+    }
 
     @Test
     public void testCreateEntryForExistingKey() throws EntityAlreadyExistsException {
@@ -131,9 +141,9 @@ public class ConsentServiceTest {
         assertEquals("fr_FR", versions.get(0).availableLocales);
         assertEquals("fr_FR", versions.get(0).defaultLocale);
         assertEquals(ModelVersion.Status.DRAFT, versions.get(0).status);
-        assertEquals(unauthentifiedUser, versions.get(0).owner);
+        assertEquals(TEST_USER, versions.get(0).owner);
         assertNotNull(versions.get(0).serial);
-        assertEquals(unauthentifiedUser, versions.get(0).content.get("fr_FR").author);
+        assertEquals(TEST_USER, versions.get(0).content.get("fr_FR").author);
         Header data = (Header) versions.get(0).getData("fr_FR");
         assertEquals("title", data.getTitle());
         assertEquals("body", data.getBody());
@@ -185,23 +195,23 @@ public class ConsentServiceTest {
         LOGGER.log(Level.INFO, "Creating, updating and activating entries");
         ModelEntry eh1 = service.createEntry("h1", "header1", "Description de header1", Header.TYPE);
         assertNotNull(eh1);
-        ModelVersion vh1 = service.createVersion(eh1.id, "fr_FR", new Header().withTitle("Header title").withBody("Header body"));
-        service.updateVersionStatus(vh1.id, ModelVersion.Status.ACTIVE);
+        ModelVersion v1h1 = service.createVersion(eh1.id, "fr_FR", new Header().withTitle("Header title").withBody("Header body"));
+        service.updateVersionStatus(v1h1.id, ModelVersion.Status.ACTIVE);
 
         ModelEntry et1 = service.createEntry("t1", "treatment1", "Description de treatment1", Treatment.TYPE);
         assertNotNull(et1);
-        ModelVersion vt1 = service.createVersion(et1.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment1").withDataBody("Data1").withRetentionBody("Retention1").withUsageBody("Usage1").withPurpose(Treatment.Purpose.CONSENT_MARKETING));
-        service.updateVersionStatus(vt1.id, ModelVersion.Status.ACTIVE);
+        ModelVersion v1t1 = service.createVersion(et1.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment1").withDataBody("Data1").withRetentionBody("Retention1").withUsageBody("Usage1").withPurpose(Treatment.Purpose.CONSENT_MARKETING));
+        service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
 
         ModelEntry et2 = service.createEntry("t2", "treatment2", "Description de treatment2", Treatment.TYPE);
         assertNotNull(et2);
-        ModelVersion vt2 = service.createVersion(et2.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment2").withDataBody("Data2").withRetentionBody("Retention2").withUsageBody("Usage2").withPurpose(Treatment.Purpose.CONSENT_IMPROVED_SERVICE));
-        service.updateVersionStatus(vt2.id, ModelVersion.Status.ACTIVE);
+        ModelVersion v1t2 = service.createVersion(et2.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment2").withDataBody("Data2").withRetentionBody("Retention2").withUsageBody("Usage2").withPurpose(Treatment.Purpose.CONSENT_IMPROVED_SERVICE));
+        service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
 
         ModelEntry ef1 = service.createEntry("f1", "footer1", "Description de footer1", Footer.TYPE);
         assertNotNull(ef1);
-        ModelVersion vf1 = service.createVersion(ef1.id, "fr_FR", new Footer().withBody("Footer body"));
-        service.updateVersionStatus(vf1.id, ModelVersion.Status.ACTIVE);
+        ModelVersion v1f1 = service.createVersion(ef1.id, "fr_FR", new Footer().withBody("Footer body"));
+        service.updateVersionStatus(v1f1.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.info("Listing existing entries");
         List<String> types = new ArrayList<>();
@@ -213,17 +223,17 @@ public class ConsentServiceTest {
 
         LOGGER.log(Level.INFO, "Creating READ context and token");
         ConsentContext readCtx = new ConsentContext()
-                .setOwner(unauthentifiedUser)
+                .setOwner(TEST_USER)
                 .setSubject("mmichu")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setHeader("h1")
                 .setElements(Arrays.asList("t1", "t2"))
                 .setFooter("f1")
                 .setLocale("fr_FR");
-        String readToken = service.buildToken(readCtx); // TODO : actuellement, il faut changer la valeur de consent.security.auth.unauthenticated en sheldon ; cf le TODO de buildToken
+        String readToken = service.buildToken(readCtx);
 
         LOGGER.log(Level.INFO, "Reading consent records before submit");
-        List<Record> records = service.listRecordsFromContext(readCtx);
+        List<Record> records = service.findRecordsForContext(readCtx);
         assertEquals(0, records.size());
 
         LOGGER.log(Level.INFO, "First consent form");
@@ -233,33 +243,56 @@ public class ConsentServiceTest {
 
         LOGGER.log(Level.INFO, "Creating POST context and token");
         ConsentContext postCtx = new ConsentContext()
-                .setOwner(unauthentifiedUser)
+                .setOwner(TEST_USER)
                 .setSubject("mmichu")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setHeader("element/header/" + vh1.serial)
-                .setElements(Arrays.asList("element/treatment/" + vt1.serial, "element/treatment/" + vt2.serial))
-                .setFooter("element/footer/" + vf1.serial)
+                .setHeader("element/header/" + v1h1.serial)
+                .setElements(Arrays.asList("element/treatment/" + v1t1.serial, "element/treatment/" + v1t2.serial))
+                .setFooter("element/footer/" + v1f1.serial)
                 .setLocale("fr_FR");
-        String postToken = service.buildToken(postCtx); // TODO : actuellement, il faut changer la valeur de consent.security.auth.unauthenticated en sheldon ; cf le TODO de buildToken
+        String postToken = service.buildToken(postCtx);
 
         LOGGER.log(Level.INFO, "Submitting first consent (creating record)");
         Map<String, String> values = new HashMap<>();
-        values.put("header", "element/header/" + vh1.serial);
-        values.put("element/treatment/" + vt1.serial, "accepted");
-        values.put("element/treatment/" + vt2.serial, "refused");
-        values.put("footer", "element/footer/" + vf1.serial);
+        values.put("header", "element/header/" + v1h1.serial);
+        values.put("element/treatment/" + v1t1.serial, "accepted");
+        values.put("element/treatment/" + v1t2.serial, "refused");
+        values.put("footer", "element/footer/" + v1f1.serial);
         service.submitConsent(postToken, values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
-        records = service.listRecordsFromContext(readCtx);
+        records = service.findRecordsForContext(readCtx);
         assertEquals(2, records.size());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(vt1.serial)).count());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(vt2.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t1.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t2.serial)).count());
 
         LOGGER.log(Level.INFO, "Second consent form");
         form = service.generateForm(readToken);
         assertEquals(2, form.getElements().size());
         assertEquals(2, form.getPreviousValues().size());
+
+        LOGGER.log(Level.INFO, "Create new version of T2 (minor version)");
+        ModelVersion v2t2 = service.createVersion(et2.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment2 v2").withDataBody("Data2.2").withRetentionBody("Retention2.2").withUsageBody("Usage2.2").withPurpose(Treatment.Purpose.CONSENT_IMPROVED_SERVICE));
+        service.updateVersionType(v2t2.id, ModelVersion.Type.MINOR);
+        service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
+
+        LOGGER.log(Level.INFO, "Reading consent records after ew version MINOR (no effect)");
+        records = service.findRecordsForContext(readCtx);
+        assertEquals(2, records.size());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t1.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t2.serial)).count());
+
+        LOGGER.log(Level.INFO, "Create new version of T2 (major version)");
+        ModelVersion v3t2 = service.createVersion(et2.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment2 v3").withDataBody("Data2.3").withRetentionBody("Retention2.3").withUsageBody("Usage2.3").withPurpose(Treatment.Purpose.CONSENT_IMPROVED_SERVICE));
+        service.updateVersionType(v3t2.id, ModelVersion.Type.MAJOR);
+        service.updateVersionStatus(v3t2.id, ModelVersion.Status.ACTIVE);
+
+        LOGGER.log(Level.INFO, "Reading consent records after new version MAJOR (no more value for t2)");
+        records = service.findRecordsForContext(readCtx);
+        assertEquals(1, records.size());
+        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t1.serial)).count());
+        assertEquals(0, records.stream().filter(r -> r.body.equals(v1t2.serial)).count());
+
     }
 
 }

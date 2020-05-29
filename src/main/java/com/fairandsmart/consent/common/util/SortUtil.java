@@ -6,7 +6,7 @@ import io.quarkus.panache.common.Sort;
 public class SortUtil {
 
     public static Sort fromFilter(SortableFilter filter) {
-        if (filter.getOrder().isEmpty()) {
+        if (filter.getOrder() == null || filter.getOrder().isEmpty()) {
             return null;
         }
         Sort.Direction direction = filter.getDirection().equalsIgnoreCase("desc") ? Sort.Direction.Descending : Sort.Direction.Ascending;
