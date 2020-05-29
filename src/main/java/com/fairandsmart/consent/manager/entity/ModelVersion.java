@@ -62,7 +62,7 @@ public class ModelVersion extends PanacheEntityBase {
 
     public void addCounterpart(String counterpart) {
         List<String> cp;
-        if ( counterparts.isEmpty() ) {
+        if ( counterparts == null || counterparts.isEmpty() ) {
             cp = new ArrayList<>();
         } else {
             cp = Arrays.asList(counterparts.split(","));
