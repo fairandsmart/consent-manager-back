@@ -23,6 +23,8 @@ import org.mockito.Mockito;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -253,11 +255,11 @@ public class ConsentServiceTest {
         String postToken = service.buildToken(postCtx);
 
         LOGGER.log(Level.INFO, "Submitting first consent (creating record)");
-        Map<String, String> values = new HashMap<>();
-        values.put("header", "element/header/" + v1h1.serial);
-        values.put("element/treatment/" + v1t1.serial, "accepted");
-        values.put("element/treatment/" + v1t2.serial, "refused");
-        values.put("footer", "element/footer/" + v1f1.serial);
+        MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
+        values.putSingle("header", "element/header/" + v1h1.serial);
+        values.putSingle("element/treatment/" + v1t1.serial, "accepted");
+        values.putSingle("element/treatment/" + v1t2.serial, "refused");
+        values.putSingle("footer", "element/footer/" + v1f1.serial);
         service.submitConsent(postToken, values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
