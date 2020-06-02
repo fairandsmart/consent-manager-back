@@ -1,7 +1,7 @@
 <div class="treatment">
     <@fetchMultiLangContent element></@fetchMultiLangContent>
 
-    <#if langContent?has_content && !langContent?is_string>
+    <#if langContent?has_content>
         <#-- Header -->
         <div class="treatment-header">
             <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>

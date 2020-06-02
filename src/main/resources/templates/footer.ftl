@@ -4,24 +4,22 @@
         <@fetchMultiLangContent data.footer></@fetchMultiLangContent>
     </#if>
 
-    <#if !langContent?is_string>
-        <#if langContent.body?has_content>
-            <div class="footer-body">
-                ${langContent.body}
-            </div>
-        </#if>
+    <#if langContent.body?has_content>
+        <div class="footer-body">
+            ${langContent.body}
+        </div>
+    </#if>
 
-        <#if langContent.showAcceptAll>
-            <div class="accept-all-container">
-                <div class="accept-all-text">
-                    <#if langContent.customAcceptAllText?has_content>
-                        ${langContent.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle>
-                    </#if>
-                </div>
-
-                <@toggleSwitch "accept-all"></@toggleSwitch>
+    <#if langContent.showAcceptAll>
+        <div class="accept-all-container">
+            <div class="accept-all-text">
+                <#if langContent.customAcceptAllText?has_content>
+                    ${langContent.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle>
+                </#if>
             </div>
-        </#if>
+
+            <@toggleSwitch "accept-all"></@toggleSwitch>
+        </div>
     </#if>
 
     <div class="submit-container">
