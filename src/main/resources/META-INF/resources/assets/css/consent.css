@@ -54,9 +54,9 @@ body {
 .content-fade {
     background: linear-gradient(white, rgba(255, 255, 255, 0));
     height: 32px;
-    margin: 0px 16px -32px 16px;
+    margin: 0 16px -32px 16px;
     z-index: 10;
-    overflow-y: scroll;
+    overflow-y: hidden;
     pointer-events: none;
     flex-shrink: 0;
 }
