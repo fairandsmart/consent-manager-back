@@ -277,8 +277,8 @@ public class SimpleCollectTest {
         LOGGER.log(Level.INFO, "Form Values: " + values);
 
         //PART 3
-        Response postResponse = given().contentType(ContentType.JSON).
-                body(values).when().post("/consents");
+        Response postResponse = given().contentType(ContentType.URLENC).
+                formParams(values).when().post("/consents");
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
 
