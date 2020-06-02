@@ -16,7 +16,7 @@
         </#if>
 
         <#-- Other header data -->
-        <#if langContent.showJurisdiction || langContent.showCollectionMethod || langContent.showDataController || langContent.showScope>
+        <#if langContent.showJurisdiction || langContent.showCollectionMethod || langContent.showScope || langContent.showShortNoticeLink>
             <div class="block-wrapper">
                 <h4><@readBundle "defaultAdditionalInfoTitle"></@readBundle></h4>
 
