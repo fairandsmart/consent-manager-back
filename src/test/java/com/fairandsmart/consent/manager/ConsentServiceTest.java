@@ -256,10 +256,10 @@ public class ConsentServiceTest {
 
         LOGGER.log(Level.INFO, "Submitting first consent (creating record)");
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
-        values.addFirst("header", "element/header/" + v1h1.serial);
-        values.addFirst("element/treatment/" + v1t1.serial, "accepted");
-        values.addFirst("element/treatment/" + v1t2.serial, "refused");
-        values.addFirst("footer", "element/footer/" + v1f1.serial);
+        values.putSingle("header", "element/header/" + v1h1.serial);
+        values.putSingle("element/treatment/" + v1t1.serial, "accepted");
+        values.putSingle("element/treatment/" + v1t2.serial, "refused");
+        values.putSingle("footer", "element/footer/" + v1f1.serial);
         service.submitConsent(postToken, values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
