@@ -6,6 +6,7 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.util.SortUtil;
+import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
@@ -33,8 +34,8 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.Instant;
-import java.time.Period;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -420,10 +421,11 @@ public class ConsentServiceBean implements ConsentService {
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
                 ModelVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
-                previousConsents.stream().filter(record -> record.body.equals(element.serial)).findFirst()
-                        .ifPresent(record -> form.addPreviousValue(element.serial, record.value));
-                form.addElement(element);
-                elementsIdentifiers.add(element.getIdentifier().serialize());
+                previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(element.serial, r.value));
+                if ( ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(element.serial) ) {
+                    form.addElement(element);
+                    elementsIdentifiers.add(element.getIdentifier().serialize());
+                }
             }
             ctx.setElements(elementsIdentifiers);
 
@@ -459,14 +461,17 @@ public class ConsentServiceBean implements ConsentService {
                     record.transaction = transaction;
                     record.subject = ctx.getSubject();
                     record.owner = ctx.getOwner();
-                    record.head = headId.getSerial();
                     record.type = bodyId.getType();
-                    record.body = bodyId.getSerial();
-                    record.foot = footId.getSerial();
+                    record.headSerial = headId.getSerial();
+                    record.bodySerial = bodyId.getSerial();
+                    record.footSerial = footId.getSerial();
+                    record.headKey = headId.getKey();
+                    record.bodyKey = bodyId.getKey();
+                    record.footKey = footId.getKey();
                     record.serial = headId.getSerial() + "." + bodyId.getSerial() + "." + footId.getSerial();
                     record.value = value.getValue().get(0);
                     record.creationTimestamp = now.toEpochMilli();
-                    record.expirationTimestamp = now.plus(Period.ofWeeks(52)).toEpochMilli();
+                    record.expirationTimestamp = now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
                     record.status = Record.Status.COMMITTED;
                     record.persist();
                     records.add(record);
@@ -482,7 +487,7 @@ public class ConsentServiceBean implements ConsentService {
                 Map<Treatment, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
                     try {
-                        Treatment t = (Treatment) systemFindModelVersionForSerial(r.body).getData(ctx.getLocale());
+                        Treatment t = (Treatment) systemFindModelVersionForSerial(r.bodySerial).getData(ctx.getLocale());
                         trecords.put(t, r);
                     } catch (EntityNotFoundException | ModelDataSerializationException e) {
                         //
@@ -495,8 +500,7 @@ public class ConsentServiceBean implements ConsentService {
             } else {
                 return null;
             }
-        } catch (TokenServiceException | EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException e) {
-            //TODO rollback transaction
+        } catch (TokenServiceException | EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
     }
@@ -511,7 +515,8 @@ public class ConsentServiceBean implements ConsentService {
             ModelVersion footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
             for (String elementKey : ctx.getElements()) {
                 ModelVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
-                Record.find("subject = ?1 and head in ?2 and body in ?3 and foot in ?4", ctx.getSubject(), headerVersion.getSerials(), elementVersion.getSerials(), footerVersion.getSerials() ).stream().forEach(r -> records.add((Record) r));
+                //TODO Maybe add also a condition on the status (COMMITTED)
+                Record.find("subject = ?1 and headSerial in ?2 and bodySerial in ?3 and footSerial in ?4 and expirationTimestamp >= ?5", Sort.by("creationTimestamp", Sort.Direction.Descending), ctx.getSubject(), headerVersion.getSerials(), elementVersion.getSerials(), footerVersion.getSerials(), System.currentTimeMillis()).stream().findFirst().ifPresent(r -> records.add((Record) r));
             }
         } catch (EntityNotFoundException e) {
             LOGGER.log(Level.WARNING, "Entity not found exception: " + e.getMessage());
@@ -528,18 +533,9 @@ public class ConsentServiceBean implements ConsentService {
         PanacheQuery<Record> query;
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
-            query = Record.find(
-                    "owner = ?1 and subject like ?2 and status = ?3",
-                    sort,
-                    connectedIdentifier,
-                    "%" + filter.getQuery() + "%",
-                    Record.Status.COMMITTED);
+            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", sort,connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
         } else {
-            query = Record.find(
-                    "owner = ?1 and subject like ?2 and status = ?3",
-                    connectedIdentifier,
-                    "%" + filter.getQuery() + "%",
-                    Record.Status.COMMITTED);
+            query = Record.find("owner = ?1 and subject like ?2 and status = ?3",connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
         }
         CollectionPage<Record> result = new CollectionPage<>();
         result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());

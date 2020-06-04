@@ -209,6 +209,7 @@ public class SimpleCollectTest {
         //Use basic consent context for first generation
         ConsentContext ctx = new ConsentContext()
                 .setSubject("mmichu")
+                .setValidity("P2Y")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setHeader("h1")
                 .setElements(Arrays.asList("t1", "t2"))

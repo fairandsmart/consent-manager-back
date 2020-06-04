@@ -45,7 +45,7 @@ public class ModelVersion extends PanacheEntityBase {
     }
 
     public ConsentElementIdentifier getIdentifier() {
-        return new ConsentElementIdentifier(entry.type, this.serial);
+        return new ConsentElementIdentifier(entry.type, entry.key, this.serial);
     }
 
     public void addAvailableLocale(String locale) {

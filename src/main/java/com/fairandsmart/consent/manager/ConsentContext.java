@@ -1,14 +1,20 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.token.Tokenizable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ConsentContext implements Tokenizable {
 
+    private static final String DEFAULT_VALIDITY = "P6M";
+    private static final FormType DEFAULT_FORM_TYPE = FormType.FULL;
+    private static final ReceiptDeliveryType DEFAULT_RECEIPT_DELIVERY = ReceiptDeliveryType.DISPLAY;
     private static final String USERINFOS_PREFIX = "userinfos_";
     private static final String ATTRIBUTES_PREFIX = "attributes_";
 
@@ -24,8 +30,9 @@ public class ConsentContext implements Tokenizable {
     private String footer;
     private String callback;
     private String locale;
-    private ReceiptFormType formType = ReceiptFormType.FULL;
-    private ReceiptDeliveryType receiptDeliveryType = ReceiptDeliveryType.DISPLAY;
+    private String validity;
+    private FormType formType;
+    private ReceiptDeliveryType receiptDeliveryType;
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
     private String optoutEmail;
@@ -36,6 +43,9 @@ public class ConsentContext implements Tokenizable {
         this.elements = new ArrayList<>();
         this.userinfos = new HashMap<>();
         this.attributes = new HashMap<>();
+        this.validity = DEFAULT_VALIDITY;
+        this.formType  = DEFAULT_FORM_TYPE;
+        this.receiptDeliveryType = DEFAULT_RECEIPT_DELIVERY;
     }
 
     public String getSubject() {
@@ -126,11 +136,30 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public ReceiptFormType getFormType() {
+    public String getValidity() {
+        return validity;
+    }
+
+    public ConsentContext setValidity(String validity) {
+        try {
+            DatatypeFactory.newInstance().newDuration(validity);
+            this.validity = validity;
+        } catch (DatatypeConfigurationException e) {
+            this.validity = DEFAULT_VALIDITY;
+        }
+        return this;
+    }
+
+    @JsonIgnore
+    public long getValidityInMillis() throws DatatypeConfigurationException {
+        return DatatypeFactory.newInstance().newDuration(validity).getTimeInMillis(new Date(0));
+    }
+
+    public FormType getFormType() {
         return formType;
     }
 
-    public ConsentContext setFormType(ReceiptFormType formType) {
+    public ConsentContext setFormType(FormType formType) {
         this.formType = formType;
         return this;
     }
@@ -204,6 +233,9 @@ public class ConsentContext implements Tokenizable {
         if (locale != null) {
             claims.put("locale", this.getLocale());
         }
+        if (validity != null) {
+            claims.put("validity", this.getValidity());
+        }
         if (callback != null) {
             claims.put("callback", this.getCallback());
         }
@@ -248,6 +280,9 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("locale")) {
             this.setLocale(claims.get("locale"));
         }
+        if (claims.containsKey("validity")) {
+            this.setValidity(claims.get("validity"));
+        }
         if (claims.containsKey("callback")) {
             this.setCallback(claims.get("callback"));
         }
@@ -255,7 +290,7 @@ public class ConsentContext implements Tokenizable {
             this.setOrientation(ConsentForm.Orientation.valueOf(claims.get("orientation")));
         }
         if (claims.containsKey("formType")) {
-            this.setFormType(ReceiptFormType.valueOf(claims.get("formType")));
+            this.setFormType(FormType.valueOf(claims.get("formType")));
         }
         if (claims.containsKey("receiptDeliveryType")) {
             this.setReceiptDeliveryType(ReceiptDeliveryType.valueOf(claims.get("receiptDeliveryType")));
@@ -279,10 +314,10 @@ public class ConsentContext implements Tokenizable {
     }
 
     /**
-     * PARTIAL form will only display treatments that are not consented
-     * FULL will force form for all treatments, even already consented
+     * PARTIAL form will only display elements that have no previous record
+     * FULL form will display all elements
      */
-    public enum ReceiptFormType {
+    public enum FormType {
         PARTIAL,
         FULL
     }
@@ -312,6 +347,7 @@ public class ConsentContext implements Tokenizable {
                 ", elements=" + elements +
                 ", footer='" + footer + '\'' +
                 ", callback='" + callback + '\'' +
+                ", validity='" + validity + '\'' +
                 ", locale='" + locale + '\'' +
                 ", formType=" + formType +
                 ", receiptDeliveryType=" + receiptDeliveryType +

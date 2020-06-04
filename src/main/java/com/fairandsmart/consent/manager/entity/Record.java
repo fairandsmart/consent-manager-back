@@ -5,7 +5,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Map;
-import java.util.UUID;
 
 @Entity
 public class Record extends PanacheEntityBase {
@@ -24,9 +23,12 @@ public class Record extends PanacheEntityBase {
     public String parent;
     public String serial;
     public String type;
-    public String head;
-    public String body;
-    public String foot;
+    public String headSerial;
+    public String bodySerial;
+    public String footSerial;
+    public String headKey;
+    public String bodyKey;
+    public String footKey;
     public String value;
     @Enumerated(EnumType.STRING)
     public Status status;
@@ -42,7 +44,7 @@ public class Record extends PanacheEntityBase {
     @Override
     public String toString() {
         return "Record{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", version=" + version +
                 ", creationTimestamp=" + creationTimestamp +
                 ", expirationTimestamp=" + expirationTimestamp +
@@ -52,9 +54,12 @@ public class Record extends PanacheEntityBase {
                 ", parent='" + parent + '\'' +
                 ", serial='" + serial + '\'' +
                 ", type='" + type + '\'' +
-                ", head='" + head + '\'' +
-                ", body='" + body + '\'' +
-                ", foot='" + foot + '\'' +
+                ", headSerial='" + headSerial + '\'' +
+                ", bodySerial='" + bodySerial + '\'' +
+                ", footSerial='" + footSerial + '\'' +
+                ", headKey='" + headKey + '\'' +
+                ", bodyKey='" + bodyKey + '\'' +
+                ", footKey='" + footKey + '\'' +
                 ", value='" + value + '\'' +
                 ", status=" + status +
                 ", attributes=" + attributes +

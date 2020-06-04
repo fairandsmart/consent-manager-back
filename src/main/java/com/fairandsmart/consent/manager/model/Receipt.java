@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.*;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class Receipt {
     private String jurisdiction;
     private String locale;
     private long timestamp;
+    private long expirationTimestamp;
     private String processor;
     private String subject;
     @XmlElementWrapper(name="subjectInfos")
@@ -70,6 +72,14 @@ public class Receipt {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public long getExpirationTimestamp() {
+        return expirationTimestamp;
+    }
+
+    public void setExpirationTimestamp(long expirationTimestamp) {
+        this.expirationTimestamp = expirationTimestamp;
     }
 
     public String getProcessor() {
@@ -180,11 +190,12 @@ public class Receipt {
     }
 
 
-    public static Receipt build(String transaction, String processor, long timestamp, ConsentContext ctx, Header header, Footer footer, Map<Treatment, Record> records) {
+    public static Receipt build(String transaction, String processor, long timestamp, ConsentContext ctx, Header header, Footer footer, Map<Treatment, Record> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
         receipt.setLocale(ctx.getLocale());
         receipt.setTimestamp(timestamp);
+        receipt.setExpirationTimestamp(receipt.getTimestamp() + ctx.getValidityInMillis());
         receipt.setProcessor(processor);
         receipt.setSubject(ctx.getSubject());
         receipt.setSubjectDetails(ctx.getUserinfos().entrySet().stream().map(entry -> new NameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList()));

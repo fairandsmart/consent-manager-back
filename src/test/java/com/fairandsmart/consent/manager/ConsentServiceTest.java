@@ -265,8 +265,8 @@ public class ConsentServiceTest {
         LOGGER.log(Level.INFO, "Reading consent records after submit");
         records = service.findRecordsForContext(readCtx);
         assertEquals(2, records.size());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t1.serial)).count());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t2.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
 
         LOGGER.log(Level.INFO, "Second consent form");
         form = service.generateForm(readToken);
@@ -281,8 +281,8 @@ public class ConsentServiceTest {
         LOGGER.log(Level.INFO, "Reading consent records after ew version MINOR (no effect)");
         records = service.findRecordsForContext(readCtx);
         assertEquals(2, records.size());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t1.serial)).count());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t2.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
 
         LOGGER.log(Level.INFO, "Create new version of T2 (major version)");
         ModelVersion v3t2 = service.createVersion(et2.id, "fr_FR", new Treatment().withTreatmentTitle("Treatment2 v3").withDataBody("Data2.3").withRetentionBody("Retention2.3").withUsageBody("Usage2.3").withPurpose(Treatment.Purpose.CONSENT_IMPROVED_SERVICE));
@@ -292,8 +292,8 @@ public class ConsentServiceTest {
         LOGGER.log(Level.INFO, "Reading consent records after new version MAJOR (no more value for t2)");
         records = service.findRecordsForContext(readCtx);
         assertEquals(1, records.size());
-        assertEquals(1, records.stream().filter(r -> r.body.equals(v1t1.serial)).count());
-        assertEquals(0, records.stream().filter(r -> r.body.equals(v1t2.serial)).count());
+        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
+        assertEquals(0, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
 
     }
 
