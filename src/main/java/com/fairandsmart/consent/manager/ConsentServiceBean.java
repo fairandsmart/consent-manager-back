@@ -1,12 +1,12 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.api.dto.UserRecord;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.util.SortUtil;
-import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
@@ -31,10 +31,13 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
@@ -62,6 +65,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @ConfigProperty(name = "consent.processor")
     String processor;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     /* MODELS MANAGEMENT */
 
@@ -516,7 +522,15 @@ public class ConsentServiceBean implements ConsentService {
             for (String elementKey : ctx.getElements()) {
                 ModelVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
                 //TODO Maybe add also a condition on the status (COMMITTED)
-                Record.find("subject = ?1 and headSerial in ?2 and bodySerial in ?3 and footSerial in ?4 and expirationTimestamp >= ?5", Sort.by("creationTimestamp", Sort.Direction.Descending), ctx.getSubject(), headerVersion.getSerials(), elementVersion.getSerials(), footerVersion.getSerials(), System.currentTimeMillis()).stream().findFirst().ifPresent(r -> records.add((Record) r));
+                Record.find(
+                        "subject = ?1 and headSerial in ?2 and bodySerial in ?3 and footSerial in ?4 and expirationTimestamp >= ?5",
+                        Sort.by("creationTimestamp", Sort.Direction.Descending),
+                        ctx.getSubject(),
+                        headerVersion.getSerials(),
+                        elementVersion.getSerials(),
+                        footerVersion.getSerials(),
+                        System.currentTimeMillis()
+                ).stream().findFirst().ifPresent(r -> records.add((Record) r));
             }
         } catch (EntityNotFoundException e) {
             LOGGER.log(Level.WARNING, "Entity not found exception: " + e.getMessage());
@@ -533,9 +547,9 @@ public class ConsentServiceBean implements ConsentService {
         PanacheQuery<Record> query;
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
-            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", sort,connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
+            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", sort, connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
         } else {
-            query = Record.find("owner = ?1 and subject like ?2 and status = ?3",connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
+            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
         }
         CollectionPage<Record> result = new CollectionPage<>();
         result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
@@ -544,6 +558,48 @@ public class ConsentServiceBean implements ConsentService {
         result.setTotalPages(query.pageCount());
         result.setTotalCount(query.count());
         return result;
+    }
+
+    @Override
+    public CollectionPage<UserRecord> listUserRecords(RecordFilter filter) {
+        LOGGER.log(Level.INFO, "Listing user records for " + filter.getQuery());
+        @SuppressWarnings("unchecked")
+        List<Object[]> rawResults = entityManager.createNativeQuery(
+                "SELECT entry.key, subquery.owner, subquery.subject, subquery.creationTimestamp, subquery.expirationTimestamp, entry.type, subquery.value, subquery.status " +
+                        "FROM ModelEntry entry LEFT JOIN (SELECT record1.* FROM Record record1 LEFT JOIN Record record2 " +
+                        "ON (record1.owner = record2.owner AND record1.subject = record2.subject AND record1.bodyKey = record2.bodyKey AND record1.creationTimestamp < record2.creationTimestamp) " +
+                        "WHERE record2.owner IS NULL AND record1.owner = ?1 AND record1.subject = ?2 AND record1.type = ?3 " +
+                        "ORDER BY record1.bodyKey, record1.creationTimestamp DESC) AS subquery " +
+                        "ON entry.key = subquery.bodyKey WHERE entry.owner = ?1 AND entry.type = ?3 " +
+                        "ORDER BY entry.key LIMIT ?4 OFFSET ?5")
+                .setParameter(1, authentication.getConnectedIdentifier())
+                .setParameter(2, filter.getQuery())
+                .setParameter(3, Treatment.TYPE)
+                .setParameter(4, filter.getSize())
+                .setParameter(5, filter.getSize() * (filter.getPage() - 1))
+                .getResultList();
+
+        List<UserRecord> userRecords = new ArrayList<>();
+        for (Object[] e : rawResults) {
+            UserRecord record = new UserRecord();
+            record.setBodyKey((String) e[0]);
+            record.setOwner((String) e[1]);
+            record.setSubject((String) e[2]);
+            record.setCreationTimestamp(e[3] != null ? ((BigInteger) e[3]).longValue() : 0);
+            record.setExpirationTimestamp(e[4] != null ? ((BigInteger) e[4]).longValue() : 0);
+            record.setType((String) e[5]);
+            record.setValue((String) e[6]);
+            record.setStatus((String) e[7]);
+            userRecords.add(record);
+        }
+
+        CollectionPage<UserRecord> userRecordsCollection = new CollectionPage<>();
+        userRecordsCollection.setValues(userRecords);
+        userRecordsCollection.setPage(1);
+        userRecordsCollection.setPageSize(userRecords.size());
+        userRecordsCollection.setTotalPages(1);
+        userRecordsCollection.setTotalCount(userRecords.size());
+        return userRecordsCollection;
     }
 
     /* INTERNAL */

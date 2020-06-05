@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.api.dto.UserRecord;
 import com.fairandsmart.consent.api.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
@@ -112,4 +113,22 @@ public class ConsentsResource {
         return consentService.listRecords(filter);
     }
 
+    @GET
+    @Path("/records/user")
+    @Produces(MediaType.APPLICATION_JSON)
+    public CollectionPage<UserRecord> listUserRecords(
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("25") int size,
+            @QueryParam("query") @DefaultValue("") String query,
+            @QueryParam("order") @DefaultValue("id") String order,
+            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
+        LOGGER.log(Level.INFO, "GET /records/user");
+        RecordFilter filter = new RecordFilter();
+        filter.setPage(page);
+        filter.setSize(size);
+        filter.setQuery(query);
+        filter.setOrder(order);
+        filter.setDirection(direction);
+        return consentService.listUserRecords(filter);
+    }
 }
