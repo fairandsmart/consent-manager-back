@@ -2,6 +2,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.UserRecord;
+import com.fairandsmart.consent.api.dto.UserRecordDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -601,6 +602,17 @@ public class ConsentServiceBean implements ConsentService {
         userRecordsCollection.setTotalPages(1);
         userRecordsCollection.setTotalCount(userRecords.size());
         return userRecordsCollection;
+    }
+
+    @Override
+    @Transactional
+    public UserRecord putRecord(UserRecordDto recordDto) {
+        LOGGER.log(Level.INFO, "TODO: put record: " + recordDto.toString());
+        return new UserRecord()
+                .setBodyKey(recordDto.getBodyKey())
+                .setOwner(recordDto.getOwner())
+                .setSubject(recordDto.getSubject())
+                .setValue(recordDto.getValue());
     }
 
     /* INTERNAL */
