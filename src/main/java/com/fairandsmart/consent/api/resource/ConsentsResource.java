@@ -9,6 +9,7 @@ import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
+import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
@@ -119,14 +120,14 @@ public class ConsentsResource {
     public CollectionPage<UserRecord> listUserRecords(
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("25") int size,
-            @QueryParam("query") @DefaultValue("") String query,
+            @QueryParam("user") @DefaultValue("") String user,
             @QueryParam("order") @DefaultValue("id") String order,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
         LOGGER.log(Level.INFO, "GET /records/user");
-        RecordFilter filter = new RecordFilter();
+        UserRecordFilter filter = new UserRecordFilter();
         filter.setPage(page);
         filter.setSize(size);
-        filter.setQuery(query);
+        filter.setUser(user);
         filter.setOrder(order);
         filter.setDirection(direction);
         return consentService.listUserRecords(filter);

@@ -12,6 +12,7 @@ import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
+import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
@@ -69,5 +70,5 @@ public interface ConsentService {
 
     CollectionPage<Record> listRecords(RecordFilter filter);
 
-    CollectionPage<UserRecord> listUserRecords(RecordFilter filter);
+    CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter);
 }

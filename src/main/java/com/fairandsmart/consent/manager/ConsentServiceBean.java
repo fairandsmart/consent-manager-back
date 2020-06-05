@@ -10,6 +10,7 @@ import com.fairandsmart.consent.common.util.SortUtil;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
+import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Receipt;
@@ -561,19 +562,19 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public CollectionPage<UserRecord> listUserRecords(RecordFilter filter) {
-        LOGGER.log(Level.INFO, "Listing user records for " + filter.getQuery());
+    public CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter) {
+        LOGGER.log(Level.INFO, "Listing user records for " + filter.getUser());
         @SuppressWarnings("unchecked")
         List<Object[]> rawResults = entityManager.createNativeQuery(
-                "SELECT entry.key, subquery.owner, subquery.subject, subquery.creationTimestamp, subquery.expirationTimestamp, entry.type, subquery.value, subquery.status " +
+                "SELECT entry.key as bodyKey, subquery.owner, subquery.subject, subquery.creationTimestamp, subquery.expirationTimestamp, entry.type, subquery.value, subquery.status " +
                         "FROM ModelEntry entry LEFT JOIN (SELECT record1.* FROM Record record1 LEFT JOIN Record record2 " +
                         "ON (record1.owner = record2.owner AND record1.subject = record2.subject AND record1.bodyKey = record2.bodyKey AND record1.creationTimestamp < record2.creationTimestamp) " +
                         "WHERE record2.owner IS NULL AND record1.owner = ?1 AND record1.subject = ?2 AND record1.type = ?3 " +
                         "ORDER BY record1.bodyKey, record1.creationTimestamp DESC) AS subquery " +
                         "ON entry.key = subquery.bodyKey WHERE entry.owner = ?1 AND entry.type = ?3 " +
-                        "ORDER BY entry.key LIMIT ?4 OFFSET ?5")
+                        "ORDER BY " + filter.getSQLOrder() + " LIMIT ?4 OFFSET ?5")
                 .setParameter(1, authentication.getConnectedIdentifier())
-                .setParameter(2, filter.getQuery())
+                .setParameter(2, filter.getUser())
                 .setParameter(3, Treatment.TYPE)
                 .setParameter(4, filter.getSize())
                 .setParameter(5, filter.getSize() * (filter.getPage() - 1))
