@@ -141,11 +141,15 @@ public class ConsentContext implements Tokenizable {
     }
 
     public ConsentContext setValidity(String validity) {
-        try {
-            DatatypeFactory.newInstance().newDuration(validity);
-            this.validity = validity;
-        } catch (DatatypeConfigurationException e) {
+        if (validity.isEmpty()) {
             this.validity = DEFAULT_VALIDITY;
+        } else {
+            try {
+                DatatypeFactory.newInstance().newDuration(validity);
+                this.validity = validity;
+            } catch (DatatypeConfigurationException e) {
+                this.validity = DEFAULT_VALIDITY;
+            }
         }
         return this;
     }
