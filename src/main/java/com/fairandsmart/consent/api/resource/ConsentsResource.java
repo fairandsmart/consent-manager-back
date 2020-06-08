@@ -1,7 +1,7 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.api.dto.UserRecord;
+import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.api.dto.UserRecordDto;
 import com.fairandsmart.consent.api.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
@@ -98,6 +98,7 @@ public class ConsentsResource {
 
     @GET
     @Path("/records")
+    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<Record> listRecords(
             @QueryParam("page") @DefaultValue("1") int page,
@@ -117,6 +118,7 @@ public class ConsentsResource {
 
     @GET
     @Path("/records/user")
+    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<UserRecord> listUserRecords(
             @QueryParam("page") @DefaultValue("1") int page,
@@ -136,6 +138,7 @@ public class ConsentsResource {
 
     @PUT
     @Path("/records/user")
+    @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public UserRecord putRecord(UserRecordDto recordDto) {

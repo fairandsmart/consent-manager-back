@@ -42,6 +42,7 @@ public class Receipt {
     @XmlElement(name="attachment")
     private List<Attachment> attachments;
     private String privacyPolicyUrl;
+    private ConsentContext.CollectionMethod collectionMethod;
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
@@ -170,6 +171,14 @@ public class Receipt {
         this.locale = locale;
     }
 
+    public ConsentContext.CollectionMethod getCollectionMethod() {
+        return collectionMethod;
+    }
+
+    public void setCollectionMethod(ConsentContext.CollectionMethod collectionMethod) {
+        this.collectionMethod = collectionMethod;
+    }
+
     public String toXml() throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
         Marshaller marshaller = jaxbContext.createMarshaller();
@@ -189,7 +198,6 @@ public class Receipt {
         return out.toByteArray();
     }
 
-
     public static Receipt build(String transaction, String processor, long timestamp, ConsentContext ctx, Header header, Footer footer, Map<Treatment, Record> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
@@ -205,13 +213,14 @@ public class Receipt {
         receipt.setPrivacyPolicyUrl(header.getPrivacyPolicyUrl());
         receipt.setHeaderNotice(header.getTitle() + " " + header.getBody());
         receipt.setFooterNotice(footer.getBody());
+        receipt.setCollectionMethod(ctx.getCollectionMethod());
         for ( Map.Entry<Treatment, Record> record : records.entrySet() ) {
             Consent trecord = new Consent();
             trecord.setSerial(record.getValue().serial);
             trecord.setData(record.getKey().getDataBody());
             trecord.setRetention(record.getKey().getRetentionBody());
             trecord.setUsage(record.getKey().getUsageBody());
-            trecord.setPurposes(record.getKey().getPurposes().stream().map(p -> p.name()).collect(Collectors.toList()));
+            trecord.setPurposes(record.getKey().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
             trecord.setController(record.getKey().getDataController());
             trecord.setValue(record.getValue().value);
             //TODO include specific treatment sharing information

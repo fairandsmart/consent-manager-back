@@ -15,6 +15,7 @@ public class ConsentContext implements Tokenizable {
     private static final String DEFAULT_VALIDITY = "P6M";
     private static final FormType DEFAULT_FORM_TYPE = FormType.FULL;
     private static final ReceiptDeliveryType DEFAULT_RECEIPT_DELIVERY = ReceiptDeliveryType.DISPLAY;
+    private static final CollectionMethod DEFAULT_COLLECTION_METHOD = CollectionMethod.WEBFORM;
     private static final String USERINFOS_PREFIX = "userinfos_";
     private static final String ATTRIBUTES_PREFIX = "attributes_";
 
@@ -36,6 +37,7 @@ public class ConsentContext implements Tokenizable {
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
     private String optoutEmail;
+    private CollectionMethod collectionMethod;
     private boolean preview = false;
     private boolean iframe = false;
 
@@ -46,6 +48,7 @@ public class ConsentContext implements Tokenizable {
         this.validity = DEFAULT_VALIDITY;
         this.formType  = DEFAULT_FORM_TYPE;
         this.receiptDeliveryType = DEFAULT_RECEIPT_DELIVERY;
+        this.collectionMethod = DEFAULT_COLLECTION_METHOD;
     }
 
     public String getSubject() {
@@ -204,6 +207,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public CollectionMethod getCollectionMethod() {
+        return collectionMethod;
+    }
+
+    public ConsentContext setCollectionMethod(CollectionMethod collectionMethod) {
+        this.collectionMethod = collectionMethod;
+        return this;
+    }
+
     public boolean isPreview() {
         return preview;
     }
@@ -255,6 +267,9 @@ public class ConsentContext implements Tokenizable {
         if (optoutEmail != null) {
             claims.put("optoutEmail", this.getOptoutEmail());
         }
+        if (collectionMethod != null) {
+            claims.put("collectionMethod", this.getCollectionMethod().name());
+        }
         if (userinfos != null && !userinfos.isEmpty()) {
             for (Map.Entry<String, String> entry : userinfos.entrySet()) {
                 claims.put(USERINFOS_PREFIX + entry.getKey(), entry.getValue());
@@ -302,6 +317,9 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("optoutEmail")) {
             this.setOptoutEmail(claims.get("optoutEmail"));
         }
+        if (claims.containsKey("collectionMethod")) {
+            this.setCollectionMethod(CollectionMethod.valueOf(claims.get("collectionMethod")));
+        }
         if (claims.containsKey("preview")) {
             this.setPreview(Boolean.parseBoolean(claims.get("preview")));
         }
@@ -341,6 +359,15 @@ public class ConsentContext implements Tokenizable {
         DOWNLOAD
     }
 
+    /**
+     * WEBFORM the user filled in a form
+     * OPERATOR an operator created the record based on an interaction with the user
+     */
+    public enum CollectionMethod {
+        WEBFORM,
+        OPERATOR
+    }
+
     @Override
     public String toString() {
         return "ConsentContext{" +
@@ -358,6 +385,7 @@ public class ConsentContext implements Tokenizable {
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
                 ", optoutEmail='" + optoutEmail + '\'' +
+                ", collectionMethod=" + collectionMethod +
                 ", preview=" + preview +
                 ", iframe=" + iframe +
                 '}';

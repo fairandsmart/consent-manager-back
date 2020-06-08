@@ -20,10 +20,11 @@
     <#assign expires=data.expirationTimestamp?number_to_datetime/>
     <div class="receipt-date spaced"><@readBundle "expires"></@readBundle>: ${expires?string['dd.MM.yyyy HH:mm:ss ZZZ']}</div>
 
-
     <#assign localeLanguageBundleKey="language_" + data.locale>
     <div><span class="receipt-label"><@readBundle "language"></@readBundle>: </span><@readBundle localeLanguageBundleKey "unknown language key"></@readBundle></div>
     <div class="spaced"><span class="receipt-label"><@readBundle "receipt_id"></@readBundle>: </span>#${data.transaction}</div>
+
+    <div class="spaced"><span class="receipt-label"><@readBundle "collection_method"></@readBundle>: </span><#if data.collectionMethod??>${data.collectionMethod}<#else>?</#if></div>
 
     <#list data.consents as consent>
         <div><span class="receipt-label"><@readBundle "data_collected"></@readBundle>: </span>${consent.data}</div>

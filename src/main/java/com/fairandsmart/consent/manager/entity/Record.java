@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.manager.entity;
 
+import com.fairandsmart.consent.manager.ConsentContext;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -32,6 +33,9 @@ public class Record extends PanacheEntityBase {
     public String value;
     @Enumerated(EnumType.STRING)
     public Status status;
+    @Enumerated(EnumType.STRING)
+    public ConsentContext.CollectionMethod collectionMethod;
+    public String author;
     @ElementCollection(fetch = FetchType.EAGER)
     public Map<String, String> attributes;
 
@@ -62,6 +66,8 @@ public class Record extends PanacheEntityBase {
                 ", footKey='" + footKey + '\'' +
                 ", value='" + value + '\'' +
                 ", status=" + status +
+                ", collectionMethod=" + collectionMethod +
+                ", author='" + author + '\'' +
                 ", attributes=" + attributes +
                 '}';
     }

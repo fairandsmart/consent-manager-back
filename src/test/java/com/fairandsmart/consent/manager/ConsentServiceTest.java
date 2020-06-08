@@ -231,7 +231,8 @@ public class ConsentServiceTest {
                 .setHeader("h1")
                 .setElements(Arrays.asList("t1", "t2"))
                 .setFooter("f1")
-                .setLocale("fr_FR");
+                .setLocale("fr_FR")
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
         String readToken = service.buildToken(readCtx);
 
         LOGGER.log(Level.INFO, "Reading consent records before submit");
@@ -243,24 +244,13 @@ public class ConsentServiceTest {
         assertEquals(2, form.getElements().size());
         assertEquals(0, form.getPreviousValues().size());
 
-        LOGGER.log(Level.INFO, "Creating POST context and token");
-        ConsentContext postCtx = new ConsentContext()
-                .setOwner(TEST_USER)
-                .setSubject("mmichu")
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setHeader("element/header/" + v1h1.serial)
-                .setElements(Arrays.asList("element/treatment/" + v1t1.serial, "element/treatment/" + v1t2.serial))
-                .setFooter("element/footer/" + v1f1.serial)
-                .setLocale("fr_FR");
-        String postToken = service.buildToken(postCtx);
-
         LOGGER.log(Level.INFO, "Submitting first consent (creating record)");
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
-        values.putSingle("header", "element/header/" + v1h1.serial);
-        values.putSingle("element/treatment/" + v1t1.serial, "accepted");
-        values.putSingle("element/treatment/" + v1t2.serial, "refused");
-        values.putSingle("footer", "element/footer/" + v1f1.serial);
-        service.submitConsent(postToken, values);
+        values.putSingle("header", "element/header/h1/" + v1h1.serial);
+        values.putSingle("element/treatment/t1/" + v1t1.serial, "accepted");
+        values.putSingle("element/treatment/t2/" + v1t2.serial, "refused");
+        values.putSingle("footer", "element/footer/f1/" + v1f1.serial);
+        service.submitConsent(form.getToken(), values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
         records = service.findRecordsForContext(readCtx);
@@ -278,7 +268,7 @@ public class ConsentServiceTest {
         service.updateVersionType(v2t2.id, ModelVersion.Type.MINOR);
         service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
 
-        LOGGER.log(Level.INFO, "Reading consent records after ew version MINOR (no effect)");
+        LOGGER.log(Level.INFO, "Reading consent records after new version MINOR (no effect)");
         records = service.findRecordsForContext(readCtx);
         assertEquals(2, records.size());
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());

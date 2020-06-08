@@ -1,7 +1,7 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.api.dto.UserRecord;
+import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.api.dto.UserRecordDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;

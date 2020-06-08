@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.api.dto;
+package com.fairandsmart.consent.manager.model;
 
 public class UserRecord {
     private String bodyKey;
@@ -9,6 +9,7 @@ public class UserRecord {
     private String type;
     private String value;
     private String status;
+    private String collectionMethod;
 
     public UserRecord() {
     }
@@ -85,6 +86,15 @@ public class UserRecord {
         return this;
     }
 
+    public String getCollectionMethod() {
+        return collectionMethod;
+    }
+
+    public UserRecord setCollectionMethod(String collectionMethod) {
+        this.collectionMethod = collectionMethod;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "UserRecord{" +
@@ -96,6 +106,7 @@ public class UserRecord {
                 ", type='" + type + '\'' +
                 ", value='" + value + '\'' +
                 ", status='" + status + '\'' +
+                ", collectionMethod=" + collectionMethod +
                 '}';
     }
 }
