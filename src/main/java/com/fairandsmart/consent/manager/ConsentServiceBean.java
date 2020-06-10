@@ -610,9 +610,36 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public String putRecord(OperatorRecordDto recordDto) {
-        LOGGER.log(Level.INFO, "TODO: put record: " + recordDto.toString());
-        return "ok";
+    public Record putRecord(OperatorRecordDto recordDto) throws TokenServiceException, TokenExpiredException, InvalidTokenException, EntityNotFoundException, DatatypeConfigurationException {
+        LOGGER.log(Level.INFO, "Creating record from author: " + recordDto.getAuthor());
+        ConsentContext ctx = (ConsentContext) tokenService.readToken(recordDto.getToken());
+        String transaction = java.util.UUID.randomUUID().toString();
+        Instant now = Instant.now();
+
+        Record record = new Record();
+        ModelVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+        ModelVersion body = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getElements().get(0));
+        ModelVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+        record.transaction = transaction;
+        record.subject = ctx.getSubject();
+        record.owner = ctx.getOwner();
+        record.type = body.entry.type;
+        record.headSerial = header.serial;
+        record.bodySerial = body.serial;
+        record.footSerial = footer.serial;
+        record.headKey = ctx.getHeader();
+        record.bodyKey = ctx.getElements().get(0);
+        record.footKey = ctx.getFooter();
+        record.serial = header.serial + "." + body.serial + "." + footer.serial;
+        record.value = recordDto.getValue();
+        record.creationTimestamp = now.toEpochMilli();
+        record.expirationTimestamp = now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
+        record.status = Record.Status.COMMITTED;
+        record.collectionMethod = ctx.getCollectionMethod();
+        record.author = recordDto.getAuthor();
+        record.comment = recordDto.getComment();
+        record.persist();
+        return record;
     }
 
     /* INTERNAL */

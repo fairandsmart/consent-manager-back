@@ -14,6 +14,7 @@ import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
+import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.commons.lang3.LocaleUtils;
 
 import javax.annotation.security.RolesAllowed;
@@ -24,6 +25,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.SecurityContext;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -136,13 +138,13 @@ public class ConsentsResource {
         return consentService.listUserRecords(filter);
     }
 
-    @PUT
+    @POST
     @Path("/records/user")
     @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String putRecord(OperatorRecordDto recordDto) {
-        LOGGER.log(Level.INFO, "PUT /records/user");
+    @Produces(MediaType.APPLICATION_JSON)
+    public Record putRecord(OperatorRecordDto recordDto) throws TokenServiceException, TokenExpiredException, InvalidTokenException, DatatypeConfigurationException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "POST /records/user");
         return consentService.putRecord(recordDto);
     }
 }

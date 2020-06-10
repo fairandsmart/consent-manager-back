@@ -17,8 +17,10 @@ import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
+import com.fairandsmart.consent.token.TokenServiceException;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.List;
 
 public interface ConsentService {
@@ -73,5 +75,5 @@ public interface ConsentService {
 
     CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter);
 
-    String putRecord(OperatorRecordDto recordDto);
+    Record putRecord(OperatorRecordDto recordDto) throws TokenServiceException, TokenExpiredException, InvalidTokenException, EntityNotFoundException, DatatypeConfigurationException;
 }
