@@ -10,6 +10,7 @@ public class UserRecord {
     private String value;
     private String status;
     private String collectionMethod;
+    private String comment;
 
     public UserRecord() {
     }
@@ -95,6 +96,14 @@ public class UserRecord {
         return this;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
     @Override
     public String toString() {
         return "UserRecord{" +
@@ -107,6 +116,7 @@ public class UserRecord {
                 ", value='" + value + '\'' +
                 ", status='" + status + '\'' +
                 ", collectionMethod=" + collectionMethod +
+                ", comment='" + comment + '\'' +
                 '}';
     }
 }

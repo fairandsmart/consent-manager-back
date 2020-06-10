@@ -1,12 +1,13 @@
 package com.fairandsmart.consent.api.dto;
 
-public class UserRecordDto {
+public class OperatorRecordDto {
     private String bodyKey;
-    private String owner;
+    private String author;
     private String subject;
     private String value;
+    private String comment;
 
-    public UserRecordDto() {
+    public OperatorRecordDto() {
     }
 
     public String getBodyKey() {
@@ -17,12 +18,12 @@ public class UserRecordDto {
         this.bodyKey = bodyKey;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getAuthor() {
+        return author;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public String getSubject() {
@@ -41,13 +42,22 @@ public class UserRecordDto {
         this.value = value;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
     @Override
     public String toString() {
-        return "UserRecordDto{" +
+        return "OperatorRecordDto{" +
                 "bodyKey='" + bodyKey + '\'' +
-                ", owner='" + owner + '\'' +
+                ", author='" + author + '\'' +
                 ", subject='" + subject + '\'' +
                 ", value='" + value + '\'' +
+                ", comment='" + comment + '\'' +
                 '}';
     }
 }

@@ -2,7 +2,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.manager.model.UserRecord;
-import com.fairandsmart.consent.api.dto.UserRecordDto;
+import com.fairandsmart.consent.api.dto.OperatorRecordDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -569,7 +569,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Listing user records for " + filter.getUser());
         @SuppressWarnings("unchecked")
         List<Object[]> rawResults = entityManager.createNativeQuery(
-                "SELECT entry.key as bodyKey, subquery.owner, subquery.subject, subquery.creationTimestamp, subquery.expirationTimestamp, entry.type, subquery.value, subquery.status, subquery.collectionMethod " +
+                "SELECT entry.key as bodyKey, subquery.owner, subquery.subject, subquery.creationTimestamp, subquery.expirationTimestamp, entry.type, subquery.value, subquery.status, subquery.collectionMethod, subquery.comment " +
                         "FROM ModelEntry entry LEFT JOIN (SELECT record1.* FROM Record record1 LEFT JOIN Record record2 " +
                         "ON (record1.owner = record2.owner AND record1.subject = record2.subject AND record1.bodyKey = record2.bodyKey AND record1.creationTimestamp < record2.creationTimestamp) " +
                         "WHERE record2.owner IS NULL AND record1.owner = ?1 AND record1.subject = ?2 AND record1.type = ?3 " +
@@ -595,6 +595,7 @@ public class ConsentServiceBean implements ConsentService {
             record.setValue((String) e[6]);
             record.setStatus((String) e[7]);
             record.setCollectionMethod((String) e[8]);
+            record.setComment((String) e[9]);
             userRecords.add(record);
         }
 
@@ -609,13 +610,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public UserRecord putRecord(UserRecordDto recordDto) {
+    public String putRecord(OperatorRecordDto recordDto) {
         LOGGER.log(Level.INFO, "TODO: put record: " + recordDto.toString());
-        return new UserRecord()
-                .setBodyKey(recordDto.getBodyKey())
-                .setOwner(recordDto.getOwner())
-                .setSubject(recordDto.getSubject())
-                .setValue(recordDto.getValue());
+        return "ok";
     }
 
     /* INTERNAL */

@@ -36,6 +36,7 @@ public class Record extends PanacheEntityBase {
     @Enumerated(EnumType.STRING)
     public ConsentContext.CollectionMethod collectionMethod;
     public String author;
+    public String comment;
     @ElementCollection(fetch = FetchType.EAGER)
     public Map<String, String> attributes;
 
@@ -68,6 +69,7 @@ public class Record extends PanacheEntityBase {
                 ", status=" + status +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
+                ", comment='" + comment + '\'' +
                 ", attributes=" + attributes +
                 '}';
     }
