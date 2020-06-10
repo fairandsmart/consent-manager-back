@@ -52,6 +52,8 @@ public class ModelContent {
             return body;
         } catch ( JsonProcessingException e ) {
             throw new ModelDataSerializationException("Unable to deserialize element data", e);
+        } catch ( IOException e ) {
+            throw new ModelDataSerializationException("IO error while deserializing element data", e);
         }
     }
 
