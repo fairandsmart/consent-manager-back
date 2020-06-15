@@ -36,9 +36,11 @@
     <div class="spaced"><span class="receipt-label"><@readBundle "subject_id"></@readBundle>: </span>${data.subject}</div>
 
     <div><span class="receipt-label"><@readBundle "issuer_id"></@readBundle>: </span>${data.processor}</div>
-    <#if data.dataController??>
-        <div><span class="receipt-label"><@readBundle "data_controller_name"></@readBundle>: </span>${data.dataController.name??}</div>
-        <div><span class="receipt-label"><@readBundle "data_controller_details"></@readBundle>: </span>${data.dataController.company??} ${data.dataController.address??} ${data.dataController.email??} ${data.dataController.phoneNumber??}</div>
+    <#if data.dataController?? && data.dataController.name?? && data.dataController.company??>
+        <div><span class="receipt-label"><@readBundle "data_controller_name"></@readBundle>: </span>${data.dataController.name}</div>
+        <div><span class="receipt-label"><@readBundle "data_controller_details"></@readBundle>: </span>
+            ${data.dataController.company} ${data.dataController.address} ${data.dataController.email} ${data.dataController.phoneNumber}
+        </div>
     </#if>
     <div><span class="receipt-label"><@readBundle "privacy_policy"></@readBundle>: </span> ${data.privacyPolicyUrl}</div>
 </body>

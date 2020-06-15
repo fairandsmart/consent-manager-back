@@ -2,7 +2,6 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.manager.model.UserRecord;
-import com.fairandsmart.consent.api.dto.OperatorRecordDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -17,11 +16,10 @@ import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenServiceException;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.List;
+import java.util.Map;
 
 public interface ConsentService {
 
@@ -67,7 +65,7 @@ public interface ConsentService {
 
     ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
 
-    Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidConsentException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
+    Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 
     List<Record> findRecordsForContext(ConsentContext ctx);
 
@@ -75,5 +73,5 @@ public interface ConsentService {
 
     CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter);
 
-    Record putRecord(OperatorRecordDto recordDto) throws TokenServiceException, TokenExpiredException, InvalidTokenException, EntityNotFoundException, DatatypeConfigurationException;
+    Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 }

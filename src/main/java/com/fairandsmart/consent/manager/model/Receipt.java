@@ -192,7 +192,7 @@ public class Receipt {
     public byte[] toXmlBytes() throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
         Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         marshaller.marshal(this, out);
         return out.toByteArray();

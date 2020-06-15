@@ -14,18 +14,13 @@ import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.commons.lang3.LocaleUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.SecurityContext;
-import javax.xml.datatype.DatatypeConfigurationException;
+import javax.ws.rs.core.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -142,9 +137,22 @@ public class ConsentsResource {
     @Path("/records/user")
     @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Record putRecord(OperatorRecordDto recordDto) throws TokenServiceException, TokenExpiredException, InvalidTokenException, DatatypeConfigurationException, EntityNotFoundException {
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateModel<Receipt> createOperatorRecords(OperatorRecordDto dto) throws AccessDeniedException, InvalidTokenException, InvalidConsentException, TokenExpiredException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /records/user");
-        return consentService.putRecord(recordDto);
+
+        if (dto.getToken() == null || dto.getToken().isEmpty()) {
+            throw new AccessDeniedException("unable to find token in form");
+        }
+        Receipt receipt = consentService.createOperatorRecords(dto.getToken(), dto.getValues(), dto.getComment());
+
+        TemplateModel<Receipt> model = new TemplateModel<>();
+        model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
+        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+        model.setBundle(bundle);
+        model.setData(receipt);
+        model.setTemplate("receipt.ftl");
+        LOGGER.log(Level.INFO, model.toString());
+        return model;
     }
 }

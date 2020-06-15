@@ -38,6 +38,7 @@ public class ConsentContext implements Tokenizable {
     private Map<String, String> attributes;
     private String optoutEmail;
     private CollectionMethod collectionMethod;
+    private String author;
     private boolean preview = false;
     private boolean iframe = false;
 
@@ -216,6 +217,14 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
     public boolean isPreview() {
         return preview;
     }
@@ -386,6 +395,7 @@ public class ConsentContext implements Tokenizable {
                 ", attributes=" + attributes +
                 ", optoutEmail='" + optoutEmail + '\'' +
                 ", collectionMethod=" + collectionMethod +
+                ", author='" + author + '\'' +
                 ", preview=" + preview +
                 ", iframe=" + iframe +
                 '}';

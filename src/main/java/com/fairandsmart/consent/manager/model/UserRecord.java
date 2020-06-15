@@ -1,7 +1,9 @@
 package com.fairandsmart.consent.manager.model;
 
 public class UserRecord {
+    private String headerKey;
     private String bodyKey;
+    private String footerKey;
     private String owner;
     private String subject;
     private long creationTimestamp;
@@ -15,85 +17,92 @@ public class UserRecord {
     public UserRecord() {
     }
 
+    public String getHeaderKey() {
+        return headerKey;
+    }
+
+    public void setHeaderKey(String headerKey) {
+        this.headerKey = headerKey;
+    }
+
     public String getBodyKey() {
         return bodyKey;
     }
 
-    public UserRecord setBodyKey(String bodyKey) {
+    public void setBodyKey(String bodyKey) {
         this.bodyKey = bodyKey;
-        return this;
+    }
+
+    public String getFooterKey() {
+        return footerKey;
+    }
+
+    public void setFooterKey(String footerKey) {
+        this.footerKey = footerKey;
     }
 
     public String getOwner() {
         return owner;
     }
 
-    public UserRecord setOwner(String owner) {
+    public void setOwner(String owner) {
         this.owner = owner;
-        return this;
     }
 
     public String getSubject() {
         return subject;
     }
 
-    public UserRecord setSubject(String subject) {
+    public void setSubject(String subject) {
         this.subject = subject;
-        return this;
     }
 
     public long getCreationTimestamp() {
         return creationTimestamp;
     }
 
-    public UserRecord setCreationTimestamp(long creationTimestamp) {
+    public void setCreationTimestamp(long creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
-        return this;
     }
 
     public long getExpirationTimestamp() {
         return expirationTimestamp;
     }
 
-    public UserRecord setExpirationTimestamp(long expirationTimestamp) {
+    public void setExpirationTimestamp(long expirationTimestamp) {
         this.expirationTimestamp = expirationTimestamp;
-        return this;
     }
 
     public String getType() {
         return type;
     }
 
-    public UserRecord setType(String type) {
+    public void setType(String type) {
         this.type = type;
-        return this;
     }
 
     public String getValue() {
         return value;
     }
 
-    public UserRecord setValue(String value) {
+    public void setValue(String value) {
         this.value = value;
-        return this;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public UserRecord setStatus(String status) {
+    public void setStatus(String status) {
         this.status = status;
-        return this;
     }
 
     public String getCollectionMethod() {
         return collectionMethod;
     }
 
-    public UserRecord setCollectionMethod(String collectionMethod) {
+    public void setCollectionMethod(String collectionMethod) {
         this.collectionMethod = collectionMethod;
-        return this;
     }
 
     public String getComment() {
@@ -107,7 +116,9 @@ public class UserRecord {
     @Override
     public String toString() {
         return "UserRecord{" +
-                "bodyKey='" + bodyKey + '\'' +
+                "headerKey='" + headerKey + '\'' +
+                ", bodyKey='" + bodyKey + '\'' +
+                ", footerKey='" + footerKey + '\'' +
                 ", owner='" + owner + '\'' +
                 ", subject='" + subject + '\'' +
                 ", creationTimestamp=" + creationTimestamp +
@@ -115,7 +126,7 @@ public class UserRecord {
                 ", type='" + type + '\'' +
                 ", value='" + value + '\'' +
                 ", status='" + status + '\'' +
-                ", collectionMethod=" + collectionMethod +
+                ", collectionMethod='" + collectionMethod + '\'' +
                 ", comment='" + comment + '\'' +
                 '}';
     }

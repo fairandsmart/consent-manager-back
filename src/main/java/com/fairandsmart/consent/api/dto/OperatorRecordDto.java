@@ -1,13 +1,11 @@
 package com.fairandsmart.consent.api.dto;
 
+import java.util.Map;
+
 public class OperatorRecordDto {
     private String token;
-    private String author;
-    private String value;
+    private Map<String, String> values;
     private String comment;
-
-    public OperatorRecordDto() {
-    }
 
     public String getToken() {
         return token;
@@ -17,20 +15,12 @@ public class OperatorRecordDto {
         this.token = token;
     }
 
-    public String getAuthor() {
-        return author;
+    public Map<String, String> getValues() {
+        return values;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
+    public void setValues(Map<String, String> values) {
+        this.values = values;
     }
 
     public String getComment() {
@@ -45,8 +35,7 @@ public class OperatorRecordDto {
     public String toString() {
         return "OperatorRecordDto{" +
                 "token='" + token + '\'' +
-                ", author='" + author + '\'' +
-                ", value='" + value + '\'' +
+                ", values=" + values +
                 ", comment='" + comment + '\'' +
                 '}';
     }
