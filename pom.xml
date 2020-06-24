@@ -199,6 +199,14 @@
     </build>
     <profiles>
         <profile>
+            <id>CI</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                </property>
+            </activation>
+        </profile>
+        <profile>
             <id>native</id>
             <activation>
                 <property>
