@@ -1,6 +1,6 @@
 /* Gestion du bouton "Tout accepter" */
 var acceptAll = document.getElementById("accept-all-switch");
-const hasAcceptAll = acceptAll != null && acceptAll != undefined;
+const hasAcceptAll = acceptAll != null;
 if (hasAcceptAll) {
     acceptAll.addEventListener("change", (e) => {
         var switches = document.getElementsByClassName("switch");
