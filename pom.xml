@@ -205,6 +205,15 @@
                     <name>env.CI</name>
                 </property>
             </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>${version.dependency-check-maven}</version>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>native</id>
