@@ -53,7 +53,7 @@ public class ModelVersion extends PanacheEntityBase {
         if ( availableLocales.isEmpty() ) {
             locales = new ArrayList<>();
         } else {
-            locales = Arrays.asList(availableLocales.split(","));
+            locales = new ArrayList<>(Arrays.asList(availableLocales.split(",")));
         }
         if ( !locales.contains(locale) ) {
             locales.add(locale);
