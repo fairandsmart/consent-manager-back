@@ -38,7 +38,7 @@ public class ModelsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<ModelEntry> listEntries(
-            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("order") @DefaultValue("key") String order,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
