@@ -1,7 +1,7 @@
 <div class="treatment">
     <@fetchMultiLangContent element></@fetchMultiLangContent>
 
-    <#if langContent?has_content>
+    <#if langContent?is_hash && langContent?has_content>
         <#-- Header -->
         <div class="treatment-header">
             <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>
@@ -69,5 +69,7 @@
                 </ul>
             </div>
         </#if>
+    <#else>
+        <p><@writeError "missingLocale"></@writeError></p>
     </#if>
 </div>
