@@ -17,7 +17,7 @@
 </head>
 
 <body>
-    <form method="post" id="consent" action="#" class="consent_form">
+    <form method="post" id="consent" action="#" class="consent-form">
         <input name="token" id="token" value="${data.token}" hidden/>
 
         <div class="left">
@@ -26,6 +26,8 @@
             <div class="left-content">
                 <#include "header.ftl">
             </div>
+
+            <div class="content-fade fade-inverted"></div>
         </div>
 
         <div class="right">
@@ -48,5 +50,4 @@
 </body>
 
 <script src="/assets/js/consent.js"></script>
-<!--<script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js"></script>-->
 </html>

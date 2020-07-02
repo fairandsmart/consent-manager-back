@@ -50,12 +50,17 @@ form {
     overflow-y: scroll;
 }
 
-.right .content-fade {
-    background: linear-gradient(#eeeeee, rgba(238, 238, 238, 0));
+.fade-inverted {
+    background: linear-gradient(rgba(255, 255, 255, 0), white);
+    margin: -32px 0 0 0 !important;
 }
 
 
 /* Content */
+
+.right .content-fade {
+    background: linear-gradient(#eeeeee, rgba(238, 238, 238, 0));
+}
 
 .treatments {
     padding-top: 12px;

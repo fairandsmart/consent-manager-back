@@ -23,26 +23,26 @@
 
                     <ul class="treatment-body">
                         <#if langContent.showJurisdiction>
-                            <li><@readBundle "headerJurisdictionLabel"></@readBundle> <@valueOrError langContent.jurisdiction "missingValue"></@valueOrError></li>
+                            <li><span class="list-label"><@readBundle "headerJurisdictionLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.jurisdiction "missingValue"></@valueOrError></span></li>
                         </#if>
 
                         <#if langContent.showCollectionMethod>
-                            <li><@readBundle "headerCollectionMethodLabel"></@readBundle> <@valueOrError langContent.collectionMethod "missingValue"></@valueOrError></li>
+                            <li><span class="list-label"><@readBundle "headerCollectionMethodLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.collectionMethod "missingValue"></@valueOrError></span></li>
                         </#if>
 
                         <#if langContent.showScope>
-                            <li><@readBundle "headerScopeLabel"></@readBundle> <@valueOrError langContent.scope "missingValue"></@valueOrError></li>
+                            <li><span class="list-label"><@readBundle "headerScopeLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.scope "missingValue"></@valueOrError></span></li>
                         </#if>
 
                         <#if langContent.showShortNoticeLink>
-                            <li><@readBundle "headerShortNoticeLinkLabel"></@readBundle> <@valueOrError langContent.shortNoticeLink "missingValue"></@valueOrError></li>
+                            <li><span class="list-label"><@readBundle "headerShortNoticeLinkLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.shortNoticeLink "missingValue"></@valueOrError></span></li>
                         </#if>
                     </ul>
                 </div>
             </#if>
 
             <#if langContent.privacyPolicyUrl?has_content>
-                <p>
+                <p class="link-wrapper">
                     <a href="${langContent.privacyPolicyUrl}">
                         <#if langContent.customPrivacyPolicyText?has_content>
                             ${langContent.customPrivacyPolicyText}

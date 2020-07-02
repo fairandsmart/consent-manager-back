@@ -11,29 +11,35 @@
         </div>
 
         <#-- Data -->
-        <#if langContent.dataTitle?has_content>
-            <h4>${langContent.dataTitle}</h4>
-        </#if>
-        <p class="treatment-body"><@valueOrError langContent.dataBody "missingValue"></@valueOrError><p>
+        <div class="item-wrapper">
+            <#if langContent.dataTitle?has_content>
+                <h4>${langContent.dataTitle}</h4>
+            </#if>
+            <p class="treatment-body"><@valueOrError langContent.dataBody "missingValue"></@valueOrError></p>
+        </div>
 
         <#-- Retention -->
         <#if langContent.retentionBody?has_content>
-            <#if langContent.retentionTitle?has_content>
-                <h4>${langContent.retentionTitle}</h4>
-            </#if>
-            <p class="treatment-body">${langContent.retentionBody}<p>
+            <div class="item-wrapper">
+                <#if langContent.retentionTitle?has_content>
+                    <h4>${langContent.retentionTitle}</h4>
+                </#if>
+                <p class="treatment-body">${langContent.retentionBody}</p>
+            </div>
         </#if>
 
         <#-- Usage & purposes -->
-        <#if langContent.usageTitle?has_content>
-            <h4>${langContent.usageTitle}</h4>
-        </#if>
-        <p class="treatment-body"><@valueOrError langContent.usageBody "missingValue"></@valueOrError><p>
-        <p class="treatment-body purpose-container">
-            <#list langContent.purposes as purpose>
-                <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png"/>
-            </#list>
-        </p>
+        <div class="item-wrapper">
+            <#if langContent.usageTitle?has_content>
+                <h4>${langContent.usageTitle}</h4>
+            </#if>
+            <p class="treatment-body"><@valueOrError langContent.usageBody "missingValue"></@valueOrError></p>
+            <p class="treatment-body purpose-container">
+                <#list langContent.purposes as purpose>
+                    <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png"/>
+                </#list>
+            </p>
+        </div>
 
         <#-- Data controller -->
         <#if langContent.showDataController && langContent.dataController?has_content>
@@ -48,10 +54,10 @@
 
                 <ul class="treatment-body">
                     <#if langContent.containsSensitiveData>
-                        <li><@readBundle "containsSensitiveData"></@readBundle></li>
+                        <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
                     </#if>
                     <#if langContent.containsMedicalData>
-                        <li><@readBundle "containsMedicalData"></@readBundle></li>
+                        <li><span class="list-value"><@readBundle "containsMedicalData"></@readBundle></span></li>
                     </#if>
                 </ul>
             </div>
@@ -64,7 +70,7 @@
 
                 <ul class="treatment-body">
                     <#list langContent.thirdParties as thirdPartyName, thirdPartyDescription>
-                        <li>${thirdPartyName} : ${thirdPartyDescription}</li>
+                        <li><span class="list-label">${thirdPartyName} :</span> <span class="list-value">${thirdPartyDescription}</span></li>
                     </#list>
                 </ul>
             </div>
