@@ -1,9 +1,6 @@
 package com.fairandsmart.consent.manager.entity;
 
-import com.fairandsmart.consent.manager.model.Conditions;
-import com.fairandsmart.consent.manager.model.Footer;
-import com.fairandsmart.consent.manager.model.Header;
-import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.manager.model.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -20,7 +17,8 @@ import java.io.IOException;
         @Type(value = Header.class, name = Header.TYPE),
         @Type(value = Footer.class, name = Footer.TYPE),
         @Type(value = Treatment.class, name = Treatment.TYPE),
-        @Type(value = Conditions.class, name = Conditions.TYPE)
+        @Type(value = Conditions.class, name = Conditions.TYPE),
+        @Type(value = Theme.class, name = Theme.TYPE)
 })
 public abstract class ModelData {
 

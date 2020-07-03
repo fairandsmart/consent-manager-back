@@ -34,6 +34,7 @@ public class Header extends ModelData {
     public String getLogoPath() {
         return logoPath;
     }
+
     public void setLogoPath(String logoPath) {
         this.logoPath = logoPath;
     }
