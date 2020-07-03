@@ -41,6 +41,7 @@ public class ConsentContext implements Tokenizable {
     private String author;
     private boolean preview = false;
     private boolean iframe = false;
+    private String theme;
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
@@ -243,6 +244,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public String getTheme() {
+        return theme;
+    }
+
+    public ConsentContext setTheme(String theme) {
+        this.theme = theme;
+        return this;
+    }
+
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
@@ -291,6 +301,9 @@ public class ConsentContext implements Tokenizable {
         }
         claims.put("preview", Boolean.toString(this.isPreview()));
         claims.put("iframe", Boolean.toString(this.isIframe()));
+        if (theme != null) {
+            claims.put("theme", this.getTheme());
+        }
         return claims;
     }
 
@@ -334,6 +347,9 @@ public class ConsentContext implements Tokenizable {
         }
         if (claims.containsKey("iframe")) {
             this.setIframe(Boolean.parseBoolean(claims.get("iframe")));
+        }
+        if (claims.containsKey("theme")) {
+            this.setTheme(claims.get("theme"));
         }
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
                 entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
@@ -398,6 +414,7 @@ public class ConsentContext implements Tokenizable {
                 ", author='" + author + '\'' +
                 ", preview=" + preview +
                 ", iframe=" + iframe +
+                ", theme='" + theme + '\'' +
                 '}';
     }
 }

@@ -440,6 +440,12 @@ public class ConsentServiceBean implements ConsentService {
             form.setFooter(footer);
             ctx.setFooter(footer.getIdentifier().serialize());
 
+            if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
+                ModelVersion theme = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
+                form.setTheme(theme);
+                ctx.setTheme(theme.getIdentifier().serialize());
+            }
+
             form.setToken(tokenService.generateToken(ctx));
             return form;
         } catch ( TokenServiceException e ) {

@@ -17,6 +17,7 @@ public class ConsentForm {
     private Orientation orientation;
     private Map<String, String> previousValues;
     private boolean preview;
+    private ModelVersion theme;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -95,6 +96,14 @@ public class ConsentForm {
         this.preview = preview;
     }
 
+    public ModelVersion getTheme() {
+        return theme;
+    }
+
+    public void setTheme(ModelVersion theme) {
+        this.theme = theme;
+    }
+
     @Override
     public String toString() {
         return "ConsentForm{" +
@@ -105,6 +114,7 @@ public class ConsentForm {
                 ", locale='" + locale + '\'' +
                 ", orientation=" + orientation +
                 ", preview=" + preview +
+                ", theme=" + theme +
                 '}';
     }
 

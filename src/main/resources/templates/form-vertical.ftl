@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/common.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/consent.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/vertical.css">
+    <#include "theme.ftl">
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
