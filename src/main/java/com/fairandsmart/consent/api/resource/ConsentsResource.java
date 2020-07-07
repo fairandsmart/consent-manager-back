@@ -155,4 +155,30 @@ public class ConsentsResource {
         LOGGER.log(Level.INFO, model.toString());
         return model;
     }
+
+    @GET
+    @Path("/preview")
+    public TemplateModel<ConsentForm> getThemePreview(
+            @QueryParam("locale") @DefaultValue("en") String locale,
+            @QueryParam("orientation") String orientation) throws ModelDataSerializationException {
+        LOGGER.log(Level.INFO, "GET /preview");
+
+        ConsentForm.Orientation realOrientation = ConsentForm.Orientation.VERTICAL;
+        if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
+            realOrientation = ConsentForm.Orientation.HORIZONTAL;
+        }
+        ConsentForm form = consentService.generateThemePreview(realOrientation, locale);
+
+        TemplateModel<ConsentForm> model = new TemplateModel<>();
+        model.setLocale(LocaleUtils.toLocale(form.getLocale()));
+        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+        model.setBundle(bundle);
+        model.setData(form);
+        model.setTemplate("form-vertical.ftl");
+        if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
+            model.setTemplate("form-horizontal.ftl");
+        }
+        LOGGER.log(Level.FINE, model.toString());
+        return model;
+    }
 }

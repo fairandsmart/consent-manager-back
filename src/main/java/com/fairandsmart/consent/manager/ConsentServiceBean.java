@@ -1,7 +1,7 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.manager.model.UserRecord;
+import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -11,10 +11,6 @@ import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.filter.UserRecordFilter;
-import com.fairandsmart.consent.manager.model.Footer;
-import com.fairandsmart.consent.manager.model.Header;
-import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.Treatment;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
@@ -392,6 +388,75 @@ public class ConsentServiceBean implements ConsentService {
         version.delete();
     }
 
+    @Override
+    public ConsentForm generateThemePreview(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException {
+        ConsentForm form = new ConsentForm();
+        form.setLocale(locale);
+        form.setOrientation(orientation);
+        form.setPreview(true);
+        form.setToken("PREVIEW");
+
+        Header lipsumHeader = new Header();
+        lipsumHeader.setLogoAltText("Quisque rutrum, velit id congue facilisis");
+        lipsumHeader.setLogoPath("/assets/img/themes/preview_logo.png");
+        lipsumHeader.setTitle("Mauris auctor orci vestibulum sapien");
+        lipsumHeader.setBody("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et libero eu augue placerat bibendum auctor ac elit. Duis imperdiet metus felis, laoreet porta dolor faucibus nec. Donec in diam tincidunt, commodo erat sit amet, congue ipsum. Nullam venenatis ipsum nibh, vel viverra tortor venenatis ut. Morbi id urna quis lorem porta sodales vitae at leo. Praesent sed lorem rutrum, facilisis turpis at, viverra lorem. Mauris lorem justo, vulputate quis ipsum id, vestibulum efficitur sapien.");
+        lipsumHeader.setPrivacyPolicyUrl("https://www.lipsum.com/feed/html");
+        lipsumHeader.setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM.name());
+        lipsumHeader.setDataController(new Controller().withCompany("Company").withName("John Doe").withAddress("Paris").withEmail("john.doe@company").withPhoneNumber("0123456789").withActingBehalfCompany(true));
+        lipsumHeader.setJurisdiction("Duis sed lorem");
+        lipsumHeader.setScope("Pellentesque a ex luctus");
+        lipsumHeader.setShortNoticeLink("https://www.lipsum.com/feed/html");
+        lipsumHeader.setShowCollectionMethod(true);
+        lipsumHeader.setShowDataController(true);
+        lipsumHeader.setShowJurisdiction(true);
+        lipsumHeader.setShowScope(true);
+        lipsumHeader.setShowShortNoticeLink(true);
+        form.setHeader(generateVersionForPreview(locale, lipsumHeader));
+
+        Treatment lipsumTreatment = new Treatment();
+        lipsumTreatment.setTreatmentTitle("Donec eu ex nunc");
+        lipsumTreatment.setDataTitle("Ut laoreet egestas tempus");
+        lipsumTreatment.setDataBody("Nunc fringilla eros nec elit pellentesque mattis. In magna lacus, faucibus non augue vel, aliquet mollis arcu. Donec nulla nisl, ullamcorper et augue eget, dapibus feugiat nisl. In vitae ligula commodo, blandit massa sit amet, tincidunt est. Nullam ut sapien ut lacus iaculis tincidunt. Ut et pellentesque quam, at molestie orci.");
+        lipsumTreatment.setRetentionTitle("Pellentesque maximus congue ultricies");
+        lipsumTreatment.setRetentionBody("Donec dignissim cursus euismod. Donec luctus ante sed nibh dictum, ut imperdiet mauris eleifend. Pellentesque nec felis at tellus porta dapibus et sit amet lacus. In mauris tellus, venenatis euismod ipsum vel, blandit ornare neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Praesent aliquam, libero eget tristique consequat, massa leo pharetra nisl, vel semper felis est id metus.");
+        lipsumTreatment.setUsageTitle("Fusce molestie nisi sed molestie tincidunt");
+        lipsumTreatment.setUsageBody("Sed suscipit nec orci ac fermentum. Etiam ut urna diam. In rutrum tortor magna, non auctor massa interdum id. Maecenas a imperdiet turpis. Pellentesque ac imperdiet lorem. Integer porta nulla nec interdum facilisis. Phasellus sit amet rutrum mauris. Duis et tellus cursus, rhoncus tortor quis, tristique tellus. Nam ut dui id massa rhoncus pharetra rhoncus pharetra lacus. Phasellus vitae sagittis neque.");
+        lipsumTreatment.addPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE);
+        lipsumTreatment.addPurpose(Treatment.Purpose.CONSENT_THIRD_PART_SHARING);
+        lipsumTreatment.addPurpose(Treatment.Purpose.CONSENT_MARKETING);
+        lipsumTreatment.setContainsMedicalData(true);
+        lipsumTreatment.setContainsSensitiveData(true);
+        lipsumTreatment.setDataController(new Controller().withCompany("Company").withName("Jane Doe").withAddress("Paris").withEmail("jane.doe@company").withPhoneNumber("0123456789").withActingBehalfCompany(true));
+        lipsumTreatment.setShowDataController(true);
+        lipsumTreatment.addThirdParty("Quisque eu tincidunt", "Aliquam varius lectus id facilisis commodo. Suspendisse hendrerit malesuada nisl, in egestas leo venenatis a. Praesent at elit non nisl condimentum rhoncus.");
+        lipsumTreatment.addThirdParty("Vivamus quis", "Suspendisse pretium tincidunt turpis et tempor. Maecenas blandit in magna id rutrum. Nullam eu ligula ex.");
+        form.addElement(generateVersionForPreview(locale, lipsumTreatment));
+
+        Treatment lipsumTreatment2 = new Treatment();
+        lipsumTreatment2.setTreatmentTitle("Cras sed rutrum dui, viverra porttitor mauris");
+        lipsumTreatment2.setDataTitle("Integer ultrices augue non lorem euismod, malesuada tempor libero interdum");
+        lipsumTreatment2.setDataBody("Nulla quis placerat diam. Vivamus turpis nulla, sodales at luctus sed, aliquet quis odio. Sed sit amet bibendum quam. Vestibulum nec nisl sodales libero malesuada auctor a at elit. Maecenas in finibus ante, ut egestas orci. Maecenas iaculis sagittis orci. Sed eget nulla nulla. Vestibulum eros arcu, lobortis accumsan sem rhoncus, mollis commodo odio.");
+        lipsumTreatment2.setRetentionTitle("Sed non urna eget lectus consectetur sodales");
+        lipsumTreatment2.setRetentionBody("Donec condimentum dictum erat a sollicitudin. Cras vitae lectus fringilla leo sagittis semper. Vivamus vulputate, risus ac malesuada pulvinar, nulla dui pharetra nibh, eu pretium ante urna sit amet nibh. Nunc urna turpis, bibendum eu volutpat sed, maximus iaculis enim. Nullam fringilla a velit eget tempus. Etiam sed ex nec ligula mattis aliquet ut sed nibh.");
+        lipsumTreatment2.setUsageTitle("Fusce sodales ligula non lorem volutpat interdum");
+        lipsumTreatment2.setUsageBody("Vestibulum ac augue et sapien accumsan viverra. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean accumsan quam non massa luctus, a condimentum ipsum bibendum. Curabitur rutrum mauris et odio mollis faucibus. Duis fringilla blandit sem, non vulputate mauris ullamcorper ac. Sed dignissim id erat congue dignissim. Nulla pulvinar porttitor arcu sit amet dapibus. Sed interdum venenatis neque, eu commodo lorem porta ut.");
+        lipsumTreatment2.addPurpose(Treatment.Purpose.CONSENT_RESEARCH);
+        lipsumTreatment2.setContainsMedicalData(true);
+        lipsumTreatment2.setContainsSensitiveData(true);
+        lipsumTreatment2.setDataController(new Controller().withCompany("Company").withName("Jack Doe").withAddress("Paris").withEmail("jack.doe@company").withPhoneNumber("0123456789").withActingBehalfCompany(true));
+        lipsumTreatment2.setShowDataController(true);
+        lipsumTreatment2.addThirdParty("Aliquam", "Nullam in vulputate risus. Praesent sed tempus turpis, non lacinia tellus. Maecenas non mi dui. Proin imperdiet consectetur mi ornare porttitor. In rutrum ipsum eu mattis pellentesque.");
+        form.addElement(generateVersionForPreview(locale, lipsumTreatment2));
+
+        Footer lipsumFooter = new Footer();
+        lipsumFooter.setBody("Nulla in aliquet elit. Quisque ultricies hendrerit mi accumsan lobortis. Mauris elementum ipsum vitae euismod accumsan. Duis eget placerat mi, at eleifend mauris. Nulla velit libero, cursus vitae lacinia at, mattis eget sem. Praesent at ligula lacus. Donec a ligula vel odio accumsan commodo. Aenean varius diam sed turpis volutpat ornare.");
+        lipsumFooter.setShowAcceptAll(true);
+        form.setFooter(generateVersionForPreview(locale, lipsumFooter));
+
+        return form;
+    }
+
     /* CONSENT MANAGEMENT */
 
     @Override
@@ -698,5 +763,23 @@ public class ConsentServiceBean implements ConsentService {
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
+    }
+
+    private ModelVersion generateVersionForPreview(String locale, ModelData data) throws ModelDataSerializationException {
+        ModelContent previewContent = new ModelContent();
+        previewContent.setDataObject(data);
+
+        ModelEntry previewEntry = new ModelEntry();
+        previewEntry.key = "PREVIEW";
+        previewEntry.type = data.getType();
+
+        ModelVersion previewVersion = new ModelVersion();
+        previewVersion.type = ModelVersion.Type.MAJOR;
+        previewVersion.serial = "PREVIEW";
+        previewVersion.defaultLocale = locale;
+        previewVersion.availableLocales = locale;
+        previewVersion.entry = previewEntry;
+        previewVersion.content.put(locale, previewContent);
+        return previewVersion;
     }
 }

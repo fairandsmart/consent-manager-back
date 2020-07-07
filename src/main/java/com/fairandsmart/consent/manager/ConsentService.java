@@ -61,6 +61,8 @@ public interface ConsentService {
 
     void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 
+    ConsentForm generateThemePreview(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException;
+
     String buildToken(ConsentContext ctx);
 
     ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
