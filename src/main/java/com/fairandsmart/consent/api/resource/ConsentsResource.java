@@ -21,6 +21,8 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -107,7 +109,7 @@ public class ConsentsResource {
         RecordFilter filter = new RecordFilter();
         filter.setPage(page);
         filter.setSize(size);
-        filter.setQuery(query);
+        filter.setQuery(URLDecoder.decode(query, StandardCharsets.UTF_8));
         filter.setOrder(order);
         filter.setDirection(direction);
         return consentService.listRecords(filter);
@@ -127,7 +129,7 @@ public class ConsentsResource {
         UserRecordFilter filter = new UserRecordFilter();
         filter.setPage(page);
         filter.setSize(size);
-        filter.setUser(user);
+        filter.setUser(URLDecoder.decode(user, StandardCharsets.UTF_8));
         filter.setOrder(order);
         filter.setDirection(direction);
         return consentService.listUserRecords(filter);
