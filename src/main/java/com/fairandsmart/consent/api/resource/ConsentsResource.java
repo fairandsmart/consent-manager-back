@@ -98,7 +98,7 @@ public class ConsentsResource {
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<Record> listRecords(
-            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("query") @DefaultValue("") String query,
             @QueryParam("order") @DefaultValue("id") String order,
@@ -118,7 +118,7 @@ public class ConsentsResource {
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<UserRecord> listUserRecords(
-            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("user") @DefaultValue("") String user,
             @QueryParam("order") @DefaultValue("id") String order,
