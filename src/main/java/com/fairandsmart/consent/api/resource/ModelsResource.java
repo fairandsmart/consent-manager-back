@@ -71,6 +71,7 @@ public class ModelsResource {
 
     @PUT
     @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelEntry updateEntry(@PathParam("id") @Valid @UUID String id, UpdateModelDto dto) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "PUT /models/" + id);
@@ -87,6 +88,7 @@ public class ModelsResource {
 
     @POST
     @Path("/{id}/versions")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersion createVersion(@PathParam("id") @Valid @UUID String id, ContentDto dto) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "POST /models/" + id + "/versions");
@@ -123,6 +125,7 @@ public class ModelsResource {
 
     @PUT
     @Path("/{id}/versions/{vid}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersion updateVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ContentDto dto) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid);
@@ -131,6 +134,7 @@ public class ModelsResource {
 
     @PUT
     @Path("/{id}/versions/{vid}/status")
+    @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersion updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Status status) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/status");
@@ -139,6 +143,7 @@ public class ModelsResource {
 
     @PUT
     @Path("/{id}/versions/{vid}/type")
+    @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersion updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Type type) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/type");
@@ -147,6 +152,7 @@ public class ModelsResource {
 
     @DELETE
     @Path("/{id}/versions/{vid}")
+    @Produces(MediaType.APPLICATION_JSON)
     public void deleteVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id + "/versions/" + vid);
         consentService.deleteVersion(vid);

@@ -32,7 +32,7 @@
         <#if data.preview>
             <button type="submit" class="submit" disabled><@readBundle "submit" "missingValue"></@readBundle></button>
         <#else>
-            <button type="submit" class="submit" (click)="submitConsent()"><@readBundle "submit" "missingValue"></@readBundle></button>
+            <button type="submit" class="submit" onclick="submitConsent()"><@readBundle "submit" "missingValue"></@readBundle></button>
         </#if>
     </div>
 </div>

@@ -61,17 +61,7 @@ public class ConsentsResource {
 
         ConsentForm form = consentService.generateForm(token);
 
-        TemplateModel<ConsentForm> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(form.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
-        model.setBundle(bundle);
-        model.setData(form);
-        model.setTemplate("form-vertical.ftl");
-        if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
-            model.setTemplate("form-horizontal.ftl");
-        }
-        LOGGER.log(Level.FINE, model.toString());
-        return model;
+        return getConsentFormTemplateModel(form);
     }
 
     @POST
@@ -85,14 +75,7 @@ public class ConsentsResource {
         }
         Receipt receipt = consentService.submitConsent(values.get("token").get(0), values);
 
-        TemplateModel<Receipt> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
-        model.setBundle(bundle);
-        model.setData(receipt);
-        model.setTemplate("receipt.ftl");
-        LOGGER.log(Level.INFO, model.toString());
-        return model;
+        return getReceiptTemplateModel(receipt);
     }
 
     @GET
@@ -148,18 +131,12 @@ public class ConsentsResource {
         }
         Receipt receipt = consentService.createOperatorRecords(dto.getToken(), dto.getValues(), dto.getComment());
 
-        TemplateModel<Receipt> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
-        model.setBundle(bundle);
-        model.setData(receipt);
-        model.setTemplate("receipt.ftl");
-        LOGGER.log(Level.INFO, model.toString());
-        return model;
+        return getReceiptTemplateModel(receipt);
     }
 
     @GET
     @Path("/preview")
+    @Produces(MediaType.TEXT_HTML)
     public TemplateModel<ConsentForm> getThemePreview(
             @QueryParam("locale") @DefaultValue("en") String locale,
             @QueryParam("orientation") String orientation) throws ModelDataSerializationException {
@@ -171,6 +148,10 @@ public class ConsentsResource {
         }
         ConsentForm form = consentService.generateThemePreview(realOrientation, locale);
 
+        return getConsentFormTemplateModel(form);
+    }
+
+    private TemplateModel<ConsentForm> getConsentFormTemplateModel(ConsentForm form) {
         TemplateModel<ConsentForm> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(form.getLocale()));
         ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
@@ -183,4 +164,16 @@ public class ConsentsResource {
         LOGGER.log(Level.FINE, model.toString());
         return model;
     }
+
+    private TemplateModel<Receipt> getReceiptTemplateModel(Receipt receipt) {
+        TemplateModel<Receipt> model = new TemplateModel<>();
+        model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
+        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+        model.setBundle(bundle);
+        model.setData(receipt);
+        model.setTemplate("receipt.ftl");
+        LOGGER.log(Level.INFO, model.toString());
+        return model;
+    }
+
 }

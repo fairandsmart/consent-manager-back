@@ -1,8 +1,8 @@
 package com.fairandsmart.consent.token;
 
 public class TokenExpiredException extends Exception {
-    public TokenExpiredException() {
-    }
+
+    public TokenExpiredException() {}
 
     public TokenExpiredException(String s) {
         super(s);

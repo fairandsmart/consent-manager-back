@@ -54,7 +54,7 @@ public class UserRecordFilter implements SortableFilter {
 
     // Needs maintenance but prevents SQL injections
     public String getSQLOrder() {
-        String sqlOrder = "";
+        String sqlOrder;
         switch (order) {
             case "bodyKey":
             case "type":

@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.common.util;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class Base58 {
@@ -12,9 +13,7 @@ public class Base58 {
     private static final int[] INDEXES = new int[128];
 
     static {
-        for (int i = 0; i < INDEXES.length; i++) {
-            INDEXES[i] = -1;
-        }
+        Arrays.fill(INDEXES, -1);
         for (int i = 0; i < ALPHABET.length; i++) {
             INDEXES[ALPHABET[i]] = i;
         }

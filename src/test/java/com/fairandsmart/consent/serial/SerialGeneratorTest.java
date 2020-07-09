@@ -60,10 +60,10 @@ public class SerialGeneratorTest {
         }
     }
 
-    class SerialConsumer implements Runnable {
+    static class SerialConsumer implements Runnable {
 
-        private SerialGenerator generator;
-        private Collection<String> serials;
+        private final SerialGenerator generator;
+        private final Collection<String> serials;
 
         public SerialConsumer(SerialGenerator generator, Collection<String> serials) {
             this.generator = generator;

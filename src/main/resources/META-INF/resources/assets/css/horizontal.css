@@ -42,8 +42,7 @@ form {
 /* Header */
 
 .logo-wrapper {
-    margin: 24px;
-    margin-bottom: 0px;
+    margin: 24px 24px 0;
 }
 
 .left-content {
@@ -74,9 +73,9 @@ form {
 /* Footer */
 
 .footer {
-    padding: 12px 0px;
+    padding: 12px 0;
     border-top: 1px solid lightgray;
-    margin: 0px 36px;
+    margin: 0 36px;
 }
 
 .submit-container {

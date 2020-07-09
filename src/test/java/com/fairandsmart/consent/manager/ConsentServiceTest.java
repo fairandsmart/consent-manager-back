@@ -53,9 +53,7 @@ public class ConsentServiceTest {
     public void testCreateEntryForExistingKey() throws EntityAlreadyExistsException {
         ModelEntry entry = service.createEntry("existing", "header1", "description", "header");
         assertNotNull(entry);
-        assertThrows(EntityAlreadyExistsException.class, () -> {
-            service.createEntry("existing", "header1", "description", "header");
-        });
+        assertThrows(EntityAlreadyExistsException.class, () -> service.createEntry("existing", "header1", "description", "header"));
     }
 
     @Test
@@ -90,9 +88,7 @@ public class ConsentServiceTest {
         assertEquals("Entry Description Updated", entry.description);
 
         String fakeid = UUID.randomUUID().toString();
-        assertThrows(EntityNotFoundException.class, () -> {
-            service.updateEntry(fakeid, "Entry Name Updated", "Entry Description Updated");
-        });
+        assertThrows(EntityNotFoundException.class, () -> service.updateEntry(fakeid, "Entry Name Updated", "Entry Description Updated"));
 
         LOGGER.info("Check no version exists");
         List<ModelVersion> versions = service.getVersionHistoryForKey(entry.id);
@@ -157,14 +153,14 @@ public class ConsentServiceTest {
         assertEquals("Scope", data.getScope());
         assertEquals("Logo Alt Text", data.getLogoAltText());
         assertEquals("Logo path", data.getLogoPath());
-        assertEquals(true, data.isShowCollectionMethod());
-        assertEquals(true, data.isShowDataController());
-        assertEquals(true, data.isShowJurisdiction());
-        assertEquals(true, data.isShowScope());
-        assertEquals(true, data.isShowShortNoticeLink());
+        assertTrue(data.isShowCollectionMethod());
+        assertTrue(data.isShowDataController());
+        assertTrue(data.isShowJurisdiction());
+        assertTrue(data.isShowScope());
+        assertTrue(data.isShowShortNoticeLink());
         assertEquals("Name", data.getDataController().getName());
         assertEquals("Company", data.getDataController().getCompany());
-        assertEquals(true, data.getDataController().isActingBehalfCompany());
+        assertTrue(data.getDataController().isActingBehalfCompany());
         assertEquals("Address", data.getDataController().getAddress());
         assertEquals("Email", data.getDataController().getEmail());
         assertEquals("Phone Number", data.getDataController().getPhoneNumber());
@@ -173,9 +169,7 @@ public class ConsentServiceTest {
         assertEquals(versions.get(0), version);
 
         //At this point no version is active
-        assertThrows(EntityNotFoundException.class, () -> {
-            service.findActiveVersionForKey("h10");
-        });
+        assertThrows(EntityNotFoundException.class, () -> service.findActiveVersionForKey("h10"));
 
         LOGGER.log(Level.INFO, "Activate entry");
         service.updateVersionStatus(versionId, ModelVersion.Status.ACTIVE);

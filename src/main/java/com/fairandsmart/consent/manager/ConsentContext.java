@@ -94,7 +94,7 @@ public class ConsentContext implements Tokenizable {
     }
 
     public String getElementsString() {
-        return elements.stream().collect(Collectors.joining(","));
+        return String.join(",", elements);
     }
 
     public void setElementsString(String elements) {

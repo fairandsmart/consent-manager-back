@@ -1,19 +1,19 @@
 /* Gestion du bouton "Tout accepter" */
-var acceptAll = document.getElementById("accept-all-switch");
+const acceptAll = document.getElementById("accept-all-switch");
 const hasAcceptAll = acceptAll != null;
 if (hasAcceptAll) {
     acceptAll.addEventListener("change", (e) => {
-        var switches = document.getElementsByClassName("switch");
+        const switches = document.getElementsByClassName("switch");
         if (e.target.checked) { /* Tout sélectionner */
-            for (var i = 0; i < switches.length - 1; i++) { // Le dernier élément est forcément le bouton "Tout accepter"
+            for (let i = 0; i < switches.length - 1; i++) { // Le dernier élément est forcément le bouton "Tout accepter"
                 const key = switches[i].children[0].id; // Checkbox input id
                 document.getElementById(key).checked = true; // Check input
                 document.getElementById(key + "-accepted").selected = true; // Select option "accepted"
                 document.getElementById(key + "-refused").selected = false; // Deselect option "refused"
             }
         } else { /* Tout désélectionner */
-            for (var i = 0; i < switches.length - 1; i++) { // Le dernier élément est forcément le bouton "Tout accepter"
-                const key = switches[i].children[0].id; // Checkbox input id
+            for (let j = 0; j < switches.length - 1; j++) { // Le dernier élément est forcément le bouton "Tout accepter"
+                const key = switches[j].children[0].id; // Checkbox input id
                 document.getElementById(key).checked = false; // Uncheck input
                 document.getElementById(key + "-accepted").selected = false; // Deselect option "accepted"
                 document.getElementById(key + "-refused").selected = true; // Select option "refused"
@@ -24,13 +24,13 @@ if (hasAcceptAll) {
 
 /* Gestion des select cachés au niveau des toggle switches
 /!\ Ne fonctionne que pour les clics de la souris, PAS pour les changements d'état en pur JS /!\ */
-var switches = document.getElementsByClassName("switch");
-for (var i = 0; i < switches.length; i++) {
+const switches = document.getElementsByClassName("switch");
+for (let i = 0; i < switches.length; i++) {
     const key = switches[i].children[0].id; // Checkbox input id
 
     document.getElementById(key).addEventListener("change", (e) => {
-        var accepted = document.getElementById(key + "-accepted");
-        var refused = document.getElementById(key + "-refused");
+        const accepted = document.getElementById(key + "-accepted");
+        const refused = document.getElementById(key + "-refused");
         if (e.target.checked) {
             accepted.selected = true;
             refused.selected = false;
@@ -41,7 +41,7 @@ for (var i = 0; i < switches.length; i++) {
 
         /* Désélection du bouton "Tout accepter" si la checkbox courante est décochée alors "Tout accepter" était coché */
         if (hasAcceptAll) {
-            var acceptAllButton = document.getElementById("accept-all");
+            const acceptAllButton = document.getElementById("accept-all");
             if (acceptAllButton.checked && !e.target.checked) {
                 acceptAllButton.checked = false; // Uncheck input
                 document.getElementById("accept-all-accepted").selected = false; // Deselect option "accepted"
@@ -49,4 +49,4 @@ for (var i = 0; i < switches.length; i++) {
             }
         }
     });
-};
+}

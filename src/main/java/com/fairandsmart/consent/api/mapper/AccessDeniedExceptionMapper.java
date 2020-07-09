@@ -16,5 +16,4 @@ public class AccessDeniedExceptionMapper implements ExceptionMapper<AccessDenied
         ApiError error = new ApiError(HttpStatus.SC_UNAUTHORIZED, "access-denied", "Access Denied");
         return Response.status(Response.Status.UNAUTHORIZED).entity(error).build();
     }
-
 }

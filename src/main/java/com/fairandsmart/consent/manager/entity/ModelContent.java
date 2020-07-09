@@ -48,12 +48,9 @@ public class ModelContent {
     public ModelData getDataObject() throws ModelDataSerializationException {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ModelData body = mapper.readValue(data, dataClass);
-            return body;
+            return mapper.readValue(data, dataClass);
         } catch ( JsonProcessingException e ) {
             throw new ModelDataSerializationException("Unable to deserialize element data", e);
-        } catch ( IOException e ) {
-            throw new ModelDataSerializationException("IO error while deserializing element data", e);
         }
     }
 

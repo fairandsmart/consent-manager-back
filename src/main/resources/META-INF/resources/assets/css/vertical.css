@@ -32,7 +32,7 @@ form {
 
 .header {
     text-align: center;
-    margin: 0 0px 18px 12px;
+    margin: 0 0 18px 12px;
     border-bottom: 1px solid #eee;
 }
 
@@ -45,7 +45,7 @@ form {
 }
 
 .footer-body {
-    padding: 0px 12px;
+    padding: 0 12px;
 }
 
 .accept-all-container {
@@ -54,5 +54,5 @@ form {
 
 .submit-container {
     text-align: center;
-    margin: 8px 0px 16px 0px;
+    margin: 8px 0 16px 0;
 }

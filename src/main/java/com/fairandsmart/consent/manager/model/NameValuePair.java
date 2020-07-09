@@ -1,9 +1,13 @@
 package com.fairandsmart.consent.manager.model;
 
-public class NameValuePair {
+import java.io.Serializable;
+
+public class NameValuePair implements Serializable {
 
     private String name;
     private String value;
+
+    public NameValuePair() {}
 
     public NameValuePair(String name, String value) {
         this.name = name;

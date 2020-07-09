@@ -31,16 +31,15 @@ public class SerialGeneratorSingleton implements SerialGenerator {
     @ConfigProperty(name = "consent.serial.prefix")
     String prefix;
 
-    private static Map<String, Sequence> pools = new HashMap<>();
+    private static final Map<String, Sequence> pools = new HashMap<>();
 
     @Override
     @Lock(LockType.WRITE)
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public String next(String name) throws SerialGeneratorException {
         LOGGER.log(Level.FINE,"Generating next serial for name: " + name);
-        Long value = generate(name);
-        String serial = prefix + this.valueToSerial(value);
-        return serial;
+        long value = generate(name);
+        return prefix + valueToSerial(value);
     }
 
     @Override
@@ -62,7 +61,7 @@ public class SerialGeneratorSingleton implements SerialGenerator {
     @Override
     public boolean isValid(String serial) {
         LOGGER.log(Level.FINE,"Checking if serial is valid: " + serial);
-        if ( prefix != null && !serial.startsWith(String.valueOf(prefix)) ) {
+        if ( prefix != null && !serial.startsWith(prefix) ) {
             return false;
         }
         byte[] bserial;
@@ -74,10 +73,7 @@ public class SerialGeneratorSingleton implements SerialGenerator {
         if (bserial.length != 4 && bserial.length != 6 && bserial.length != 10) {
             return false;
         }
-        if (checksum(bserial) != bserial[bserial.length - 1]) {
-            return false;
-        }
-        return true;
+        return checksum(bserial) == bserial[bserial.length - 1];
     }
 
     private static String valueToSerial(long value) {
@@ -116,11 +112,10 @@ public class SerialGeneratorSingleton implements SerialGenerator {
                     pool = new Sequence();
                     pool.name = name;
                     pool.next = initial;
-                    pool.value = pool.next + capacity;
                 } else {
                     pool.next = pool.value;
-                    pool.value = pool.next + capacity;
                 }
+                pool.value = pool.next + capacity;
                 pool.persistAndFlush();
                 pools.put(pool.name, pool);
             }

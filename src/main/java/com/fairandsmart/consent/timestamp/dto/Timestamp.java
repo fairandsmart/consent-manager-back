@@ -3,17 +3,17 @@ package com.fairandsmart.consent.timestamp.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Timestamp {
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
     private String algo;
     private Long time;
     private String response;
 
-    public Timestamp() {
-    }
+    public Timestamp() {}
 
     public Timestamp(String algo, Long time, String response) {
         this.algo = algo;
@@ -49,8 +49,8 @@ public class Timestamp {
 
         Timestamp timestamp = (Timestamp) o;
 
-        if (time != null ? !time.equals(timestamp.time) : timestamp.time != null) return false;
-        return response != null ? response.equals(timestamp.response) : timestamp.response == null;
+        if (!Objects.equals(time, timestamp.time)) return false;
+        return Objects.equals(response, timestamp.response);
     }
 
     @Override
