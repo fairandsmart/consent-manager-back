@@ -16,16 +16,17 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <version.quarkus-plugin>1.5.2.Final</version.quarkus-plugin>
+        <version.quarkus-plugin>1.6.0.Final</version.quarkus-plugin>
         <version.commons-codec>1.14</version.commons-codec>
         <version.java-jwt>3.10.3</version.java-jwt>
         <version.freemarker>2.3.30</version.freemarker>
         <version.jsoup>1.13.1</version.jsoup>
         <version.maven>3.6.2</version.maven>
-        <version.maven-failsafe-plugin>3.0.0-M4</version.maven-failsafe-plugin>
+        <version.maven-failsafe-plugin>3.0.0-M5</version.maven-failsafe-plugin>
         <version.maven-jar-plugin>3.2.0</version.maven-jar-plugin>
         <version.xades4j>1.5.1</version.xades4j>
         <version.resteasy-client>4.5.3.Final</version.resteasy-client>
+        <version.jackson>2.11.1</version.jackson>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -124,12 +125,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.10.4</version>
+            <version>${version.jackson}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.10.4</version>
+            <version>${version.jackson}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
