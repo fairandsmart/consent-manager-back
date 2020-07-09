@@ -36,7 +36,7 @@
             <p class="treatment-body"><@valueOrError langContent.usageBody "missingValue"></@valueOrError></p>
             <p class="treatment-body purpose-container">
                 <#list langContent.purposes as purpose>
-                    <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png"/>
+                    <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png" alt="${purpose?lower_case}"/>
                 </#list>
             </p>
         </div>
@@ -69,8 +69,8 @@
                 <h4><@readBundle "defaultThirdPartiesTitle"></@readBundle></h4>
 
                 <ul class="treatment-body">
-                    <#list langContent.thirdParties as thirdPartyName, thirdPartyDescription>
-                        <li><span class="list-label">${thirdPartyName} :</span> <span class="list-value">${thirdPartyDescription}</span></li>
+                    <#list langContent.thirdParties as thirdParty>
+                        <li><span class="list-label">${thirdParty.name} :</span> <span class="list-value">${thirdParty.value}</span></li>
                     </#list>
                 </ul>
             </div>

@@ -429,8 +429,8 @@ public class ConsentServiceBean implements ConsentService {
         lipsumTreatment.setContainsSensitiveData(true);
         lipsumTreatment.setDataController(new Controller().withCompany("Company").withName("Jane Doe").withAddress("Paris").withEmail("jane.doe@company").withPhoneNumber("0123456789").withActingBehalfCompany(true));
         lipsumTreatment.setShowDataController(true);
-        lipsumTreatment.addThirdParty("Quisque eu tincidunt", "Aliquam varius lectus id facilisis commodo. Suspendisse hendrerit malesuada nisl, in egestas leo venenatis a. Praesent at elit non nisl condimentum rhoncus.");
-        lipsumTreatment.addThirdParty("Vivamus quis", "Suspendisse pretium tincidunt turpis et tempor. Maecenas blandit in magna id rutrum. Nullam eu ligula ex.");
+        lipsumTreatment.addThirdParty(new NameValuePair("Quisque eu tincidunt", "Aliquam varius lectus id facilisis commodo. Suspendisse hendrerit malesuada nisl, in egestas leo venenatis a. Praesent at elit non nisl condimentum rhoncus."));
+        lipsumTreatment.addThirdParty(new NameValuePair("Vivamus quis", "Suspendisse pretium tincidunt turpis et tempor. Maecenas blandit in magna id rutrum. Nullam eu ligula ex."));
         form.addElement(generateVersionForPreview(locale, lipsumTreatment));
 
         Treatment lipsumTreatment2 = new Treatment();
@@ -446,7 +446,7 @@ public class ConsentServiceBean implements ConsentService {
         lipsumTreatment2.setContainsSensitiveData(true);
         lipsumTreatment2.setDataController(new Controller().withCompany("Company").withName("Jack Doe").withAddress("Paris").withEmail("jack.doe@company").withPhoneNumber("0123456789").withActingBehalfCompany(true));
         lipsumTreatment2.setShowDataController(true);
-        lipsumTreatment2.addThirdParty("Aliquam", "Nullam in vulputate risus. Praesent sed tempus turpis, non lacinia tellus. Maecenas non mi dui. Proin imperdiet consectetur mi ornare porttitor. In rutrum ipsum eu mattis pellentesque.");
+        lipsumTreatment2.addThirdParty(new NameValuePair("Aliquam", "Nullam in vulputate risus. Praesent sed tempus turpis, non lacinia tellus. Maecenas non mi dui. Proin imperdiet consectetur mi ornare porttitor. In rutrum ipsum eu mattis pellentesque."));
         form.addElement(generateVersionForPreview(locale, lipsumTreatment2));
 
         Footer lipsumFooter = new Footer();

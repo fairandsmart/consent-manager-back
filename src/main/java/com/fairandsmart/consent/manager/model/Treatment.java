@@ -3,9 +3,7 @@ package com.fairandsmart.consent.manager.model;
 import com.fairandsmart.consent.manager.entity.ModelData;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Treatment extends ModelData {
 
@@ -26,13 +24,13 @@ public class Treatment extends ModelData {
     // Data controller
     private Controller dataController;
     private boolean showDataController = true;
-    // Third parties (name: description)
-    private Map<String, String> thirdParties;
+    // Third parties
+    private ArrayList<NameValuePair> thirdParties;
 
     public Treatment() {
         this.setType(TYPE);
         this.setPurposes(new ArrayList<>());
-        this.setThirdParties(new HashMap<>());
+        this.setThirdParties(new ArrayList<>());
     }
 
     public String getTreatmentTitle() {
@@ -200,25 +198,25 @@ public class Treatment extends ModelData {
         return this;
     }
 
-    public Map<String, String> getThirdParties() {
+    public ArrayList<NameValuePair> getThirdParties() {
         return thirdParties;
     }
 
-    public void setThirdParties(Map<String, String> thirdParties) {
+    public void setThirdParties(ArrayList<NameValuePair> thirdParties) {
         this.thirdParties = thirdParties;
     }
 
-    public Treatment withThirdParties(Map<String, String> thirdParties) {
+    public Treatment withThirdParties(ArrayList<NameValuePair> thirdParties) {
         this.thirdParties = thirdParties;
         return this;
     }
 
-    public void addThirdParty(String thirdPartyName, String thirdPartyDescription) {
-        this.thirdParties.put(thirdPartyName, thirdPartyDescription);
+    public void addThirdParty(NameValuePair thirdParty) {
+        this.thirdParties.add(thirdParty);
     }
 
-    public Treatment withThirdParty(String thirdPartyName, String thirdPartyDescription) {
-        this.thirdParties.put(thirdPartyName, thirdPartyDescription);
+    public Treatment withThirdParty(NameValuePair thirdParty) {
+        this.thirdParties.add(thirdParty);
         return this;
     }
 
