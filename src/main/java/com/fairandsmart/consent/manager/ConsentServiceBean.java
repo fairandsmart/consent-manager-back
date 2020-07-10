@@ -597,16 +597,17 @@ public class ConsentServiceBean implements ConsentService {
                         "WHERE record2.owner IS NULL AND record1.owner = ?1 AND record1.subject = ?2 AND record1.type = ?3 " +
                         "ORDER BY record1.bodyKey, record1.creationTimestamp DESC) AS subquery " +
                         "ON entry.key = subquery.bodyKey WHERE entry.owner = ?1 AND entry.type = ?3 " +
-                        "ORDER BY " + filter.getSQLOrder() + " LIMIT ?4 OFFSET ?5")
+                        "ORDER BY " + filter.getSQLOrder())
                 .setParameter(1, authentication.getConnectedIdentifier())
                 .setParameter(2, filter.getUser())
                 .setParameter(3, Treatment.TYPE)
-                .setParameter(4, filter.getSize())
-                .setParameter(5, filter.getSize() * (filter.getPage() - 1))
                 .getResultList();
 
         List<UserRecord> userRecords = new ArrayList<>();
-        for (Object[] e : rawResults) {
+        int index = filter.getSize() * filter.getPage();
+        int max = filter.getSize() * (filter.getPage() + 1);
+        while (index < rawResults.size() && index < max) {
+            Object[] e = rawResults.get(index);
             UserRecord record = new UserRecord();
             record.setBodyKey((String) e[0]);
             record.setOwner((String) e[1]);
@@ -621,14 +622,15 @@ public class ConsentServiceBean implements ConsentService {
             record.setHeaderKey((String) e[10]);
             record.setFooterKey((String) e[11]);
             userRecords.add(record);
+            index++;
         }
 
         CollectionPage<UserRecord> userRecordsCollection = new CollectionPage<>();
         userRecordsCollection.setValues(userRecords);
-        userRecordsCollection.setPage(1);
-        userRecordsCollection.setPageSize(userRecords.size());
-        userRecordsCollection.setTotalPages(1);
-        userRecordsCollection.setTotalCount(userRecords.size());
+        userRecordsCollection.setPage(filter.getPage());
+        userRecordsCollection.setPageSize(filter.getSize());
+        userRecordsCollection.setTotalPages((int)Math.ceil((double)(rawResults.size()) / (double)(filter.getSize())));
+        userRecordsCollection.setTotalCount(rawResults.size());
         return userRecordsCollection;
     }
 
