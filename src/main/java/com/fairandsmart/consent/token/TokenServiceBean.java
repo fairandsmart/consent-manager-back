@@ -11,6 +11,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,8 +69,8 @@ public class TokenServiceBean implements TokenService {
             throw new InvalidTokenException("token must contains a payloadClass claim");
         }
         try {
-            Class clazz = Class.forName(decodedJWT.getClaim("payloadClass").asString());
-            Tokenizable tokenizable = (Tokenizable) clazz.newInstance();
+            Class<?> clazz = Class.forName(decodedJWT.getClaim("payloadClass").asString());
+            Tokenizable tokenizable = (Tokenizable) clazz.getDeclaredConstructor().newInstance();
             tokenizable.setSubject(decodedJWT.getSubject());
             tokenizable.setOwner(decodedJWT.getIssuer());
             Map<String, String> claims = new HashMap<>();
@@ -80,7 +81,7 @@ public class TokenServiceBean implements TokenService {
             return tokenizable;
         } catch (ClassNotFoundException e) {
             throw new TokenServiceException("Unable to load class of tokenized object");
-        } catch (IllegalAccessException | InstantiationException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
             throw new TokenServiceException("Unable to build tokenizable", e);
         }
     }
