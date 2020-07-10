@@ -25,7 +25,7 @@ public class Treatment extends ModelData {
     private Controller dataController;
     private boolean showDataController = true;
     // Third parties
-    private ArrayList<NameValuePair> thirdParties;
+    private List<NameValuePair> thirdParties;
 
     public Treatment() {
         this.setType(TYPE);
@@ -198,15 +198,15 @@ public class Treatment extends ModelData {
         return this;
     }
 
-    public ArrayList<NameValuePair> getThirdParties() {
+    public List<NameValuePair> getThirdParties() {
         return thirdParties;
     }
 
-    public void setThirdParties(ArrayList<NameValuePair> thirdParties) {
+    public void setThirdParties(List<NameValuePair> thirdParties) {
         this.thirdParties = thirdParties;
     }
 
-    public Treatment withThirdParties(ArrayList<NameValuePair> thirdParties) {
+    public Treatment withThirdParties(List<NameValuePair> thirdParties) {
         this.thirdParties = thirdParties;
         return this;
     }
