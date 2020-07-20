@@ -6,9 +6,9 @@
 
     <#if langContent?is_hash>
         <div class="header">
-            <h2><@valueOrError langContent.title "missingValue"></@valueOrError></h2>
+            <h2 class="header-title"><@valueOrError langContent.title "missingValue"></@valueOrError></h2>
 
-            <p class="treatment-body"><@valueOrError langContent.body "missingValue"></@valueOrError></p>
+            <p class="header-body"><@valueOrError langContent.body "missingValue"></@valueOrError></p>
 
             <#-- Data controller -->
             <#if langContent.showDataController>
@@ -20,20 +20,16 @@
             <#if langContent.showJurisdiction || langContent.showCollectionMethod || langContent.showScope || langContent.showShortNoticeLink>
                 <div class="block-wrapper">
                     <h4><@readBundle "defaultAdditionalInfoTitle"></@readBundle></h4>
-
-                    <ul class="treatment-body">
+                    <ul>
                         <#if langContent.showJurisdiction>
                             <li><span class="list-label"><@readBundle "headerJurisdictionLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.jurisdiction "missingValue"></@valueOrError></span></li>
                         </#if>
-
                         <#if langContent.showCollectionMethod>
                             <li><span class="list-label"><@readBundle "headerCollectionMethodLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.collectionMethod "missingValue"></@valueOrError></span></li>
                         </#if>
-
                         <#if langContent.showScope>
                             <li><span class="list-label"><@readBundle "headerScopeLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.scope "missingValue"></@valueOrError></span></li>
                         </#if>
-
                         <#if langContent.showShortNoticeLink>
                             <li><span class="list-label"><@readBundle "headerShortNoticeLinkLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.shortNoticeLink "missingValue"></@valueOrError></span></li>
                         </#if>
@@ -42,15 +38,15 @@
             </#if>
 
             <#if langContent.privacyPolicyUrl?has_content>
-                <p class="link-wrapper">
-                    <a href="${langContent.privacyPolicyUrl}">
+                <div class="privacy-policy-link-wrapper">
+                    <a class="privacy-policy-link" href="${langContent.privacyPolicyUrl}">
                         <#if langContent.customPrivacyPolicyText?has_content>
                             ${langContent.customPrivacyPolicyText}
                         <#else>
                             <@readBundle "privacyPolicyButton" "missingValue"></@readBundle>
                         </#if>
                     </a>
-                </p>
+                </div>
             </#if>
         </div>
     <#else>
