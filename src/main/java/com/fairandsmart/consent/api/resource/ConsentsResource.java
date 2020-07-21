@@ -107,6 +107,10 @@ public class ConsentsResource {
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("user") @DefaultValue("") String user,
             @QueryParam("order") @DefaultValue("id") String order,
+            @QueryParam("collectionMethod") String collectionMethod,
+            @QueryParam("dateAfter") long dateAfter,
+            @QueryParam("dateBefore") long dateBefore,
+            @QueryParam("value") String value,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
         LOGGER.log(Level.INFO, "GET /records/user");
         UserRecordFilter filter = new UserRecordFilter();
@@ -114,6 +118,10 @@ public class ConsentsResource {
         filter.setSize(size);
         filter.setUser(URLDecoder.decode(user, StandardCharsets.UTF_8));
         filter.setOrder(order);
+        filter.setCollectionMethod(collectionMethod);
+        filter.setValue(value);
+        filter.setDateAfter(dateAfter);
+        filter.setDateBefore(dateBefore);
         filter.setDirection(direction);
         return consentService.listUserRecords(filter);
     }
