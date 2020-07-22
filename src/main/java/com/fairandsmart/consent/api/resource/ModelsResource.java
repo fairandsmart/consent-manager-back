@@ -17,11 +17,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
+import javax.ws.rs.core.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -98,21 +94,31 @@ public class ModelsResource {
     @GET
     @Path("/{id}/versions/latest")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getLatestVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info) throws EntityNotFoundException {
+    public Response getLatestVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info, @Context HttpHeaders headers) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/latest");
         ModelVersion latest = consentService.findLatestVersionForEntry(id);
-        URI uri = info.getBaseUriBuilder().path(ModelsResource.class).path(id).path("versions").path(latest.id).build();
-        return Response.status(Response.Status.SEE_OTHER).location(uri).build();
+        // TODO remove dirty fix when Quarkus 1.7 released: https://github.com/quarkusio/quarkus/issues/9622
+        UriBuilder uriBuilder = info.getBaseUriBuilder().path(ModelsResource.class).path(id).path("versions").path(latest.id);
+        String forwardedProto = headers.getHeaderString("X-Forwarded-Proto");
+        if (forwardedProto != null && forwardedProto.isEmpty()) {
+            uriBuilder.scheme(forwardedProto);
+        }
+        return Response.status(Response.Status.SEE_OTHER).location(uriBuilder.build()).build();
     }
 
     @GET
     @Path("/{id}/versions/active")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getActiveVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info) throws EntityNotFoundException {
+    public Response getActiveVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info, @Context HttpHeaders headers) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/active");
         ModelVersion active = consentService.findActiveVersionForEntry(id);
-        URI uri = info.getBaseUriBuilder().path(ModelsResource.class).path(id).path("versions").path(active.id).build();
-        return Response.status(Response.Status.SEE_OTHER).location(uri).build();
+        // TODO remove dirty fix when Quarkus 1.7 released: https://github.com/quarkusio/quarkus/issues/9622
+        UriBuilder uriBuilder = info.getBaseUriBuilder().path(ModelsResource.class).path(id).path("versions").path(active.id);
+        String forwardedProto = headers.getHeaderString("X-Forwarded-Proto");
+        if (forwardedProto != null && forwardedProto.isEmpty()) {
+            uriBuilder.scheme(forwardedProto);
+        }
+        return Response.status(Response.Status.SEE_OTHER).location(uriBuilder.build()).build();
     }
 
     @GET
