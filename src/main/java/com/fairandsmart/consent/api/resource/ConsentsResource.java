@@ -45,6 +45,23 @@ public class ConsentsResource {
         return consentService.buildToken(ctx);
     }
 
+    @POST
+    @Path("/bothtokens")
+    @RolesAllowed("admin")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, String> generateBothTokens(@Context SecurityContext sec, ConsentContext ctx) {
+        LOGGER.log(Level.INFO, "POST /consents/bothtokens");
+        ctx.setPreview(true);
+        String preview = consentService.buildToken(ctx);
+        ctx.setPreview(false);
+        String real = consentService.buildToken(ctx);
+        Map<String, String> result = new HashMap<>();
+        result.put("preview", preview);
+        result.put("real", real);
+        return result;
+    }
+
     @GET
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
@@ -107,6 +124,10 @@ public class ConsentsResource {
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("user") @DefaultValue("") String user,
             @QueryParam("order") @DefaultValue("id") String order,
+            @QueryParam("collectionMethod") String collectionMethod,
+            @QueryParam("dateAfter") long dateAfter,
+            @QueryParam("dateBefore") long dateBefore,
+            @QueryParam("value") String value,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
         LOGGER.log(Level.INFO, "GET /records/user");
         UserRecordFilter filter = new UserRecordFilter();
@@ -114,6 +135,10 @@ public class ConsentsResource {
         filter.setSize(size);
         filter.setUser(URLDecoder.decode(user, StandardCharsets.UTF_8));
         filter.setOrder(order);
+        filter.setCollectionMethod(collectionMethod);
+        filter.setValue(value);
+        filter.setDateAfter(dateAfter);
+        filter.setDateBefore(dateBefore);
         filter.setDirection(direction);
         return consentService.listUserRecords(filter);
     }

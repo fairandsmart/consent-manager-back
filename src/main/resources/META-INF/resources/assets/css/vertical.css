@@ -1,6 +1,7 @@
 /* Body */
 
 form {
+    position: relative;
     display: flex;
     flex-direction: column;
 }
@@ -27,7 +28,7 @@ form {
 
 .logo-wrapper {
     text-align: center;
-    margin-top: -24px;
+    margin-top: 24px;
 }
 
 .header {
