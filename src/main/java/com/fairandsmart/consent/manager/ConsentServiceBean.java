@@ -433,9 +433,11 @@ public class ConsentServiceBean implements ConsentService {
             }
             ctx.setElements(elementsIdentifiers);
 
-            ModelVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
-            form.setFooter(footer);
-            ctx.setFooter(footer.getIdentifier().serialize());
+            if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
+                ModelVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+                form.setFooter(footer);
+                ctx.setFooter(footer.getIdentifier().serialize());
+            }
 
             if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
                 ModelVersion theme = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
