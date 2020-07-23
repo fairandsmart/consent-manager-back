@@ -317,6 +317,14 @@
                             </suppressionFiles>
                             <failBuildOnCVSS>11</failBuildOnCVSS>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
