@@ -246,19 +246,6 @@
         </developerConnection>
         <url>https://gitlab.fairandsmart.tech/fairandsmart/${project.artifactId}</url>
     </scm>
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-            <id>fns-nexus</id>
-            <url>https://repository.fairandsmart.tech/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
     <distributionManagement>
         <repository>
             <id>fns-nexus</id>
