@@ -16,7 +16,12 @@
         <version.maven-compiler-plugin>3.8.1</version.maven-compiler-plugin>
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
         <version.maven-dependency-check-plugin>5.3.2</version.maven-dependency-check-plugin>
+        <version.maven-enforcer-plugin>3.0.0-M3</version.maven-enforcer-plugin>
         <version.maven-failsafe-plugin>2.22.0</version.maven-failsafe-plugin>
+        <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
+        <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
+        <version.maven>3.6.2</version.maven>
+        <version.dependency-check-maven>5.3.2</version.dependency-check-maven>
 
         <version.quarkus-plugin>1.6.1.Final</version.quarkus-plugin>
         <version.commons-codec>1.14</version.commons-codec>
@@ -197,8 +202,63 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.github.ekryd.sortpom</groupId>
+                <artifactId>sortpom-maven-plugin</artifactId>
+                <version>${version.sortpom-maven-plugin}</version>
+                <configuration>
+                    <predefinedSortOrder>custom_1</predefinedSortOrder>
+                    <lineSeparator>\n</lineSeparator>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <sortProperties>true</sortProperties>
+                    <keepBlankLines>false</keepBlankLines>
+                    <expandEmptyElements>false</expandEmptyElements>
+                    <nrOfIndentSpace>4</nrOfIndentSpace>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${version.maven-enforcer-plugin}</version>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>enforce maven version</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>${version.maven}</version>
+                                </requireMavenVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+    <scm>
+        <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
+        <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}
+        </developerConnection>
+        <url>https://gitlab.fairandsmart.tech/fairandsmart/${project.artifactId}</url>
+    </scm>
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>fns-nexus</id>
+            <url>https://repository.fairandsmart.tech/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
     <distributionManagement>
         <repository>
             <id>fns-nexus</id>
@@ -225,9 +285,51 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>versions-maven-plugin</artifactId>
+                        <version>${version.versions-maven-plugin}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>display-property-updates</goal>
+                                    <goal>display-plugin-updates</goal>
+                                    <goal>display-parent-updates</goal>
+                                    <goal>display-dependency-updates</goal>
+                                </goals>
+                                <phase>validate</phase>
+                                <configuration>
+                                    <processDependencyManagement>false</processDependencyManagement>
+                                    <processPluginDependenciesInPluginManagement>false
+                                    </processPluginDependenciesInPluginManagement>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>${version.maven-dependency-check-plugin}</version>
+                        <version>${version.dependency-check-maven}</version>
+                        <configuration>
+                            <enableRetired>true</enableRetired>
+                            <enableExperimental>true</enableExperimental>
+                            <scanSet>
+                                <fileSet>
+                                    <directory>.</directory>
+                                    <includes>
+                                        <include>package.json</include>
+                                        <include>package-lock.json</include>
+                                    </includes>
+                                </fileSet>
+                                <fileSet>
+                                    <directory>src/main</directory>
+                                </fileSet>
+                            </scanSet>
+                            <format>ALL</format>
+                            <suppressionFiles>
+                                <suppressionFile>project-suppression.xml</suppressionFile>
+                            </suppressionFiles>
+                            <failBuildOnCVSS>11</failBuildOnCVSS>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
