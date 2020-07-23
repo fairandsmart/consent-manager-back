@@ -388,12 +388,75 @@ public class ConsentServiceBean implements ConsentService {
         version.delete();
     }
 
+    /* CONSENT MANAGEMENT */
+
+    @Override
+    public String buildToken(ConsentContext ctx) {
+        LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
+
+        ctx.setOwner(authentication.getConnectedIdentifier());
+        return tokenService.generateToken(ctx);
+    }
+
+    @Override
+    public ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
+        //TODO :
+        // 1. Load existing records for elements of this context (applying models invalidation strategy)
+        //    Adapt ConsentForm to include existing values for each elements
+        // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form or parts of the form
+        // 3. If form has to be displayed, load all models to populate
+        // 4. Generate a new submission token and populate the form
+        LOGGER.log(Level.INFO, "Generating consent form");
+        try {
+            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+
+            List<Record> previousConsents = findRecordsForContext(ctx);
+
+            ConsentForm form = new ConsentForm();
+            form.setLocale(ctx.getLocale());
+            form.setOrientation(ctx.getOrientation());
+            form.setPreview(ctx.isPreview());
+            form.setConditions(ctx.isConditions());
+
+            ModelVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            form.setHeader(header);
+            ctx.setHeader(header.getIdentifier().serialize());
+
+            List<String> elementsIdentifiers = new ArrayList<>();
+            for (String key : ctx.getElements()) {
+                ModelVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
+                previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(element.serial, r.value));
+                if ( ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(element.serial) ) {
+                    form.addElement(element);
+                    elementsIdentifiers.add(element.getIdentifier().serialize());
+                }
+            }
+            ctx.setElements(elementsIdentifiers);
+
+            ModelVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+            form.setFooter(footer);
+            ctx.setFooter(footer.getIdentifier().serialize());
+
+            if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
+                ModelVersion theme = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
+                form.setTheme(theme);
+                ctx.setTheme(theme.getIdentifier().serialize());
+            }
+
+            form.setToken(tokenService.generateToken(ctx));
+            return form;
+        } catch ( TokenServiceException e ) {
+            throw new ConsentServiceException("Unable to generate consent form", e);
+        }
+    }
+
     @Override
     public ConsentForm generateThemePreview(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException {
         ConsentForm form = new ConsentForm();
         form.setLocale(locale);
         form.setOrientation(orientation);
         form.setPreview(true);
+        form.setConditions(false);
         form.setToken("PREVIEW");
 
         Header lipsumHeader = new Header();
@@ -455,67 +518,6 @@ public class ConsentServiceBean implements ConsentService {
         form.setFooter(generateVersionForPreview(locale, lipsumFooter));
 
         return form;
-    }
-
-    /* CONSENT MANAGEMENT */
-
-    @Override
-    public String buildToken(ConsentContext ctx) {
-        LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
-
-        ctx.setOwner(authentication.getConnectedIdentifier());
-        return tokenService.generateToken(ctx);
-    }
-
-    @Override
-    public ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
-        //TODO :
-        // 1. Load existing records for elements of this context (applying models invalidation strategy)
-        //    Adapt ConsentForm to include existing values for each elements
-        // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form or parts of the form
-        // 3. If form has to be displayed, load all models to populate
-        // 4. Generate a new submission token and populate the form
-        LOGGER.log(Level.INFO, "Generating consent form");
-        try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
-
-            List<Record> previousConsents = findRecordsForContext(ctx);
-
-            ConsentForm form = new ConsentForm();
-            form.setLocale(ctx.getLocale());
-            form.setOrientation(ctx.getOrientation());
-            form.setPreview(ctx.isPreview());
-
-            ModelVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
-            form.setHeader(header);
-            ctx.setHeader(header.getIdentifier().serialize());
-
-            List<String> elementsIdentifiers = new ArrayList<>();
-            for (String key : ctx.getElements()) {
-                ModelVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
-                previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(element.serial, r.value));
-                if ( ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(element.serial) ) {
-                    form.addElement(element);
-                    elementsIdentifiers.add(element.getIdentifier().serialize());
-                }
-            }
-            ctx.setElements(elementsIdentifiers);
-
-            ModelVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
-            form.setFooter(footer);
-            ctx.setFooter(footer.getIdentifier().serialize());
-
-            if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
-                ModelVersion theme = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
-                form.setTheme(theme);
-                ctx.setTheme(theme.getIdentifier().serialize());
-            }
-
-            form.setToken(tokenService.generateToken(ctx));
-            return form;
-        } catch ( TokenServiceException e ) {
-            throw new ConsentServiceException("Unable to generate consent form", e);
-        }
     }
 
     @Override

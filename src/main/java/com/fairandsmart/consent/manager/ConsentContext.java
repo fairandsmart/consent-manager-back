@@ -41,6 +41,7 @@ public class ConsentContext implements Tokenizable {
     private String author;
     private boolean preview = false;
     private boolean iframe = false;
+    private boolean conditions = false;
     private String theme;
 
     public ConsentContext() {
@@ -244,6 +245,14 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public boolean isConditions() {
+        return conditions;
+    }
+
+    public void setConditions(boolean conditions) {
+        this.conditions = conditions;
+    }
+
     public String getTheme() {
         return theme;
     }
@@ -301,6 +310,7 @@ public class ConsentContext implements Tokenizable {
         }
         claims.put("preview", Boolean.toString(this.isPreview()));
         claims.put("iframe", Boolean.toString(this.isIframe()));
+        claims.put("conditions", Boolean.toString(this.isConditions()));
         if (theme != null) {
             claims.put("theme", this.getTheme());
         }
@@ -347,6 +357,9 @@ public class ConsentContext implements Tokenizable {
         }
         if (claims.containsKey("iframe")) {
             this.setIframe(Boolean.parseBoolean(claims.get("iframe")));
+        }
+        if (claims.containsKey("conditions")) {
+            this.setIframe(Boolean.parseBoolean(claims.get("conditions")));
         }
         if (claims.containsKey("theme")) {
             this.setTheme(claims.get("theme"));
@@ -414,6 +427,7 @@ public class ConsentContext implements Tokenizable {
                 ", author='" + author + '\'' +
                 ", preview=" + preview +
                 ", iframe=" + iframe +
+                ", conditions=" + conditions +
                 ", theme='" + theme + '\'' +
                 '}';
     }

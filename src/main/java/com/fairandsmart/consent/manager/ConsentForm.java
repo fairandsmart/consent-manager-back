@@ -16,7 +16,8 @@ public class ConsentForm {
     private String locale;
     private Orientation orientation;
     private Map<String, String> previousValues;
-    private boolean preview;
+    private boolean preview = false;
+    private boolean conditions = false;
     private ModelVersion theme;
 
     public ConsentForm() {
@@ -96,6 +97,14 @@ public class ConsentForm {
         this.preview = preview;
     }
 
+    public boolean isConditions() {
+        return conditions;
+    }
+
+    public void setConditions(boolean conditions) {
+        this.conditions = conditions;
+    }
+
     public ModelVersion getTheme() {
         return theme;
     }
@@ -114,6 +123,7 @@ public class ConsentForm {
                 ", locale='" + locale + '\'' +
                 ", orientation=" + orientation +
                 ", preview=" + preview +
+                ", conditions=" + conditions +
                 ", theme=" + theme +
                 '}';
     }

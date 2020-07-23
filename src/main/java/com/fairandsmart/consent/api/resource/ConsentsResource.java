@@ -64,7 +64,8 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
+    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken)
+            throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
         LOGGER.log(Level.INFO, "GET /consents");
 
         String token;
@@ -77,14 +78,14 @@ public class ConsentsResource {
         }
 
         ConsentForm form = consentService.generateForm(token);
-
         return getConsentFormTemplateModel(form);
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<Receipt> postConsent(MultivaluedMap<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
+    public TemplateModel<Receipt> postConsent(MultivaluedMap<String, String> values)
+            throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
 
         if (!values.containsKey("token")) {
@@ -93,6 +94,23 @@ public class ConsentsResource {
         Receipt receipt = consentService.submitConsent(values.get("token").get(0), values);
 
         return getReceiptTemplateModel(receipt);
+    }
+
+    @GET
+    @Path("/themes/preview")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateModel<ConsentForm> getThemePreview(
+            @QueryParam("locale") @DefaultValue("en") String locale,
+            @QueryParam("orientation") String orientation) throws ModelDataSerializationException {
+        LOGGER.log(Level.INFO, "GET /themes/preview");
+
+        ConsentForm.Orientation realOrientation = ConsentForm.Orientation.VERTICAL;
+        if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
+            realOrientation = ConsentForm.Orientation.HORIZONTAL;
+        }
+        ConsentForm form = consentService.generateThemePreview(realOrientation, locale);
+
+        return getConsentFormTemplateModel(form);
     }
 
     @GET
@@ -148,7 +166,8 @@ public class ConsentsResource {
     @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<Receipt> createOperatorRecords(OperatorRecordDto dto) throws AccessDeniedException, InvalidTokenException, InvalidConsentException, TokenExpiredException, ConsentServiceException {
+    public TemplateModel<Receipt> createOperatorRecords(OperatorRecordDto dto)
+            throws AccessDeniedException, InvalidTokenException, InvalidConsentException, TokenExpiredException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /records/user");
 
         if (dto.getToken() == null || dto.getToken().isEmpty()) {
@@ -159,32 +178,19 @@ public class ConsentsResource {
         return getReceiptTemplateModel(receipt);
     }
 
-    @GET
-    @Path("/preview")
-    @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getThemePreview(
-            @QueryParam("locale") @DefaultValue("en") String locale,
-            @QueryParam("orientation") String orientation) throws ModelDataSerializationException {
-        LOGGER.log(Level.INFO, "GET /preview");
-
-        ConsentForm.Orientation realOrientation = ConsentForm.Orientation.VERTICAL;
-        if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
-            realOrientation = ConsentForm.Orientation.HORIZONTAL;
-        }
-        ConsentForm form = consentService.generateThemePreview(realOrientation, locale);
-
-        return getConsentFormTemplateModel(form);
-    }
-
     private TemplateModel<ConsentForm> getConsentFormTemplateModel(ConsentForm form) {
         TemplateModel<ConsentForm> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(form.getLocale()));
         ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
         model.setBundle(bundle);
         model.setData(form);
-        model.setTemplate("form-vertical.ftl");
-        if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
+
+        if (form.isConditions()) {
+            model.setTemplate("conditions.ftl");
+        } else if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
             model.setTemplate("form-horizontal.ftl");
+        } else {
+            model.setTemplate("form-vertical.ftl");
         }
         LOGGER.log(Level.FINE, model.toString());
         return model;
