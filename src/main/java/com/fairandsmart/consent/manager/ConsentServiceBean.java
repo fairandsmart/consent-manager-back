@@ -545,7 +545,10 @@ public class ConsentServiceBean implements ConsentService {
 
         try {
             ModelVersion headerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
-            ModelVersion footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+            ModelVersion footerVersion = null;
+            if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
+                footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+            }
             for (String elementKey : ctx.getElements()) {
                 ModelVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
                 //TODO Maybe add also a condition on the status (COMMITTED)
@@ -555,7 +558,7 @@ public class ConsentServiceBean implements ConsentService {
                         ctx.getSubject(),
                         headerVersion.getSerials(),
                         elementVersion.getSerials(),
-                        footerVersion.getSerials(),
+                        footerVersion != null ? footerVersion.getSerials() : new ArrayList<>(),
                         System.currentTimeMillis()
                 ).stream().findFirst().ifPresent(r -> records.add((Record) r));
             }
@@ -601,7 +604,7 @@ public class ConsentServiceBean implements ConsentService {
                         "WHERE record2.owner IS NULL AND record1.owner = ?1 AND record1.subject = ?2 AND record1.type = ?3 " +
                         "ORDER BY record1.bodyKey, record1.creationTimestamp DESC) AS subquery " +
                         "ON entry.key = subquery.bodyKey WHERE entry.owner = ?1 AND entry.type = ?3" + filter.getSQLOptionalFilters() +
-                        " ORDER BY " + filter.getSQLOrder() + " LIMIT ?4 OFFSET ?5")
+                        " ORDER BY " + filter.getSQLOrder())
                 .setParameter(1, authentication.getConnectedIdentifier())
                 .setParameter(2, filter.getUser())
                 .setParameter(3, Treatment.TYPE)
@@ -715,7 +718,10 @@ public class ConsentServiceBean implements ConsentService {
             Instant now = Instant.now();
 
             ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
-            ConsentElementIdentifier footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
+            ConsentElementIdentifier footId = null;
+            if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
+                footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
+            }
             List<Record> records = new ArrayList<>();
             for (Map.Entry<String, String> value : values.entrySet()) {
                 try {
@@ -727,7 +733,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.type = bodyId.getType();
                     record.headSerial = headId.getSerial();
                     record.bodySerial = bodyId.getSerial();
-                    record.footSerial = footId.getSerial();
+                    record.footSerial = footId != null ? footId.getSerial() : "";
                     record.headKey = headId.getKey();
                     record.bodyKey = bodyId.getKey();
                     record.footKey = footId.getKey();
