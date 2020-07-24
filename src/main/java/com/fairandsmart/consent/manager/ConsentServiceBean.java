@@ -597,7 +597,7 @@ public class ConsentServiceBean implements ConsentService {
                         "WHERE record2.owner IS NULL AND record1.owner = ?1 AND record1.subject = ?2 AND record1.type = ?3 " +
                         "ORDER BY record1.bodyKey, record1.creationTimestamp DESC) AS subquery " +
                         "ON entry.key = subquery.bodyKey WHERE entry.owner = ?1 AND entry.type = ?3" + filter.getSQLOptionalFilters() +
-                        " ORDER BY " + filter.getSQLOrder() + " LIMIT ?4 OFFSET ?5")
+                        " ORDER BY " + filter.getSQLOrder())
                 .setParameter(1, authentication.getConnectedIdentifier())
                 .setParameter(2, filter.getUser())
                 .setParameter(3, Treatment.TYPE)
