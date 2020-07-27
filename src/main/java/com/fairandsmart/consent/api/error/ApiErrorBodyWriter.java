@@ -1,10 +1,12 @@
 package com.fairandsmart.consent.api.error;
 
 import com.fairandsmart.consent.api.template.TemplateBodyWriter;
+import com.fairandsmart.consent.api.template.TemplateModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import org.apache.commons.lang3.LocaleUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
@@ -20,6 +22,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,7 +66,12 @@ public class ApiErrorBodyWriter implements MessageBodyWriter<ApiError> {
             LOGGER.log(Level.INFO, "Applying error template to ApiError: " + error);
             Template template = cfg.getTemplate("error.ftl");
             Writer writer = new OutputStreamWriter(entityStream);
-            template.process(error, writer);
+            TemplateModel<ApiError> model = new TemplateModel<>();
+            model.setData(error);
+            model.setLocale(LocaleUtils.toLocale("en"));
+            ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+            model.setBundle(bundle);
+            template.process(model, writer);
         } catch ( TemplateException e ) {
             throw new WebApplicationException(e);
         }

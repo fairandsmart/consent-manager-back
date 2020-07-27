@@ -1,7 +1,6 @@
 package com.fairandsmart.consent.api.mapper;
 
 import com.fairandsmart.consent.api.error.ApiError;
-import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.http.HttpStatus;
 

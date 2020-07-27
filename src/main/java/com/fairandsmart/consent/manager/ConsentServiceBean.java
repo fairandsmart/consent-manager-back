@@ -410,7 +410,10 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
 
-            List<Record> previousConsents = findRecordsForContext(ctx);
+            List<Record> previousConsents = new ArrayList<>();
+            if (!ctx.isConditions()) {
+                previousConsents = findRecordsForContext(ctx);
+            }
 
             ConsentForm form = new ConsentForm();
             form.setLocale(ctx.getLocale());
@@ -418,9 +421,11 @@ public class ConsentServiceBean implements ConsentService {
             form.setPreview(ctx.isPreview());
             form.setConditions(ctx.isConditions());
 
-            ModelVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
-            form.setHeader(header);
-            ctx.setHeader(header.getIdentifier().serialize());
+            if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
+                ModelVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+                form.setHeader(header);
+                ctx.setHeader(header.getIdentifier().serialize());
+            }
 
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
@@ -544,7 +549,10 @@ public class ConsentServiceBean implements ConsentService {
         List<Record> records = new ArrayList<>();
 
         try {
-            ModelVersion headerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            ModelVersion headerVersion = null;
+            if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
+                headerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            }
             ModelVersion footerVersion = null;
             if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
                 footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
@@ -717,7 +725,10 @@ public class ConsentServiceBean implements ConsentService {
             String transaction = java.util.UUID.randomUUID().toString();
             Instant now = Instant.now();
 
-            ConsentElementIdentifier headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
+            ConsentElementIdentifier headId = null;
+            if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
+                headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
+            }
             ConsentElementIdentifier footId = null;
             if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
                 footId = ConsentElementIdentifier.deserialize(ctx.getFooter());

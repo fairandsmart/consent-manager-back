@@ -359,7 +359,7 @@ public class ConsentContext implements Tokenizable {
             this.setIframe(Boolean.parseBoolean(claims.get("iframe")));
         }
         if (claims.containsKey("conditions")) {
-            this.setIframe(Boolean.parseBoolean(claims.get("conditions")));
+            this.setConditions(Boolean.parseBoolean(claims.get("conditions")));
         }
         if (claims.containsKey("theme")) {
             this.setTheme(claims.get("theme"));
