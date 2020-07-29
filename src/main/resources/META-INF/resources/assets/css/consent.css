@@ -46,7 +46,7 @@ body {
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 0;
+    z-index: 20;
 }
 
 .close-btn {

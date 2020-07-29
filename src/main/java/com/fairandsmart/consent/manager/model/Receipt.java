@@ -208,11 +208,15 @@ public class Receipt {
         receipt.setSubject(ctx.getSubject());
         receipt.setSubjectDetails(ctx.getUserinfos().entrySet().stream().map(entry -> new NameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList()));
         receipt.setAttributes(ctx.getAttributes().entrySet().stream().map(entry -> new NameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList()));
-        receipt.setJurisdiction(header.getJurisdiction());
-        receipt.setDataController(header.getDataController());
-        receipt.setPrivacyPolicyUrl(header.getPrivacyPolicyUrl());
-        receipt.setHeaderNotice(header.getTitle() + " " + header.getBody());
-        receipt.setFooterNotice(footer.getBody());
+        if (header != null) {
+            receipt.setJurisdiction(header.getJurisdiction());
+            receipt.setDataController(header.getDataController());
+            receipt.setPrivacyPolicyUrl(header.getPrivacyPolicyUrl());
+            receipt.setHeaderNotice(header.getTitle() + " " + header.getBody());
+        }
+        if (footer != null) {
+            receipt.setFooterNotice(footer.getBody());
+        }
         receipt.setCollectionMethod(ctx.getCollectionMethod());
         for ( Map.Entry<Treatment, Record> record : records.entrySet() ) {
             Consent trecord = new Consent();

@@ -418,7 +418,7 @@ public class ConsentServiceBean implements ConsentService {
             }
 
             List<Record> previousConsents = new ArrayList<>();
-            if (!ctx.isConditions()) {
+            if (!ctx.isConditions() && !ctx.isPreview()) {
                 previousConsents = findRecordsForContext(ctx);
             }
 
@@ -571,15 +571,47 @@ public class ConsentServiceBean implements ConsentService {
             for (String elementKey : ctx.getElements()) {
                 ModelVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
                 //TODO Maybe add also a condition on the status (COMMITTED)
-                Record.find(
-                        "subject = ?1 and headSerial in ?2 and bodySerial in ?3 and footSerial in ?4 and expirationTimestamp >= ?5",
-                        Sort.by("creationTimestamp", Sort.Direction.Descending),
-                        ctx.getSubject(),
-                        headerVersion.getSerials(),
-                        elementVersion.getSerials(),
-                        footerVersion != null ? footerVersion.getSerials() : new ArrayList<>(),
-                        System.currentTimeMillis()
-                ).stream().findFirst().ifPresent(r -> records.add((Record) r));
+                if (footerVersion == null) {
+                    if (headerVersion == null) { // Records where there are no header and no footer
+                        Record.find(
+                                "subject = ?1 and headSerial = '' and bodySerial in ?2 and footSerial = '' and (expirationTimestamp >= ?3 or expirationTimestamp = 0)",
+                                Sort.by("creationTimestamp", Sort.Direction.Descending),
+                                ctx.getSubject(),
+                                elementVersion.getSerials(),
+                                System.currentTimeMillis()
+                        ).stream().findFirst().ifPresent(r -> records.add((Record) r));
+                    } else { // Records where there is a header but no footer
+                        Record.find(
+                                "subject = ?1 and headSerial in ?2 and bodySerial in ?3 and footSerial = '' and (expirationTimestamp >= ?4 or expirationTimestamp = 0)",
+                                Sort.by("creationTimestamp", Sort.Direction.Descending),
+                                ctx.getSubject(),
+                                headerVersion.getSerials(),
+                                elementVersion.getSerials(),
+                                System.currentTimeMillis()
+                        ).stream().findFirst().ifPresent(r -> records.add((Record) r));
+                    }
+                } else {
+                    if (headerVersion == null) { // Records where there is no header but a footer
+                        Record.find(
+                                "subject = ?1 and headSerial = '' and bodySerial in ?2 and footSerial in ?3 and (expirationTimestamp >= ?4 or expirationTimestamp = 0)",
+                                Sort.by("creationTimestamp", Sort.Direction.Descending),
+                                ctx.getSubject(),
+                                elementVersion.getSerials(),
+                                footerVersion.getSerials(),
+                                System.currentTimeMillis()
+                        ).stream().findFirst().ifPresent(r -> records.add((Record) r));
+                    } else { // Records where there are a header and a footer
+                        Record.find(
+                                "subject = ?1 and headSerial in ?2 and bodySerial in ?3 and footSerial in ?4 and (expirationTimestamp >= ?5 or expirationTimestamp = 0)",
+                                Sort.by("creationTimestamp", Sort.Direction.Descending),
+                                ctx.getSubject(),
+                                headerVersion.getSerials(),
+                                elementVersion.getSerials(),
+                                footerVersion.getSerials(),
+                                System.currentTimeMillis()
+                        ).stream().findFirst().ifPresent(r -> records.add((Record) r));
+                    }
+                }
             }
         } catch (EntityNotFoundException e) {
             LOGGER.log(Level.WARNING, "Entity not found exception: " + e.getMessage());
@@ -753,16 +785,16 @@ public class ConsentServiceBean implements ConsentService {
                     record.subject = ctx.getSubject();
                     record.owner = ctx.getOwner();
                     record.type = bodyId.getType();
-                    record.headSerial = headId.getSerial();
+                    record.headSerial = headId != null ? headId.getSerial() : "";
                     record.bodySerial = bodyId.getSerial();
                     record.footSerial = footId != null ? footId.getSerial() : "";
-                    record.headKey = headId.getKey();
+                    record.headKey = headId != null ? headId.getKey() : "";
                     record.bodyKey = bodyId.getKey();
-                    record.footKey = footId.getKey();
-                    record.serial = headId.getSerial() + "." + bodyId.getSerial() + "." + footId.getSerial();
+                    record.footKey = footId != null ? footId.getKey() : "";
+                    record.serial = record.headSerial + "." + record.bodySerial + "." + record.footSerial;
                     record.value = value.getValue();
                     record.creationTimestamp = now.toEpochMilli();
-                    record.expirationTimestamp = now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
+                    record.expirationTimestamp = ctx.isConditions() ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
                     record.status = Record.Status.COMMITTED;
                     record.collectionMethod = ctx.getCollectionMethod();
                     record.author = ctx.getAuthor() != null && !ctx.getAuthor().isEmpty() ? ctx.getAuthor() : ctx.getOwner();
@@ -776,8 +808,14 @@ public class ConsentServiceBean implements ConsentService {
             LOGGER.log(Level.INFO, "records: " + records);
 
             if (!ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
-                Header header = (Header) systemFindModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
-                Footer footer = (Footer) systemFindModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
+                Header header = null;
+                if (headId != null) {
+                    header = (Header) systemFindModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
+                }
+                Footer footer = null;
+                if (footId != null) {
+                    footer = (Footer) systemFindModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
+                }
                 Map<Treatment, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
                     try {
@@ -792,7 +830,9 @@ public class ConsentServiceBean implements ConsentService {
                 store.put(receipt.getTransaction(), receipt.toXmlBytes());
                 return receipt;
             } else {
-                return null;
+                Receipt receipt = new Receipt();
+                receipt.setLocale(ctx.getLocale());
+                return receipt;
             }
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);

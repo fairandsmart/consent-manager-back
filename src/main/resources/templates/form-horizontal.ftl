@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="${data.locale}">
+<html lang="${locale}">
 <head>
     <#include "macros/lang-macros.ftl">
     <#include "macros/elements-macros.ftl">

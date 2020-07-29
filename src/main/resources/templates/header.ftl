@@ -39,7 +39,7 @@
 
             <#if langContent.privacyPolicyUrl?has_content>
                 <div class="privacy-policy-link-wrapper">
-                    <a class="privacy-policy-link" href="${langContent.privacyPolicyUrl}">
+                    <a class="privacy-policy-link" href="${langContent.privacyPolicyUrl}" <#if data.preview>style="pointer-events: none;"</#if>>
                         <#if langContent.customPrivacyPolicyText?has_content>
                             ${langContent.customPrivacyPolicyText}
                         <#else>

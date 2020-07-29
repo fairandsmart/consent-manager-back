@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="${data.locale}">
+<html lang="${locale}">
 <head>
     <#include "macros/lang-macros.ftl">
-    <#include "macros/elements-macros.ftl">
-    <title>Receipt</title>
+    <title><@readBundle "receiptPageTitle" "missingValue"></@readBundle></title>
     <meta charset="UTF-8">
     <style>
         body { font-family: Monaco, "DejaVu Sans Mono", "Lucida Console", "Andale Mono", monospace; font-size: medium; text-transform: uppercase; }

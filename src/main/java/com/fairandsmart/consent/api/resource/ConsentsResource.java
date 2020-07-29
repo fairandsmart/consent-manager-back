@@ -184,8 +184,12 @@ public class ConsentsResource {
         model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
         ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
         model.setBundle(bundle);
-        model.setData(receipt);
-        model.setTemplate("receipt.ftl");
+        if (receipt.getTransaction() != null && !receipt.getTransaction().isEmpty()) {
+            model.setData(receipt);
+            model.setTemplate("receipt.ftl");
+        } else {
+            model.setTemplate("no-receipt.ftl");
+        }
         LOGGER.log(Level.INFO, model.toString());
         return model;
     }

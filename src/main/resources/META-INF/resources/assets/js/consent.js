@@ -28,25 +28,45 @@ const switches = document.getElementsByClassName("switch");
 for (let i = 0; i < switches.length; i++) {
     const key = switches[i].children[0].id; // Checkbox input id
 
-    document.getElementById(key).addEventListener("change", (e) => {
-        const accepted = document.getElementById(key + "-accepted");
-        const refused = document.getElementById(key + "-refused");
-        if (e.target.checked) {
-            accepted.selected = true;
-            refused.selected = false;
-        } else {
-            accepted.selected = false;
-            refused.selected = true;
-        }
-
-        /* Désélection du bouton "Tout accepter" si la checkbox courante est décochée alors "Tout accepter" était coché */
-        if (hasAcceptAll) {
-            const acceptAllButton = document.getElementById("accept-all");
-            if (acceptAllButton.checked && !e.target.checked) {
-                acceptAllButton.checked = false; // Uncheck input
-                document.getElementById("accept-all-accepted").selected = false; // Deselect option "accepted"
-                document.getElementById("accept-all-refused").selected = true; // Select option "refused"
+    if (key !== "accept-all") {
+        document.getElementById(key).addEventListener("change", (e) => {
+            const accepted = document.getElementById(key + "-accepted");
+            const refused = document.getElementById(key + "-refused");
+            if (e.target.checked) {
+                accepted.selected = true;
+                refused.selected = false;
+            } else {
+                accepted.selected = false;
+                refused.selected = true;
             }
-        }
-    });
+
+            if (hasAcceptAll) {
+                const acceptAllButton = document.getElementById("accept-all");
+                /* Désélection du bouton "Tout accepter" si la checkbox courante est décochée alors "Tout accepter" était coché */
+                if (acceptAllButton.checked && !e.target.checked) {
+                    acceptAllButton.checked = false; // Uncheck input
+                    document.getElementById("accept-all-accepted").selected = false; // Deselect option "accepted"
+                    document.getElementById("accept-all-refused").selected = true; // Select option "refused"
+                } /* Sélection du bouton "Tout accepter" si la checkbox courante est cochée alors que toutes les autres le sont aussi et que "Tout accepter" était décoché */
+                else if (!acceptAllButton.checked && e.target.checked) {
+                    const switches = document.getElementsByClassName("switch");
+                    let allChecked = true;
+                    let i = 0;
+                    let key;
+                    while (allChecked && i < switches.length) {
+                        key = switches[i].children[0].id; // Checkbox input id
+                        if (key !== "accept-all") {
+                            allChecked = document.getElementById(key + "-accepted").selected;
+                        }
+                        i++;
+                    }
+                    if (allChecked) {
+                        acceptAllButton.checked = true; // Check input
+                        document.getElementById("accept-all-accepted").selected = true; // Select option "accepted"
+                        document.getElementById("accept-all-refused").selected = false; // Deselect option "refused"
+                    }
+                }
+            }
+        });
+    }
 }

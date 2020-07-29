@@ -1,7 +1,9 @@
 function acceptConditions() {
-    console.log("accept !");
+    document.getElementById("choice").value = "accepted";
+    document.getElementById("submit").click();
 }
 
 function rejectConditions() {
-    console.log("reject !");
+    document.getElementById("choice").value = "refused";
+    document.getElementById("submit").click();
 }
