@@ -45,26 +45,9 @@ public class ConsentsResource {
         return consentService.buildToken(ctx);
     }
 
-    @POST
-    @Path("/bothtokens")
-    @RolesAllowed("admin")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, String> generateBothTokens(@Context SecurityContext sec, ConsentContext ctx) {
-        LOGGER.log(Level.INFO, "POST /consents/bothtokens");
-        ctx.setPreview(true);
-        String preview = consentService.buildToken(ctx);
-        ctx.setPreview(false);
-        String real = consentService.buildToken(ctx);
-        Map<String, String> result = new HashMap<>();
-        result.put("preview", preview);
-        result.put("real", real);
-        return result;
-    }
-
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken)
+    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken, @QueryParam("subject") String subject)
             throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
         LOGGER.log(Level.INFO, "GET /consents");
 
@@ -77,7 +60,7 @@ public class ConsentsResource {
             throw new AccessDeniedException("Unable to find token neither in header nor as query param");
         }
 
-        ConsentForm form = consentService.generateForm(token);
+        ConsentForm form = consentService.generateForm(token, subject);
         return getConsentFormTemplateModel(form);
     }
 

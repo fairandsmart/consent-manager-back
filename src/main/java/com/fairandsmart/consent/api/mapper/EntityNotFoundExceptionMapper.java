@@ -13,7 +13,8 @@ public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotF
 
     @Override
     public Response toResponse(EntityNotFoundException exception) {
-        ApiError error = new ApiError(HttpStatus.SC_NOT_FOUND, "not-found", "Entity Not Found");
+        ApiError error = new ApiError(HttpStatus.SC_NOT_FOUND, "not-found", "Entity Not Found")
+                .withException(exception);
         return Response.status(Response.Status.NOT_FOUND).entity(error).build();
     }
 }

@@ -234,7 +234,7 @@ public class ConsentServiceTest {
         assertEquals(0, records.size());
 
         LOGGER.log(Level.INFO, "First consent form");
-        ConsentForm form = service.generateForm(readToken);
+        ConsentForm form = service.generateForm(readToken, null);
         assertEquals(2, form.getElements().size());
         assertEquals(0, form.getPreviousValues().size());
 
@@ -253,7 +253,7 @@ public class ConsentServiceTest {
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
 
         LOGGER.log(Level.INFO, "Second consent form");
-        form = service.generateForm(readToken);
+        form = service.generateForm(readToken, null);
         assertEquals(2, form.getElements().size());
         assertEquals(2, form.getPreviousValues().size());
 

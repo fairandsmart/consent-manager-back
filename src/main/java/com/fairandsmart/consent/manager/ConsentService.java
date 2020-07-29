@@ -63,7 +63,7 @@ public interface ConsentService {
 
     String buildToken(ConsentContext ctx);
 
-    ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
+    ConsentForm generateForm(String token, String subject) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
 
     ConsentForm generateThemePreview(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException;
 

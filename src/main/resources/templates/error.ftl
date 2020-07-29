@@ -17,6 +17,10 @@
 
     <h1><@writeError "error_" + data.type></@writeError></h1>
 
-    <div>${data.title}</div>
+    <h2>${data.status} - ${data.title}</h2>
+
+    <#if data.detail?has_content>
+        <div>${data.detail}</div>
+    </#if>
 
 </body>

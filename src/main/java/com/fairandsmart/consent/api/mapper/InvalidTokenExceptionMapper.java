@@ -13,7 +13,8 @@ public class InvalidTokenExceptionMapper implements ExceptionMapper<InvalidToken
 
     @Override
     public Response toResponse(InvalidTokenException exception) {
-        ApiError error = new ApiError(HttpStatus.SC_BAD_REQUEST, "token-invalid", exception.getMessage());
+        ApiError error = new ApiError(HttpStatus.SC_BAD_REQUEST, "token-invalid", "Invalid Token")
+                .withException(exception);
         return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
     }
 }

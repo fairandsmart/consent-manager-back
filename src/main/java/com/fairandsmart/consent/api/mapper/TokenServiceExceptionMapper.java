@@ -13,7 +13,8 @@ public class TokenServiceExceptionMapper implements ExceptionMapper<TokenService
 
     @Override
     public Response toResponse(TokenServiceException exception) {
-        ApiError error = new ApiError(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", exception.getMessage());
+        ApiError error = new ApiError(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Token Exception")
+                .withException(exception);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build();
     }
 }

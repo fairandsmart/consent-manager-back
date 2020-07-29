@@ -12,8 +12,9 @@ import javax.ws.rs.ext.Provider;
 public class AccessDeniedExceptionMapper implements ExceptionMapper<AccessDeniedException> {
 
     @Override
-    public Response toResponse(AccessDeniedException e) {
-        ApiError error = new ApiError(HttpStatus.SC_UNAUTHORIZED, "access-denied", "Access Denied");
+    public Response toResponse(AccessDeniedException exception) {
+        ApiError error = new ApiError(HttpStatus.SC_UNAUTHORIZED, "access-denied", "Access Denied")
+                .withException(exception);
         return Response.status(Response.Status.UNAUTHORIZED).entity(error).build();
     }
 }

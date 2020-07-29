@@ -1,5 +1,8 @@
 package com.fairandsmart.consent.api.error;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 public class ApiError {
  
     private int status;
@@ -72,6 +75,13 @@ public class ApiError {
 
     public void setStacktrace(String stacktrace) {
         this.stacktrace = stacktrace;
+    }
+
+    public ApiError withException(Exception exception) {
+        this.setDetail(exception.getMessage());
+        this.setStacktrace(Arrays.stream(exception.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n\t")));
+        exception.printStackTrace();
+        return this;
     }
 
     @Override
