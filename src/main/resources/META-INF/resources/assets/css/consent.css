@@ -71,7 +71,7 @@ body {
 /* Content */
 
 .treatments {
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 24px;
     height: 100%;
 }
@@ -120,7 +120,7 @@ body {
 .footer-body {
     margin: 12px 0;
     max-height: 100px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .accept-all-container {
