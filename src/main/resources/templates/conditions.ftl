@@ -40,7 +40,9 @@
         <h1><@writeError "missingValue"></@writeError></h1>
     </div>
 </#if>
-</body>
 
 <script src="/assets/js/conditions.js"></script>
+<script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
+
+</body>
 </html>
