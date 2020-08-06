@@ -1,7 +1,7 @@
 package com.fairandsmart.consent.api.error;
 
 import com.fairandsmart.consent.api.template.TemplateBodyWriter;
-import com.fairandsmart.consent.api.template.TemplateModel;
+import com.fairandsmart.consent.template.TemplateModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -47,7 +47,7 @@ public class ApiErrorBodyWriter implements MessageBodyWriter<ApiError> {
         cfg = new Configuration(VERSION_2_3_30);
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-        cfg.setClassForTemplateLoading(TemplateBodyWriter.class, "/templates");
+        cfg.setClassForTemplateLoading(TemplateBodyWriter.class, "/freemarker");
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ApiErrorBodyWriter implements MessageBodyWriter<ApiError> {
             TemplateModel<ApiError> model = new TemplateModel<>();
             model.setData(error);
             model.setLocale(LocaleUtils.toLocale("en"));
-            ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+            ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
             model.setBundle(bundle);
             template.process(model, writer);
         } catch ( TemplateException e ) {

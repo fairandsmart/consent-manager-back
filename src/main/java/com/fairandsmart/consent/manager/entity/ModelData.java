@@ -18,6 +18,7 @@ import java.io.IOException;
         @Type(value = Footer.class, name = Footer.TYPE),
         @Type(value = Treatment.class, name = Treatment.TYPE),
         @Type(value = Conditions.class, name = Conditions.TYPE),
+        @Type(value = Email.class, name = Email.TYPE),
         @Type(value = Theme.class, name = Theme.TYPE)
 })
 public abstract class ModelData {

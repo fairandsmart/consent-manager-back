@@ -1,7 +1,6 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -11,9 +10,12 @@ import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.filter.UserRecordFilter;
+import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
+import com.fairandsmart.consent.notification.NotificationService;
+import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
@@ -55,10 +57,13 @@ public class ConsentServiceBean implements ConsentService {
     SerialGenerator generator;
 
     @Inject
-    TokenService tokenService;
+    TokenService token;
 
     @Inject
     ReceiptStore store;
+
+    @Inject
+    NotificationService notification;
 
     @ConfigProperty(name = "consent.processor")
     String processor;
@@ -393,9 +398,8 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public String buildToken(ConsentContext ctx) {
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
-
         ctx.setOwner(authentication.getConnectedIdentifier());
-        return tokenService.generateToken(ctx);
+        return token.generateToken(ctx);
     }
 
     @Override
@@ -408,7 +412,7 @@ public class ConsentServiceBean implements ConsentService {
         // 4. Generate a new submission token and populate the form
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
             if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
                 if (subject != null && !subject.isEmpty()) {
                     ctx.setSubject(subject);
@@ -457,7 +461,7 @@ public class ConsentServiceBean implements ConsentService {
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
-            form.setToken(tokenService.generateToken(ctx));
+            form.setToken(this.token.generateToken(ctx));
             return form;
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
@@ -473,6 +477,8 @@ public class ConsentServiceBean implements ConsentService {
         form.setConditions(false);
         form.setToken("PREVIEW");
 
+        //TODO Move all those data into a json resource file like :  resources/preview/header.json
+        // and load using ObjectMapper
         Header lipsumHeader = new Header();
         lipsumHeader.setLogoAltText("Quisque rutrum, velit id congue facilisis");
         lipsumHeader.setLogoPath("/assets/img/themes/preview_logo.png");
@@ -538,8 +544,9 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Submitting consent");
+        String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
             if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
                 throw new ConsentServiceException("Subject is empty");
             }
@@ -548,7 +555,9 @@ public class ConsentServiceBean implements ConsentService {
             for (MultivaluedMap.Entry<String, List<String>> value : values.entrySet()) {
                 valuesMap.put(value.getKey(), value.getValue().get(0));
             }
-            return this.saveConsent(ctx, valuesMap, "");
+            Receipt receipt = this.saveConsent(ctx, valuesMap, "");
+            notification.notify(new Event().withType(Event.SUBMIT_CONSENT).withAuthor(connectedIdentifier).withArg("token", token));
+            return receipt;
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -697,7 +706,7 @@ public class ConsentServiceBean implements ConsentService {
     public Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Creating record for operator");
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
 
             ModelVersion headerVersion = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
             ctx.setHeader(headerVersion.getIdentifier().serialize());
@@ -807,7 +816,11 @@ public class ConsentServiceBean implements ConsentService {
             }
             LOGGER.log(Level.INFO, "records: " + records);
 
-            if (!ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
+            Receipt receipt;
+            if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
+                receipt = new Receipt();
+                receipt.setLocale(ctx.getLocale());
+            } else {
                 Header header = null;
                 if (headId != null) {
                     header = (Header) systemFindModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
@@ -825,15 +838,11 @@ public class ConsentServiceBean implements ConsentService {
                         //
                     }
                 });
-                Receipt receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
+                receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 store.put(receipt.getTransaction(), receipt.toXmlBytes());
-                return receipt;
-            } else {
-                Receipt receipt = new Receipt();
-                receipt.setLocale(ctx.getLocale());
-                return receipt;
             }
+            return receipt;
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }

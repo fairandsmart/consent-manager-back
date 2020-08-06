@@ -14,4 +14,5 @@ public class ContentHealthCheck implements HealthCheck {
     public HealthCheckResponse call() {
         return HealthCheckResponse.up("Simple health check");
     }
+
 }
