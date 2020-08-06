@@ -91,7 +91,7 @@ public class ConsentsResource {
         if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
             realOrientation = ConsentForm.Orientation.HORIZONTAL;
         }
-        ConsentForm form = consentService.generateThemePreview(realOrientation, locale);
+        ConsentForm form = consentService.generateLipsumForm(realOrientation, locale);
 
         return getConsentFormTemplateModel(form);
     }

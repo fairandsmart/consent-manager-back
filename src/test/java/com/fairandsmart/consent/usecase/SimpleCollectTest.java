@@ -283,7 +283,7 @@ public class SimpleCollectTest {
         postResponse.then().assertThat().statusCode(200);
 
         LOGGER.log(Level.INFO, "Receipt page: " + postPage);
-        assertTrue(postPage.contains("Receipt"));
+        assertTrue(postPage.contains("Reçu"));
         //TODO
     }
 }

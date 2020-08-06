@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.manager.entity;
 
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentElementIdentifier;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -154,6 +155,25 @@ public class ModelVersion extends PanacheEntityBase {
                 throw new ConsentManagerException("error while ordering versions");
             }
             return ordered;
+        }
+
+    }
+
+    public static class SystemHelper {
+
+        public static ModelVersion findActiveVersionByKey(String owner, String key) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {
+            Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
+            return optional.orElseThrow(() -> new com.fairandsmart.consent.common.exception.EntityNotFoundException("unable to find an active version for entry with key: " + key + " and owner: " + owner));
+        }
+
+        public static ModelVersion findActiveVersionByEntryId(String owner, String entryId) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {
+            Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and status = ?3", owner, entryId, ModelVersion.Status.ACTIVE).singleResultOptional();
+            return optional.orElseThrow(() -> new com.fairandsmart.consent.common.exception.EntityNotFoundException("unable to find an active version for entry with id: " + entryId + " and owner: " + owner));
+        }
+
+        public static ModelVersion findModelVersionForSerial(String serial) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {
+            Optional<ModelVersion> optional = ModelVersion.find("serial = ?1", serial).singleResultOptional();
+            return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
         }
 
     }
