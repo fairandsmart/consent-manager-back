@@ -3,16 +3,17 @@ package com.fairandsmart.consent.notification.entity;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Event {
+public class Event<T> {
     
     public static final String AUDIT = "audit";
     public static final String SYSTEM= "system";
-    public static final String SUBMIT_CONSENT = "consent.submit";
+    public static final String CONSENT_OPTOUT = "consent.optout";
 
     private long timestamp;
     private String author;
     private String channel;
     private String type;
+    private T data;
     private Map<String, String> args;
 
     public Event() {
@@ -67,12 +68,33 @@ public class Event {
         return this;
     }
 
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    public Event<T> withData(T data) {
+        this.data = data;
+        return this;
+    }
+
     public Map<String, String> getArgs() {
         return args;
     }
 
     public void setArgs(Map<String, String> args) {
         this.args = args;
+    }
+
+    public String getArg(String key) {
+        return this.args.get(key);
+    }
+
+    public boolean hasArg(String key) {
+        return this.args.containsKey(key);
     }
 
     public Event withArg(String key, String value) {

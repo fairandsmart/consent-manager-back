@@ -23,6 +23,7 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
+import com.sun.xml.bind.v2.TODO;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
@@ -410,6 +411,8 @@ public class ConsentServiceBean implements ConsentService {
         // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form or parts of the form
         // 3. If form has to be displayed, load all models to populate
         // 4. Generate a new submission token and populate the form
+
+        //TODO Handle case of an optout token (models are already ids and not keys...)
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
             ConsentContext ctx = (ConsentContext) this.token.readToken(token);
@@ -459,6 +462,11 @@ public class ConsentServiceBean implements ConsentService {
                 ModelVersion theme = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
                 form.setTheme(theme);
                 ctx.setTheme(theme.getIdentifier().serialize());
+            }
+
+            if (ctx.getOptoutModel() != null && !ctx.getOptoutModel().isEmpty()) {
+                ModelVersion optout = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getOptoutModel());
+                ctx.setOptoutModel(optout.getIdentifier().serialize());
             }
 
             form.setToken(this.token.generateToken(ctx));
@@ -556,7 +564,34 @@ public class ConsentServiceBean implements ConsentService {
                 valuesMap.put(value.getKey(), value.getValue().get(0));
             }
             Receipt receipt = this.saveConsent(ctx, valuesMap, "");
-            notification.notify(new Event().withType(Event.SUBMIT_CONSENT).withAuthor(connectedIdentifier).withArg("token", token));
+
+            if (ctx.getOptoutRecipient() != null && !ctx.getOptoutRecipient().isEmpty()) {
+                Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
+                if (ctx.getOptoutModel() != null && !ctx.getOptoutModel().isEmpty()) {
+                    try {
+                        ConsentOptOut optout = new ConsentOptOut();
+                        optout.setLocale(ctx.getLocale());
+                        optout.setRecipient(ctx.getOptoutRecipient());
+                        //TODO generate form URL
+                        optout.setUrl("http://www.fairandsmart.com");
+                        ModelVersion optoutModel = systemFindModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial());
+                        optout.setModel(optoutModel);
+                        if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
+                            ModelVersion theme = systemFindModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial());
+                            optout.setTheme(theme);
+                        }
+                        ctx.setOptoutRecipient("");
+                        ctx.setOptoutModel("");
+                        optout.setToken(this.token.generateToken(ctx));
+                        notification.notify(event.withData(optout));
+                    } catch (EntityNotFoundException | IllegalIdentifierException e ) {
+                        LOGGER.log(Level.SEVERE, "Unable to load optout model", e);
+                    }
+                } else {
+                    //TODO use a default model
+                    LOGGER.log(Level.SEVERE, "No optout model set but an optout recipient, Default MODEL NOT IMPLEMENTED YET");
+                }
+            }
             return receipt;
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
@@ -735,7 +770,7 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
-    private ModelVersion systemFindActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
+    public ModelVersion systemFindActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
         Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key + " and owner: " + owner));
     }

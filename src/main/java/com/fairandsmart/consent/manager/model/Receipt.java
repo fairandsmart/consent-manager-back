@@ -2,13 +2,16 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
+import org.mvel2.util.Make;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.*;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -196,6 +199,12 @@ public class Receipt {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         marshaller.marshal(this, out);
         return out.toByteArray();
+    }
+
+    public static Receipt build(String xml) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        return (Receipt) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public static Receipt build(String transaction, String processor, long timestamp, ConsentContext ctx, Header header, Footer footer, Map<Treatment, Record> records) throws DatatypeConfigurationException {

@@ -17,9 +17,9 @@ public class NotificationServiceTest {
     NotificationService service;
 
     @Test
-    public void testCreateRecordEvent() {
-        LOGGER.log(Level.INFO, "Entering Test Create Record Event");
-        service.notify(new Event().withType(Event.SUBMIT_CONSENT).withAuthor("me").withArg("foo", "bar"));
+    public void testConsentOptOutEvent() {
+        LOGGER.log(Level.INFO, "Entering Test Submit Consent Event");
+        service.notify(new Event().withType(Event.CONSENT_OPTOUT).withAuthor("me").withArg("foo", "bar"));
 
         //Find a way to test that the event is really treated...
     }

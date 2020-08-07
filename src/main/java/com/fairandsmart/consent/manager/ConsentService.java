@@ -17,6 +17,7 @@ import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 
+import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
 import java.util.Map;
@@ -76,4 +77,5 @@ public interface ConsentService {
     CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter);
 
     Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
+
 }

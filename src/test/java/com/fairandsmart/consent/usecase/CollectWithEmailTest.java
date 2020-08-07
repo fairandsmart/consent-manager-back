@@ -6,6 +6,7 @@ import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Treatment;
@@ -193,13 +194,54 @@ public class CollectWithEmailTest {
         response.then().statusCode(200);
         ModelVersion vt2 = response.body().as(ModelVersion.class);
 
-        //Activate treatment 1 model version
+        //Activate treatment 2 model version
         response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
                 when().put("/models/" + et2.id + "/versions/" + vt2.id + "/status");
         response.then().statusCode(200);
         vt2 = response.body().as(ModelVersion.class);
         assertEquals(ModelVersion.Status.ACTIVE, vt2.status);
+
+        //Create email model
+        CreateModelDto e1 = new CreateModelDto();
+        e1.setKey("email1");
+        e1.setType(Email.TYPE);
+        e1.setName("EMAIL1");
+        e1.setDescription("L'email E1");
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(e1).size());
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(e1).
+                when().post("/models");
+        response.then().statusCode(200);
+        ModelEntry ee1 = response.body().as(ModelEntry.class);
+
+        //Create email model version
+        ContentDto ce1 = new ContentDto();
+        ce1.setLocale("fr_FR");
+        ce1.setContent(new Email()
+                .withSender("optout@localhost")
+                .withSubject("Vous avez fait un choix")
+                .withTitle("Vous nous avez donné votre consentement, vous pouvez modifier votre choix")
+                .withBody("Lors de votre dernire contact avec notre service client vous avez donné votre consentement sur l'utilisation " +
+                        "de certaines données personnelles dans le cadre de nos différentes activités. Vous avez la possibilité de modifier " +
+                        "ces choix en cliquant sur le lien ci-dessous")
+                .withButtonLabel("Bouton modifier mon choix")
+                .withFooter("Vous pouvez également modifier ces choix à tout moment depuis votre espace adhérent")
+                .withSignature("Le service client ACME."));
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ce1).size());
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(ce1).
+                when().post("/models/" + ee1.id + "/versions");
+        response.then().statusCode(200);
+        ModelVersion ve1 = response.body().as(ModelVersion.class);
+
+        //Activate email model version
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
+                when().put("/models/" + ee1.id + "/versions/" + ve1.id + "/status");
+        response.then().statusCode(200);
+        ve1 = response.body().as(ModelVersion.class);
+        assertEquals(ModelVersion.Status.ACTIVE, ve1.status);
     }
 
     /**
@@ -209,7 +251,7 @@ public class CollectWithEmailTest {
      * 4 : le user (anonyme) reçoit un email de confirmation
      */
     @Test
-    public void testSimpleCollect() {
+    public void testCollectWithEmail() throws InterruptedException {
         //PART 1
         //Use basic consent context for first generation
         ConsentContext ctx = new ConsentContext()
@@ -220,7 +262,8 @@ public class CollectWithEmailTest {
                 .setElements(Arrays.asList("t1", "t2"))
                 .setFooter("f1")
                 .setLocale("fr_FR")
-                .setOptoutEmail("mmichu@localhost");
+                .setOptoutModel("email1")
+                .setOptoutRecipient("mmichu@localhost");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx)
@@ -268,14 +311,17 @@ public class CollectWithEmailTest {
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
 
-        LOGGER.log(Level.INFO, "Receipt page: " + postPage);
-        assertTrue(postPage.contains("Receipt"));
-
         //PART 4
-        LOGGER.log(Level.INFO, "Checking mocked mailbox for email");
+        Thread.sleep(500);
+        assertTrue(mailbox.getTotalMessagesSent() > 0);
         List<Mail> sent = mailbox.getMessagesSentTo("mmichu@localhost");
         assertEquals(1, sent.size());
-
-        //TODO heck content of the mail
+        assertEquals("Vous avez fait un choix", sent.get(0).getSubject());
+        assertTrue(sent.get(0).getHtml().contains("Vous nous avez donné votre consentement, vous pouvez modifier votre choix"));
+        assertTrue(sent.get(0).getHtml().contains("certaines données personnelles dans le cadre de nos différentes activités. Vous"));
+        assertTrue(sent.get(0).getHtml().contains("Bouton modifier mon choix"));
+        assertTrue(sent.get(0).getHtml().contains("à tout moment depuis votre espace adhérent"));
+        assertTrue(sent.get(0).getHtml().contains("Le service client ACME."));
+        assertEquals("optout@localhost", sent.get(0).getFrom());
     }
 }
