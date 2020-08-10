@@ -44,7 +44,7 @@
         <#-- Data controller -->
         <#if langContent.showDataController && langContent.dataController?has_content>
             <#assign dataController=langContent.dataController>
-            <#include "dataController.ftl">
+            <#include "data-controller.ftl">
         </#if>
 
         <#-- Sensitive data -->

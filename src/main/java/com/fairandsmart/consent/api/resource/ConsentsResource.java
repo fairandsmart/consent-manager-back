@@ -15,6 +15,7 @@ import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -52,9 +53,9 @@ public class ConsentsResource {
         LOGGER.log(Level.INFO, "GET /consents");
 
         String token;
-        if (htoken != null && !htoken.isEmpty()) {
+        if (!StringUtils.isEmpty(htoken)) {
             token = htoken;
-        } else if (qtoken != null && !qtoken.isEmpty()) {
+        } else if (!StringUtils.isEmpty(qtoken)) {
             token = qtoken;
         } else {
             throw new AccessDeniedException("Unable to find token neither in header nor as query param");
@@ -153,7 +154,7 @@ public class ConsentsResource {
             throws AccessDeniedException, InvalidTokenException, InvalidConsentException, TokenExpiredException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /records/user");
 
-        if (dto.getToken() == null || dto.getToken().isEmpty()) {
+        if (StringUtils.isEmpty(dto.getToken())) {
             throw new AccessDeniedException("unable to find token in form");
         }
         Receipt receipt = consentService.createOperatorRecords(dto.getToken(), dto.getValues(), dto.getComment());
@@ -184,7 +185,7 @@ public class ConsentsResource {
         model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
         ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
         model.setBundle(bundle);
-        if (receipt.getTransaction() != null && !receipt.getTransaction().isEmpty()) {
+        if (!StringUtils.isEmpty(receipt.getTransaction())) {
             model.setData(receipt);
             model.setTemplate("receipt.ftl");
         } else {

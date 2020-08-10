@@ -28,19 +28,17 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
@@ -68,13 +66,10 @@ public class ConsentServiceBean implements ConsentService {
     ReceiptStore store;
 
     @Inject
-    Instance<ConsentContextHandler> handlers;
+    Instance<ConsentContextHandler> contextHandlers;
 
     @ConfigProperty(name = "consent.processor")
     String processor;
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     /* MODELS MANAGEMENT */
 
@@ -419,8 +414,8 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
-            if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
-                if (subject != null && !subject.isEmpty()) {
+            if (StringUtils.isEmpty(ctx.getSubject())) {
+                if (!StringUtils.isEmpty(subject)) {
                     ctx.setSubject(subject);
                 } else if (!ctx.isPreview()) {
                     throw new ConsentServiceException("Subject is empty");
@@ -438,7 +433,7 @@ public class ConsentServiceBean implements ConsentService {
             form.setPreview(ctx.isPreview());
             form.setConditions(ctx.isConditions());
 
-            if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getHeader())) {
                 ModelVersion header = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
                 form.setHeader(header);
                 ctx.setHeader(header.getIdentifier().serialize());
@@ -455,13 +450,13 @@ public class ConsentServiceBean implements ConsentService {
             }
             ctx.setElements(elementsIdentifiers);
 
-            if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getFooter())) {
                 ModelVersion footer = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
                 form.setFooter(footer);
                 ctx.setFooter(footer.getIdentifier().serialize());
             }
 
-            if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getTheme())) {
                 ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
                 form.setTheme(theme);
                 ctx.setTheme(theme.getIdentifier().serialize());
@@ -509,7 +504,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Submitting consent");
         try {
             ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
-            if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
+            if (StringUtils.isEmpty(ctx.getSubject())) {
                 throw new ConsentServiceException("Subject is empty");
             }
 
@@ -530,7 +525,7 @@ public class ConsentServiceBean implements ConsentService {
 
         try {
             //TODO Maybe add also a condition on the status (COMMITTED)
-            for (ConsentContextHandler handler : handlers) {
+            for (ConsentContextHandler handler : contextHandlers) {
                 if (handler.canHandle(ctx)) {
                     records.addAll(handler.findRecords(ctx));
                 }
@@ -565,52 +560,25 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter) {
-        LOGGER.log(Level.INFO, "Listing user records for " + filter.getUser());
-        @SuppressWarnings("unchecked")
-        List<Object[]> rawResults = entityManager.createNativeQuery(
-                "SELECT entry.key as bodyKey, subquery.owner, subquery.subject, subquery.creationTimestamp, " +
-                        "subquery.expirationTimestamp, entry.type, subquery.value, subquery.status, subquery.collectionMethod, " +
-                        "subquery.comment, subquery.headKey, subquery.footKey " +
-                        "FROM ModelEntry entry LEFT JOIN (SELECT record1.* FROM Record record1 LEFT JOIN Record record2 " +
-                        "ON (record1.owner = record2.owner AND record1.subject = record2.subject " +
-                        "AND record1.bodyKey = record2.bodyKey AND record1.creationTimestamp < record2.creationTimestamp) " +
-                        "WHERE record2.owner IS NULL AND record1.owner = ?1 " +
-                        "AND record1.subject = ?2 AND (record1.type = 'treatment' OR record1.type = 'conditions') " +
-                        "ORDER BY record1.bodyKey, record1.creationTimestamp DESC) AS subquery " +
-                        "ON entry.key = subquery.bodyKey WHERE entry.owner = ?1 AND (entry.type = 'treatment' OR entry.type = 'conditions') " +
-                        filter.getSQLOptionalFilters() + " ORDER BY " + filter.getSQLOrder())
-                .setParameter(1, authentication.getConnectedIdentifier())
-                .setParameter(2, filter.getUser())
-                .getResultList();
+        List<ModelEntry> entries = ModelEntry.find(
+                "owner = ?1 and type in ?2",
+                authentication.getConnectedIdentifier(),
+                Arrays.asList(Treatment.TYPE, Conditions.TYPE)).list();
 
         List<UserRecord> userRecords = new ArrayList<>();
-        int index = filter.getSize() * filter.getPage();
-        int max = filter.getSize() * (filter.getPage() + 1);
-        while (index < rawResults.size() && index < max) {
-            Object[] e = rawResults.get(index);
-            UserRecord record = new UserRecord();
-            record.setBodyKey((String) e[0]);
-            record.setOwner((String) e[1]);
-            record.setSubject((String) e[2]);
-            record.setCreationTimestamp(e[3] != null ? ((BigInteger) e[3]).longValue() : 0);
-            record.setExpirationTimestamp(e[4] != null ? ((BigInteger) e[4]).longValue() : 0);
-            record.setType((String) e[5]);
-            record.setValue((String) e[6]);
-            record.setStatus((String) e[7]);
-            record.setCollectionMethod((String) e[8]);
-            record.setComment((String) e[9]);
-            record.setHeaderKey((String) e[10]);
-            record.setFooterKey((String) e[11]);
-            userRecords.add(record);
-            index++;
-        }
+        entries.forEach(entry -> userRecords.add(findUserRecord(entry, filter)));
+        userRecords.sort((r1, r2) -> r1.compare(r2, filter));
+
+        // Pagination
+        int startIndex = filter.getSize() * filter.getPage();
+        int endIndex = Math.min(filter.getSize() * (filter.getPage() + 1), userRecords.size());
 
         CollectionPage<UserRecord> userRecordsCollection = new CollectionPage<>();
-        userRecordsCollection.setValues(userRecords);
+        userRecordsCollection.setValues(userRecords.subList(startIndex, endIndex));
         userRecordsCollection.setPage(filter.getPage());
         userRecordsCollection.setPageSize(filter.getSize());
-        userRecordsCollection.setTotalPages((int) Math.ceil((double) (rawResults.size()) / (double) (filter.getSize())));
-        userRecordsCollection.setTotalCount(rawResults.size());
+        userRecordsCollection.setTotalPages((int) Math.ceil((double) (userRecords.size()) / (double) (filter.getSize())));
+        userRecordsCollection.setTotalCount(userRecords.size());
         return userRecordsCollection;
     }
 
@@ -648,17 +616,48 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
+    private UserRecord findUserRecord(ModelEntry entry, UserRecordFilter filter) {
+        Optional<Record> optional = Record.find(
+                "owner = ?1 and type = ?2 and bodyKey = ?3 and subject = ?4",
+                Sort.by("creationTimestamp", Sort.Direction.Descending),
+                entry.owner,
+                entry.type,
+                entry.key,
+                filter.getUser())
+                .firstResultOptional();
+
+        Record record = null;
+        boolean isFilterCompliant = optional.isPresent();
+        if (isFilterCompliant) {
+            record = optional.get();
+            if (!StringUtils.isEmpty(filter.getCollectionMethod()) && !filter.getCollectionMethod().equals(record.collectionMethod.name())) {
+                isFilterCompliant = false;
+            }
+            if (!StringUtils.isEmpty(filter.getValue()) && !filter.getValue().equals(record.value)) {
+                isFilterCompliant = false;
+            }
+            if (filter.getDateAfter() > 0 && filter.getDateAfter() > record.creationTimestamp) {
+                isFilterCompliant = false;
+            }
+            if (filter.getDateBefore() > 0 && filter.getDateBefore() < record.creationTimestamp) {
+                isFilterCompliant = false;
+            }
+        }
+
+        return isFilterCompliant ? UserRecord.fromRecord(record) : UserRecord.fromEntryAndSubject(entry, filter.getUser());
+    }
+
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
         if (ctx.getHeader() == null && values.containsKey("header")) {
             throw new InvalidConsentException("submitted header incoherency, expected: null got: " + values.get("header"));
         }
-        if (ctx.getHeader() != null && !ctx.getHeader().isEmpty() && (!values.containsKey("header") || !values.get("header").equals(ctx.getHeader()))) {
+        if (!StringUtils.isEmpty(ctx.getHeader()) && (!values.containsKey("header") || !values.get("header").equals(ctx.getHeader()))) {
             throw new InvalidConsentException("submitted header incoherency, expected: " + ctx.getHeader() + " got: " + values.get("header"));
         }
         if (ctx.getFooter() == null && values.containsKey("footer")) {
             throw new InvalidConsentException("submitted footer incoherency, expected: null got: " + values.get("footer"));
         }
-        if (ctx.getFooter() != null && !ctx.getFooter().isEmpty() && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter()))) {
+        if (!StringUtils.isEmpty(ctx.getFooter()) && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter()))) {
             throw new InvalidConsentException("submitted footer incoherency, expected: " + ctx.getFooter() + " got: " + values.get("footer"));
         }
         Map<String, String> submittedElementValues = values.entrySet().stream()
@@ -676,11 +675,11 @@ public class ConsentServiceBean implements ConsentService {
             Instant now = Instant.now();
 
             ConsentElementIdentifier headId = null;
-            if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getHeader())) {
                 headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
             }
             ConsentElementIdentifier footId = null;
-            if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getFooter())) {
                 footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
             }
             List<Record> records = new ArrayList<>();
@@ -704,7 +703,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.expirationTimestamp = ctx.isConditions() ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
                     record.status = Record.Status.COMMITTED;
                     record.collectionMethod = ctx.getCollectionMethod();
-                    record.author = ctx.getAuthor() != null && !ctx.getAuthor().isEmpty() ? ctx.getAuthor() : ctx.getOwner();
+                    record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : ctx.getOwner();
                     record.comment = comment;
                     record.persist();
                     records.add(record);

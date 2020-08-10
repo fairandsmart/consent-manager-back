@@ -12,6 +12,7 @@ import com.fairandsmart.consent.manager.InvalidStatusException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -100,7 +101,7 @@ public class ModelsResource {
         // TODO remove dirty fix when Quarkus 1.7 released: https://github.com/quarkusio/quarkus/issues/9622
         UriBuilder uriBuilder = info.getBaseUriBuilder().path(ModelsResource.class).path(id).path("versions").path(latest.id);
         String forwardedProto = headers.getHeaderString("X-Forwarded-Proto");
-        if (forwardedProto != null && !forwardedProto.isEmpty()) {
+        if (!StringUtils.isEmpty(forwardedProto)) {
             uriBuilder.scheme(forwardedProto);
         }
         return Response.status(Response.Status.SEE_OTHER).location(uriBuilder.build()).build();
@@ -115,7 +116,7 @@ public class ModelsResource {
         // TODO remove dirty fix when Quarkus 1.7 released: https://github.com/quarkusio/quarkus/issues/9622
         UriBuilder uriBuilder = info.getBaseUriBuilder().path(ModelsResource.class).path(id).path("versions").path(active.id);
         String forwardedProto = headers.getHeaderString("X-Forwarded-Proto");
-        if (forwardedProto != null && !forwardedProto.isEmpty()) {
+        if (!StringUtils.isEmpty(forwardedProto)) {
             uriBuilder.scheme(forwardedProto);
         }
         return Response.status(Response.Status.SEE_OTHER).location(uriBuilder.build()).build();

@@ -13,7 +13,7 @@
             <#-- Data controller -->
             <#if langContent.showDataController>
                 <#assign dataController=langContent.dataController>
-                <#include "dataController.ftl">
+                <#include "data-controller.ftl">
             </#if>
 
             <#-- Other header data -->
@@ -31,7 +31,11 @@
                             <li><span class="list-label"><@readBundle "headerScopeLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.scope "missingValue"></@valueOrError></span></li>
                         </#if>
                         <#if langContent.showShortNoticeLink>
-                            <li><span class="list-label"><@readBundle "headerShortNoticeLinkLabel"></@readBundle></span> <span class="list-value"><@valueOrError langContent.shortNoticeLink "missingValue"></@valueOrError></span></li>
+                            <#if langContent.shortNoticeLink?has_content>
+                                <li><span class="list-label"><a href="${langContent.shortNoticeLink}" <#if data.preview>style="pointer-events: none;"</#if>><@readBundle "headerShortNoticeLinkLabel"></@readBundle></a></span></li>
+                            <#else>
+                                <li><span class="list-label"><@readBundle "headerShortNoticeLinkLabel"></@readBundle></span> <span class="list-value"><@writeError "missingValue"></@writeError></span></li>
+                            </#if>
                         </#if>
                     </ul>
                 </div>

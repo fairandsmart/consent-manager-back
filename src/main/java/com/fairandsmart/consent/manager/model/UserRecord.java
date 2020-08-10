@@ -1,5 +1,10 @@
 package com.fairandsmart.consent.manager.model;
 
+import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.manager.entity.Record;
+import com.fairandsmart.consent.manager.filter.SortableFilter;
+import org.apache.commons.lang3.StringUtils;
+
 public class UserRecord {
     private String headerKey;
     private String bodyKey;
@@ -129,5 +134,60 @@ public class UserRecord {
                 ", collectionMethod='" + collectionMethod + '\'' +
                 ", comment='" + comment + '\'' +
                 '}';
+    }
+
+    public int compare(UserRecord other, SortableFilter filter) {
+        int result = 0;
+        switch(filter.getOrder()) {
+            case "creationTimestamp":
+                result = Long.compare(creationTimestamp, other.creationTimestamp);
+                break;
+            case "expirationTimestamp":
+                result = Long.compare(expirationTimestamp, other.expirationTimestamp);
+                break;
+            case "type":
+                result = StringUtils.compare(type, other.type);
+                break;
+            case "value":
+                result = StringUtils.compare(value, other.value);
+                break;
+            case "comment":
+                result = StringUtils.compare(comment, other.comment);
+                break;
+            case "collectionMethod":
+                result = StringUtils.compare(collectionMethod, other.collectionMethod);
+                break;
+            case "bodyKey":
+            default:
+                result = StringUtils.compare(bodyKey, other.bodyKey);
+                break;
+        }
+        return "desc".equals(filter.getDirection()) ? -result : result;
+    }
+
+    public static UserRecord fromRecord(Record record) {
+        UserRecord userRecord = new UserRecord();
+        userRecord.setHeaderKey(record.headKey);
+        userRecord.setBodyKey(record.bodyKey);
+        userRecord.setFooterKey(record.footKey);
+        userRecord.setOwner(record.owner);
+        userRecord.setSubject(record.subject);
+        userRecord.setCreationTimestamp(record.creationTimestamp);
+        userRecord.setExpirationTimestamp(record.expirationTimestamp);
+        userRecord.setType(record.type);
+        userRecord.setValue(record.value);
+        userRecord.setStatus(record.status.toString());
+        userRecord.setCollectionMethod(record.collectionMethod.toString());
+        userRecord.setComment(record.comment);
+        return userRecord;
+    }
+
+    public static UserRecord fromEntryAndSubject(ModelEntry entry, String subject) {
+        UserRecord userRecord = new UserRecord();
+        userRecord.setBodyKey(entry.key);
+        userRecord.setType(entry.type);
+        userRecord.setOwner(entry.owner);
+        userRecord.setSubject(subject);
+        return userRecord;
     }
 }

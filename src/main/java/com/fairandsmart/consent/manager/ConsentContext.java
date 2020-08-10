@@ -2,6 +2,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.token.Tokenizable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -131,7 +132,7 @@ public class ConsentContext implements Tokenizable {
     }
 
     public String getLocale() {
-        if (locale == null || locale.isEmpty()) {
+        if (StringUtils.isEmpty(locale)) {
             return Locale.getDefault().toLanguageTag();
         }
         return locale;

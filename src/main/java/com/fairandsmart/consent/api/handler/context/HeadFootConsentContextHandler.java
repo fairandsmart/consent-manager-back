@@ -5,6 +5,7 @@ import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.entity.Record;
 import io.quarkus.panache.common.Sort;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class HeadFootConsentContextHandler implements ConsentContextHandler {
 
     @Override
     public boolean canHandle(ConsentContext ctx) {
-        return (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) && (ctx.getFooter() != null && !ctx.getFooter().isEmpty());
+        return !StringUtils.isEmpty(ctx.getHeader()) && !StringUtils.isEmpty(ctx.getFooter());
     }
 
     @Override
