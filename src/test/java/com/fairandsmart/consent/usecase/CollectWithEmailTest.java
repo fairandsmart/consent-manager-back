@@ -15,6 +15,8 @@ import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.apache.maven.model.Organization;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -45,6 +47,9 @@ public class CollectWithEmailTest {
 
     @Inject
     MockMailbox mailbox;
+
+    @ConfigProperty(name = "consent.public.url")
+    String publicUrl;
 
     @BeforeEach
     public void setup() {
@@ -317,11 +322,28 @@ public class CollectWithEmailTest {
         List<Mail> sent = mailbox.getMessagesSentTo("mmichu@localhost");
         assertEquals(1, sent.size());
         assertEquals("Vous avez fait un choix", sent.get(0).getSubject());
-        assertTrue(sent.get(0).getHtml().contains("Vous nous avez donné votre consentement, vous pouvez modifier votre choix"));
-        assertTrue(sent.get(0).getHtml().contains("certaines données personnelles dans le cadre de nos différentes activités. Vous"));
-        assertTrue(sent.get(0).getHtml().contains("Bouton modifier mon choix"));
-        assertTrue(sent.get(0).getHtml().contains("à tout moment depuis votre espace adhérent"));
-        assertTrue(sent.get(0).getHtml().contains("Le service client ACME."));
+        String received = sent.get(0).getHtml();
+        assertTrue(received.contains("Vous nous avez donné votre consentement, vous pouvez modifier votre choix"));
+        assertTrue(received.contains("certaines données personnelles dans le cadre de nos différentes activités. Vous"));
+        assertTrue(received.contains("Bouton modifier mon choix"));
+        assertTrue(received.contains("à tout moment depuis votre espace adhérent"));
+        assertTrue(received.contains("Le service client ACME."));
+        assertTrue(received.contains(publicUrl + "/consents?t="));
         assertEquals("optout@localhost", sent.get(0).getFrom());
+
+        //PART 5
+        html = Jsoup.parse(received);
+        String optoutlink = "";
+        Elements links = html.select("a[href]");
+        for (Element link : links) {
+            if ( link.id().equals("form-url") ) {
+                optoutlink = link.attr("abs:href");
+            }
+        }
+        response = given().when().get(optoutlink);
+        page = response.asString();
+        response.then().contentType("text/html").assertThat().statusCode(200);
+
+
     }
 }

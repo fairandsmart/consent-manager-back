@@ -2,6 +2,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.handler.context.ConsentContextHandler;
+import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -38,9 +39,12 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriBuilder;
+import javax.xml.bind.Element;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
@@ -75,6 +79,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @ConfigProperty(name = "consent.processor")
     String processor;
+
+    @ConfigProperty(name = "consent.public.url")
+    String publicUrl;
 
     /* MODELS MANAGEMENT */
 
@@ -524,6 +531,10 @@ public class ConsentServiceBean implements ConsentService {
             for (MultivaluedMap.Entry<String, List<String>> value : values.entrySet()) {
                 valuesMap.put(value.getKey(), value.getValue().get(0));
             }
+            //TODO Check that identifiers refers to the latest elements versions to avoid committing a consent on a staled version of an entry
+            // (aka form is generated before a MAJOR RELEASE and submit after)
+            // Maybe use a global referential hash that would be injected in token and which could be stored as a whole database integrity check
+            // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
             Receipt receipt = this.saveConsent(ctx, valuesMap, "");
 
             if (ctx.getOptoutRecipient() != null && !ctx.getOptoutRecipient().isEmpty()) {
@@ -533,17 +544,30 @@ public class ConsentServiceBean implements ConsentService {
                         ConsentOptOut optout = new ConsentOptOut();
                         optout.setLocale(ctx.getLocale());
                         optout.setRecipient(ctx.getOptoutRecipient());
-                        //TODO generate form URL
-                        optout.setUrl("http://www.fairandsmart.com");
                         ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial());
                         optout.setModel(optoutModel);
-                        if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
+                        ctx.setOptoutModel(optoutModel.entry.key);
+                        if (!StringUtils.isEmpty(ctx.getTheme())) {
                             ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial());
                             optout.setTheme(theme);
+                            ctx.setTheme(theme.entry.key);
                         }
+                        if (!StringUtils.isEmpty(ctx.getHeader())) {
+                            ctx.setHeader(ConsentElementIdentifier.deserialize(ctx.getHeader()).getKey());
+                        }
+                        if (!StringUtils.isEmpty(ctx.getFooter())) {
+                            ctx.setFooter(ConsentElementIdentifier.deserialize(ctx.getFooter()).getKey());
+                        }
+                        List<String> celements = new ArrayList<>();
+                        for ( String element : ctx.getElements() ) {
+                            celements.add(ConsentElementIdentifier.deserialize(element).getKey());
+                        }
+                        ctx.setElements(celements);
                         ctx.setOptoutRecipient("");
                         ctx.setOptoutModel("");
                         optout.setToken(this.token.generateToken(ctx));
+                        URI optoutUri = UriBuilder.fromUri(publicUrl).path(ConsentsResource.class).queryParam("t", optout.getToken()).build();
+                        optout.setUrl(optoutUri.toString());
                         notification.notify(event.withData(optout));
                     } catch (EntityNotFoundException | IllegalIdentifierException e ) {
                         LOGGER.log(Level.SEVERE, "Unable to load optout model", e);
