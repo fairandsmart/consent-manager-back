@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.api.template;
+package com.fairandsmart.consent.template;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

@@ -3,7 +3,7 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.api.dto.OperatorRecordDto;
-import com.fairandsmart.consent.api.template.TemplateModel;
+import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.SortDirection;
@@ -165,7 +165,7 @@ public class ConsentsResource {
     private TemplateModel<ConsentForm> getConsentFormTemplateModel(ConsentForm form) {
         TemplateModel<ConsentForm> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(form.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
         model.setBundle(bundle);
         model.setData(form);
 
@@ -183,7 +183,7 @@ public class ConsentsResource {
     private TemplateModel<Receipt> getReceiptTemplateModel(Receipt receipt) {
         TemplateModel<Receipt> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
         model.setBundle(bundle);
         if (!StringUtils.isEmpty(receipt.getTransaction())) {
             model.setData(receipt);

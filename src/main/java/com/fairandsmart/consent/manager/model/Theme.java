@@ -14,7 +14,7 @@ public class Theme extends ModelData {
 
     public enum TargetType {
         FORM,
-        EMAIL_OPT_OUT
+        EMAIL
     }
 
     public Theme() {

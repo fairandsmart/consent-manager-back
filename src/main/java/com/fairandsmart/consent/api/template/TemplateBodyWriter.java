@@ -1,6 +1,10 @@
 package com.fairandsmart.consent.api.template;
 
-import javax.annotation.PostConstruct;
+import com.fairandsmart.consent.template.TemplateModel;
+import com.fairandsmart.consent.template.TemplateService;
+import com.fairandsmart.consent.template.TemplateServiceException;
+
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -8,21 +12,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateExceptionHandler;
-
-import static freemarker.template.Configuration.VERSION_2_3_30;
 
 @Provider
 @Singleton
@@ -31,20 +25,8 @@ public class TemplateBodyWriter implements MessageBodyWriter<TemplateModel> {
 
     private static final Logger LOGGER = Logger.getLogger(TemplateBodyWriter.class.getName());
 
-    private Configuration cfg;
-
-    public TemplateBodyWriter() {
-        LOGGER.log(Level.INFO, "New Instance of TemplateBodyWriter");
-    }
-
-    @PostConstruct
-    public void init() {
-        LOGGER.log(Level.INFO, "Initializing TemplateBodyWriter");
-        cfg = new Configuration(VERSION_2_3_30);
-        cfg.setDefaultEncoding("UTF-8");
-        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-        cfg.setClassForTemplateLoading(TemplateBodyWriter.class, "/templates");
-    }
+    @Inject
+    TemplateService template;
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -57,13 +39,11 @@ public class TemplateBodyWriter implements MessageBodyWriter<TemplateModel> {
     }
 
     @Override
-    public void writeTo(TemplateModel model, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+    public void writeTo(TemplateModel model, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws WebApplicationException {
         try {
             LOGGER.log(Level.FINE, "Applying template to model: " + model);
-            Template template = cfg.getTemplate(model.getTemplate());
-            Writer writer = new OutputStreamWriter(entityStream);
-            template.process(model, writer);
-        } catch ( TemplateException e ) {
+            template.render(model, entityStream);
+        } catch ( TemplateServiceException e ) {
             throw new WebApplicationException(e);
         }
     }

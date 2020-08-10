@@ -15,6 +15,8 @@ import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
+import com.fairandsmart.consent.notification.NotificationService;
+import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
@@ -60,13 +62,16 @@ public class ConsentServiceBean implements ConsentService {
     SerialGenerator generator;
 
     @Inject
-    TokenService tokenService;
+    TokenService token;
 
     @Inject
     ReceiptStore store;
 
     @Inject
     Instance<ConsentContextHandler> contextHandlers;
+
+    @Inject
+    NotificationService notification;
 
     @ConfigProperty(name = "consent.processor")
     String processor;
@@ -398,9 +403,8 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public String buildToken(ConsentContext ctx) {
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
-
         ctx.setOwner(authentication.getConnectedIdentifier());
-        return tokenService.generateToken(ctx);
+        return token.generateToken(ctx);
     }
 
     @Override
@@ -411,9 +415,11 @@ public class ConsentServiceBean implements ConsentService {
         // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form or parts of the form
         // 3. If form has to be displayed, load all models to populate
         // 4. Generate a new submission token and populate the form
+
+        //TODO Handle case of an optout token (models are already ids and not keys...)
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
             if (StringUtils.isEmpty(ctx.getSubject())) {
                 if (!StringUtils.isEmpty(subject)) {
                     ctx.setSubject(subject);
@@ -462,7 +468,12 @@ public class ConsentServiceBean implements ConsentService {
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
-            form.setToken(tokenService.generateToken(ctx));
+            if (ctx.getOptoutModel() != null && !ctx.getOptoutModel().isEmpty()) {
+                ModelVersion optout = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getOptoutModel());
+                ctx.setOptoutModel(optout.getIdentifier().serialize());
+            }
+
+            form.setToken(this.token.generateToken(ctx));
             return form;
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
@@ -502,8 +513,9 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Submitting consent");
+        String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
             if (StringUtils.isEmpty(ctx.getSubject())) {
                 throw new ConsentServiceException("Subject is empty");
             }
@@ -512,7 +524,36 @@ public class ConsentServiceBean implements ConsentService {
             for (MultivaluedMap.Entry<String, List<String>> value : values.entrySet()) {
                 valuesMap.put(value.getKey(), value.getValue().get(0));
             }
-            return this.saveConsent(ctx, valuesMap, "");
+            Receipt receipt = this.saveConsent(ctx, valuesMap, "");
+
+            if (ctx.getOptoutRecipient() != null && !ctx.getOptoutRecipient().isEmpty()) {
+                Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
+                if (ctx.getOptoutModel() != null && !ctx.getOptoutModel().isEmpty()) {
+                    try {
+                        ConsentOptOut optout = new ConsentOptOut();
+                        optout.setLocale(ctx.getLocale());
+                        optout.setRecipient(ctx.getOptoutRecipient());
+                        //TODO generate form URL
+                        optout.setUrl("http://www.fairandsmart.com");
+                        ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial());
+                        optout.setModel(optoutModel);
+                        if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
+                            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial());
+                            optout.setTheme(theme);
+                        }
+                        ctx.setOptoutRecipient("");
+                        ctx.setOptoutModel("");
+                        optout.setToken(this.token.generateToken(ctx));
+                        notification.notify(event.withData(optout));
+                    } catch (EntityNotFoundException | IllegalIdentifierException e ) {
+                        LOGGER.log(Level.SEVERE, "Unable to load optout model", e);
+                    }
+                } else {
+                    //TODO use a default model
+                    LOGGER.log(Level.SEVERE, "No optout model set but an optout recipient, Default MODEL NOT IMPLEMENTED YET");
+                }
+            }
+            return receipt;
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -587,7 +628,7 @@ public class ConsentServiceBean implements ConsentService {
     public Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Creating record for operator");
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
 
             ModelVersion headerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
             ctx.setHeader(headerVersion.getIdentifier().serialize());
@@ -643,7 +684,6 @@ public class ConsentServiceBean implements ConsentService {
                 isFilterCompliant = false;
             }
         }
-
         return isFilterCompliant ? UserRecord.fromRecord(record) : UserRecord.fromEntryAndSubject(entry, filter.getUser());
     }
 
@@ -713,7 +753,11 @@ public class ConsentServiceBean implements ConsentService {
             }
             LOGGER.log(Level.INFO, "records: " + records);
 
-            if (!ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
+            Receipt receipt;
+            if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
+                receipt = new Receipt();
+                receipt.setLocale(ctx.getLocale());
+            } else {
                 Header header = null;
                 if (headId != null) {
                     header = (Header) ModelVersion.SystemHelper.findModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
@@ -731,15 +775,11 @@ public class ConsentServiceBean implements ConsentService {
                         //
                     }
                 });
-                Receipt receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
+                receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 store.put(receipt.getTransaction(), receipt.toXmlBytes());
-                return receipt;
-            } else {
-                Receipt receipt = new Receipt();
-                receipt.setLocale(ctx.getLocale());
-                return receipt;
             }
+            return receipt;
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }

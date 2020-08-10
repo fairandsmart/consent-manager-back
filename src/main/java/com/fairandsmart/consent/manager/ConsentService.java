@@ -76,4 +76,5 @@ public interface ConsentService {
     CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter);
 
     Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
+
 }
