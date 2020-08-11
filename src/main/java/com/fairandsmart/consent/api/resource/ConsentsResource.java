@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.api.dto.OperatorRecordDto;
 import com.fairandsmart.consent.template.TemplateModel;
@@ -27,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("/consents")
 public class ConsentsResource {
@@ -105,7 +107,7 @@ public class ConsentsResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("query") @DefaultValue("") String query,
-            @QueryParam("order") @DefaultValue("id") String order,
+            @QueryParam("order") @DefaultValue("bodyKey") String order,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
         LOGGER.log(Level.INFO, "GET /records");
         RecordFilter filter = new RecordFilter();
@@ -118,6 +120,30 @@ public class ConsentsResource {
     }
 
     @GET
+    @Path("/records/subset")
+    @RolesAllowed("admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public CollectionPage<UserRecord> listRecordsForUsers(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("25") int size,
+            @QueryParam("order") @DefaultValue("bodyKey") String order,
+            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
+            @QueryParam("users") List<String> users,
+            @QueryParam("treatments") List<String> treatments,
+            @QueryParam("conditions") List<String> conditions) {
+        LOGGER.log(Level.INFO, "GET /records/subset");
+        MixedRecordsFilter filter = new MixedRecordsFilter();
+        filter.setPage(page);
+        filter.setSize(size);
+        filter.setOrder(order);
+        filter.setDirection(direction);
+        filter.setUsers(users.stream().map(user -> URLDecoder.decode(user, StandardCharsets.UTF_8)).collect(Collectors.toList()));
+        filter.setTreatments(treatments);
+        filter.setConditions(conditions);
+        return consentService.listRecordsForUsers(filter);
+    }
+
+    @GET
     @Path("/records/user")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
@@ -125,12 +151,12 @@ public class ConsentsResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("user") @DefaultValue("") String user,
-            @QueryParam("order") @DefaultValue("id") String order,
+            @QueryParam("order") @DefaultValue("bodyKey") String order,
+            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
             @QueryParam("collectionMethod") String collectionMethod,
             @QueryParam("dateAfter") long dateAfter,
             @QueryParam("dateBefore") long dateBefore,
-            @QueryParam("value") String value,
-            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
+            @QueryParam("value") String value) {
         LOGGER.log(Level.INFO, "GET /records/user");
         UserRecordFilter filter = new UserRecordFilter();
         filter.setPage(page);

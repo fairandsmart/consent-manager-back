@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -74,6 +75,8 @@ public interface ConsentService {
     CollectionPage<Record> listRecords(RecordFilter filter);
 
     CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter);
+
+    CollectionPage<UserRecord> listRecordsForUsers(MixedRecordsFilter filter);
 
     Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 

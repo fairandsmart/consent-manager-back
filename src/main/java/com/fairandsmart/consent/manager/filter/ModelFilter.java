@@ -2,7 +2,7 @@ package com.fairandsmart.consent.manager.filter;
 
 import java.util.List;
 
-public class ModelFilter implements SortableFilter {
+public class ModelFilter implements SortableFilter, PaginableFilter {
 
     private List<String> types;
     private int page;

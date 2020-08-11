@@ -3,6 +3,8 @@ package com.fairandsmart.consent.manager;
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.handler.context.ConsentContextHandler;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
+import com.fairandsmart.consent.common.util.PageUtil;
+import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -29,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -40,7 +41,6 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
-import javax.xml.bind.Element;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
@@ -96,13 +96,7 @@ public class ConsentServiceBean implements ConsentService {
         } else {
             query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());
         }
-        CollectionPage<ModelEntry> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
-        result.setPageSize(filter.getSize());
-        result.setPage(filter.getPage());
-        result.setTotalPages(query.pageCount());
-        result.setTotalCount(query.count());
-        return result;
+        return PageUtil.paginateQuery(query, filter);
     }
 
     @Override
@@ -475,7 +469,7 @@ public class ConsentServiceBean implements ConsentService {
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
-            if (ctx.getOptoutModel() != null && !ctx.getOptoutModel().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
                 ModelVersion optout = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getOptoutModel());
                 ctx.setOptoutModel(optout.getIdentifier().serialize());
             }
@@ -537,9 +531,9 @@ public class ConsentServiceBean implements ConsentService {
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
             Receipt receipt = this.saveConsent(ctx, valuesMap, "");
 
-            if (ctx.getOptoutRecipient() != null && !ctx.getOptoutRecipient().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getOptoutRecipient())) {
                 Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
-                if (ctx.getOptoutModel() != null && !ctx.getOptoutModel().isEmpty()) {
+                if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
                     try {
                         ConsentOptOut optout = new ConsentOptOut();
                         optout.setLocale(ctx.getLocale());
@@ -614,13 +608,7 @@ public class ConsentServiceBean implements ConsentService {
         } else {
             query = Record.find("owner = ?1 and subject like ?2 and status = ?3", connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
         }
-        CollectionPage<Record> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
-        result.setPageSize(filter.getSize());
-        result.setPage(filter.getPage());
-        result.setTotalPages(query.pageCount());
-        result.setTotalCount(query.count());
-        return result;
+        return PageUtil.paginateQuery(query, filter);
     }
 
     @Override
@@ -634,17 +622,34 @@ public class ConsentServiceBean implements ConsentService {
         entries.forEach(entry -> userRecords.add(findUserRecord(entry, filter)));
         userRecords.sort((r1, r2) -> r1.compare(r2, filter));
 
-        // Pagination
-        int startIndex = filter.getSize() * filter.getPage();
-        int endIndex = Math.min(filter.getSize() * (filter.getPage() + 1), userRecords.size());
+        return PageUtil.paginateList(userRecords, filter);
+    }
 
-        CollectionPage<UserRecord> userRecordsCollection = new CollectionPage<>();
-        userRecordsCollection.setValues(userRecords.subList(startIndex, endIndex));
-        userRecordsCollection.setPage(filter.getPage());
-        userRecordsCollection.setPageSize(filter.getSize());
-        userRecordsCollection.setTotalPages((int) Math.ceil((double) (userRecords.size()) / (double) (filter.getSize())));
-        userRecordsCollection.setTotalCount(userRecords.size());
-        return userRecordsCollection;
+    @Override
+    public CollectionPage<UserRecord> listRecordsForUsers(MixedRecordsFilter filter) {
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        List<ModelEntry> entries = new ArrayList<>();
+
+        if (filter.getTreatments().size() > 0) {
+            entries.addAll(ModelEntry.find(
+                    "owner = ?1 and key in ?2 and type = ?3",
+                    connectedIdentifier,
+                    filter.getTreatments(),
+                    Treatment.TYPE).list());
+        }
+        if (filter.getConditions().size() > 0) {
+            entries.addAll(ModelEntry.find(
+                    "owner = ?1 and key in ?2 and type = ?3",
+                    connectedIdentifier,
+                    filter.getConditions(),
+                    Conditions.TYPE).list());
+        }
+
+        List<UserRecord> records = new ArrayList<>();
+        entries.forEach(entry -> filter.getUsers().forEach(user -> records.add(findRecordForUser(entry, user))));
+        records.sort((r1, r2) -> r1.compare(r2, filter));
+
+        return PageUtil.paginateList(records, filter);
     }
 
     @Override
@@ -682,33 +687,40 @@ public class ConsentServiceBean implements ConsentService {
     /* INTERNAL */
 
     private UserRecord findUserRecord(ModelEntry entry, UserRecordFilter filter) {
+        UserRecord record = findRecordForUser(entry, filter.getUser());
+        boolean isFilterCompliant = true;
+        if (!StringUtils.isEmpty(record.getValue())) {
+            if (!StringUtils.isEmpty(filter.getCollectionMethod()) && !filter.getCollectionMethod().equals(record.getCollectionMethod())) {
+                isFilterCompliant = false;
+            }
+            if (!StringUtils.isEmpty(filter.getValue()) && !filter.getValue().equals(record.getValue())) {
+                isFilterCompliant = false;
+            }
+            if (filter.getDateAfter() > 0 && filter.getDateAfter() > record.getCreationTimestamp()) {
+                isFilterCompliant = false;
+            }
+            if (filter.getDateBefore() > 0 && filter.getDateBefore() < record.getCreationTimestamp()) {
+                isFilterCompliant = false;
+            }
+        }
+        return isFilterCompliant ? record : UserRecord.fromEntryAndSubject(entry, filter.getUser());
+    }
+
+    private UserRecord findRecordForUser(ModelEntry entry, String user) {
         Optional<Record> optional = Record.find(
                 "owner = ?1 and type = ?2 and bodyKey = ?3 and subject = ?4",
                 Sort.by("creationTimestamp", Sort.Direction.Descending),
                 entry.owner,
                 entry.type,
                 entry.key,
-                filter.getUser())
+                user)
                 .firstResultOptional();
 
-        Record record = null;
-        boolean isFilterCompliant = optional.isPresent();
-        if (isFilterCompliant) {
-            record = optional.get();
-            if (!StringUtils.isEmpty(filter.getCollectionMethod()) && !filter.getCollectionMethod().equals(record.collectionMethod.name())) {
-                isFilterCompliant = false;
-            }
-            if (!StringUtils.isEmpty(filter.getValue()) && !filter.getValue().equals(record.value)) {
-                isFilterCompliant = false;
-            }
-            if (filter.getDateAfter() > 0 && filter.getDateAfter() > record.creationTimestamp) {
-                isFilterCompliant = false;
-            }
-            if (filter.getDateBefore() > 0 && filter.getDateBefore() < record.creationTimestamp) {
-                isFilterCompliant = false;
-            }
+        if (optional.isPresent()) {
+            return UserRecord.fromRecord(optional.get());
+        } else {
+            return UserRecord.fromEntryAndSubject(entry, user);
         }
-        return isFilterCompliant ? UserRecord.fromRecord(record) : UserRecord.fromEntryAndSubject(entry, filter.getUser());
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {

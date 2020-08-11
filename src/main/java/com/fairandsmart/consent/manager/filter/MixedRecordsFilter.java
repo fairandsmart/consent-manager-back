@@ -1,14 +1,18 @@
 package com.fairandsmart.consent.manager.filter;
 
-public class RecordFilter implements SortableFilter, PaginableFilter {
+import java.util.List;
+
+public class MixedRecordsFilter implements SortableFilter, PaginableFilter {
 
     private int page;
     private int size;
-    private String query;
+    private List<String> users;
+    private List<String> treatments;
+    private List<String> conditions;
     private String order;
     private String direction;
 
-    public RecordFilter() {}
+    public MixedRecordsFilter() {}
 
     public int getPage() {
         return page;
@@ -26,12 +30,28 @@ public class RecordFilter implements SortableFilter, PaginableFilter {
         this.size = size;
     }
 
-    public String getQuery() {
-        return query;
+    public List<String> getUsers() {
+        return users;
     }
 
-    public void setQuery(String query) {
-        this.query = query;
+    public void setUsers(List<String> users) {
+        this.users = users;
+    }
+
+    public List<String> getTreatments() {
+        return treatments;
+    }
+
+    public void setTreatments(List<String> treatments) {
+        this.treatments = treatments;
+    }
+
+    public List<String> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(List<String> conditions) {
+        this.conditions = conditions;
     }
 
     @Override
@@ -54,10 +74,12 @@ public class RecordFilter implements SortableFilter, PaginableFilter {
 
     @Override
     public String toString() {
-        return "RecordFilter{" +
+        return "MixedRecordsFilter{" +
                 "page=" + page +
                 ", size=" + size +
-                ", query='" + query + '\'' +
+                ", users=" + users +
+                ", treatments=" + treatments +
+                ", conditions=" + conditions +
                 ", order='" + order + '\'' +
                 ", direction='" + direction + '\'' +
                 '}';

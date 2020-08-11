@@ -1,6 +1,6 @@
 package com.fairandsmart.consent.manager.filter;
 
-public class UserRecordFilter implements SortableFilter {
+public class UserRecordFilter implements SortableFilter, PaginableFilter {
 
     private int page;
     private int size;
