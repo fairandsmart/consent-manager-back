@@ -45,5 +45,15 @@
 
     <script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
 
+    <script type="text/javascript">
+    window.iFrameResizer = {
+        readyCallback: function(){
+            if ('parentIFrame' in window) {
+                window.parentIFrame.sendMessage('sent', '*');
+                window.parentIFrame.close();
+            }
+        }
+    }
+    </script>
 </body>
 </html>
