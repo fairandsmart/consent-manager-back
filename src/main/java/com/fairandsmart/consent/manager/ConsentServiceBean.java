@@ -1,6 +1,10 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.api.handler.context.ConsentContextHandler;
+import com.fairandsmart.consent.api.resource.ConsentsResource;
+import com.fairandsmart.consent.common.util.PageUtil;
+import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -14,6 +18,8 @@ import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
+import com.fairandsmart.consent.notification.NotificationService;
+import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
@@ -21,20 +27,25 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.math.BigInteger;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
@@ -55,16 +66,22 @@ public class ConsentServiceBean implements ConsentService {
     SerialGenerator generator;
 
     @Inject
-    TokenService tokenService;
+    TokenService token;
 
     @Inject
     ReceiptStore store;
 
+    @Inject
+    Instance<ConsentContextHandler> contextHandlers;
+
+    @Inject
+    NotificationService notification;
+
     @ConfigProperty(name = "consent.processor")
     String processor;
 
-    @PersistenceContext
-    EntityManager entityManager;
+    @ConfigProperty(name = "consent.public.url")
+    String publicUrl;
 
     /* MODELS MANAGEMENT */
 
@@ -79,13 +96,7 @@ public class ConsentServiceBean implements ConsentService {
         } else {
             query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());
         }
-        CollectionPage<ModelEntry> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
-        result.setPageSize(filter.getSize());
-        result.setPage(filter.getPage());
-        result.setTotalPages(query.pageCount());
-        result.setTotalCount(query.count());
-        return result;
+        return PageUtil.paginateQuery(query, filter);
     }
 
     @Override
@@ -218,14 +229,14 @@ public class ConsentServiceBean implements ConsentService {
     public ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding active version for entry with key: " + key);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        return systemFindActiveVersionByKey(connectedIdentifier, key);
+        return ModelVersion.SystemHelper.findActiveVersionByKey(connectedIdentifier, key);
     }
 
     @Override
     public ModelVersion findActiveVersionForEntry(String entryId) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding active version for entry with id: " + entryId);
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        return systemFindActiveVersionByEntryId(connectedIdentifier, entryId);
+        return ModelVersion.SystemHelper.findActiveVersionByEntryId(connectedIdentifier, entryId);
     }
 
     @Override
@@ -393,9 +404,8 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public String buildToken(ConsentContext ctx) {
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
-
         ctx.setOwner(authentication.getConnectedIdentifier());
-        return tokenService.generateToken(ctx);
+        return token.generateToken(ctx);
     }
 
     @Override
@@ -406,11 +416,13 @@ public class ConsentServiceBean implements ConsentService {
         // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form or parts of the form
         // 3. If form has to be displayed, load all models to populate
         // 4. Generate a new submission token and populate the form
+
+        //TODO Handle case of an optout token (models are already ids and not keys...)
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
-            if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
-                if (subject != null && !subject.isEmpty()) {
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
+            if (StringUtils.isEmpty(ctx.getSubject())) {
+                if (!StringUtils.isEmpty(subject)) {
                     ctx.setSubject(subject);
                 } else if (!ctx.isPreview()) {
                     throw new ConsentServiceException("Subject is empty");
@@ -428,15 +440,15 @@ public class ConsentServiceBean implements ConsentService {
             form.setPreview(ctx.isPreview());
             form.setConditions(ctx.isConditions());
 
-            if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
-                ModelVersion header = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            if (!StringUtils.isEmpty(ctx.getHeader())) {
+                ModelVersion header = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
                 form.setHeader(header);
                 ctx.setHeader(header.getIdentifier().serialize());
             }
 
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
-                ModelVersion element = this.systemFindActiveVersionByKey(ctx.getOwner(), key);
+                ModelVersion element = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), key);
                 previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(element.serial, r.value));
                 if (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(element.serial)) {
                     form.addElement(element);
@@ -445,19 +457,24 @@ public class ConsentServiceBean implements ConsentService {
             }
             ctx.setElements(elementsIdentifiers);
 
-            if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
-                ModelVersion footer = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+            if (!StringUtils.isEmpty(ctx.getFooter())) {
+                ModelVersion footer = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
                 form.setFooter(footer);
                 ctx.setFooter(footer.getIdentifier().serialize());
             }
 
-            if (ctx.getTheme() != null && !ctx.getTheme().isEmpty()) {
-                ModelVersion theme = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
+            if (!StringUtils.isEmpty(ctx.getTheme())) {
+                ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
                 form.setTheme(theme);
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
-            form.setToken(tokenService.generateToken(ctx));
+            if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
+                ModelVersion optout = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getOptoutModel());
+                ctx.setOptoutModel(optout.getIdentifier().serialize());
+            }
+
+            form.setToken(this.token.generateToken(ctx));
             return form;
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
@@ -465,7 +482,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentForm generateThemePreview(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException {
+    public ConsentForm generateLipsumForm(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException {
         ConsentForm form = new ConsentForm();
         form.setLocale(locale);
         form.setOrientation(orientation);
@@ -473,63 +490,22 @@ public class ConsentServiceBean implements ConsentService {
         form.setConditions(false);
         form.setToken("PREVIEW");
 
-        Header lipsumHeader = new Header();
-        lipsumHeader.setLogoAltText("Quisque rutrum, velit id congue facilisis");
-        lipsumHeader.setLogoPath("/assets/img/themes/preview_logo.png");
-        lipsumHeader.setTitle("Mauris auctor orci vestibulum sapien");
-        lipsumHeader.setBody("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et libero eu augue placerat bibendum auctor ac elit. Duis imperdiet metus felis, laoreet porta dolor faucibus nec. Donec in diam tincidunt, commodo erat sit amet, congue ipsum. Nullam venenatis ipsum nibh, vel viverra tortor venenatis ut. Morbi id urna quis lorem porta sodales vitae at leo. Praesent sed lorem rutrum, facilisis turpis at, viverra lorem. Mauris lorem justo, vulputate quis ipsum id, vestibulum efficitur sapien.");
-        lipsumHeader.setPrivacyPolicyUrl("https://www.lipsum.com/feed/html");
-        lipsumHeader.setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM.name());
-        lipsumHeader.setDataController(new Controller().withCompany("Company").withName("John Doe").withAddress("Paris").withEmail("john.doe@company").withPhoneNumber("0123456789").withActingBehalfCompany(true));
-        lipsumHeader.setJurisdiction("Duis sed lorem");
-        lipsumHeader.setScope("Pellentesque a ex luctus");
-        lipsumHeader.setShortNoticeLink("https://www.lipsum.com/feed/html");
-        lipsumHeader.setShowCollectionMethod(true);
-        lipsumHeader.setShowDataController(true);
-        lipsumHeader.setShowJurisdiction(true);
-        lipsumHeader.setShowScope(true);
-        lipsumHeader.setShowShortNoticeLink(true);
-        form.setHeader(generateVersionForPreview(locale, lipsumHeader));
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            CollectionType dataTypeRef =
+                    TypeFactory.defaultInstance().constructCollectionType(List.class, ModelData.class);
+            String jsonFileName = "preview/lipsum.json";
+            URL jsonFile = getClass().getClassLoader().getSystemResource(jsonFileName);
+            if (jsonFile == null) jsonFile = getClass().getClassLoader().getResource(jsonFileName);
+            List<ModelData> data = mapper.readValue(jsonFile, dataTypeRef);
 
-        Treatment lipsumTreatment = new Treatment();
-        lipsumTreatment.setTreatmentTitle("Donec eu ex nunc");
-        lipsumTreatment.setDataTitle("Ut laoreet egestas tempus");
-        lipsumTreatment.setDataBody("Nunc fringilla eros nec elit pellentesque mattis. In magna lacus, faucibus non augue vel, aliquet mollis arcu. Donec nulla nisl, ullamcorper et augue eget, dapibus feugiat nisl. In vitae ligula commodo, blandit massa sit amet, tincidunt est. Nullam ut sapien ut lacus iaculis tincidunt. Ut et pellentesque quam, at molestie orci.");
-        lipsumTreatment.setRetentionTitle("Pellentesque maximus congue ultricies");
-        lipsumTreatment.setRetentionBody("Donec dignissim cursus euismod. Donec luctus ante sed nibh dictum, ut imperdiet mauris eleifend. Pellentesque nec felis at tellus porta dapibus et sit amet lacus. In mauris tellus, venenatis euismod ipsum vel, blandit ornare neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Praesent aliquam, libero eget tristique consequat, massa leo pharetra nisl, vel semper felis est id metus.");
-        lipsumTreatment.setUsageTitle("Fusce molestie nisi sed molestie tincidunt");
-        lipsumTreatment.setUsageBody("Sed suscipit nec orci ac fermentum. Etiam ut urna diam. In rutrum tortor magna, non auctor massa interdum id. Maecenas a imperdiet turpis. Pellentesque ac imperdiet lorem. Integer porta nulla nec interdum facilisis. Phasellus sit amet rutrum mauris. Duis et tellus cursus, rhoncus tortor quis, tristique tellus. Nam ut dui id massa rhoncus pharetra rhoncus pharetra lacus. Phasellus vitae sagittis neque.");
-        lipsumTreatment.addPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE);
-        lipsumTreatment.addPurpose(Treatment.Purpose.CONSENT_THIRD_PART_SHARING);
-        lipsumTreatment.addPurpose(Treatment.Purpose.CONSENT_MARKETING);
-        lipsumTreatment.setContainsMedicalData(true);
-        lipsumTreatment.setContainsSensitiveData(true);
-        lipsumTreatment.setDataController(new Controller().withCompany("Company").withName("Jane Doe").withAddress("Paris").withEmail("jane.doe@company").withPhoneNumber("0123456789").withActingBehalfCompany(true));
-        lipsumTreatment.setShowDataController(true);
-        lipsumTreatment.addThirdParty(new NameValuePair("Quisque eu tincidunt", "Aliquam varius lectus id facilisis commodo. Suspendisse hendrerit malesuada nisl, in egestas leo venenatis a. Praesent at elit non nisl condimentum rhoncus."));
-        lipsumTreatment.addThirdParty(new NameValuePair("Vivamus quis", "Suspendisse pretium tincidunt turpis et tempor. Maecenas blandit in magna id rutrum. Nullam eu ligula ex."));
-        form.addElement(generateVersionForPreview(locale, lipsumTreatment));
-
-        Treatment lipsumTreatment2 = new Treatment();
-        lipsumTreatment2.setTreatmentTitle("Cras sed rutrum dui, viverra porttitor mauris");
-        lipsumTreatment2.setDataTitle("Integer ultrices augue non lorem euismod, malesuada tempor libero interdum");
-        lipsumTreatment2.setDataBody("Nulla quis placerat diam. Vivamus turpis nulla, sodales at luctus sed, aliquet quis odio. Sed sit amet bibendum quam. Vestibulum nec nisl sodales libero malesuada auctor a at elit. Maecenas in finibus ante, ut egestas orci. Maecenas iaculis sagittis orci. Sed eget nulla nulla. Vestibulum eros arcu, lobortis accumsan sem rhoncus, mollis commodo odio.");
-        lipsumTreatment2.setRetentionTitle("Sed non urna eget lectus consectetur sodales");
-        lipsumTreatment2.setRetentionBody("Donec condimentum dictum erat a sollicitudin. Cras vitae lectus fringilla leo sagittis semper. Vivamus vulputate, risus ac malesuada pulvinar, nulla dui pharetra nibh, eu pretium ante urna sit amet nibh. Nunc urna turpis, bibendum eu volutpat sed, maximus iaculis enim. Nullam fringilla a velit eget tempus. Etiam sed ex nec ligula mattis aliquet ut sed nibh.");
-        lipsumTreatment2.setUsageTitle("Fusce sodales ligula non lorem volutpat interdum");
-        lipsumTreatment2.setUsageBody("Vestibulum ac augue et sapien accumsan viverra. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean accumsan quam non massa luctus, a condimentum ipsum bibendum. Curabitur rutrum mauris et odio mollis faucibus. Duis fringilla blandit sem, non vulputate mauris ullamcorper ac. Sed dignissim id erat congue dignissim. Nulla pulvinar porttitor arcu sit amet dapibus. Sed interdum venenatis neque, eu commodo lorem porta ut.");
-        lipsumTreatment2.addPurpose(Treatment.Purpose.CONSENT_RESEARCH);
-        lipsumTreatment2.setContainsMedicalData(true);
-        lipsumTreatment2.setContainsSensitiveData(true);
-        lipsumTreatment2.setDataController(new Controller().withCompany("Company").withName("Jack Doe").withAddress("Paris").withEmail("jack.doe@company").withPhoneNumber("0123456789").withActingBehalfCompany(true));
-        lipsumTreatment2.setShowDataController(true);
-        lipsumTreatment2.addThirdParty(new NameValuePair("Aliquam", "Nullam in vulputate risus. Praesent sed tempus turpis, non lacinia tellus. Maecenas non mi dui. Proin imperdiet consectetur mi ornare porttitor. In rutrum ipsum eu mattis pellentesque."));
-        form.addElement(generateVersionForPreview(locale, lipsumTreatment2));
-
-        Footer lipsumFooter = new Footer();
-        lipsumFooter.setBody("Nulla in aliquet elit. Quisque ultricies hendrerit mi accumsan lobortis. Mauris elementum ipsum vitae euismod accumsan. Duis eget placerat mi, at eleifend mauris. Nulla velit libero, cursus vitae lacinia at, mattis eget sem. Praesent at ligula lacus. Donec a ligula vel odio accumsan commodo. Aenean varius diam sed turpis volutpat ornare.");
-        lipsumFooter.setShowAcceptAll(true);
-        form.setFooter(generateVersionForPreview(locale, lipsumFooter));
+            form.setHeader(generateVersionForPreview(locale, data.get(0)));
+            form.addElement(generateVersionForPreview(locale, data.get(1)));
+            form.addElement(generateVersionForPreview(locale, data.get(2)));
+            form.setFooter(generateVersionForPreview(locale, data.get(3)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return form;
     }
@@ -538,9 +514,10 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Submitting consent");
+        String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
-            if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
+            if (StringUtils.isEmpty(ctx.getSubject())) {
                 throw new ConsentServiceException("Subject is empty");
             }
 
@@ -548,7 +525,53 @@ public class ConsentServiceBean implements ConsentService {
             for (MultivaluedMap.Entry<String, List<String>> value : values.entrySet()) {
                 valuesMap.put(value.getKey(), value.getValue().get(0));
             }
-            return this.saveConsent(ctx, valuesMap, "");
+            //TODO Check that identifiers refers to the latest elements versions to avoid committing a consent on a staled version of an entry
+            // (aka form is generated before a MAJOR RELEASE and submit after)
+            // Maybe use a global referential hash that would be injected in token and which could be stored as a whole database integrity check
+            // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
+            Receipt receipt = this.saveConsent(ctx, valuesMap, "");
+
+            if (!StringUtils.isEmpty(ctx.getOptoutRecipient())) {
+                Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
+                if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
+                    try {
+                        ConsentOptOut optout = new ConsentOptOut();
+                        optout.setLocale(ctx.getLocale());
+                        optout.setRecipient(ctx.getOptoutRecipient());
+                        ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial());
+                        optout.setModel(optoutModel);
+                        ctx.setOptoutModel(optoutModel.entry.key);
+                        if (!StringUtils.isEmpty(ctx.getTheme())) {
+                            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial());
+                            optout.setTheme(theme);
+                            ctx.setTheme(theme.entry.key);
+                        }
+                        if (!StringUtils.isEmpty(ctx.getHeader())) {
+                            ctx.setHeader(ConsentElementIdentifier.deserialize(ctx.getHeader()).getKey());
+                        }
+                        if (!StringUtils.isEmpty(ctx.getFooter())) {
+                            ctx.setFooter(ConsentElementIdentifier.deserialize(ctx.getFooter()).getKey());
+                        }
+                        List<String> celements = new ArrayList<>();
+                        for ( String element : ctx.getElements() ) {
+                            celements.add(ConsentElementIdentifier.deserialize(element).getKey());
+                        }
+                        ctx.setElements(celements);
+                        ctx.setOptoutRecipient("");
+                        ctx.setOptoutModel("");
+                        optout.setToken(this.token.generateToken(ctx));
+                        URI optoutUri = UriBuilder.fromUri(publicUrl).path(ConsentsResource.class).queryParam("t", optout.getToken()).build();
+                        optout.setUrl(optoutUri.toString());
+                        notification.notify(event.withData(optout));
+                    } catch (EntityNotFoundException | IllegalIdentifierException e ) {
+                        LOGGER.log(Level.SEVERE, "Unable to load optout model", e);
+                    }
+                } else {
+                    //TODO use a default model
+                    LOGGER.log(Level.SEVERE, "No optout model set but an optout recipient, Default MODEL NOT IMPLEMENTED YET");
+                }
+            }
+            return receipt;
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -560,57 +583,10 @@ public class ConsentServiceBean implements ConsentService {
         List<Record> records = new ArrayList<>();
 
         try {
-            ModelVersion headerVersion = null;
-            if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
-                headerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
-            }
-            ModelVersion footerVersion = null;
-            if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
-                footerVersion = systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
-            }
-            for (String elementKey : ctx.getElements()) {
-                ModelVersion elementVersion = systemFindActiveVersionByKey(ctx.getOwner(), elementKey);
-                //TODO Maybe add also a condition on the status (COMMITTED)
-                if (footerVersion == null) {
-                    if (headerVersion == null) { // Records where there are no header and no footer
-                        Record.find(
-                                "subject = ?1 and headSerial = '' and bodySerial in ?2 and footSerial = '' and (expirationTimestamp >= ?3 or expirationTimestamp = 0)",
-                                Sort.by("creationTimestamp", Sort.Direction.Descending),
-                                ctx.getSubject(),
-                                elementVersion.getSerials(),
-                                System.currentTimeMillis()
-                        ).stream().findFirst().ifPresent(r -> records.add((Record) r));
-                    } else { // Records where there is a header but no footer
-                        Record.find(
-                                "subject = ?1 and headSerial in ?2 and bodySerial in ?3 and footSerial = '' and (expirationTimestamp >= ?4 or expirationTimestamp = 0)",
-                                Sort.by("creationTimestamp", Sort.Direction.Descending),
-                                ctx.getSubject(),
-                                headerVersion.getSerials(),
-                                elementVersion.getSerials(),
-                                System.currentTimeMillis()
-                        ).stream().findFirst().ifPresent(r -> records.add((Record) r));
-                    }
-                } else {
-                    if (headerVersion == null) { // Records where there is no header but a footer
-                        Record.find(
-                                "subject = ?1 and headSerial = '' and bodySerial in ?2 and footSerial in ?3 and (expirationTimestamp >= ?4 or expirationTimestamp = 0)",
-                                Sort.by("creationTimestamp", Sort.Direction.Descending),
-                                ctx.getSubject(),
-                                elementVersion.getSerials(),
-                                footerVersion.getSerials(),
-                                System.currentTimeMillis()
-                        ).stream().findFirst().ifPresent(r -> records.add((Record) r));
-                    } else { // Records where there are a header and a footer
-                        Record.find(
-                                "subject = ?1 and headSerial in ?2 and bodySerial in ?3 and footSerial in ?4 and (expirationTimestamp >= ?5 or expirationTimestamp = 0)",
-                                Sort.by("creationTimestamp", Sort.Direction.Descending),
-                                ctx.getSubject(),
-                                headerVersion.getSerials(),
-                                elementVersion.getSerials(),
-                                footerVersion.getSerials(),
-                                System.currentTimeMillis()
-                        ).stream().findFirst().ifPresent(r -> records.add((Record) r));
-                    }
+            //TODO Maybe add also a condition on the status (COMMITTED)
+            for (ConsentContextHandler handler : contextHandlers) {
+                if (handler.canHandle(ctx)) {
+                    records.addAll(handler.findRecords(ctx));
                 }
             }
         } catch (EntityNotFoundException e) {
@@ -632,64 +608,48 @@ public class ConsentServiceBean implements ConsentService {
         } else {
             query = Record.find("owner = ?1 and subject like ?2 and status = ?3", connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
         }
-        CollectionPage<Record> result = new CollectionPage<>();
-        result.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
-        result.setPageSize(filter.getSize());
-        result.setPage(filter.getPage());
-        result.setTotalPages(query.pageCount());
-        result.setTotalCount(query.count());
-        return result;
+        return PageUtil.paginateQuery(query, filter);
     }
 
     @Override
     public CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter) {
-        LOGGER.log(Level.INFO, "Listing user records for " + filter.getUser());
-        @SuppressWarnings("unchecked")
-        List<Object[]> rawResults = entityManager.createNativeQuery(
-                "SELECT entry.key as bodyKey, subquery.owner, subquery.subject, subquery.creationTimestamp, " +
-                        "subquery.expirationTimestamp, entry.type, subquery.value, subquery.status, subquery.collectionMethod, " +
-                        "subquery.comment, subquery.headKey, subquery.footKey " +
-                        "FROM ModelEntry entry LEFT JOIN (SELECT record1.* FROM Record record1 LEFT JOIN Record record2 " +
-                        "ON (record1.owner = record2.owner AND record1.subject = record2.subject " +
-                        "AND record1.bodyKey = record2.bodyKey AND record1.creationTimestamp < record2.creationTimestamp) " +
-                        "WHERE record2.owner IS NULL AND record1.owner = ?1 " +
-                        "AND record1.subject = ?2 AND (record1.type = 'treatment' OR record1.type = 'conditions') " +
-                        "ORDER BY record1.bodyKey, record1.creationTimestamp DESC) AS subquery " +
-                        "ON entry.key = subquery.bodyKey WHERE entry.owner = ?1 AND (entry.type = 'treatment' OR entry.type = 'conditions') " +
-                        filter.getSQLOptionalFilters() + " ORDER BY " + filter.getSQLOrder())
-                .setParameter(1, authentication.getConnectedIdentifier())
-                .setParameter(2, filter.getUser())
-                .getResultList();
+        List<ModelEntry> entries = ModelEntry.find(
+                "owner = ?1 and type in ?2",
+                authentication.getConnectedIdentifier(),
+                Arrays.asList(Treatment.TYPE, Conditions.TYPE)).list();
 
         List<UserRecord> userRecords = new ArrayList<>();
-        int index = filter.getSize() * filter.getPage();
-        int max = filter.getSize() * (filter.getPage() + 1);
-        while (index < rawResults.size() && index < max) {
-            Object[] e = rawResults.get(index);
-            UserRecord record = new UserRecord();
-            record.setBodyKey((String) e[0]);
-            record.setOwner((String) e[1]);
-            record.setSubject((String) e[2]);
-            record.setCreationTimestamp(e[3] != null ? ((BigInteger) e[3]).longValue() : 0);
-            record.setExpirationTimestamp(e[4] != null ? ((BigInteger) e[4]).longValue() : 0);
-            record.setType((String) e[5]);
-            record.setValue((String) e[6]);
-            record.setStatus((String) e[7]);
-            record.setCollectionMethod((String) e[8]);
-            record.setComment((String) e[9]);
-            record.setHeaderKey((String) e[10]);
-            record.setFooterKey((String) e[11]);
-            userRecords.add(record);
-            index++;
+        entries.forEach(entry -> userRecords.add(findUserRecord(entry, filter)));
+        userRecords.sort((r1, r2) -> r1.compare(r2, filter));
+
+        return PageUtil.paginateList(userRecords, filter);
+    }
+
+    @Override
+    public CollectionPage<UserRecord> listRecordsForUsers(MixedRecordsFilter filter) {
+        String connectedIdentifier = authentication.getConnectedIdentifier();
+        List<ModelEntry> entries = new ArrayList<>();
+
+        if (filter.getTreatments().size() > 0) {
+            entries.addAll(ModelEntry.find(
+                    "owner = ?1 and key in ?2 and type = ?3",
+                    connectedIdentifier,
+                    filter.getTreatments(),
+                    Treatment.TYPE).list());
+        }
+        if (filter.getConditions().size() > 0) {
+            entries.addAll(ModelEntry.find(
+                    "owner = ?1 and key in ?2 and type = ?3",
+                    connectedIdentifier,
+                    filter.getConditions(),
+                    Conditions.TYPE).list());
         }
 
-        CollectionPage<UserRecord> userRecordsCollection = new CollectionPage<>();
-        userRecordsCollection.setValues(userRecords);
-        userRecordsCollection.setPage(filter.getPage());
-        userRecordsCollection.setPageSize(filter.getSize());
-        userRecordsCollection.setTotalPages((int) Math.ceil((double) (rawResults.size()) / (double) (filter.getSize())));
-        userRecordsCollection.setTotalCount(rawResults.size());
-        return userRecordsCollection;
+        List<UserRecord> records = new ArrayList<>();
+        entries.forEach(entry -> filter.getUsers().forEach(user -> records.add(findRecordForUser(entry, user))));
+        records.sort((r1, r2) -> r1.compare(r2, filter));
+
+        return PageUtil.paginateList(records, filter);
     }
 
     @Override
@@ -697,15 +657,15 @@ public class ConsentServiceBean implements ConsentService {
     public Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Creating record for operator");
         try {
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
 
-            ModelVersion headerVersion = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            ModelVersion headerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
             ctx.setHeader(headerVersion.getIdentifier().serialize());
-            ModelVersion footerVersion = this.systemFindActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+            ModelVersion footerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
             ctx.setFooter(footerVersion.getIdentifier().serialize());
             List<String> newElements = new ArrayList<>();
             for (String element : ctx.getElements()) {
-                ModelVersion elementVersion = this.systemFindActiveVersionByKey(ctx.getOwner(), element);
+                ModelVersion elementVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), element);
                 newElements.add(elementVersion.getIdentifier().serialize());
             }
             ctx.setElements(newElements);
@@ -714,7 +674,7 @@ public class ConsentServiceBean implements ConsentService {
             valuesMap.put("header", headerVersion.getIdentifier().serialize());
             valuesMap.put("footer", footerVersion.getIdentifier().serialize());
             for (Map.Entry<String, String> value : values.entrySet()) {
-                ModelVersion bodyVersion = this.systemFindActiveVersionByKey(ctx.getOwner(), value.getKey());
+                ModelVersion bodyVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), value.getKey());
                 valuesMap.put(bodyVersion.getIdentifier().serialize(), value.getValue());
             }
 
@@ -726,32 +686,54 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
-    private ModelVersion systemFindActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
-        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
-        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key + " and owner: " + owner));
+    private UserRecord findUserRecord(ModelEntry entry, UserRecordFilter filter) {
+        UserRecord record = findRecordForUser(entry, filter.getUser());
+        boolean isFilterCompliant = true;
+        if (!StringUtils.isEmpty(record.getValue())) {
+            if (!StringUtils.isEmpty(filter.getCollectionMethod()) && !filter.getCollectionMethod().equals(record.getCollectionMethod())) {
+                isFilterCompliant = false;
+            }
+            if (!StringUtils.isEmpty(filter.getValue()) && !filter.getValue().equals(record.getValue())) {
+                isFilterCompliant = false;
+            }
+            if (filter.getDateAfter() > 0 && filter.getDateAfter() > record.getCreationTimestamp()) {
+                isFilterCompliant = false;
+            }
+            if (filter.getDateBefore() > 0 && filter.getDateBefore() < record.getCreationTimestamp()) {
+                isFilterCompliant = false;
+            }
+        }
+        return isFilterCompliant ? record : UserRecord.fromEntryAndSubject(entry, filter.getUser());
     }
 
-    private ModelVersion systemFindActiveVersionByEntryId(String owner, String entryId) throws EntityNotFoundException {
-        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and status = ?3", owner, entryId, ModelVersion.Status.ACTIVE).singleResultOptional();
-        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId + " and owner: " + owner));
-    }
+    private UserRecord findRecordForUser(ModelEntry entry, String user) {
+        Optional<Record> optional = Record.find(
+                "owner = ?1 and type = ?2 and bodyKey = ?3 and subject = ?4",
+                Sort.by("creationTimestamp", Sort.Direction.Descending),
+                entry.owner,
+                entry.type,
+                entry.key,
+                user)
+                .firstResultOptional();
 
-    private ModelVersion systemFindModelVersionForSerial(String serial) throws EntityNotFoundException {
-        Optional<ModelVersion> optional = ModelVersion.find("serial = ?1", serial).singleResultOptional();
-        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
+        if (optional.isPresent()) {
+            return UserRecord.fromRecord(optional.get());
+        } else {
+            return UserRecord.fromEntryAndSubject(entry, user);
+        }
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
         if (ctx.getHeader() == null && values.containsKey("header")) {
             throw new InvalidConsentException("submitted header incoherency, expected: null got: " + values.get("header"));
         }
-        if (ctx.getHeader() != null && !ctx.getHeader().isEmpty() && (!values.containsKey("header") || !values.get("header").equals(ctx.getHeader()))) {
+        if (!StringUtils.isEmpty(ctx.getHeader()) && (!values.containsKey("header") || !values.get("header").equals(ctx.getHeader()))) {
             throw new InvalidConsentException("submitted header incoherency, expected: " + ctx.getHeader() + " got: " + values.get("header"));
         }
         if (ctx.getFooter() == null && values.containsKey("footer")) {
             throw new InvalidConsentException("submitted footer incoherency, expected: null got: " + values.get("footer"));
         }
-        if (ctx.getFooter() != null && !ctx.getFooter().isEmpty() && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter()))) {
+        if (!StringUtils.isEmpty(ctx.getFooter()) && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter()))) {
             throw new InvalidConsentException("submitted footer incoherency, expected: " + ctx.getFooter() + " got: " + values.get("footer"));
         }
         Map<String, String> submittedElementValues = values.entrySet().stream()
@@ -769,11 +751,11 @@ public class ConsentServiceBean implements ConsentService {
             Instant now = Instant.now();
 
             ConsentElementIdentifier headId = null;
-            if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getHeader())) {
                 headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
             }
             ConsentElementIdentifier footId = null;
-            if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
+            if (!StringUtils.isEmpty(ctx.getFooter())) {
                 footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
             }
             List<Record> records = new ArrayList<>();
@@ -797,7 +779,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.expirationTimestamp = ctx.isConditions() ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
                     record.status = Record.Status.COMMITTED;
                     record.collectionMethod = ctx.getCollectionMethod();
-                    record.author = ctx.getAuthor() != null && !ctx.getAuthor().isEmpty() ? ctx.getAuthor() : ctx.getOwner();
+                    record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : ctx.getOwner();
                     record.comment = comment;
                     record.persist();
                     records.add(record);
@@ -807,33 +789,33 @@ public class ConsentServiceBean implements ConsentService {
             }
             LOGGER.log(Level.INFO, "records: " + records);
 
-            if (!ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
+            Receipt receipt;
+            if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
+                receipt = new Receipt();
+                receipt.setLocale(ctx.getLocale());
+            } else {
                 Header header = null;
                 if (headId != null) {
-                    header = (Header) systemFindModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
+                    header = (Header) ModelVersion.SystemHelper.findModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
                 }
                 Footer footer = null;
                 if (footId != null) {
-                    footer = (Footer) systemFindModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
+                    footer = (Footer) ModelVersion.SystemHelper.findModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
                 }
                 Map<Treatment, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
                     try {
-                        Treatment t = (Treatment) systemFindModelVersionForSerial(r.bodySerial).getData(ctx.getLocale());
+                        Treatment t = (Treatment) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial).getData(ctx.getLocale());
                         trecords.put(t, r);
                     } catch (EntityNotFoundException | ModelDataSerializationException e) {
                         //
                     }
                 });
-                Receipt receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
+                receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 store.put(receipt.getTransaction(), receipt.toXmlBytes());
-                return receipt;
-            } else {
-                Receipt receipt = new Receipt();
-                receipt.setLocale(ctx.getLocale());
-                return receipt;
             }
+            return receipt;
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }

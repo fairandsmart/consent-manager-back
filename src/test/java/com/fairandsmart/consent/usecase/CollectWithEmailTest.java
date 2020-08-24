@@ -1,17 +1,22 @@
 package com.fairandsmart.consent.usecase;
 
-import com.fairandsmart.consent.api.dto.CreateModelDto;
 import com.fairandsmart.consent.api.dto.ContentDto;
+import com.fairandsmart.consent.api.dto.CreateModelDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Treatment;
+import io.quarkus.mailer.Mail;
+import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.apache.maven.model.Organization;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,8 +26,12 @@ import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.inject.Inject;
 import javax.validation.Validation;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -32,9 +41,15 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class SimpleCollectTest {
+public class CollectWithEmailTest {
 
-    private static final Logger LOGGER = Logger.getLogger(SimpleCollectTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CollectWithEmailTest.class.getName());
+
+    @Inject
+    MockMailbox mailbox;
+
+    @ConfigProperty(name = "consent.public.url")
+    String publicUrl;
 
     @BeforeEach
     public void setup() {
@@ -184,26 +199,64 @@ public class SimpleCollectTest {
         response.then().statusCode(200);
         ModelVersion vt2 = response.body().as(ModelVersion.class);
 
-        //Activate treatment 1 model version
+        //Activate treatment 2 model version
         response = given().auth().basic("sheldon", "password").
                 contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
                 when().put("/models/" + et2.id + "/versions/" + vt2.id + "/status");
         response.then().statusCode(200);
         vt2 = response.body().as(ModelVersion.class);
         assertEquals(ModelVersion.Status.ACTIVE, vt2.status);
+
+        //Create email model
+        CreateModelDto e1 = new CreateModelDto();
+        e1.setKey("email1");
+        e1.setType(Email.TYPE);
+        e1.setName("EMAIL1");
+        e1.setDescription("L'email E1");
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(e1).size());
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(e1).
+                when().post("/models");
+        response.then().statusCode(200);
+        ModelEntry ee1 = response.body().as(ModelEntry.class);
+
+        //Create email model version
+        ContentDto ce1 = new ContentDto();
+        ce1.setLocale("fr_FR");
+        ce1.setContent(new Email()
+                .withSender("optout@localhost")
+                .withSubject("Vous avez fait un choix")
+                .withTitle("Vous nous avez donné votre consentement, vous pouvez modifier votre choix")
+                .withBody("Lors de votre dernire contact avec notre service client vous avez donné votre consentement sur l'utilisation " +
+                        "de certaines données personnelles dans le cadre de nos différentes activités. Vous avez la possibilité de modifier " +
+                        "ces choix en cliquant sur le lien ci-dessous")
+                .withButtonLabel("Bouton modifier mon choix")
+                .withFooter("Vous pouvez également modifier ces choix à tout moment depuis votre espace adhérent")
+                .withSignature("Le service client ACME."));
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ce1).size());
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.JSON).body(ce1).
+                when().post("/models/" + ee1.id + "/versions");
+        response.then().statusCode(200);
+        ModelVersion ve1 = response.body().as(ModelVersion.class);
+
+        //Activate email model version
+        response = given().auth().basic("sheldon", "password").
+                contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
+                when().put("/models/" + ee1.id + "/versions/" + ve1.id + "/status");
+        response.then().statusCode(200);
+        ve1 = response.body().as(ModelVersion.class);
+        assertEquals(ModelVersion.Status.ACTIVE, ve1.status);
     }
 
     /**
-     * 1 : l'orga génère un context de collecte
-     * le context contient le nom du user (subject) et les ids des traitements
+     * 1 : l'orga génère un context de collecte qui contient entre autres un email d'optout
      * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
-     * cas 1 : sujet inconnu car pas de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
      * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
-     * cas 1 : tout est bon, un reçu est généré et renvoyé en réponse au user
-     * 4 : le user retourne à son url initiale qui devrait être contenue dans le reçu ou dans le context
+     * 4 : le user (anonyme) reçoit un email de confirmation
      */
     @Test
-    public void testSimpleCollect() {
+    public void testCollectWithEmail() throws InterruptedException {
         //PART 1
         //Use basic consent context for first generation
         ConsentContext ctx = new ConsentContext()
@@ -213,7 +266,9 @@ public class SimpleCollectTest {
                 .setHeader("h1")
                 .setElements(Arrays.asList("t1", "t2"))
                 .setFooter("f1")
-                .setLocale("fr_FR");
+                .setLocale("fr_FR")
+                .setOptoutModel("email1")
+                .setOptoutRecipient("mmichu@localhost");
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx)
@@ -227,26 +282,6 @@ public class SimpleCollectTest {
         response.then().contentType("text/html").assertThat().statusCode(200);
 
         LOGGER.log(Level.INFO, "Consent form page: " + page);
-        //Orientation
-        assertFalse(page.contains("class=\"right\"")); // Vertical
-        //Header
-        assertTrue(page.contains("Title h1"));
-        assertTrue(page.contains("Body h1"));
-        assertTrue(page.contains("href=\"Readmore h1\""));
-        //Treatment 1
-        assertTrue(page.contains("Titre du traitement t1"));
-        assertTrue(page.contains("votre nom"));
-        assertTrue(page.contains("toute votre vie"));
-        assertTrue(page.contains("tout savoir sur vous"));
-        assertTrue(page.contains("consent_core_service.png"));
-        //Treatment 2
-        assertTrue(page.contains("Titre du traitement t2"));
-        assertTrue(page.contains("votre email"));
-        assertTrue(page.contains("3 ans"));
-        assertTrue(page.contains("vous contacter"));
-        assertTrue(page.contains("consent_marketing.png"));
-        //Footer
-        assertTrue(page.contains("accept-all-switch"));
 
         Document html = Jsoup.parse(page);
         Elements inputs = html.getAllElements();
@@ -277,13 +312,38 @@ public class SimpleCollectTest {
         LOGGER.log(Level.INFO, "Form Values: " + values);
 
         //PART 3
-        Response postResponse = given().contentType(ContentType.URLENC).
-                formParams(values).when().post("/consents");
+        Response postResponse = given().contentType(ContentType.URLENC).formParams(values).when().post("/consents");
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
 
-        LOGGER.log(Level.INFO, "Receipt page: " + postPage);
-        assertTrue(postPage.contains("Reçu"));
-        //TODO
+        //PART 4
+        Thread.sleep(500);
+        assertTrue(mailbox.getTotalMessagesSent() > 0);
+        List<Mail> sent = mailbox.getMessagesSentTo("mmichu@localhost");
+        assertEquals(1, sent.size());
+        assertEquals("Vous avez fait un choix", sent.get(0).getSubject());
+        String received = sent.get(0).getHtml();
+        assertTrue(received.contains("Vous nous avez donné votre consentement, vous pouvez modifier votre choix"));
+        assertTrue(received.contains("certaines données personnelles dans le cadre de nos différentes activités. Vous"));
+        assertTrue(received.contains("Bouton modifier mon choix"));
+        assertTrue(received.contains("à tout moment depuis votre espace adhérent"));
+        assertTrue(received.contains("Le service client ACME."));
+        assertTrue(received.contains(publicUrl + "/consents?t="));
+        assertEquals("optout@localhost", sent.get(0).getFrom());
+
+        //PART 5
+        html = Jsoup.parse(received);
+        String optoutlink = "";
+        Elements links = html.select("a[href]");
+        for (Element link : links) {
+            if ( link.id().equals("form-url") ) {
+                optoutlink = link.attr("abs:href");
+            }
+        }
+        response = given().when().get(optoutlink);
+        page = response.asString();
+        response.then().contentType("text/html").assertThat().statusCode(200);
+
+
     }
 }

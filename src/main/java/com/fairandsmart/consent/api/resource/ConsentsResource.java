@@ -1,9 +1,10 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.api.dto.OperatorRecordDto;
-import com.fairandsmart.consent.api.template.TemplateModel;
+import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.SortDirection;
@@ -15,6 +16,7 @@ import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("/consents")
 public class ConsentsResource {
@@ -52,9 +55,9 @@ public class ConsentsResource {
         LOGGER.log(Level.INFO, "GET /consents");
 
         String token;
-        if (htoken != null && !htoken.isEmpty()) {
+        if (!StringUtils.isEmpty(htoken)) {
             token = htoken;
-        } else if (qtoken != null && !qtoken.isEmpty()) {
+        } else if (!StringUtils.isEmpty(qtoken)) {
             token = qtoken;
         } else {
             throw new AccessDeniedException("Unable to find token neither in header nor as query param");
@@ -91,7 +94,7 @@ public class ConsentsResource {
         if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
             realOrientation = ConsentForm.Orientation.HORIZONTAL;
         }
-        ConsentForm form = consentService.generateThemePreview(realOrientation, locale);
+        ConsentForm form = consentService.generateLipsumForm(realOrientation, locale);
 
         return getConsentFormTemplateModel(form);
     }
@@ -104,7 +107,7 @@ public class ConsentsResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("query") @DefaultValue("") String query,
-            @QueryParam("order") @DefaultValue("id") String order,
+            @QueryParam("order") @DefaultValue("bodyKey") String order,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
         LOGGER.log(Level.INFO, "GET /records");
         RecordFilter filter = new RecordFilter();
@@ -117,6 +120,30 @@ public class ConsentsResource {
     }
 
     @GET
+    @Path("/records/subset")
+    @RolesAllowed("admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public CollectionPage<UserRecord> listRecordsForUsers(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("25") int size,
+            @QueryParam("order") @DefaultValue("bodyKey") String order,
+            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
+            @QueryParam("users") List<String> users,
+            @QueryParam("treatments") List<String> treatments,
+            @QueryParam("conditions") List<String> conditions) {
+        LOGGER.log(Level.INFO, "GET /records/subset");
+        MixedRecordsFilter filter = new MixedRecordsFilter();
+        filter.setPage(page);
+        filter.setSize(size);
+        filter.setOrder(order);
+        filter.setDirection(direction);
+        filter.setUsers(users.stream().map(user -> URLDecoder.decode(user, StandardCharsets.UTF_8)).collect(Collectors.toList()));
+        filter.setTreatments(treatments);
+        filter.setConditions(conditions);
+        return consentService.listRecordsForUsers(filter);
+    }
+
+    @GET
     @Path("/records/user")
     @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
@@ -124,12 +151,12 @@ public class ConsentsResource {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("user") @DefaultValue("") String user,
-            @QueryParam("order") @DefaultValue("id") String order,
+            @QueryParam("order") @DefaultValue("bodyKey") String order,
+            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
             @QueryParam("collectionMethod") String collectionMethod,
             @QueryParam("dateAfter") long dateAfter,
             @QueryParam("dateBefore") long dateBefore,
-            @QueryParam("value") String value,
-            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
+            @QueryParam("value") String value) {
         LOGGER.log(Level.INFO, "GET /records/user");
         UserRecordFilter filter = new UserRecordFilter();
         filter.setPage(page);
@@ -153,7 +180,7 @@ public class ConsentsResource {
             throws AccessDeniedException, InvalidTokenException, InvalidConsentException, TokenExpiredException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /records/user");
 
-        if (dto.getToken() == null || dto.getToken().isEmpty()) {
+        if (StringUtils.isEmpty(dto.getToken())) {
             throw new AccessDeniedException("unable to find token in form");
         }
         Receipt receipt = consentService.createOperatorRecords(dto.getToken(), dto.getValues(), dto.getComment());
@@ -164,7 +191,7 @@ public class ConsentsResource {
     private TemplateModel<ConsentForm> getConsentFormTemplateModel(ConsentForm form) {
         TemplateModel<ConsentForm> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(form.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
         model.setBundle(bundle);
         model.setData(form);
 
@@ -182,9 +209,9 @@ public class ConsentsResource {
     private TemplateModel<Receipt> getReceiptTemplateModel(Receipt receipt) {
         TemplateModel<Receipt> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("templates/bundles/consent", model.getLocale());
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
         model.setBundle(bundle);
-        if (receipt.getTransaction() != null && !receipt.getTransaction().isEmpty()) {
+        if (!StringUtils.isEmpty(receipt.getTransaction())) {
             model.setData(receipt);
             model.setTemplate("receipt.ftl");
         } else {

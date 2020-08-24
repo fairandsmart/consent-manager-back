@@ -46,7 +46,7 @@ form {
 }
 
 .left-content {
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .fade-inverted {

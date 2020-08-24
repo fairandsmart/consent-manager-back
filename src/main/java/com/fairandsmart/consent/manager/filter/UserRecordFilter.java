@@ -1,11 +1,6 @@
 package com.fairandsmart.consent.manager.filter;
 
-import com.fairandsmart.consent.manager.ConsentContext;
-import org.apache.commons.lang3.EnumUtils;
-
-import java.util.Arrays;
-
-public class UserRecordFilter implements SortableFilter {
+public class UserRecordFilter implements SortableFilter, PaginableFilter {
 
     private int page;
     private int size;
@@ -16,22 +11,6 @@ public class UserRecordFilter implements SortableFilter {
     private String value;
     private Long dateAfter;
     private Long dateBefore;
-
-    public Long getDateAfter() {
-        return dateAfter;
-    }
-
-    public void setDateAfter(Long dateAfter) {
-        this.dateAfter = dateAfter;
-    }
-
-    public Long getDateBefore() {
-        return dateBefore;
-    }
-
-    public void setDateBefore(Long dateBefore) {
-        this.dateBefore = dateBefore;
-    }
 
     public UserRecordFilter() {}
 
@@ -77,14 +56,6 @@ public class UserRecordFilter implements SortableFilter {
         this.direction = direction;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public String getCollectionMethod() {
         return collectionMethod;
     }
@@ -93,47 +64,28 @@ public class UserRecordFilter implements SortableFilter {
         this.collectionMethod = collectionMethod;
     }
 
-    // Needs maintenance but prevents SQL injections
-    public String getSQLOrder() {
-        String sqlOrder;
-        switch (order) {
-            case "bodyKey":
-            case "type":
-            case "value":
-            case "status":
-            case "creationTimestamp":
-            case "expirationTimestamp":
-                sqlOrder = order;
-                break;
-            default:
-                sqlOrder = "bodyKey";
-        }
-        switch(direction) {
-            case "desc":
-                sqlOrder += " DESC";
-                break;
-            case "asc":
-            default:
-                sqlOrder += " ASC";
-        }
-        return sqlOrder;
+    public String getValue() {
+        return value;
     }
 
-    public String getSQLOptionalFilters() {
-        String sqlFilterString = "";
-        if (collectionMethod != null && EnumUtils.isValidEnum(ConsentContext.CollectionMethod.class, collectionMethod)) {
-            sqlFilterString += " AND subquery.collectionMethod = '" + collectionMethod + "'";
-        }
-        if (Arrays.asList("accepted", "refused").contains(value)) {
-            sqlFilterString += " AND subquery.value = '" + value + "'";
-        }
-        if (dateAfter != null && dateAfter > 0) {
-            sqlFilterString += " AND subquery.creationTimestamp > " + dateAfter;
-        }
-        if (dateBefore != null && dateBefore > 0) {
-            sqlFilterString += " AND subquery.expirationTimestamp > " + dateBefore;
-        }
-        return sqlFilterString;
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public Long getDateAfter() {
+        return dateAfter;
+    }
+
+    public void setDateAfter(Long dateAfter) {
+        this.dateAfter = dateAfter;
+    }
+
+    public Long getDateBefore() {
+        return dateBefore;
+    }
+
+    public void setDateBefore(Long dateBefore) {
+        this.dateBefore = dateBefore;
     }
 
     @Override

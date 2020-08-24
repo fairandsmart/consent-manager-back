@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Singleton
-public class SerialGeneratorSingleton implements SerialGenerator {
+public class SerialGeneratorBean implements SerialGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(SerialGenerator.class.getName());
     private static final Random random = new Random();

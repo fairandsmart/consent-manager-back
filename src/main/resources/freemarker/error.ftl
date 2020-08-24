@@ -23,6 +23,6 @@
         <div>${data.detail}</div>
     </#if>
 
-    <script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
+    <script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin="" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
 
 </body>

@@ -2,13 +2,13 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.token.Tokenizable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ConsentContext implements Tokenizable {
 
@@ -36,7 +36,8 @@ public class ConsentContext implements Tokenizable {
     private ReceiptDeliveryType receiptDeliveryType;
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
-    private String optoutEmail;
+    private String optoutModel;
+    private String optoutRecipient;
     private CollectionMethod collectionMethod;
     private String author;
     private boolean preview = false;
@@ -131,7 +132,7 @@ public class ConsentContext implements Tokenizable {
     }
 
     public String getLocale() {
-        if (locale == null || locale.isEmpty()) {
+        if (StringUtils.isEmpty(locale)) {
             return Locale.getDefault().toLanguageTag();
         }
         return locale;
@@ -201,12 +202,21 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getOptoutEmail() {
-        return optoutEmail;
+    public String getOptoutModel() {
+        return optoutModel;
     }
 
-    public ConsentContext setOptoutEmail(String optoutEmail) {
-        this.optoutEmail = optoutEmail;
+    public ConsentContext setOptoutModel(String optoutModel) {
+        this.optoutModel = optoutModel;
+        return this;
+    }
+
+    public String getOptoutRecipient() {
+        return optoutRecipient;
+    }
+
+    public ConsentContext setOptoutRecipient(String optoutRecipient) {
+        this.optoutRecipient = optoutRecipient;
         return this;
     }
 
@@ -292,8 +302,11 @@ public class ConsentContext implements Tokenizable {
         if (receiptDeliveryType != null) {
             claims.put("receiptDeliveryType", this.getReceiptDeliveryType().name());
         }
-        if (optoutEmail != null) {
-            claims.put("optoutEmail", this.getOptoutEmail());
+        if (optoutModel != null) {
+            claims.put("optoutModel", this.getOptoutModel());
+        }
+        if (optoutRecipient != null) {
+            claims.put("optoutRecipient", this.getOptoutRecipient());
         }
         if (collectionMethod != null) {
             claims.put("collectionMethod", this.getCollectionMethod().name());
@@ -346,8 +359,11 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("receiptDeliveryType")) {
             this.setReceiptDeliveryType(ReceiptDeliveryType.valueOf(claims.get("receiptDeliveryType")));
         }
-        if (claims.containsKey("optoutEmail")) {
-            this.setOptoutEmail(claims.get("optoutEmail"));
+        if (claims.containsKey("optoutModel")) {
+            this.setOptoutModel(claims.get("optoutModel"));
+        }
+        if (claims.containsKey("optoutRecipient")) {
+            this.setOptoutRecipient(claims.get("optoutRecipient"));
         }
         if (claims.containsKey("collectionMethod")) {
             this.setCollectionMethod(CollectionMethod.valueOf(claims.get("collectionMethod")));
@@ -422,7 +438,8 @@ public class ConsentContext implements Tokenizable {
                 ", receiptDeliveryType=" + receiptDeliveryType +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
-                ", optoutEmail='" + optoutEmail + '\'' +
+                ", optoutEmailModel='" + optoutModel + '\'' +
+                ", optoutEmailRecipient='" + optoutRecipient + '\'' +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", preview=" + preview +
