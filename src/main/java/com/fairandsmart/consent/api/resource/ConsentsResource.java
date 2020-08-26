@@ -129,8 +129,8 @@ public class ConsentsResource {
             @QueryParam("order") @DefaultValue("bodyKey") String order,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
             @QueryParam("users") List<String> users,
-            @QueryParam("treatments") List<String> treatments,
-            @QueryParam("conditions") List<String> conditions) {
+            @QueryParam("treatments") @DefaultValue("") List<String> treatments,
+            @QueryParam("conditions") @DefaultValue("") List<String> conditions) {
         LOGGER.log(Level.INFO, "GET /records/subset");
         MixedRecordsFilter filter = new MixedRecordsFilter();
         filter.setPage(page);
@@ -158,6 +158,9 @@ public class ConsentsResource {
             @QueryParam("dateBefore") long dateBefore,
             @QueryParam("value") String value) {
         LOGGER.log(Level.INFO, "GET /records/user");
+        if ( user.isEmpty() ) {
+            throw new BadRequestException("Missing user parameter");
+        }
         UserRecordFilter filter = new UserRecordFilter();
         filter.setPage(page);
         filter.setSize(size);
