@@ -35,8 +35,9 @@
                 <#include element.entry.type + ".ftl">
             </#list>
         </div>
-
-        <#include "footer.ftl">
+        <#if data.footer??>
+            <#include "footer.ftl">
+        </#if>
     </form>
 
 <script src="/assets/js/consent.js"></script>
