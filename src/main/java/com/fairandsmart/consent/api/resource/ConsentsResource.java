@@ -40,10 +40,9 @@ public class ConsentsResource {
 
     @POST
     @Path("/token")
-    @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String generateToken(@Context SecurityContext sec, ConsentContext ctx) {
+    public String generateToken(ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /consents/token");
         return consentService.buildToken(ctx);
     }

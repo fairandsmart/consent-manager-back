@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="receipt-html.xsl" ?>
+<receipt>
+    <transaction>9c770bb1-3d5a-4d96-83ed-d358fd0a2a4c</transaction>
+    <locale>fr_FR</locale>
+    <date>2020-08-20T13:11:00.005929Z[UTC]</date>
+    <expirationDate>2022-08-20T13:11:00.005929Z[UTC]</expirationDate>
+    <processor>https://www.fairandsmart.com</processor>
+    <subject>mmichu</subject>
+    <subjectInfos/>
+    <headerNotice>Title h1 Body h1</headerNotice>
+    <consents>
+        <consent>
+            <serial>U4gVDf5.U3JRtfh.USCnwh</serial>
+            <data>Nous voulons votre email.</data>
+            <retention>Nous le conserverons 3 ans.</retention>
+            <usage>Nous pourrons ainsi vous contacter.</usage>
+            <purposes>
+                <purpose>CONSENT_MARKETING</purpose>
+            </purposes>
+            <value>refused</value>
+        </consent>
+        <consent>
+            <serial>U4gVDf5.U5XQp7H.USCnwh</serial>
+            <data>Nous avons besoin de votre nom.</data>
+            <retention>Nous le garderons pendant toute votre vie.</retention>
+            <usage>Nous pourrons ainsi tout savoir sur vous.</usage>
+            <purposes>
+                <purpose>CONSENT_CORE_SERVICE</purpose>
+            </purposes>
+            <value>refused</value>
+        </consent>
+    </consents>
+    <attributes/>
+    <attachments/>
+    <privacyPolicyUrl>Readmore h1</privacyPolicyUrl>
+    <collectionMethod>WEBFORM</collectionMethod>
+</receipt>

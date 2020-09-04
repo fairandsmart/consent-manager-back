@@ -28,7 +28,8 @@
         <version.maven>3.6.2</version.maven>
         <version.dependency-check-maven>5.3.2</version.dependency-check-maven>
 
-        <version.quarkus-plugin>1.6.1.Final</version.quarkus-plugin>
+        <version.quarkus>1.7.0.Final</version.quarkus>
+        <version.maven-quarkus-plugin>1.7.0.Final</version.maven-quarkus-plugin>
         <version.commons-codec>1.14</version.commons-codec>
         <version.java-jwt>3.10.3</version.java-jwt>
         <version.freemarker>2.3.30</version.freemarker>
@@ -37,13 +38,14 @@
         <version.resteasy-client>4.5.3.Final</version.resteasy-client>
         <version.jackson>2.11.1</version.jackson>
         <version.bouncycastle>1.64</version.bouncycastle>
+        <version.exist>5.2.0</version.exist>
     </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-bom</artifactId>
-                <version>${version.quarkus-plugin}</version>
+                <version>${version.quarkus}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -110,6 +112,10 @@
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.logmanager</groupId>
+            <artifactId>log4j2-jboss-logmanager</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -159,6 +165,31 @@
             <version>${version.jackson}</version>
         </dependency>
         <dependency>
+            <groupId>org.exist-db</groupId>
+            <artifactId>exist-core</artifactId>
+            <version>${version.exist}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-jcl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-jul</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
@@ -189,7 +220,7 @@
             <plugin>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${version.quarkus-plugin}</version>
+                <version>${version.maven-quarkus-plugin}</version>
                 <executions>
                     <execution>
                         <goals>

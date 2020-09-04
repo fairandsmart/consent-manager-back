@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.manager.model;
 
+import com.fairandsmart.consent.common.util.ZonedDateTimeAdapter;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
 
@@ -8,10 +9,13 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +28,10 @@ public class Receipt {
     private String transaction;
     private String jurisdiction;
     private String locale;
-    private long timestamp;
-    private long expirationTimestamp;
+    @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
+    private ZonedDateTime date;
+    @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
+    private ZonedDateTime expirationDate;
     private String processor;
     private String subject;
     @XmlElementWrapper(name="subjectInfos")
@@ -45,6 +51,10 @@ public class Receipt {
     private List<Attachment> attachments;
     private String privacyPolicyUrl;
     private ConsentContext.CollectionMethod collectionMethod;
+
+    //TODO Add modification url
+    //TODO Add signaure informations
+    //TODO Add Timestamp information
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
@@ -69,20 +79,20 @@ public class Receipt {
         this.jurisdiction = jurisdiction;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public ZonedDateTime getDate() {
+        return date;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
     }
 
-    public long getExpirationTimestamp() {
-        return expirationTimestamp;
+    public ZonedDateTime getExpirationDate() {
+        return expirationDate;
     }
 
-    public void setExpirationTimestamp(long expirationTimestamp) {
-        this.expirationTimestamp = expirationTimestamp;
+    public void setExpirationDate(ZonedDateTime expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public String getProcessor() {
@@ -206,12 +216,12 @@ public class Receipt {
         return (Receipt) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static Receipt build(String transaction, String processor, long timestamp, ConsentContext ctx, Header header, Footer footer, Map<Treatment, Record> records) throws DatatypeConfigurationException {
+    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, Header header, Footer footer, Map<Treatment, Record> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
         receipt.setLocale(ctx.getLocale());
-        receipt.setTimestamp(timestamp);
-        receipt.setExpirationTimestamp(receipt.getTimestamp() + ctx.getValidityInMillis());
+        receipt.setDate(date);
+        receipt.setExpirationDate(date.plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS));
         receipt.setProcessor(processor);
         receipt.setSubject(ctx.getSubject());
         receipt.setSubjectDetails(ctx.getUserinfos().entrySet().stream().map(entry -> new NameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList()));

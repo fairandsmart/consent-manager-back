@@ -15,8 +15,8 @@ import java.util.logging.Logger;
 public class LocalReceiptStore implements ReceiptStore {
 
     private static final Logger LOGGER = Logger.getLogger(LocalReceiptStore.class.getName());
-    public static final String RECEIPT_STORE_HOME = "receipts";
 
+    private static final String RECEIPT_STORE_HOME = "receipts";
 
     @ConfigProperty(name = "consent.home")
     String home;

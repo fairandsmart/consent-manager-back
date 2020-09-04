@@ -14,10 +14,8 @@
 
 <body>
     <div class="receipt-title">CONSENT RECEIPT</div>
-    <#assign date=data.timestamp?number_to_datetime/>
-    <div class="receipt-date spaced">${date?string['dd.MM.yyyy HH:mm:ss ZZZ']}</div>
-    <#assign expires=data.expirationTimestamp?number_to_datetime/>
-    <div class="receipt-date spaced"><@readBundle "expires"></@readBundle>: ${expires?string['dd.MM.yyyy HH:mm:ss ZZZ']}</div>
+    <div class="receipt-date spaced">${data.date}</div>
+    <div class="receipt-date spaced"><@readBundle "expires"></@readBundle>: ${data.expirationDate}</div>
 
     <#assign localeLanguageBundleKey="language_" + data.locale>
     <div><span class="receipt-label"><@readBundle "language"></@readBundle>: </span><@readBundle localeLanguageBundleKey "unknown language key"></@readBundle></div>

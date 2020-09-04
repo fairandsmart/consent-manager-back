@@ -62,7 +62,7 @@ public interface ConsentService {
 
     void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 
-    String buildToken(ConsentContext ctx);
+    String buildToken(ConsentContext ctx) throws AccessDeniedException;
 
     ConsentForm generateForm(String token, String subject) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
 

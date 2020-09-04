@@ -34,6 +34,12 @@ import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import xades4j.production.Enveloped;
+import xades4j.production.XadesTSigningProfile;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
@@ -43,10 +49,17 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,7 +82,7 @@ public class ConsentServiceBean implements ConsentService {
     TokenService token;
 
     @Inject
-    ReceiptStore store;
+    Instance<ReceiptStore> stores;
 
     @Inject
     Instance<ConsentContextHandler> contextHandlers;
@@ -402,9 +415,13 @@ public class ConsentServiceBean implements ConsentService {
     /* CONSENT MANAGEMENT */
 
     @Override
-    public String buildToken(ConsentContext ctx) {
+    public String buildToken(ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
-        ctx.setOwner(authentication.getConnectedIdentifier());
+        if ( ctx.getOwner() == null || ctx.getOwner().isEmpty() ) {
+            ctx.setOwner(authentication.getConnectedIdentifier());
+        } else if ( !ctx.getOwner().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierAdmin()) {
+            throw new AccessDeniedException("Only admin can generate token for other identifier than connected one");
+        }
         return token.generateToken(ctx);
     }
 
@@ -811,9 +828,13 @@ public class ConsentServiceBean implements ConsentService {
                         //
                     }
                 });
-                receipt = Receipt.build(transaction, processor, now.toEpochMilli(), ctx, header, footer, trecords);
+                receipt = Receipt.build(transaction, processor, ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, header, footer, trecords);
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
-                store.put(receipt.getTransaction(), receipt.toXmlBytes());
+                //TODO Sign the receipt...
+                byte[] xml = receipt.toXmlBytes();
+                for ( Iterator<ReceiptStore> iterator = stores.iterator(); iterator.hasNext(); ) {
+                    iterator.next().put(receipt.getTransaction(), xml);
+                }
             }
             return receipt;
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
@@ -838,4 +859,23 @@ public class ConsentServiceBean implements ConsentService {
         previewVersion.content.put(locale, previewContent);
         return previewVersion;
     }
+
+    /*
+    private void timestamp(String receipt) throws ParserConfigurationException, IOException, SAXException {
+        InputSource source = new InputSource( new StringReader(receipt) );
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.parse(source);
+        Element elemToSign = doc.getDocumentElement();
+
+        SignerT signer = (SignerT) new XadesTSigningProfile(keyingProviderMy)
+                .withTimeStampTokenProvider(TestTimeStampTokenProvider.class)
+                .withAlgorithmsProviderEx(ExclusiveC14nForTimeStampsAlgorithmsProvider.class)
+                .newSigner();
+        new Enveloped(signer).sign(elemToSign);
+
+        outputDocument(doc, "document.signed.t.bes.xml");
+    }
+    */
 }

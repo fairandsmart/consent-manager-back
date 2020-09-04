@@ -20,4 +20,8 @@ public class AuthenticationServiceBean implements AuthenticationService {
         return (identity != null && identity.getPrincipal() != null && identity.getPrincipal().getName() != null && identity.getPrincipal().getName().length() > 0) ? identity.getPrincipal().getName() : unauthentifiedUser;
     }
 
+    @Override
+    public boolean isConnectedIdentifierAdmin() {
+        return identity.hasRole("admin");
+    }
 }

@@ -4,4 +4,5 @@ public interface AuthenticationService {
 
     String getConnectedIdentifier();
 
+    boolean isConnectedIdentifierAdmin();
 }
