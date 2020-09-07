@@ -1,5 +1,7 @@
 package com.fairandsmart.consent.manager.model;
 
+import java.util.Objects;
+
 public class Controller {
 
     private boolean actingBehalfCompany = false;
@@ -88,5 +90,35 @@ public class Controller {
     public Controller withPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Controller that = (Controller) o;
+        return actingBehalfCompany == that.actingBehalfCompany &&
+                Objects.equals(company, that.company) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(address, that.address) &&
+                Objects.equals(email, that.email) &&
+                Objects.equals(phoneNumber, that.phoneNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actingBehalfCompany, company, name, address, email, phoneNumber);
+    }
+
+    @Override
+    public String toString() {
+        return "Controller{" +
+                "actingBehalfCompany=" + actingBehalfCompany +
+                ", company='" + company + '\'' +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
     }
 }

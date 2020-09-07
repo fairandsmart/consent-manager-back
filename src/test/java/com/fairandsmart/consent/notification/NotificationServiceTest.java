@@ -24,5 +24,4 @@ public class NotificationServiceTest {
         //Find a way to test that the event is really treated...
     }
 
-
 }

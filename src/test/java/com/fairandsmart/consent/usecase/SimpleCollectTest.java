@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.usecase;
 
+import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.CreateModelDto;
 import com.fairandsmart.consent.api.dto.ContentDto;
 import com.fairandsmart.consent.manager.ConsentContext;
@@ -12,12 +13,8 @@ import com.fairandsmart.consent.manager.model.Treatment;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.FormElement;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,193 +32,89 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SimpleCollectTest {
 
     private static final Logger LOGGER = Logger.getLogger(SimpleCollectTest.class.getName());
+    private static final String TEST_USER = "sheldon";
+    private static final String TEST_PASSWORD = "password";
+
+    private static final String locale = "fr_FR";
+    private static final String hKey = "sct_h1";
+    private static final String t1Key = "sct_t1";
+    private static final String t2Key = "sct_t2";
+    private static final String fKey = "sct_f1";
 
     @BeforeEach
     public void setup() {
-        //Check that app is running
+        //Check that the app is running
         given().contentType(ContentType.JSON).
                 when().get("/health").
                 then().body("status", equalTo("UP"));
 
-        //Create header model
-        CreateModelDto h1 = new CreateModelDto();
-        h1.setKey("h1");
-        h1.setType(Header.TYPE);
-        h1.setName("H1");
-        h1.setDescription("Le header H1");
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(h1).size());
-        Response response = given().auth().basic("sheldon", "password").
-                                contentType(ContentType.JSON).body(h1).
-                                when().post("/models");
-        response.then().statusCode(200);
-        ModelEntry eh1 = response.body().as(ModelEntry.class);
+        //Generate test elements
+        List<String> keys = List.of(hKey, t1Key, t2Key, fKey);
+        List<String> types = List.of(Header.TYPE, Treatment.TYPE, Treatment.TYPE, Footer.TYPE);
+        for (int index = 0; index < keys.size(); index++) {
+            //Create model
+            CreateModelDto model = TestUtils.generateCreateModelDto(keys.get(index), types.get(index));
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(model).size());
+            Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).
+                    contentType(ContentType.JSON).body(model).
+                    when().post("/models");
+            response.then().statusCode(200);
+            ModelEntry entry = response.body().as(ModelEntry.class);
 
-        //Create header model version
-        ContentDto ch1 = new ContentDto();
-        ch1.setLocale("fr_FR");
-        ch1.setContent(new Header()
-                .withTitle("Title h1")
-                .withBody("Body h1")
-                .withPrivacyPolicyUrl("Readmore h1")
-        );
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ch1).size());
-        response = given().auth().basic("sheldon", "password").
-                   contentType(ContentType.JSON).body(ch1).
-                   when().post("/models/" + eh1.id + "/versions");
-        response.then().statusCode(200);
-        ModelVersion vh1 = response.body().as(ModelVersion.class);
+            //Create model version
+            ContentDto content = TestUtils.generateContentDto(keys.get(index), types.get(index), locale);
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(content).size());
+            response = given().auth().basic(TEST_USER, TEST_PASSWORD).
+                    contentType(ContentType.JSON).body(content).
+                    when().post("/models/" + entry.id + "/versions");
+            response.then().statusCode(200);
+            ModelVersion version = response.body().as(ModelVersion.class);
 
-        //Activate header model version
-        response = given().auth().basic("sheldon", "password").
-                   contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
-                   when().put("/models/" + eh1.id + "/versions/" + vh1.id + "/status");
-        response.then().statusCode(200);
-        vh1 = response.body().as(ModelVersion.class);
-        assertEquals(ModelVersion.Status.ACTIVE, vh1.status);
-
-
-        //Create footer model
-        CreateModelDto f1 = new CreateModelDto();
-        f1.setKey("f1");
-        f1.setType(Footer.TYPE);
-        f1.setName("F1");
-        f1.setDescription("Le footer F1");
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(f1).size());
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(f1).
-                when().post("/models");
-        response.then().statusCode(200);
-        ModelEntry ef1 = response.body().as(ModelEntry.class);
-
-        //Create footer model version
-        ContentDto cf1 = new ContentDto();
-        cf1.setLocale("fr_FR");
-        cf1.setContent(new Footer()
-                        .withShowAcceptAll(true)
-                        .withCustomAcceptAllText("J'accepte tout"));
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(cf1).size());
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(cf1).
-                when().post("/models/" + ef1.id + "/versions");
-        response.then().statusCode(200);
-        ModelVersion vf1 = response.body().as(ModelVersion.class);
-
-        //Activate footer model version
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
-                when().put("/models/" + ef1.id + "/versions/" + vf1.id + "/status");
-        response.then().statusCode(200);
-        vf1 = response.body().as(ModelVersion.class);
-        assertEquals(ModelVersion.Status.ACTIVE, vf1.status);
-
-
-        //Create treatment 1 model
-        CreateModelDto t1 = new CreateModelDto();
-        t1.setKey("t1");
-        t1.setType(Treatment.TYPE);
-        t1.setName("T1");
-        t1.setDescription("Le traitement t1");
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t1).size());
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(t1).
-                when().post("/models");
-        response.then().statusCode(200);
-        ModelEntry et1 = response.body().as(ModelEntry.class);
-
-        //Create treatment 1 model version
-        ContentDto ct1 = new ContentDto();
-        ct1.setLocale("fr_FR");
-        ct1.setContent(new Treatment()
-                .withTreatmentTitle("Titre du traitement t1")
-                .withDataBody("Nous avons besoin de votre nom.")
-                .withRetentionBody("Nous le garderons pendant toute votre vie.")
-                .withUsageBody("Nous pourrons ainsi tout savoir sur vous.")
-                .withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE)
-        );
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ct1).size());
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(ct1).
-                when().post("/models/" + et1.id + "/versions");
-        response.then().statusCode(200);
-        ModelVersion vt1 = response.body().as(ModelVersion.class);
-
-        //Activate treatment 1 model version
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
-                when().put("/models/" + et1.id + "/versions/" + vt1.id + "/status");
-        response.then().statusCode(200);
-        vt1 = response.body().as(ModelVersion.class);
-        assertEquals(ModelVersion.Status.ACTIVE, vt1.status);
-
-
-        //Create treatment 2 model
-        CreateModelDto t2 = new CreateModelDto();
-        t2.setKey("t2");
-        t2.setType(Treatment.TYPE);
-        t2.setName("T2");
-        t2.setDescription("Le traitement t2");
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(t2).size());
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(t2).
-                when().post("/models");
-        response.then().statusCode(200);
-        ModelEntry et2 = response.body().as(ModelEntry.class);
-
-        //Create treatment 2 model version
-        ContentDto ct2 = new ContentDto();
-        ct2.setLocale("fr_FR");
-        ct2.setContent(new Treatment()
-                .withTreatmentTitle("Titre du traitement t2")
-                .withDataBody("Nous voulons votre email.")
-                .withRetentionBody("Nous le conserverons 3 ans.")
-                .withUsageBody("Nous pourrons ainsi vous contacter.")
-                .withPurpose(Treatment.Purpose.CONSENT_MARKETING)
-        );
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ct2).size());
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.JSON).body(ct2).
-                when().post("/models/" + et2.id + "/versions");
-        response.then().statusCode(200);
-        ModelVersion vt2 = response.body().as(ModelVersion.class);
-
-        //Activate treatment 1 model version
-        response = given().auth().basic("sheldon", "password").
-                contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
-                when().put("/models/" + et2.id + "/versions/" + vt2.id + "/status");
-        response.then().statusCode(200);
-        vt2 = response.body().as(ModelVersion.class);
-        assertEquals(ModelVersion.Status.ACTIVE, vt2.status);
+            //Activate model version
+            response = given().auth().basic(TEST_USER, TEST_PASSWORD).
+                    contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
+                    when().put("/models/" + entry.id + "/versions/" + version.id + "/status");
+            response.then().statusCode(200);
+            version = response.body().as(ModelVersion.class);
+            assertEquals(ModelVersion.Status.ACTIVE, version.status);
+        }
     }
 
     /**
      * 1 : l'orga génère un context de collecte
      * le context contient le nom du user (subject) et les ids des traitements
-     * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
+     * 2 : le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
      * cas 1 : sujet inconnu car pas de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
      * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
      * cas 1 : tout est bon, un reçu est généré et renvoyé en réponse au user
      * 4 : le user retourne à son url initiale qui devrait être contenue dans le reçu ou dans le context
+     * 5 : le user rappelle l'URL avec le même context
+     * cas 2 : sujet connu car collecte précédente, on génère un formulaire pré-rempli avec les éléments demandés dans le context et un nouveau token
+     * 6 : le user (anonyme) poste le formulaire avec ses réponses sur l'autre URL
+     * cas 1 : tout est bon, un nouveau reçu est généré et renvoyé en réponse au user
      */
     @Test
     public void testSimpleCollect() {
         //PART 1
         //Use basic consent context for first generation
+        String user = "mmichu";
         ConsentContext ctx = new ConsentContext()
-                .setSubject("mmichu")
+                .setSubject(user)
                 .setValidity("P2Y")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setHeader("h1")
-                .setElements(Arrays.asList("t1", "t2"))
-                .setFooter("f1")
-                .setLocale("fr_FR");
+                .setHeader(hKey)
+                .setElements(Arrays.asList(t1Key, t2Key))
+                .setFooter(fKey)
+                .setLocale(locale);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        String token = given().auth().basic("sheldon", "password").contentType(ContentType.JSON).body(ctx)
+        String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
                 .when().post("/consents/token").asString();
         assertNotNull(token);
-        LOGGER.log(Level.INFO, "Token : " + token);
+        LOGGER.log(Level.INFO, "Token: " + token);
 
         //PART 2
+        //Check consent form
         Response response = given().header("TOKEN", token).when().get("/consents");
         String page = response.asString();
         response.then().contentType("text/html").assertThat().statusCode(200);
@@ -230,53 +123,37 @@ public class SimpleCollectTest {
         //Orientation
         assertFalse(page.contains("class=\"right\"")); // Vertical
         //Header
-        assertTrue(page.contains("Title h1"));
-        assertTrue(page.contains("Body h1"));
-        assertTrue(page.contains("href=\"Readmore h1\""));
+        assertTrue(page.contains("Title " + hKey));
+        assertTrue(page.contains("Body " + hKey));
+        assertTrue(page.contains("href=\"Privacy policy URL " + hKey + "\""));
         //Treatment 1
-        assertTrue(page.contains("Titre du traitement t1"));
-        assertTrue(page.contains("votre nom"));
-        assertTrue(page.contains("toute votre vie"));
-        assertTrue(page.contains("tout savoir sur vous"));
+        assertTrue(page.contains("Treatment title " + t1Key));
+        assertTrue(page.contains("Data body " + t1Key));
+        assertTrue(page.contains("Retention body " + t1Key));
+        assertTrue(page.contains("Usage body " + t1Key));
         assertTrue(page.contains("consent_core_service.png"));
         //Treatment 2
-        assertTrue(page.contains("Titre du traitement t2"));
-        assertTrue(page.contains("votre email"));
-        assertTrue(page.contains("3 ans"));
-        assertTrue(page.contains("vous contacter"));
-        assertTrue(page.contains("consent_marketing.png"));
+        assertTrue(page.contains("Treatment title " + t2Key));
+        assertTrue(page.contains("Data body " + t2Key));
+        assertTrue(page.contains("Retention body " + t2Key));
+        assertTrue(page.contains("Usage body " + t2Key));
+        assertTrue(page.contains("consent_third_part_sharing.png"));
         //Footer
+        assertTrue(page.contains("Body " + fKey));
         assertTrue(page.contains("accept-all-switch"));
 
         Document html = Jsoup.parse(page);
-        Elements inputs = html.getAllElements();
-        List<FormElement> forms = inputs.forms();
-        Map<String, String> values = Collections.EMPTY_MAP;
-        for (FormElement form : forms) {
-            if (form.id().equals("consent")) {
-                values = form.formData().stream().collect(Collectors.toMap(Connection.KeyVal::key, Connection.KeyVal::value));
-                Elements formElements = form.elements();
-                for (Element element : formElements) {
-                    // TODO : simplifier ?? ou pas la peine ?
-                    if (element.tagName().equals("select")) {
-                        Element option = element.children().first();
-                        if (!option.id().contains("accept-all")) {
-                            if (option.hasAttr("selected")) { // option: accepted
-                                values.put(option.id().substring(0, option.id().length() - 9), option.val());
-                            } else {
-                                option = element.children().last(); // option: refused
-                                if (option.hasAttr("selected")) {
-                                    values.put(option.id().substring(0, option.id().length() - 8), option.val());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        Map<String, String> values = TestUtils.readFormInputs(html);
         LOGGER.log(Level.INFO, "Form Values: " + values);
+        List<String> elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
+        assertEquals(2, elementsKeys.size());
+        for (String key : elementsKeys) {
+            assertEquals("refused", values.get(key));
+            values.replace(key, "accepted"); //User accepts every treatment
+        }
 
         //PART 3
+        //Post user answer
         Response postResponse = given().contentType(ContentType.URLENC).
                 formParams(values).when().post("/consents");
         String postPage = postResponse.asString();
@@ -284,6 +161,47 @@ public class SimpleCollectTest {
 
         LOGGER.log(Level.INFO, "Receipt page: " + postPage);
         assertTrue(postPage.contains("Reçu"));
+        assertTrue(postPage.contains("Français"));
+        assertTrue(postPage.contains(ConsentContext.CollectionMethod.WEBFORM.name()));
+        assertTrue(postPage.contains("Data body " + t1Key));
+        assertTrue(postPage.contains("Data body " + t2Key));
+        assertTrue(postPage.contains("Accepté"));
+        assertFalse(postPage.contains("Refusé"));
+        assertTrue(postPage.contains(user));
+        assertTrue(postPage.contains("Name " + hKey + "_dc"));
+
+        //PART 4
         //TODO
+
+        //PART 5
+        //Check previous values are loaded on new consent form
+        response = given().header("TOKEN", token).when().get("/consents");
+        page = response.asString();
+        response.then().contentType("text/html").assertThat().statusCode(200);
+
+        LOGGER.log(Level.INFO, "Consent form page: " + page);
+        html = Jsoup.parse(page);
+        values = TestUtils.readFormInputs(html);
+        LOGGER.log(Level.INFO, "Form Values: " + values);
+        elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
+        assertEquals(2, elementsKeys.size());
+        for (String key : elementsKeys) {
+            assertEquals("accepted", values.get(key));
+            values.replace(key, "refused"); //User refuses every treatment
+        }
+
+        //PART 6
+        //Post user new answer
+        postResponse = given().contentType(ContentType.URLENC).
+                formParams(values).when().post("/consents");
+        postPage = postResponse.asString();
+        postResponse.then().assertThat().statusCode(200);
+
+        LOGGER.log(Level.INFO, "Receipt page: " + postPage);
+        assertTrue(postPage.contains("Data body " + t1Key));
+        assertTrue(postPage.contains("Data body " + t2Key));
+        assertFalse(postPage.contains("Accepté"));
+        assertTrue(postPage.contains("Refusé"));
     }
+
 }

@@ -2,6 +2,8 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import java.util.Objects;
+
 public class Header extends ModelData {
 
     public static final String TYPE = "header";
@@ -237,5 +239,55 @@ public class Header extends ModelData {
     public Header withCustomPrivacyPolicyText(String customPrivacyPolicyText) {
         this.customPrivacyPolicyText = customPrivacyPolicyText;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Header header = (Header) o;
+        return showJurisdiction == header.showJurisdiction &&
+                showCollectionMethod == header.showCollectionMethod &&
+                showDataController == header.showDataController &&
+                showScope == header.showScope &&
+                showShortNoticeLink == header.showShortNoticeLink &&
+                Objects.equals(logoPath, header.logoPath) &&
+                Objects.equals(logoAltText, header.logoAltText) &&
+                Objects.equals(title, header.title) &&
+                Objects.equals(body, header.body) &&
+                Objects.equals(jurisdiction, header.jurisdiction) &&
+                Objects.equals(collectionMethod, header.collectionMethod) &&
+                Objects.equals(dataController, header.dataController) &&
+                Objects.equals(scope, header.scope) &&
+                Objects.equals(shortNoticeLink, header.shortNoticeLink) &&
+                Objects.equals(privacyPolicyUrl, header.privacyPolicyUrl) &&
+                Objects.equals(customPrivacyPolicyText, header.customPrivacyPolicyText);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(logoPath, logoAltText, title, body, jurisdiction, showJurisdiction, collectionMethod, showCollectionMethod, dataController, showDataController, scope, showScope, shortNoticeLink, showShortNoticeLink, privacyPolicyUrl, customPrivacyPolicyText);
+    }
+
+    @Override
+    public String toString() {
+        return "Header{" +
+                "logoPath='" + logoPath + '\'' +
+                ", logoAltText='" + logoAltText + '\'' +
+                ", title='" + title + '\'' +
+                ", body='" + body + '\'' +
+                ", jurisdiction='" + jurisdiction + '\'' +
+                ", showJurisdiction=" + showJurisdiction +
+                ", collectionMethod='" + collectionMethod + '\'' +
+                ", showCollectionMethod=" + showCollectionMethod +
+                ", dataController=" + dataController +
+                ", showDataController=" + showDataController +
+                ", scope='" + scope + '\'' +
+                ", showScope=" + showScope +
+                ", shortNoticeLink='" + shortNoticeLink + '\'' +
+                ", showShortNoticeLink=" + showShortNoticeLink +
+                ", privacyPolicyUrl='" + privacyPolicyUrl + '\'' +
+                ", customPrivacyPolicyText='" + customPrivacyPolicyText + '\'' +
+                '}';
     }
 }

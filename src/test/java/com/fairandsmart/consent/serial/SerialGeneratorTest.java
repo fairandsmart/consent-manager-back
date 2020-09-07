@@ -23,7 +23,7 @@ public class SerialGeneratorTest {
         Assertions.assertTrue(generator.isValid(serial));
         Assertions.assertEquals(1, generator.extract(serial));
 
-        for ( int i=2; i<200; i++ ) {
+        for (int i = 2; i < 200; i++) {
             serial = generator.next("dadaduc");
             Assertions.assertEquals(i, generator.extract(serial));
         }
@@ -38,23 +38,23 @@ public class SerialGeneratorTest {
                 Thread thread = new Thread(new SerialConsumer(generator, serials));
                 workers.add(thread);
             }
-            for ( Thread worker: workers ) {
+            for (Thread worker : workers) {
                 worker.start();
             }
-            for ( Thread worker: workers ) {
+            for (Thread worker : workers) {
                 worker.join();
             }
             List<Long> generated = new ArrayList<>();
-            for ( String serial : serials ) {
+            for (String serial : serials) {
                 Long value = generator.extract(serial);
-                if ( generated.contains(value) ) {
+                if (generated.contains(value)) {
                     Assertions.fail("duplicate serial value found: " + value);
                 }
                 generated.add(value);
             }
             Assertions.assertEquals(10000, generated.size());
 
-        } catch (RuntimeException e ) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
             Assertions.fail(e.getMessage());
         }
@@ -73,7 +73,7 @@ public class SerialGeneratorTest {
         @Override
         public void run() {
             try {
-                for ( int i=0; i<1000; i++ ){
+                for (int i = 0; i < 1000; i++) {
                     serials.add(generator.next("SerialTest"));
                 }
             } catch (SerialGeneratorException e) {
@@ -81,7 +81,5 @@ public class SerialGeneratorTest {
             }
         }
     }
-
-
 
 }

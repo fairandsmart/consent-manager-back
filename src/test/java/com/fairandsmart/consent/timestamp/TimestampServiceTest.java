@@ -14,7 +14,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +26,7 @@ public class TimestampServiceTest {
     TimestampService timestampService;
 
     @Test
-    public void testTimestamp() throws URISyntaxException, ParserConfigurationException, IOException, SAXException, TimestampServiceException, TransformerException {
+    public void testTimestamp() throws ParserConfigurationException, IOException, SAXException, TimestampServiceException, TransformerException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(this.getClass().getClassLoader().getResourceAsStream("receipt/receipt.xml"));

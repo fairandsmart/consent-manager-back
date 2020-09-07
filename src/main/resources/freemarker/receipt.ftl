@@ -13,8 +13,8 @@
 </head>
 
 <body>
-    <div class="receipt-title">CONSENT RECEIPT</div>
-    <div class="receipt-date spaced">${data.date}</div>
+    <div class="receipt-title"><@readBundle "receiptBodyTitle"></@readBundle></div>
+    <div class="receipt-date spaced"><@readBundle "created"></@readBundle>: ${data.date}</div>
     <div class="receipt-date spaced"><@readBundle "expires"></@readBundle>: ${data.expirationDate}</div>
 
     <#assign localeLanguageBundleKey="language_" + data.locale>
@@ -27,7 +27,7 @@
         <div><span class="receipt-label"><@readBundle "data_collected"></@readBundle>: </span>${consent.data}</div>
         <#if consent.retention??><div><span class="receipt-label"><@readBundle "data_retention"></@readBundle>: </span>${consent.retention}</div></#if>
         <div><span class="receipt-label"><@readBundle "data_usage"></@readBundle>: </span>${consent.usage}</div>
-        <div class="spaced consent-value"><span class="receipt-label"><@readBundle "subject_consent"></@readBundle>: </span>${consent.value}</div>
+        <div class="spaced consent-value"><span class="receipt-label"><@readBundle "subject_consent"></@readBundle>: </span><@readBundle consent.value></@readBundle></div>
     </#list>
 
     <div class="spaced"><span class="receipt-label"><@readBundle "subject_id"></@readBundle>: </span>${data.subject}</div>
@@ -39,7 +39,7 @@
             ${data.dataController.company} ${data.dataController.address} ${data.dataController.email} ${data.dataController.phoneNumber}
         </div>
     </#if>
-    <div><span class="receipt-label"><@readBundle "privacy_policy"></@readBundle>: </span> ${data.privacyPolicyUrl}</div>
+    <div><span class="receipt-label"><@readBundle "privacy_policy"></@readBundle>: </span>${data.privacyPolicyUrl}</div>
 
     <script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin="" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
 

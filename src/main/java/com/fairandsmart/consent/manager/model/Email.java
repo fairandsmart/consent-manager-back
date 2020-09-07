@@ -2,6 +2,8 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import java.util.Objects;
+
 public class Email extends ModelData {
 
     public static final String TYPE = "email";
@@ -107,5 +109,37 @@ public class Email extends ModelData {
     public Email withSignature(String signature) {
         this.signature = signature;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Email email = (Email) o;
+        return Objects.equals(sender, email.sender) &&
+                Objects.equals(subject, email.subject) &&
+                Objects.equals(title, email.title) &&
+                Objects.equals(body, email.body) &&
+                Objects.equals(buttonLabel, email.buttonLabel) &&
+                Objects.equals(footer, email.footer) &&
+                Objects.equals(signature, email.signature);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sender, subject, title, body, buttonLabel, footer, signature);
+    }
+
+    @Override
+    public String toString() {
+        return "Email{" +
+                "sender='" + sender + '\'' +
+                ", subject='" + subject + '\'' +
+                ", title='" + title + '\'' +
+                ", body='" + body + '\'' +
+                ", buttonLabel='" + buttonLabel + '\'' +
+                ", footer='" + footer + '\'' +
+                ", signature='" + signature + '\'' +
+                '}';
     }
 }

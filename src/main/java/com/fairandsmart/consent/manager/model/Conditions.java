@@ -2,6 +2,8 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import java.util.Objects;
+
 public class Conditions extends ModelData {
 
     public static final String TYPE = "conditions";
@@ -65,5 +67,31 @@ public class Conditions extends ModelData {
     public Conditions withRejectLabel(String rejectLabel) {
         this.rejectLabel = rejectLabel;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Conditions that = (Conditions) o;
+        return Objects.equals(title, that.title) &&
+                Objects.equals(body, that.body) &&
+                Objects.equals(acceptLabel, that.acceptLabel) &&
+                Objects.equals(rejectLabel, that.rejectLabel);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, body, acceptLabel, rejectLabel);
+    }
+
+    @Override
+    public String toString() {
+        return "Conditions{" +
+                "title='" + title + '\'' +
+                ", body='" + body + '\'' +
+                ", acceptLabel='" + acceptLabel + '\'' +
+                ", rejectLabel='" + rejectLabel + '\'' +
+                '}';
     }
 }

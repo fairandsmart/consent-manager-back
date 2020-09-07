@@ -4,6 +4,7 @@ import com.fairandsmart.consent.manager.entity.ModelData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Treatment extends ModelData {
 
@@ -226,5 +227,49 @@ public class Treatment extends ModelData {
         CONSENT_MARKETING,
         CONSENT_THIRD_PART_SHARING,
         CONSENT_RESEARCH
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Treatment treatment = (Treatment) o;
+        return containsSensitiveData == treatment.containsSensitiveData &&
+                containsMedicalData == treatment.containsMedicalData &&
+                showDataController == treatment.showDataController &&
+                Objects.equals(treatmentTitle, treatment.treatmentTitle) &&
+                Objects.equals(dataTitle, treatment.dataTitle) &&
+                Objects.equals(dataBody, treatment.dataBody) &&
+                Objects.equals(retentionTitle, treatment.retentionTitle) &&
+                Objects.equals(retentionBody, treatment.retentionBody) &&
+                Objects.equals(usageTitle, treatment.usageTitle) &&
+                Objects.equals(usageBody, treatment.usageBody) &&
+                Objects.equals(purposes, treatment.purposes) &&
+                Objects.equals(dataController, treatment.dataController) &&
+                Objects.equals(thirdParties, treatment.thirdParties);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(treatmentTitle, dataTitle, dataBody, retentionTitle, retentionBody, usageTitle, usageBody, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties);
+    }
+
+    @Override
+    public String toString() {
+        return "Treatment{" +
+                "treatmentTitle='" + treatmentTitle + '\'' +
+                ", dataTitle='" + dataTitle + '\'' +
+                ", dataBody='" + dataBody + '\'' +
+                ", retentionTitle='" + retentionTitle + '\'' +
+                ", retentionBody='" + retentionBody + '\'' +
+                ", usageTitle='" + usageTitle + '\'' +
+                ", usageBody='" + usageBody + '\'' +
+                ", purposes=" + purposes +
+                ", containsSensitiveData=" + containsSensitiveData +
+                ", containsMedicalData=" + containsMedicalData +
+                ", dataController=" + dataController +
+                ", showDataController=" + showDataController +
+                ", thirdParties=" + thirdParties +
+                '}';
     }
 }

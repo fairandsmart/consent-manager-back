@@ -1,4 +1,4 @@
-package com.fairandsmart.consent;
+package com.fairandsmart.consent.mailer;
 
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
@@ -15,9 +15,9 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class TestMailer {
+public class MailerTest {
 
-    private static final Logger LOGGER = Logger.getLogger(TestMailer.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MailerTest.class.getName());
 
     @Inject
     Mailer mailer;
@@ -33,12 +33,11 @@ public class TestMailer {
     @Test
     public void testSendMail() {
         LOGGER.log(Level.INFO, "Sending email throught mailer");
-        mailer.send(Mail.withText("jerome@localhost", "Test SUbject", "Test Body"));
+        mailer.send(Mail.withText("jerome@localhost", "Test Subject", "Test Body"));
         LOGGER.log(Level.INFO, "Mail sent, checking mocked mailbox");
         List<Mail> sent = mailbox.getMessagesSentTo("jerome@localhost");
         assertEquals(1, sent.size());
         LOGGER.log(Level.INFO, "Mail received !");
     }
-
 
 }
