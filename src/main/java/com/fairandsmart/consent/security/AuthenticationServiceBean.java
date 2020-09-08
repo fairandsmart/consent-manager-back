@@ -2,13 +2,19 @@ package com.fairandsmart.consent.security;
 
 import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.manager.ConsentService;
+import com.fasterxml.uuid.StringArgGenerator;
 import io.quarkus.security.identity.SecurityIdentity;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class AuthenticationServiceBean implements AuthenticationService {
+
+    private static final Logger LOGGER = Logger.getLogger(AuthenticationService.class.getName());
 
     @Inject
     SecurityConfig securityConfig;
@@ -18,7 +24,9 @@ public class AuthenticationServiceBean implements AuthenticationService {
 
     @Override
     public String getConnectedIdentifier() {
-        return (identity != null && identity.getPrincipal() != null && identity.getPrincipal().getName() != null && identity.getPrincipal().getName().length() > 0) ? identity.getPrincipal().getName() : securityConfig.anonymousIdentifierName();
+        String connectedIdentifier = (identity != null && identity.getPrincipal() != null && identity.getPrincipal().getName() != null && identity.getPrincipal().getName().length() > 0) ? identity.getPrincipal().getName() : securityConfig.anonymousIdentifierName();
+        LOGGER.log(Level.FINEST, "Connected Identifier: " + connectedIdentifier);
+        return connectedIdentifier;
     }
 
     @Override

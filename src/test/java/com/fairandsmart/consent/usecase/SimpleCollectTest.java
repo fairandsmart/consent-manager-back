@@ -1,8 +1,8 @@
 package com.fairandsmart.consent.usecase;
 
 import com.fairandsmart.consent.TestUtils;
-import com.fairandsmart.consent.api.dto.CreateModelDto;
 import com.fairandsmart.consent.api.dto.ContentDto;
+import com.fairandsmart.consent.api.dto.CreateModelDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
@@ -11,6 +11,7 @@ import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Treatment;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.jsoup.Jsoup;
@@ -19,7 +20,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -34,6 +37,7 @@ public class SimpleCollectTest {
     private static final Logger LOGGER = Logger.getLogger(SimpleCollectTest.class.getName());
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
+    private static final String SUBJECT = "mmichu";
 
     private static final String locale = "fr_FR";
     private static final String hKey = "sct_h1";
@@ -41,8 +45,20 @@ public class SimpleCollectTest {
     private static final String t2Key = "sct_t2";
     private static final String fKey = "sct_f1";
 
-    @BeforeEach
-    public void setup() {
+    /**
+     * 1 : le user appel l'url de génération du formulaire de collecte en passant le token contenant le context en paramètre (header ou query)
+     *     le sujet est inconnu car il n'y a encore pas eu de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
+     * 2 : le user poste le formulaire avec ses réponses et le token de context sur l'url de collecte
+     *     tout est bon, un reçu est généré et renvoyé en réponse au user
+     * 3 : le user retourne à son url initiale qui devrait être contenue dans le reçu ou dans le context
+     *     le sujet est connu car il y a eu une collecte précédente, on génère un formulaire pré-rempli avec les éléments demandés dans le context et un nouveau token
+     * 4 : le user poste le formulaire avec ses réponses et le token de context sur l'url de collecte
+     *     tout est bon, un nouveau reçu est généré et renvoyé en réponse au user
+     */
+    @Test
+    @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testSimpleCollect() {
+        //INITIAL SETUP
         //Check that the app is running
         given().contentType(ContentType.JSON).
                 when().get("/health").
@@ -78,28 +94,9 @@ public class SimpleCollectTest {
             version = response.body().as(ModelVersion.class);
             assertEquals(ModelVersion.Status.ACTIVE, version.status);
         }
-    }
 
-    /**
-     * 1 : l'orga génère un context de collecte
-     * le context contient le nom du user (subject) et les ids des traitements
-     * 2 : le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
-     * cas 1 : sujet inconnu car pas de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
-     * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
-     * cas 1 : tout est bon, un reçu est généré et renvoyé en réponse au user
-     * 4 : le user retourne à son url initiale qui devrait être contenue dans le reçu ou dans le context
-     * 5 : le user rappelle l'URL avec le même context
-     * cas 2 : sujet connu car collecte précédente, on génère un formulaire pré-rempli avec les éléments demandés dans le context et un nouveau token
-     * 6 : le user (anonyme) poste le formulaire avec ses réponses sur l'autre URL
-     * cas 1 : tout est bon, un nouveau reçu est généré et renvoyé en réponse au user
-     */
-    @Test
-    public void testSimpleCollect() {
-        //PART 1
-        //Use basic consent context for first generation
-        String user = "mmichu";
         ConsentContext ctx = new ConsentContext()
-                .setSubject(user)
+                .setSubject(SUBJECT)
                 .setValidity("P2Y")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setHeader(hKey)
@@ -113,7 +110,7 @@ public class SimpleCollectTest {
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token: " + token);
 
-        //PART 2
+        //PART 1
         //Check consent form
         Response response = given().header("TOKEN", token).when().get("/consents");
         String page = response.asString();
@@ -152,7 +149,7 @@ public class SimpleCollectTest {
             values.replace(key, "accepted"); //User accepts every treatment
         }
 
-        //PART 3
+        //PART 2
         //Post user answer
         Response postResponse = given().contentType(ContentType.URLENC).
                 formParams(values).when().post("/consents");
@@ -167,13 +164,10 @@ public class SimpleCollectTest {
         assertTrue(postPage.contains("Data body " + t2Key));
         assertTrue(postPage.contains("Accepté"));
         assertFalse(postPage.contains("Refusé"));
-        assertTrue(postPage.contains(user));
+        assertTrue(postPage.contains(SUBJECT));
         assertTrue(postPage.contains("Name " + hKey + "_dc"));
 
-        //PART 4
-        //TODO
-
-        //PART 5
+        //PART 3
         //Check previous values are loaded on new consent form
         response = given().header("TOKEN", token).when().get("/consents");
         page = response.asString();
@@ -190,7 +184,7 @@ public class SimpleCollectTest {
             values.replace(key, "refused"); //User refuses every treatment
         }
 
-        //PART 6
+        //PART 4
         //Post user new answer
         postResponse = given().contentType(ContentType.URLENC).
                 formParams(values).when().post("/consents");

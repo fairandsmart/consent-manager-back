@@ -52,7 +52,7 @@ public class SerialGeneratorTest {
                 }
                 generated.add(value);
             }
-            Assertions.assertEquals(10000, generated.size());
+            Assertions.assertEquals(1000, generated.size());
 
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -73,7 +73,7 @@ public class SerialGeneratorTest {
         @Override
         public void run() {
             try {
-                for (int i = 0; i < 1000; i++) {
+                for (int i = 0; i < 100; i++) {
                     serials.add(generator.next("SerialTest"));
                 }
             } catch (SerialGeneratorException e) {

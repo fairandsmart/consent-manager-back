@@ -14,6 +14,7 @@ import com.fairandsmart.consent.manager.model.Treatment;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -54,8 +55,18 @@ public class CollectWithEmailTest {
     @ConfigProperty(name = "consent.public.url")
     String publicUrl;
 
-    @BeforeEach
-    public void setup() {
+    /**
+     * 1 : l'orga génère un context de collecte qui contient entre autres un email d'optout
+     * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
+     * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
+     * 4 : le user (anonyme) reçoit un email de confirmation
+     * 5 : le user (anonyme) clique sur le lien d'opt-out
+     */
+    @Test
+    @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testCollectWithEmail() throws InterruptedException {
+
+        //SETUP
         //Check that the app is running
         given().contentType(ContentType.JSON).
                 when().get("/health").
@@ -91,17 +102,7 @@ public class CollectWithEmailTest {
             version = response.body().as(ModelVersion.class);
             assertEquals(ModelVersion.Status.ACTIVE, version.status);
         }
-    }
 
-    /**
-     * 1 : l'orga génère un context de collecte qui contient entre autres un email d'optout
-     * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
-     * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
-     * 4 : le user (anonyme) reçoit un email de confirmation
-     * 5 : le user (anonyme) clique sur le lien d'opt-out
-     */
-    @Test
-    public void testCollectWithEmail() throws InterruptedException {
         //PART 1
         //Use basic consent context for first generation
         ConsentContext ctx = new ConsentContext()

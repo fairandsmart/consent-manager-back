@@ -12,15 +12,11 @@ import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.model.Footer;
 import com.fairandsmart.consent.manager.model.Header;
 import com.fairandsmart.consent.manager.model.Treatment;
-import com.fairandsmart.consent.security.AuthenticationServiceBean;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
-import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -48,10 +44,11 @@ public class ConsentServiceTest {
         LOGGER.info("Applying mock to Authentication Service");
         AuthenticationServiceBean mock = Mockito.mock(AuthenticationServiceBean.class);
         Mockito.when(mock.getConnectedIdentifier()).thenReturn(TEST_USER);
+        Mockito.when(mock.isConnectedIdentifierAdmin()).thenReturn(true);
+        Mockito.when(mock.isConnectedIdentifierOperator()).thenReturn(true);
         QuarkusMock.installMockForType(mock, AuthenticationServiceBean.class);
     }
     */
-
 
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
