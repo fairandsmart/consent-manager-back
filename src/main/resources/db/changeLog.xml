@@ -1,0 +1,146 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet author="jayblanc" id="1">
+        <createTable tableName="MODELENTRY" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="OWNER" type="VARCHAR(255)"/>
+            <column name="AUTHOR" type="VARCHAR(255)"/>
+            <column name="KEY" type="VARCHAR(255)"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column name="BRANCHES" type="VARCHAR(5000)"/>
+            <column name="DESCRIPTION" type="VARCHAR(5000)"/>
+            <column name="VERSION" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="MODELVERSION" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="BRANCHES" type="VARCHAR(5000)"/>
+            <column name="AVAILABLELOCALES" type="VARCHAR(255)"/>
+            <column name="DEFAULTLOCALE" type="VARCHAR(255)"/>
+            <column name="COUNTERPARTS" type="VARCHAR(5000)"/>
+            <column name="OWNER" type="VARCHAR(255)"/>
+            <column name="AUTHOR" type="VARCHAR(255)"/>
+            <column name="PARENT" type="VARCHAR(255)"/>
+            <column name="CHILD" type="VARCHAR(255)"/>
+            <column name="SERIAL" type="VARCHAR(255)"/>
+            <column name="STATUS" type="VARCHAR(255)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column name="ENTRY_ID" type="VARCHAR(255)"/>
+            <column name="CREATIONDATE" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATIONDATE" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                constraintName="FK_MODELENTRY"
+                baseColumnNames="ENTRY_ID"
+                baseTableName="MODELVERSION"
+                baseTableSchemaName="PUBLIC"
+                referencedColumnNames="ID"
+                referencedTableName="MODELENTRY"
+                referencedTableSchemaName="PUBLIC"/>
+        <createTable tableName="MODELVERSION_CONTENT" schemaName="PUBLIC" >
+            <column name="MODELVERSION_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTENT_KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="AUTHOR" type="VARCHAR(255)"/>
+            <column name="DATA" type="CLOB"/>
+            <column name="DATACLASS" type="VARCHAR(2000)"/>
+        </createTable>
+        <addForeignKeyConstraint
+                constraintName="FK_MODELENTRY_CONTENT"
+                baseColumnNames="MODELVERSION_ID"
+                baseTableName="MODELVERSION_CONTENT"
+                baseTableSchemaName="PUBLIC"
+                referencedColumnNames="ID"
+                referencedTableName="MODELVERSION"
+                referencedTableSchemaName="PUBLIC"/>
+        <addPrimaryKey
+                constraintName="PK_MODELVERSION_CONTENT_ID"
+                columnNames="MODELVERSION_ID, CONTENT_KEY"
+                schemaName="PUBLIC"
+                tableName="MODELVERSION_CONTENT"/>
+        <createTable tableName="RECORD" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="AUTHOR" type="VARCHAR(255)"/>
+            <column name="BODYKEY" type="VARCHAR(255)"/>
+            <column name="BODYSERIAL" type="VARCHAR(255)"/>
+            <column name="HEADKEY" type="VARCHAR(255)"/>
+            <column name="HEADSERIAL" type="VARCHAR(255)"/>
+            <column name="FOOTKEY" type="VARCHAR(255)"/>
+            <column name="FOOTSERIAL" type="VARCHAR(255)"/>
+            <column name="OWNER" type="VARCHAR(255)"/>
+            <column name="PARENT" type="VARCHAR(255)"/>
+            <column name="SERIAL" type="VARCHAR(255)"/>
+            <column name="SUBJECT" type="VARCHAR(2000)"/>
+            <column name="TRANSACTION" type="VARCHAR(255)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="COMMENT" type="VARCHAR(5000)"/>
+            <column name="STATUS" type="VARCHAR(255)"/>
+            <column name="COLLECTIONMETHOD" type="VARCHAR(255)"/>
+            <column name="CREATIONTIMESTAMP" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EXPIRATIONTIMESTAMP" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VERSION" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="RECORD_ATTRIBUTES" schemaName="PUBLIC" >
+            <column name="RECORD_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ATTRIBUTES_KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ATTRIBUTES" type="VARCHAR(5000)"/>
+        </createTable>
+        <addForeignKeyConstraint
+                constraintName="FK_RECORD_ATTRIBUTES_ID"
+                baseColumnNames="RECORD_ID"
+                baseTableName="RECORD_ATTRIBUTES"
+                baseTableSchemaName="PUBLIC"
+                referencedColumnNames="ID"
+                referencedTableName="RECORD"
+                referencedTableSchemaName="PUBLIC"/>
+        <addPrimaryKey
+                constraintName="PK_RECORD_ATTRIBUTES_ID"
+                columnNames="RECORD_ID, ATTRIBUTES_KEY"
+                schemaName="PUBLIC"
+                tableName="RECORD_ATTRIBUTES"/>
+        <createTable tableName="SEQUENCE" schemaName="PUBLIC" >
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

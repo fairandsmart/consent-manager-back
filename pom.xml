@@ -28,8 +28,8 @@
         <version.maven>3.6.2</version.maven>
         <version.dependency-check-maven>5.3.2</version.dependency-check-maven>
 
-        <version.quarkus>1.7.0.Final</version.quarkus>
-        <version.maven-quarkus-plugin>1.7.0.Final</version.maven-quarkus-plugin>
+        <version.quarkus>1.7.2.Final</version.quarkus>
+        <version.maven-quarkus-plugin>1.7.2.Final</version.maven-quarkus-plugin>
         <version.commons-codec>1.14</version.commons-codec>
         <version.java-jwt>3.10.3</version.java-jwt>
         <version.freemarker>2.3.30</version.freemarker>
@@ -86,6 +86,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jdbc-h2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-liquibase</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -207,6 +211,11 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-elytron-security-properties-file</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-test-security</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

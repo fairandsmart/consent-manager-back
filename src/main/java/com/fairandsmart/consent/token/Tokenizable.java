@@ -4,10 +4,6 @@ import java.util.Map;
 
 public interface Tokenizable {
 
-    String getOwner();
-
-    Tokenizable setOwner(String owner);
-
     String getSubject();
 
     Tokenizable setSubject(String subject);

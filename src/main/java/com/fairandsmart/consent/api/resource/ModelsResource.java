@@ -24,7 +24,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/models")
-@RolesAllowed("admin")
 public class ModelsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ModelsResource.class.getName());
@@ -98,12 +97,7 @@ public class ModelsResource {
     public Response getLatestVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info, @Context HttpHeaders headers) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/latest");
         ModelVersion latest = consentService.findLatestVersionForEntry(id);
-        // TODO remove dirty fix when Quarkus 1.7 released: https://github.com/quarkusio/quarkus/issues/9622
         UriBuilder uriBuilder = info.getBaseUriBuilder().path(ModelsResource.class).path(id).path("versions").path(latest.id);
-        String forwardedProto = headers.getHeaderString("X-Forwarded-Proto");
-        if (!StringUtils.isEmpty(forwardedProto)) {
-            uriBuilder.scheme(forwardedProto);
-        }
         return Response.status(Response.Status.SEE_OTHER).location(uriBuilder.build()).build();
     }
 
@@ -113,12 +107,7 @@ public class ModelsResource {
     public Response getActiveVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info, @Context HttpHeaders headers) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/active");
         ModelVersion active = consentService.findActiveVersionForEntry(id);
-        // TODO remove dirty fix when Quarkus 1.7 released: https://github.com/quarkusio/quarkus/issues/9622
         UriBuilder uriBuilder = info.getBaseUriBuilder().path(ModelsResource.class).path(id).path("versions").path(active.id);
-        String forwardedProto = headers.getHeaderString("X-Forwarded-Proto");
-        if (!StringUtils.isEmpty(forwardedProto)) {
-            uriBuilder.scheme(forwardedProto);
-        }
         return Response.status(Response.Status.SEE_OTHER).location(uriBuilder.build()).build();
     }
 

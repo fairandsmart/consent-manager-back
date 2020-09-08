@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.api.handler.context;
+package com.fairandsmart.consent.manager.handler;
 
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentContext;

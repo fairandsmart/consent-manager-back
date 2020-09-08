@@ -1,7 +1,8 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.api.handler.context.ConsentContextHandler;
+import com.fairandsmart.consent.common.config.MainConfig;
+import com.fairandsmart.consent.manager.handler.ConsentContextHandler;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.util.PageUtil;
 import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
@@ -33,13 +34,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import xades4j.production.Enveloped;
-import xades4j.production.XadesTSigningProfile;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
@@ -49,12 +43,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
@@ -90,24 +79,20 @@ public class ConsentServiceBean implements ConsentService {
     @Inject
     NotificationService notification;
 
-    @ConfigProperty(name = "consent.processor")
-    String processor;
-
-    @ConfigProperty(name = "consent.public.url")
-    String publicUrl;
+    @Inject
+    MainConfig config;
 
     /* MODELS MANAGEMENT */
 
     @Override
     public CollectionPage<ModelEntry> listEntries(ModelFilter filter) {
         LOGGER.log(Level.INFO, "Listing models entries");
-        String connectedIdentifier = authentication.getConnectedIdentifier();
         PanacheQuery<ModelEntry> query;
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
-            query = ModelEntry.find("owner = ?1 and type in ?2", sort, connectedIdentifier, filter.getTypes());
+            query = ModelEntry.find("owner = ?1 and type in ?2", sort, config.owner(), filter.getTypes());
         } else {
-            query = ModelEntry.find("owner = ?1 and type in ?2", connectedIdentifier, filter.getTypes());
+            query = ModelEntry.find("owner = ?1 and type in ?2", config.owner(), filter.getTypes());
         }
         return PageUtil.paginateQuery(query, filter);
     }
@@ -116,8 +101,8 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "Creating new entry");
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        if (ModelEntry.isKeyAlreadyExistsForOwner(connectedIdentifier, key)) {
+        //TODO restrict to admin rôle
+        if (ModelEntry.isKeyAlreadyExistsForOwner(config.owner(), key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
         }
         ModelEntry entry = new ModelEntry();
@@ -126,7 +111,8 @@ public class ConsentServiceBean implements ConsentService {
         entry.name = name;
         entry.description = description;
         entry.branches = DEFAULT_BRANCHE;
-        entry.owner = connectedIdentifier;
+        entry.author = authentication.getConnectedIdentifier();;
+        entry.owner = config.owner();
         entry.persist();
         return entry;
     }
@@ -134,10 +120,9 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public ModelEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Getting entry for id: " + id);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
-        if (!entry.owner.equals(connectedIdentifier)) {
+        if (!entry.owner.equals(config.owner())) {
             throw new AccessDeniedException("access denied to version with id: " + id);
         }
         return entry;
@@ -146,8 +131,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public ModelEntry findEntryForKey(String key) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding entry for key: " + key);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelEntry> optional = ModelEntry.find("owner = ?1 and key = ?2", connectedIdentifier, key).singleResultOptional();
+        Optional<ModelEntry> optional = ModelEntry.find("owner = ?1 and key = ?2", config.owner(), key).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
     }
 
@@ -155,8 +139,8 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelEntry updateEntry(String id, String name, String description) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating entry for id: " + id);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", id, connectedIdentifier).singleResultOptional();
+        //TODO restrict to admin rôle
+        Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", id, config.owner()).singleResultOptional();
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         entry.name = name;
         entry.description = description;
@@ -168,8 +152,8 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public void deleteEntry(String id) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "Deleting entry with id: " + id);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, id).list();
+        //TODO restrict to admin rôle
+        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", config.owner(), id).list();
         if (versions.isEmpty() || versions.stream().allMatch(v -> v.status.equals(ModelVersion.Status.DRAFT))) {
             ModelEntry.deleteById(id);
         } else {
@@ -182,13 +166,14 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelVersion createVersion(String entryId, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Creating new version for entry with id: " + entryId);
+        //TODO restrict to admin rôle
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", entryId, connectedIdentifier).singleResultOptional();
+        Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", entryId, config.owner()).singleResultOptional();
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + entryId));
         if (!entry.type.equals(data.getType())) {
             throw new ConsentManagerException("Entry data type mismatch, need type: " + entry.type);
         }
-        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, entryId, "").singleResultOptional();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", config.owner(), entryId, "").singleResultOptional();
         ModelVersion latest = voptional.orElse(null);
         try {
             long now = System.currentTimeMillis();
@@ -196,7 +181,8 @@ public class ConsentServiceBean implements ConsentService {
                 LOGGER.log(Level.INFO, "No existing version found, creating first one");
                 latest = new ModelVersion();
                 latest.entry = entry;
-                latest.owner = connectedIdentifier;
+                latest.author = connectedIdentifier;
+                latest.owner = config.owner();
                 latest.branches = DEFAULT_BRANCHE;
                 latest.creationDate = now;
                 latest.status = ModelVersion.Status.DRAFT;
@@ -209,7 +195,8 @@ public class ConsentServiceBean implements ConsentService {
                 LOGGER.log(Level.INFO, "Latest version found, creating new one");
                 ModelVersion newversion = new ModelVersion();
                 newversion.entry = latest.entry;
-                newversion.owner = connectedIdentifier;
+                newversion.author = connectedIdentifier;
+                newversion.owner = config.owner();
                 newversion.branches = DEFAULT_BRANCHE;
                 newversion.creationDate = now;
                 newversion.status = ModelVersion.Status.DRAFT;
@@ -241,40 +228,35 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding active version for entry with key: " + key);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        return ModelVersion.SystemHelper.findActiveVersionByKey(connectedIdentifier, key);
+        return ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
     }
 
     @Override
     public ModelVersion findActiveVersionForEntry(String entryId) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding active version for entry with id: " + entryId);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        return ModelVersion.SystemHelper.findActiveVersionByEntryId(connectedIdentifier, entryId);
+        return ModelVersion.SystemHelper.findActiveVersionByEntryId(config.owner(), entryId);
     }
 
     @Override
     public ModelVersion findLatestVersionForKey(String key) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding latest version for entry with key: " + key);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.key = ?2 and child = ?3", connectedIdentifier, key, "").singleResultOptional();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.key = ?2 and child = ?3", config.owner(), key, "").singleResultOptional();
         return voptional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with key: " + key));
     }
 
     @Override
     public ModelVersion findLatestVersionForEntry(String entryId) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding latest version for entry with id: " + entryId);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", connectedIdentifier, entryId, "").singleResultOptional();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", config.owner(), entryId, "").singleResultOptional();
         return voptional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + entryId));
     }
 
     @Override
     public ModelVersion getVersion(String id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Finding version for id: " + id);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelVersion> optional = ModelVersion.findByIdOptional(id);
         ModelVersion version = optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for id: " + id));
-        if (!version.owner.equals(connectedIdentifier)) {
+        if (!version.owner.equals(config.owner())) {
             throw new AccessDeniedException("access denied to version with id: " + id);
         }
         return version;
@@ -283,16 +265,14 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public ModelVersion findVersionForSerial(String serial) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding version for serial: " + serial);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and serial = ?2", connectedIdentifier, serial).singleResultOptional();
+        Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and serial = ?2", config.owner(), serial).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for serial: " + serial));
     }
 
     @Override
     public List<ModelVersion> getVersionHistoryForKey(String key) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "Listing versions for entry with key: " + key);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.key = ?2", connectedIdentifier, key).list();
+        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.key = ?2", config.owner(), key).list();
         if (!versions.isEmpty()) {
             return ModelVersion.HistoryHelper.orderVersions(versions);
         }
@@ -302,8 +282,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "Listing versions for entry with id: " + entryId);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", connectedIdentifier, entryId).list();
+        List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", config.owner(), entryId).list();
         if (!versions.isEmpty()) {
             return ModelVersion.HistoryHelper.orderVersions(versions);
         }
@@ -314,8 +293,9 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelVersion updateVersion(String id, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating content for version with id: " + id);
+        //TODO restrict to admin
         String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.entry.type.equals(data.getType())) {
             throw new ConsentManagerException("Entry data type mismatch, need type: " + version.entry.type);
@@ -338,8 +318,8 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelVersion updateVersionType(String id, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating type for version with id: " + id);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
+        //TODO restrict to admin
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
             throw new ConsentManagerException("Unable to update type for version that is not last one");
@@ -357,8 +337,8 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
         LOGGER.log(Level.INFO, "Updating status for version with id: " + id);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
+        //TODO restrict to admin
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
             throw new ConsentManagerException("Unable to update status of a version that is not the latest");
@@ -400,8 +380,8 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public void deleteVersion(String id) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Deleting version with id: " + id);
-        String connectedIdentifier = authentication.getConnectedIdentifier();
-        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", connectedIdentifier, id).singleResultOptional();
+        //TODO restrict to admin
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
             throw new ConsentManagerException("Unable to delete version that is not last one");
@@ -417,9 +397,9 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public String buildToken(ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
-        if ( ctx.getOwner() == null || ctx.getOwner().isEmpty() ) {
-            ctx.setOwner(authentication.getConnectedIdentifier());
-        } else if ( !ctx.getOwner().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierAdmin()) {
+        if ( ctx.getSubject() == null || ctx.getSubject().isEmpty() ) {
+            ctx.setSubject(authentication.getConnectedIdentifier());
+        } else if ( !ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierAdmin()) {
             throw new AccessDeniedException("Only admin can generate token for other identifier than connected one");
         }
         return token.generateToken(ctx);
@@ -427,13 +407,6 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ConsentForm generateForm(String token, String subject) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
-        //TODO :
-        // 1. Load existing records for elements of this context (applying models invalidation strategy)
-        //    Adapt ConsentForm to include existing values for each elements
-        // 2. According to the ConsentContext requisite adopt the correct behaviour for display or not the form or parts of the form
-        // 3. If form has to be displayed, load all models to populate
-        // 4. Generate a new submission token and populate the form
-
         //TODO Handle case of an optout token (models are already ids and not keys...)
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
@@ -458,14 +431,14 @@ public class ConsentServiceBean implements ConsentService {
             form.setConditions(ctx.isConditions());
 
             if (!StringUtils.isEmpty(ctx.getHeader())) {
-                ModelVersion header = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+                ModelVersion header = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getHeader());
                 form.setHeader(header);
                 ctx.setHeader(header.getIdentifier().serialize());
             }
 
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String key : ctx.getElements()) {
-                ModelVersion element = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), key);
+                ModelVersion element = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(element.serial, r.value));
                 if (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(element.serial)) {
                     form.addElement(element);
@@ -475,19 +448,19 @@ public class ConsentServiceBean implements ConsentService {
             ctx.setElements(elementsIdentifiers);
 
             if (!StringUtils.isEmpty(ctx.getFooter())) {
-                ModelVersion footer = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+                ModelVersion footer = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getFooter());
                 form.setFooter(footer);
                 ctx.setFooter(footer.getIdentifier().serialize());
             }
 
             if (!StringUtils.isEmpty(ctx.getTheme())) {
-                ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getTheme());
+                ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getTheme());
                 form.setTheme(theme);
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
             if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
-                ModelVersion optout = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getOptoutModel());
+                ModelVersion optout = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getOptoutModel());
                 ctx.setOptoutModel(optout.getIdentifier().serialize());
             }
 
@@ -548,6 +521,8 @@ public class ConsentServiceBean implements ConsentService {
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
             Receipt receipt = this.saveConsent(ctx, valuesMap, "");
 
+            //TODO Build the token for the receipt
+
             if (!StringUtils.isEmpty(ctx.getOptoutRecipient())) {
                 Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
                 if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
@@ -555,6 +530,7 @@ public class ConsentServiceBean implements ConsentService {
                         ConsentOptOut optout = new ConsentOptOut();
                         optout.setLocale(ctx.getLocale());
                         optout.setRecipient(ctx.getOptoutRecipient());
+                        //TODO avoid converting element identifier to key but modify the getForm method
                         ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial());
                         optout.setModel(optoutModel);
                         ctx.setOptoutModel(optoutModel.entry.key);
@@ -577,7 +553,7 @@ public class ConsentServiceBean implements ConsentService {
                         ctx.setOptoutRecipient("");
                         ctx.setOptoutModel("");
                         optout.setToken(this.token.generateToken(ctx));
-                        URI optoutUri = UriBuilder.fromUri(publicUrl).path(ConsentsResource.class).queryParam("t", optout.getToken()).build();
+                        URI optoutUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", optout.getToken()).build();
                         optout.setUrl(optoutUri.toString());
                         notification.notify(event.withData(optout));
                     } catch (EntityNotFoundException | IllegalIdentifierException e ) {
@@ -617,23 +593,19 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public CollectionPage<Record> listRecords(RecordFilter filter) {
         LOGGER.log(Level.INFO, "Listing records");
-        String connectedIdentifier = authentication.getConnectedIdentifier();
         PanacheQuery<Record> query;
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
-            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", sort, connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
+            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", sort, config.owner(), "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
         } else {
-            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", connectedIdentifier, "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
+            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", config.owner(), "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
         }
         return PageUtil.paginateQuery(query, filter);
     }
 
     @Override
     public CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter) {
-        List<ModelEntry> entries = ModelEntry.find(
-                "owner = ?1 and type in ?2",
-                authentication.getConnectedIdentifier(),
-                Arrays.asList(Treatment.TYPE, Conditions.TYPE)).list();
+        List<ModelEntry> entries = ModelEntry.find("owner = ?1 and type in ?2", config.owner(), Arrays.asList(Treatment.TYPE, Conditions.TYPE)).list();
 
         List<UserRecord> userRecords = new ArrayList<>();
         entries.forEach(entry -> userRecords.add(findUserRecord(entry, filter)));
@@ -644,20 +616,19 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public CollectionPage<UserRecord> listRecordsForUsers(MixedRecordsFilter filter) {
-        String connectedIdentifier = authentication.getConnectedIdentifier();
         List<ModelEntry> entries = new ArrayList<>();
 
         if (filter.getTreatments().size() > 0) {
             entries.addAll(ModelEntry.find(
                     "owner = ?1 and key in ?2 and type = ?3",
-                    connectedIdentifier,
+                    config.owner(),
                     filter.getTreatments(),
                     Treatment.TYPE).list());
         }
         if (filter.getConditions().size() > 0) {
             entries.addAll(ModelEntry.find(
                     "owner = ?1 and key in ?2 and type = ?3",
-                    connectedIdentifier,
+                    config.owner(),
                     filter.getConditions(),
                     Conditions.TYPE).list());
         }
@@ -676,13 +647,13 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) this.token.readToken(token);
 
-            ModelVersion headerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getHeader());
+            ModelVersion headerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getHeader());
             ctx.setHeader(headerVersion.getIdentifier().serialize());
-            ModelVersion footerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), ctx.getFooter());
+            ModelVersion footerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getFooter());
             ctx.setFooter(footerVersion.getIdentifier().serialize());
             List<String> newElements = new ArrayList<>();
             for (String element : ctx.getElements()) {
-                ModelVersion elementVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), element);
+                ModelVersion elementVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), element);
                 newElements.add(elementVersion.getIdentifier().serialize());
             }
             ctx.setElements(newElements);
@@ -691,7 +662,7 @@ public class ConsentServiceBean implements ConsentService {
             valuesMap.put("header", headerVersion.getIdentifier().serialize());
             valuesMap.put("footer", footerVersion.getIdentifier().serialize());
             for (Map.Entry<String, String> value : values.entrySet()) {
-                ModelVersion bodyVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), value.getKey());
+                ModelVersion bodyVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), value.getKey());
                 valuesMap.put(bodyVersion.getIdentifier().serialize(), value.getValue());
             }
 
@@ -782,7 +753,7 @@ public class ConsentServiceBean implements ConsentService {
                     Record record = new Record();
                     record.transaction = transaction;
                     record.subject = ctx.getSubject();
-                    record.owner = ctx.getOwner();
+                    record.owner = config.owner();
                     record.type = bodyId.getType();
                     record.headSerial = headId != null ? headId.getSerial() : "";
                     record.bodySerial = bodyId.getSerial();
@@ -796,7 +767,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.expirationTimestamp = ctx.isConditions() ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
                     record.status = Record.Status.COMMITTED;
                     record.collectionMethod = ctx.getCollectionMethod();
-                    record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : ctx.getOwner();
+                    record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : config.owner();
                     record.comment = comment;
                     record.persist();
                     records.add(record);
@@ -828,7 +799,7 @@ public class ConsentServiceBean implements ConsentService {
                         //
                     }
                 });
-                receipt = Receipt.build(transaction, processor, ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, header, footer, trecords);
+                receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, header, footer, trecords);
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();
@@ -860,22 +831,4 @@ public class ConsentServiceBean implements ConsentService {
         return previewVersion;
     }
 
-    /*
-    private void timestamp(String receipt) throws ParserConfigurationException, IOException, SAXException {
-        InputSource source = new InputSource( new StringReader(receipt) );
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(source);
-        Element elemToSign = doc.getDocumentElement();
-
-        SignerT signer = (SignerT) new XadesTSigningProfile(keyingProviderMy)
-                .withTimeStampTokenProvider(TestTimeStampTokenProvider.class)
-                .withAlgorithmsProviderEx(ExclusiveC14nForTimeStampsAlgorithmsProvider.class)
-                .newSigner();
-        new Enveloped(signer).sign(elemToSign);
-
-        outputDocument(doc, "document.signed.t.bes.xml");
-    }
-    */
 }

@@ -1,5 +1,6 @@
-package com.fairandsmart.consent.api.handler.context;
+package com.fairandsmart.consent.manager.handler;
 
+import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
@@ -8,11 +9,15 @@ import io.quarkus.panache.common.Sort;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class NoHeadNoFootConsentContextHandler implements ConsentContextHandler {
+
+    @Inject
+    MainConfig config;
 
     @Override
     public boolean canHandle(ConsentContext ctx) {
@@ -23,7 +28,7 @@ public class NoHeadNoFootConsentContextHandler implements ConsentContextHandler 
     public List<Record> findRecords(ConsentContext ctx) throws EntityNotFoundException {
         List<Record> records = new ArrayList<>();
         for (String elementKey : ctx.getElements()) {
-            ModelVersion elementVersion = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getOwner(), elementKey);
+            ModelVersion elementVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), elementKey);
             Record.find(
                     "subject = ?1 and headSerial = '' and bodySerial in ?2 and footSerial = '' and (expirationTimestamp >= ?3 or expirationTimestamp = 0)",
                     Sort.by("creationTimestamp", Sort.Direction.Descending),

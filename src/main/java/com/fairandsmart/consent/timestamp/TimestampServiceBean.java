@@ -1,17 +1,20 @@
 package com.fairandsmart.consent.timestamp;
 
+import com.fairandsmart.consent.common.config.TsaConfig;
 import io.quarkus.runtime.Startup;
-import org.apache.bcel.generic.NEW;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import xades4j.XAdES4jException;
-import xades4j.production.*;
+import xades4j.production.Enveloped;
+import xades4j.production.XadesSigner;
+import xades4j.production.XadesSigningProfile;
+import xades4j.production.XadesTSigningProfile;
 import xades4j.providers.KeyingDataProvider;
 import xades4j.providers.impl.FileSystemKeyStoreKeyingDataProvider;
 import xades4j.providers.impl.TSAHttpData;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,17 +27,8 @@ public class TimestampServiceBean implements TimestampService {
 
     private static final Logger LOGGER = Logger.getLogger(TimestampServiceBean.class.getName());
 
-    @ConfigProperty(name = "consent.tsa.url")
-    String url;
-
-    @ConfigProperty(name = "consent.tsa.auth")
-    boolean auth;
-
-    @ConfigProperty(name = "consent.tsa.auth.username")
-    String username;
-
-    @ConfigProperty(name = "consent.tsa.auth.password")
-    String password;
+    @Inject
+    TsaConfig config;
 
     private XadesSigner signer;
 
@@ -47,7 +41,7 @@ public class TimestampServiceBean implements TimestampService {
                     new FirstCertificateSelector(),
                     new DirectPasswordProvider("password"),
                     new DirectPasswordProvider("password"), false);
-            XadesSigningProfile p = new XadesTSigningProfile(kp).withBinding(TSAHttpData.class, (auth)?new TSAHttpData(url, username, password):new TSAHttpData(url));
+            XadesSigningProfile p = new XadesTSigningProfile(kp).withBinding(TSAHttpData.class, (config.needAuth())?new TSAHttpData(config.url(), config.username(), config.password()):new TSAHttpData(config.url()));
             signer = p.newSigner();
         } catch (Exception e) {
             throw new TimestampServiceException("Unable to initialize TimestampService");

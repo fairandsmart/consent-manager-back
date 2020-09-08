@@ -1,11 +1,13 @@
 package com.fairandsmart.consent.serial;
 
+import com.fairandsmart.consent.common.config.SerialConfig;
 import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.common.util.Lock;
 import com.fairandsmart.consent.common.util.LockType;
 import com.fairandsmart.consent.serial.entity.Sequence;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
@@ -22,14 +24,8 @@ public class SerialGeneratorBean implements SerialGenerator {
     private static final Logger LOGGER = Logger.getLogger(SerialGenerator.class.getName());
     private static final Random random = new Random();
 
-    @ConfigProperty(name = "consent.serial.slot.capacity")
-    int capacity;
-
-    @ConfigProperty(name = "consent.serial.slot.initial")
-    int initial;
-
-    @ConfigProperty(name = "consent.serial.prefix")
-    String prefix;
+    @Inject
+    private SerialConfig config;
 
     private static final Map<String, Sequence> pools = new HashMap<>();
 
@@ -39,7 +35,7 @@ public class SerialGeneratorBean implements SerialGenerator {
     public String next(String name) throws SerialGeneratorException {
         LOGGER.log(Level.FINE,"Generating next serial for name: " + name);
         long value = generate(name);
-        return prefix + valueToSerial(value);
+        return config.prefix() + valueToSerial(value);
     }
 
     @Override
@@ -48,7 +44,7 @@ public class SerialGeneratorBean implements SerialGenerator {
         if ( !isValid(serial) ) {
             throw new IllegalStateException("Serial is invalid");
         }
-        byte[] bserial = Base58.decode(serial.substring(prefix.length()));
+        byte[] bserial = Base58.decode(serial.substring(config.prefix().length()));
         if ( bserial.length == 4 ) {
             return ByteBuffer.wrap(bserial, 1, bserial.length - 2).getShort();
         }
@@ -61,12 +57,12 @@ public class SerialGeneratorBean implements SerialGenerator {
     @Override
     public boolean isValid(String serial) {
         LOGGER.log(Level.FINE,"Checking if serial is valid: " + serial);
-        if ( prefix != null && !serial.startsWith(prefix) ) {
+        if ( config.prefix() != null && !serial.startsWith(config.prefix()) ) {
             return false;
         }
         byte[] bserial;
-        if ( prefix != null ) {
-            bserial = Base58.decode(serial.substring(prefix.length()));
+        if ( config.prefix() != null ) {
+            bserial = Base58.decode(serial.substring(config.prefix().length()));
         } else {
             bserial = Base58.decode(serial);
         }
@@ -108,14 +104,14 @@ public class SerialGeneratorBean implements SerialGenerator {
             if (pool == null) {
                 pool = Sequence.findById(name, LockModeType.PESSIMISTIC_WRITE);
                 if (pool == null) {
-                    LOGGER.log(Level.INFO, "Sequence not found, initialising with value: " + initial);
+                    LOGGER.log(Level.INFO, "Sequence not found, initialising with value: " + config.slotInitialValue());
                     pool = new Sequence();
                     pool.name = name;
-                    pool.next = initial;
+                    pool.next = config.slotInitialValue();
                 } else {
                     pool.next = pool.value;
                 }
-                pool.value = pool.next + capacity;
+                pool.value = pool.next + config.slotCapacity();
                 pool.persistAndFlush();
                 pools.put(pool.name, pool);
             }
@@ -123,7 +119,7 @@ public class SerialGeneratorBean implements SerialGenerator {
                 LOGGER.log(Level.INFO, "Pool empty, renewing...");
                 pool = Sequence.findById(name, LockModeType.PESSIMISTIC_WRITE);
                 pool.next = pool.value;
-                pool.value = pool.next + capacity;
+                pool.value = pool.next + config.slotCapacity();
                 pool.persistAndFlush();
                 pools.put(pool.name, pool);
             }

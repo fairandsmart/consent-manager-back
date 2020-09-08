@@ -51,10 +51,9 @@ public class Receipt {
     private List<Attachment> attachments;
     private String privacyPolicyUrl;
     private ConsentContext.CollectionMethod collectionMethod;
+    private String token;
 
     //TODO Add modification url
-    //TODO Add signaure informations
-    //TODO Add Timestamp information
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
@@ -189,6 +188,14 @@ public class Receipt {
 
     public void setCollectionMethod(ConsentContext.CollectionMethod collectionMethod) {
         this.collectionMethod = collectionMethod;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String toXml() throws JAXBException {

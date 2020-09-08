@@ -7,6 +7,7 @@ import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
+import org.jline.terminal.Size;
 
 import javax.persistence.*;
 import java.util.*;
@@ -27,7 +28,9 @@ public class ModelVersion extends PanacheEntityBase {
     public String serial;
     public String parent = "";
     public String child = "";
+    @Column(length = 5000)
     public String branches;
+    public String author;
     public String owner;
     public String defaultLocale;
     public String availableLocales = "";
@@ -35,6 +38,7 @@ public class ModelVersion extends PanacheEntityBase {
     public Status status;
     @Enumerated(EnumType.STRING)
     public Type type;
+    @Column(length = 5000)
     public String counterparts = "";
     public long creationDate;
     public long modificationDate;
@@ -117,6 +121,7 @@ public class ModelVersion extends PanacheEntityBase {
                 ", parent='" + parent + '\'' +
                 ", child='" + child + '\'' +
                 ", branches='" + branches + '\'' +
+                ", author='" + author + '\'' +
                 ", owner='" + owner + '\'' +
                 ", defaultLocale='" + defaultLocale + '\'' +
                 ", availableLocales='" + availableLocales + '\'' +
@@ -161,14 +166,14 @@ public class ModelVersion extends PanacheEntityBase {
 
     public static class SystemHelper {
 
-        public static ModelVersion findActiveVersionByKey(String owner, String key) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {
+        public static ModelVersion findActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
             Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
-            return optional.orElseThrow(() -> new com.fairandsmart.consent.common.exception.EntityNotFoundException("unable to find an active version for entry with key: " + key + " and owner: " + owner));
+            return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key + " and owner: " + owner));
         }
 
-        public static ModelVersion findActiveVersionByEntryId(String owner, String entryId) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {
+        public static ModelVersion findActiveVersionByEntryId(String owner, String entryId) throws EntityNotFoundException {
             Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and status = ?3", owner, entryId, ModelVersion.Status.ACTIVE).singleResultOptional();
-            return optional.orElseThrow(() -> new com.fairandsmart.consent.common.exception.EntityNotFoundException("unable to find an active version for entry with id: " + entryId + " and owner: " + owner));
+            return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId + " and owner: " + owner));
         }
 
         public static ModelVersion findModelVersionForSerial(String serial) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {

@@ -4,6 +4,7 @@ import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
 import java.io.IOException;
@@ -14,6 +15,7 @@ public class ModelContent {
     @Lob
     public String data;
     public String author;
+    @Column(length = 2000)
     public Class<? extends ModelData> dataClass;
 
     public ModelContent() {

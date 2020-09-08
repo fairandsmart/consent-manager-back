@@ -7,9 +7,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import com.fairandsmart.consent.common.config.MainConfig;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Calendar;
@@ -24,11 +25,8 @@ public class TokenServiceBean implements TokenService {
 
     private static final Logger LOGGER = Logger.getLogger(TokenService.class.getName());
 
-    @ConfigProperty(name = "consent.token.secret")
-    String secret;
-
-    @ConfigProperty(name = "consent.token.issuer")
-    String issuer;
+    @Inject
+    MainConfig config;
 
     private static JWTVerifier verifier;
     private static Algorithm algorithm;
@@ -36,8 +34,8 @@ public class TokenServiceBean implements TokenService {
     @PostConstruct
     public void init() {
         LOGGER.log(Level.FINE, "Initializing Token Verifier");
-        algorithm = Algorithm.HMAC256(secret);
-        verifier = JWT.require(algorithm).withIssuer(issuer).build();
+        algorithm = Algorithm.HMAC256(config.secret());
+        verifier = JWT.require(algorithm).withIssuer(config.owner()).build();
     }
 
     @Override
@@ -46,11 +44,11 @@ public class TokenServiceBean implements TokenService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.add(calendarField, calendarAmount);
-        JWTCreator.Builder builder = JWT.create().withIssuer(tokenizable.getOwner());
+        JWTCreator.Builder builder = JWT.create().withIssuer(config.owner());
         builder.withExpiresAt(calendar.getTime());
         builder.withSubject(tokenizable.getSubject());
         builder.withClaim("payloadClass", tokenizable.getClass().getName());
-        builder.withIssuer(issuer);
+        builder.withIssuer(config.owner());
         tokenizable.getClaims().forEach(builder::withClaim);
         return builder.sign(algorithm);
     }
@@ -72,7 +70,6 @@ public class TokenServiceBean implements TokenService {
             Class<?> clazz = Class.forName(decodedJWT.getClaim("payloadClass").asString());
             Tokenizable tokenizable = (Tokenizable) clazz.getDeclaredConstructor().newInstance();
             tokenizable.setSubject(decodedJWT.getSubject());
-            tokenizable.setOwner(decodedJWT.getIssuer());
             Map<String, String> claims = new HashMap<>();
             for (Map.Entry<String, Claim> claim :  decodedJWT.getClaims().entrySet() ) {
                 claims.put(claim.getKey(), claim.getValue().asString());

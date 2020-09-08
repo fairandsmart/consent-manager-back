@@ -1,31 +1,33 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
-import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.api.dto.OperatorRecordDto;
-import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.Record;
+import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.filter.UserRecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.model.UserRecord;
+import com.fairandsmart.consent.security.AuthenticationService;
+import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -38,6 +40,9 @@ public class ConsentsResource {
     @Inject
     ConsentService consentService;
 
+    @Inject
+    AuthenticationService authenticationService;
+
     @POST
     @Path("/token")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -49,8 +54,7 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken, @QueryParam("subject") String subject)
-            throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
+    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken, @QueryParam("subject") String subject) throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
         LOGGER.log(Level.INFO, "GET /consents");
 
         String token;
@@ -69,8 +73,7 @@ public class ConsentsResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<Receipt> postConsent(MultivaluedMap<String, String> values)
-            throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
+    public TemplateModel<Receipt> postConsent(MultivaluedMap<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
 
         if (!values.containsKey("token")) {
@@ -84,10 +87,8 @@ public class ConsentsResource {
     @GET
     @Path("/themes/preview")
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getThemePreview(
-            @QueryParam("locale") @DefaultValue("en") String locale,
-            @QueryParam("orientation") String orientation) throws ModelDataSerializationException {
-        LOGGER.log(Level.INFO, "GET /themes/preview");
+    public TemplateModel<ConsentForm> getThemePreview(@QueryParam("locale") @DefaultValue("en") String locale, @QueryParam("orientation") String orientation) throws ModelDataSerializationException {
+        LOGGER.log(Level.INFO, "GET /consents/themes/preview");
 
         ConsentForm.Orientation realOrientation = ConsentForm.Orientation.VERTICAL;
         if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
@@ -100,15 +101,15 @@ public class ConsentsResource {
 
     @GET
     @Path("/records")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<Record> listRecords(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("query") @DefaultValue("") String query,
             @QueryParam("order") @DefaultValue("bodyKey") String order,
-            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) {
-        LOGGER.log(Level.INFO, "GET /records");
+            @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "GET /consents/records");
+        authenticationService.ensureConnectedIdentifierIsAdmin();
         RecordFilter filter = new RecordFilter();
         filter.setPage(page);
         filter.setSize(size);
@@ -120,7 +121,6 @@ public class ConsentsResource {
 
     @GET
     @Path("/records/subset")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<UserRecord> listRecordsForUsers(
             @QueryParam("page") @DefaultValue("0") int page,
@@ -129,8 +129,9 @@ public class ConsentsResource {
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
             @QueryParam("users") List<String> users,
             @QueryParam("treatments") @DefaultValue("") List<String> treatments,
-            @QueryParam("conditions") @DefaultValue("") List<String> conditions) {
-        LOGGER.log(Level.INFO, "GET /records/subset");
+            @QueryParam("conditions") @DefaultValue("") List<String> conditions) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "GET /consents/records/subset");
+        authenticationService.ensureConnectedIdentifierIsAdmin();
         MixedRecordsFilter filter = new MixedRecordsFilter();
         filter.setPage(page);
         filter.setSize(size);
@@ -144,7 +145,6 @@ public class ConsentsResource {
 
     @GET
     @Path("/records/user")
-    @RolesAllowed("admin")
     @Produces(MediaType.APPLICATION_JSON)
     public CollectionPage<UserRecord> listUserRecords(
             @QueryParam("page") @DefaultValue("0") int page,
@@ -155,8 +155,9 @@ public class ConsentsResource {
             @QueryParam("collectionMethod") String collectionMethod,
             @QueryParam("dateAfter") long dateAfter,
             @QueryParam("dateBefore") long dateBefore,
-            @QueryParam("value") String value) {
-        LOGGER.log(Level.INFO, "GET /records/user");
+            @QueryParam("value") String value) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "GET /consents/records/user");
+        authenticationService.ensureConnectedIdentifierIsAdmin();
         if ( user.isEmpty() ) {
             throw new BadRequestException("Missing user parameter");
         }
@@ -175,13 +176,12 @@ public class ConsentsResource {
 
     @POST
     @Path("/records/user")
-    @RolesAllowed("admin")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel<Receipt> createOperatorRecords(OperatorRecordDto dto)
             throws AccessDeniedException, InvalidTokenException, InvalidConsentException, TokenExpiredException, ConsentServiceException {
-        LOGGER.log(Level.INFO, "POST /records/user");
-
+        LOGGER.log(Level.INFO, "POST /consents/records/user");
+        authenticationService.ensureConnectedIdentifierIsOperator();
         if (StringUtils.isEmpty(dto.getToken())) {
             throw new AccessDeniedException("unable to find token in form");
         }

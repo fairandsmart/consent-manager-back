@@ -21,6 +21,7 @@ public class Record extends PanacheEntityBase {
     public long creationTimestamp;
     public long expirationTimestamp;
     public String owner;
+    @Column(length = 2000)
     public String subject;
     public String transaction;
     public String parent;
@@ -38,6 +39,7 @@ public class Record extends PanacheEntityBase {
     @Enumerated(EnumType.STRING)
     public ConsentContext.CollectionMethod collectionMethod;
     public String author;
+    @Column(length = 5000)
     public String comment;
     @ElementCollection(fetch = FetchType.EAGER)
     public Map<String, String> attributes;

@@ -22,8 +22,11 @@ public class ModelEntry extends PanacheEntityBase {
     public String type;
     public String key;
     public String name;
+    @Column(length = 5000)
     public String description;
+    public String author;
     public String owner;
+    @Column(length = 5000)
     public String branches;
 
     public static boolean isKeyAlreadyExistsForOwner(String owner, String key) {
@@ -39,6 +42,7 @@ public class ModelEntry extends PanacheEntityBase {
                 ", key='" + key + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                ", author='" + author + '\'' +
                 ", owner='" + owner + '\'' +
                 ", branches='" + branches + '\'' +
                 '}';

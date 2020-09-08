@@ -17,6 +17,7 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,11 +36,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConsentServiceTest {
 
     private static final Logger LOGGER = Logger.getLogger(ConsentServiceTest.class.getName());
-    private static final String TEST_USER = "sheldon";
+
+    //private static String TEST_USER = "sheldon";
 
     @Inject
     ConsentService service;
 
+    /*
     @BeforeAll
     public static void setup() {
         LOGGER.info("Applying mock to Authentication Service");
@@ -47,10 +50,14 @@ public class ConsentServiceTest {
         Mockito.when(mock.getConnectedIdentifier()).thenReturn(TEST_USER);
         QuarkusMock.installMockForType(mock, AuthenticationServiceBean.class);
     }
+    */
+
 
     @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
     public void testCreateEntryForExistingKey() throws EntityAlreadyExistsException {
-        String key = UUID.randomUUID().toString();
+        LOGGER.info("#### Test create entry for existing key");
+        final String key = UUID.randomUUID().toString();
         ModelEntry entry = service.createEntry(key, "header1", "description1", Header.TYPE);
         assertNotNull(entry);
         assertThrows(EntityAlreadyExistsException.class, () -> service.createEntry(key, "header2", "description2", Header.TYPE));
@@ -58,7 +65,9 @@ public class ConsentServiceTest {
 
     @Test
     @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testCreateAndUpdateHeaderEntry() throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
+        LOGGER.info("#### Test create and Update Header entry");
         LOGGER.info("List existing entries for headers");
         CollectionPage<ModelEntry> headers = service.listEntries(new ModelFilter().withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
         long headersCountBeforeCreate = headers.getTotalCount();
@@ -99,7 +108,9 @@ public class ConsentServiceTest {
 
     @Test
     @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testCreateAndUpdateHeaderContent() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, ModelDataSerializationException, InvalidStatusException {
+        LOGGER.info("#### Test create and Update Header content");
         LOGGER.info("Create entry");
         String key = UUID.randomUUID().toString();
         String entryId = service.createEntry(key, "Name " + key, "Description " + key, Header.TYPE).id;
@@ -120,9 +131,9 @@ public class ConsentServiceTest {
         assertEquals(locale, versions.get(0).availableLocales);
         assertEquals(locale, versions.get(0).defaultLocale);
         assertEquals(ModelVersion.Status.DRAFT, versions.get(0).status);
-        assertEquals(TEST_USER, versions.get(0).owner);
+        assertEquals("sheldon", versions.get(0).author);
         assertNotNull(versions.get(0).serial);
-        assertEquals(TEST_USER, versions.get(0).content.get(locale).author);
+        assertEquals("sheldon", versions.get(0).content.get(locale).author);
         Header data = (Header) versions.get(0).getData(locale);
         assertEquals(header, data);
 
@@ -145,6 +156,7 @@ public class ConsentServiceTest {
 
     @Test
     @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testCreateAndReadRecord() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
         LOGGER.info("Listing existing entries");
         List<String> types = new ArrayList<>();
@@ -187,7 +199,6 @@ public class ConsentServiceTest {
 
         LOGGER.log(Level.INFO, "Creating READ context and token");
         ConsentContext readCtx = new ConsentContext()
-                .setOwner(TEST_USER)
                 .setSubject("mmichu")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setHeader(hKey)

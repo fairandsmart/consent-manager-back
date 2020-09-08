@@ -21,7 +21,6 @@ public class ConsentContext implements Tokenizable {
 
     @NotNull
     private String subject;
-    private String owner;
     @NotNull
     private ConsentForm.Orientation orientation;
     private String header;
@@ -61,15 +60,6 @@ public class ConsentContext implements Tokenizable {
 
     public ConsentContext setSubject(String subject) {
         this.subject = subject;
-        return this;
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public ConsentContext setOwner(String owner) {
-        this.owner = owner;
         return this;
     }
 
@@ -426,7 +416,6 @@ public class ConsentContext implements Tokenizable {
     public String toString() {
         return "ConsentContext{" +
                 "subject='" + subject + '\'' +
-                ", owner='" + owner + '\'' +
                 ", orientation=" + orientation +
                 ", header='" + header + '\'' +
                 ", elements=" + elements +

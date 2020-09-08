@@ -30,6 +30,8 @@ public class TimestampServiceTest {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(this.getClass().getClassLoader().getResourceAsStream("receipt/receipt.xml"));
+        //assertFalse(doc.getElementsByTagName())
+
         timestampService.timestamp(doc);
 
         TransformerFactory tf = TransformerFactory.newInstance();
@@ -38,6 +40,8 @@ public class TimestampServiceTest {
         StringWriter writer = new StringWriter();
         transformer.transform(new DOMSource(doc), new StreamResult(writer));
         LOGGER.log(Level.INFO, writer.getBuffer().toString());
+        //assertTrue(doc.getElementsByTagName()
+        //TODO Assert that the document contains information about timestamp
     }
 
 }
