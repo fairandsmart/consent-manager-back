@@ -9,6 +9,7 @@ import freemarker.template.TemplateExceptionHandler;
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,7 +49,7 @@ public class TemplateServiceBean implements TemplateService {
         LOGGER.log(Level.FINE, "Rendering model: " + model);
         try {
             Template template = cfg.getTemplate(model.getTemplate());
-            Writer writer = new OutputStreamWriter(output);
+            Writer writer = new OutputStreamWriter(output, Charset.forName("UTF8"));
             template.process(model, writer);
         } catch (IOException | TemplateException e ) {
             throw new TemplateServiceException("Unable to apply template", e);
