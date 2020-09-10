@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class TestAuthenticationService {
+public class AuthenticationServiceTest {
 
-    private static final Logger LOGGER = Logger.getLogger(TestAuthenticationService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AuthenticationServiceTest.class.getName());
 
     @Inject
     AuthenticationService authenticationService;

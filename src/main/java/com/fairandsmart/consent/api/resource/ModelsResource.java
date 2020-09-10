@@ -7,14 +7,16 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.common.validation.UUID;
+import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.InvalidStatusException;
+import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
-import org.apache.commons.lang3.StringUtils;
+import com.fairandsmart.consent.template.TemplateModel;
+import com.fairandsmart.consent.template.TemplateService;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -30,6 +32,9 @@ public class ModelsResource {
 
     @Inject
     ConsentService consentService;
+
+    @Inject
+    TemplateService templateService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -153,4 +158,18 @@ public class ModelsResource {
         LOGGER.log(Level.INFO, "DELETE /models/" + id + "/versions/" + vid);
         consentService.deleteVersion(vid);
     }
+
+    @GET
+    @Path("/themes/preview")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateModel<ConsentForm> getThemePreview(@QueryParam("locale") @DefaultValue("en") String locale, @QueryParam("orientation") String orientation) throws ModelDataSerializationException {
+        LOGGER.log(Level.INFO, "GET /consents/themes/preview");
+        ConsentForm.Orientation realOrientation = ConsentForm.Orientation.VERTICAL;
+        if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
+            realOrientation = ConsentForm.Orientation.HORIZONTAL;
+        }
+        ConsentForm form = consentService.generateLipsumForm(realOrientation, locale);
+        return templateService.getFormTemplate(form);
+    }
+
 }

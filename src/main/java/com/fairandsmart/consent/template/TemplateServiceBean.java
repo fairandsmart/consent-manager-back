@@ -1,15 +1,20 @@
 package com.fairandsmart.consent.template;
 
 import com.fairandsmart.consent.api.template.TemplateBodyWriter;
+import com.fairandsmart.consent.manager.ConsentForm;
+import com.fairandsmart.consent.manager.model.Receipt;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,5 +59,40 @@ public class TemplateServiceBean implements TemplateService {
         } catch (IOException | TemplateException e ) {
             throw new TemplateServiceException("Unable to apply template", e);
         }
+    }
+
+    @Override
+    public TemplateModel<ConsentForm> getFormTemplate(ConsentForm form) {
+        TemplateModel<ConsentForm> model = new TemplateModel<>();
+        model.setLocale(LocaleUtils.toLocale(form.getLocale()));
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
+        model.setBundle(bundle);
+        model.setData(form);
+
+        if (form.isConditions()) {
+            model.setTemplate("conditions.ftl");
+        } else if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
+            model.setTemplate("form-horizontal.ftl");
+        } else {
+            model.setTemplate("form-vertical.ftl");
+        }
+        LOGGER.log(Level.FINE, model.toString());
+        return model;
+    }
+
+    @Override
+    public TemplateModel<Receipt> getReceiptTemplate(Receipt receipt) {
+        TemplateModel<Receipt> model = new TemplateModel<>();
+        model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
+        model.setBundle(bundle);
+        if (!StringUtils.isEmpty(receipt.getTransaction())) {
+            model.setData(receipt);
+            model.setTemplate("receipt.ftl");
+        } else {
+            model.setTemplate("no-receipt.ftl");
+        }
+        LOGGER.log(Level.INFO, model.toString());
+        return model;
     }
 }

@@ -111,7 +111,7 @@ public class ConsentServiceBean implements ConsentService {
         entry.name = name;
         entry.description = description;
         entry.branches = DEFAULT_BRANCHE;
-        entry.author = authentication.getConnectedIdentifier();;
+        entry.author = authentication.getConnectedIdentifier();
         entry.owner = config.owner();
         entry.persist();
         return entry;
@@ -803,8 +803,8 @@ public class ConsentServiceBean implements ConsentService {
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();
-                for ( Iterator<ReceiptStore> iterator = stores.iterator(); iterator.hasNext(); ) {
-                    iterator.next().put(receipt.getTransaction(), xml);
+                for (ReceiptStore store : stores) {
+                    store.put(receipt.getTransaction(), xml);
                 }
             }
             return receipt;
