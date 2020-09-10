@@ -1,6 +1,9 @@
 package com.fairandsmart.consent.api.resource;
 
-import com.fairandsmart.consent.api.dto.*;
+import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.api.dto.ContentDto;
+import com.fairandsmart.consent.api.dto.CreateModelDto;
+import com.fairandsmart.consent.api.dto.UpdateModelDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -16,6 +19,7 @@ import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
+import com.fairandsmart.consent.template.TemplateServiceException;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -162,14 +166,14 @@ public class ModelsResource {
     @GET
     @Path("/themes/preview")
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getThemePreview(@QueryParam("locale") @DefaultValue("en") String locale, @QueryParam("orientation") String orientation) throws ModelDataSerializationException {
+    public TemplateModel<ConsentForm> getThemePreview(@QueryParam("locale") @DefaultValue("en") String locale, @QueryParam("orientation") String orientation) throws ModelDataSerializationException, TemplateServiceException {
         LOGGER.log(Level.INFO, "GET /consents/themes/preview");
         ConsentForm.Orientation realOrientation = ConsentForm.Orientation.VERTICAL;
         if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
             realOrientation = ConsentForm.Orientation.HORIZONTAL;
         }
         ConsentForm form = consentService.generateLipsumForm(realOrientation, locale);
-        return templateService.getFormTemplate(form);
+        return templateService.buildModel(form);
     }
 
 }

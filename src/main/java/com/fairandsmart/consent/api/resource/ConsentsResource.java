@@ -6,6 +6,7 @@ import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
+import com.fairandsmart.consent.template.TemplateServiceException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,7 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken, @QueryParam("subject") String subject) throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
+    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken, @QueryParam("subject") String subject) throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException, TemplateServiceException {
         LOGGER.log(Level.INFO, "GET /consents");
         String token;
         if (!StringUtils.isEmpty(htoken)) {
@@ -50,19 +51,20 @@ public class ConsentsResource {
             throw new AccessDeniedException("Unable to find token neither in header nor as query param");
         }
         ConsentForm form = consentService.generateForm(token, subject);
-        return templateService.getFormTemplate(form);
+        return templateService.buildModel(form);
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<Receipt> postConsent(MultivaluedMap<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException {
+    public TemplateModel<Receipt> postConsent(MultivaluedMap<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TemplateServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
         }
         Receipt receipt = consentService.submitConsent(values.get("token").get(0), values);
-        return templateService.getReceiptTemplate(receipt);
+
+        return templateService.buildModel(receipt);
     }
 
 }

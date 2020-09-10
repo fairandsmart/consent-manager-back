@@ -16,6 +16,7 @@ import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
+import com.fairandsmart.consent.template.TemplateServiceException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import org.apache.commons.lang3.StringUtils;
@@ -126,14 +127,14 @@ public class RecordsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel<Receipt> createOperatorRecords(OperatorRecordDto dto)
-            throws AccessDeniedException, InvalidTokenException, InvalidConsentException, TokenExpiredException, ConsentServiceException {
+            throws AccessDeniedException, InvalidTokenException, InvalidConsentException, TokenExpiredException, ConsentServiceException, TemplateServiceException {
         LOGGER.log(Level.INFO, "POST /records/user");
         authenticationService.ensureConnectedIdentifierIsOperator();
         if (StringUtils.isEmpty(dto.getToken())) {
             throw new AccessDeniedException("unable to find token in form");
         }
         Receipt receipt = consentService.createOperatorRecords(dto.getToken(), dto.getValues(), dto.getComment());
-        return templateService.getReceiptTemplate(receipt);
+        return templateService.buildModel(receipt);
     }
 
 }

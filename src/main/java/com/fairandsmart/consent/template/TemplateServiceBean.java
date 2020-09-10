@@ -1,20 +1,18 @@
 package com.fairandsmart.consent.template;
 
 import com.fairandsmart.consent.api.template.TemplateBodyWriter;
-import com.fairandsmart.consent.manager.ConsentForm;
-import com.fairandsmart.consent.manager.model.Receipt;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.commons.lang3.LocaleUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ResourceBundle;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +22,9 @@ import static freemarker.template.Configuration.VERSION_2_3_30;
 public class TemplateServiceBean implements TemplateService {
 
     private static final Logger LOGGER = Logger.getLogger(TemplateService.class.getName());
+
+    @Inject
+    Instance<TemplateModelBuilder> builders;
 
     private Configuration cfg;
 
@@ -62,37 +63,12 @@ public class TemplateServiceBean implements TemplateService {
     }
 
     @Override
-    public TemplateModel<ConsentForm> getFormTemplate(ConsentForm form) {
-        TemplateModel<ConsentForm> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(form.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
-        model.setBundle(bundle);
-        model.setData(form);
-
-        if (form.isConditions()) {
-            model.setTemplate("conditions.ftl");
-        } else if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
-            model.setTemplate("form-horizontal.ftl");
-        } else {
-            model.setTemplate("form-vertical.ftl");
+    public <T> TemplateModel<T> buildModel(T data) throws TemplateServiceException {
+        Optional<TemplateModel<T>> model = builders.stream().filter(b -> b.canBuild(data)).findFirst().map(b -> b.build(data));
+        if ( !model.isPresent() ) {
+            throw new TemplateServiceException("Unable to find a builder for data of class " + data.getClass().getName());
         }
-        LOGGER.log(Level.FINE, model.toString());
-        return model;
+        return model.get();
     }
 
-    @Override
-    public TemplateModel<Receipt> getReceiptTemplate(Receipt receipt) {
-        TemplateModel<Receipt> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
-        model.setBundle(bundle);
-        if (!StringUtils.isEmpty(receipt.getTransaction())) {
-            model.setData(receipt);
-            model.setTemplate("receipt.ftl");
-        } else {
-            model.setTemplate("no-receipt.ftl");
-        }
-        LOGGER.log(Level.INFO, model.toString());
-        return model;
-    }
 }

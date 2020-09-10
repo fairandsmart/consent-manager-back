@@ -1,8 +1,5 @@
 package com.fairandsmart.consent.template;
 
-import com.fairandsmart.consent.manager.ConsentForm;
-import com.fairandsmart.consent.manager.model.Receipt;
-
 import java.io.OutputStream;
 
 public interface TemplateService {
@@ -11,8 +8,6 @@ public interface TemplateService {
 
     void render(TemplateModel model, OutputStream output) throws TemplateServiceException;
 
-    TemplateModel<ConsentForm> getFormTemplate(ConsentForm form);
-
-    TemplateModel<Receipt> getReceiptTemplate(Receipt receipt);
+    <T> TemplateModel<T> buildModel(T data) throws TemplateServiceException;
 
 }
