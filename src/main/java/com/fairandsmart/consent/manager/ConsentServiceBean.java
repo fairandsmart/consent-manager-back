@@ -164,14 +164,14 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion createVersion(String entryId, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Creating new version for entry with id: " + entryId);
         //TODO restrict to admin rôle
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", entryId, config.owner()).singleResultOptional();
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + entryId));
-        if (!entry.type.equals(data.getType())) {
-            throw new ConsentManagerException("Entry data type mismatch, need type: " + entry.type);
+        if ( data.values().stream().anyMatch(d -> !d.getType().equals(entry.type)) ) {
+            throw new ConsentManagerException("One content data type does not belongs to entry type: " + entry.type);
         }
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", config.owner(), entryId, "").singleResultOptional();
         ModelVersion latest = voptional.orElse(null);
@@ -187,7 +187,6 @@ public class ConsentServiceBean implements ConsentService {
                 latest.creationDate = now;
                 latest.status = ModelVersion.Status.DRAFT;
                 latest.serial = generator.next(ModelVersion.class.getName());
-                latest.defaultLocale = locale;
                 latest.type = ModelVersion.Type.MINOR;
             } else if (latest.status.equals(ModelVersion.Status.DRAFT)) {
                 throw new ConsentManagerException("A draft version already exists, unable to create new one");
@@ -202,9 +201,6 @@ public class ConsentServiceBean implements ConsentService {
                 newversion.status = ModelVersion.Status.DRAFT;
                 newversion.serial = generator.next(ModelVersion.class.getName());
                 newversion.parent = latest.id;
-                newversion.defaultLocale = latest.defaultLocale;
-                newversion.availableLocales = latest.availableLocales;
-                newversion.content.putAll(latest.content);
                 newversion.counterparts = latest.counterparts;
                 newversion.type = ModelVersion.Type.MINOR;
                 newversion.addCounterpart(latest.serial);
@@ -213,8 +209,16 @@ public class ConsentServiceBean implements ConsentService {
                 latest.persist();
                 latest = newversion;
             }
-            latest.addAvailableLocale(locale);
-            latest.content.put(locale, new ModelContent().withDataObject(data).withAuthor(connectedIdentifier));
+            latest.content.clear();
+            for (Map.Entry<String, ModelData> e : data.entrySet()) {
+                latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
+            }
+            latest.availableLocales = data.keySet().stream().collect(Collectors.joining(","));
+            if ( latest.content.keySet().contains(defaultLocale) ) {
+                latest.defaultLocale = defaultLocale;
+            } else {
+                throw new ConsentManagerException("Default Locale does not exists in content locales");
+            }
             latest.modificationDate = now;
             latest.persist();
             return latest;
@@ -291,27 +295,36 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion updateVersion(String id, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion updateVersion(String id, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating content for version with id: " + id);
         //TODO restrict to admin
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
-        if (!version.entry.type.equals(data.getType())) {
-            throw new ConsentManagerException("Entry data type mismatch, need type: " + version.entry.type);
+        if ( data.values().stream().anyMatch(d -> !d.getType().equals(version.entry.type)) ) {
+            throw new ConsentManagerException("One content data type does not belongs to entry type: " + version.entry.type);
         }
         if (!version.child.isEmpty()) {
             throw new ConsentManagerException("Unable to update content for version that is not last one");
         }
         try {
-            version.addAvailableLocale(locale);
-            version.content.put(locale, new ModelContent().withDataObject(data).withAuthor(connectedIdentifier));
+            version.content.clear();
+            for (Map.Entry<String, ModelData> entry : data.entrySet()) {
+                version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
+            }
+            version.availableLocales = data.keySet().stream().collect(Collectors.joining(","));
+            if ( version.content.keySet().contains(defaultLocale) ) {
+                version.defaultLocale = defaultLocale;
+            } else {
+                throw new ConsentManagerException("Default Locale does not exists in content locales");
+            }
             version.modificationDate = System.currentTimeMillis();
             version.persist();
             return version;
         } catch (ModelDataSerializationException ex) {
             throw new ConsentManagerException("unable to serialise data", ex);
         }
+
     }
 
     @Override

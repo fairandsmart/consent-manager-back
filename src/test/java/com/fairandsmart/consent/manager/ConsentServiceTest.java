@@ -120,7 +120,7 @@ public class ConsentServiceTest {
         String locale = "fr_FR";
         LOGGER.info("Create Header " + key);
         Header header = TestUtils.generateHeader(key);
-        String versionId = service.createVersion(entryId, locale, header).id;
+        String versionId = service.createVersion(entryId, locale, Collections.singletonMap(locale,header)).id;
 
         LOGGER.info("List versions");
         versions = service.getVersionHistoryForEntry(entryId);
@@ -169,25 +169,25 @@ public class ConsentServiceTest {
         String hKey = UUID.randomUUID().toString();
         ModelEntry eh1 = service.createEntry(hKey, "Name " + hKey, "Description " + hKey, Header.TYPE);
         assertNotNull(eh1);
-        ModelVersion v1h1 = service.createVersion(eh1.id, locale, TestUtils.generateHeader(hKey));
+        ModelVersion v1h1 = service.createVersion(eh1.id, locale, Collections.singletonMap(locale, TestUtils.generateHeader(hKey)));
         service.updateVersionStatus(v1h1.id, ModelVersion.Status.ACTIVE);
 
         String t1Key = UUID.randomUUID().toString();
         ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Treatment.TYPE);
         assertNotNull(et1);
-        ModelVersion v1t1 = service.createVersion(et1.id, locale, TestUtils.generateTreatment(t1Key));
+        ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t1Key)));
         service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
 
         String t2Key = UUID.randomUUID().toString();
         ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Treatment.TYPE);
         assertNotNull(et2);
-        ModelVersion v1t2 = service.createVersion(et2.id, locale, TestUtils.generateTreatment(t2Key));
+        ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
 
         String fKey = UUID.randomUUID().toString();
         ModelEntry ef1 = service.createEntry(fKey, "Name " + fKey, "Description " + fKey, Footer.TYPE);
         assertNotNull(ef1);
-        ModelVersion v1f1 = service.createVersion(ef1.id, locale, TestUtils.generateFooter(fKey));
+        ModelVersion v1f1 = service.createVersion(ef1.id, locale, Collections.singletonMap(locale, TestUtils.generateFooter(fKey)));
         service.updateVersionStatus(v1f1.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.info("Listing existing entries");
@@ -234,7 +234,7 @@ public class ConsentServiceTest {
         assertEquals(2, form.getPreviousValues().size());
 
         LOGGER.log(Level.INFO, "Create new version of T2 (minor version)");
-        ModelVersion v2t2 = service.createVersion(et2.id, locale, TestUtils.generateTreatment("t2.2"));
+        ModelVersion v2t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment("t2.2")));
         service.updateVersionType(v2t2.id, ModelVersion.Type.MINOR);
         service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
 
@@ -245,7 +245,7 @@ public class ConsentServiceTest {
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
 
         LOGGER.log(Level.INFO, "Create new version of T2 (major version)");
-        ModelVersion v3t2 = service.createVersion(et2.id, locale, TestUtils.generateTreatment("t2.3"));
+        ModelVersion v3t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment("t2.3")));
         service.updateVersionType(v3t2.id, ModelVersion.Type.MAJOR);
         service.updateVersionStatus(v3t2.id, ModelVersion.Status.ACTIVE);
 

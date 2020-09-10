@@ -1,12 +1,14 @@
 package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.common.validation.ModelKey;
+import com.fairandsmart.consent.manager.entity.ModelEntry;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class ModelEntryDto {
 
+    private String id;
     @NotNull @ModelKey
     private String key;
     @NotNull @Size(min = 2, max = 255)
@@ -17,6 +19,14 @@ public class ModelEntryDto {
     private String type;
 
     public ModelEntryDto() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getKey() {
@@ -49,5 +59,15 @@ public class ModelEntryDto {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public static ModelEntryDto fromModelEntry(ModelEntry entry) {
+        ModelEntryDto dto = new ModelEntryDto();
+        dto.setId(entry.id);
+        dto.setKey(entry.key);
+        dto.setName(entry.name);
+        dto.setType(entry.type);
+        dto.setDescription(entry.description);
+        return dto;
     }
 }

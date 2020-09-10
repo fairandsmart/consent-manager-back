@@ -20,6 +20,7 @@ import com.fairandsmart.consent.token.TokenExpiredException;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public interface ConsentService {
@@ -36,7 +37,7 @@ public interface ConsentService {
 
     void deleteEntry(String entryId) throws ConsentManagerException, EntityNotFoundException;
 
-    ModelVersion createVersion(String entryId, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
 
     ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException;
 
@@ -54,7 +55,7 @@ public interface ConsentService {
 
     List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException;
 
-    ModelVersion updateVersion(String versionId, String locale, ModelData data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion updateVersion(String versionId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
 
     ModelVersion updateVersionType(String versionId, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException;
 

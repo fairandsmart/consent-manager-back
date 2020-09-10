@@ -1,8 +1,8 @@
 package com.fairandsmart.consent.usecase;
 
 import com.fairandsmart.consent.TestUtils;
-import com.fairandsmart.consent.api.dto.ContentDto;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
+import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
@@ -76,7 +76,7 @@ public class CollectWithEmailTest {
         List<String> types = List.of(Header.TYPE, Treatment.TYPE, Treatment.TYPE, Footer.TYPE, Email.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
-            ModelEntryDto model = TestUtils.generateCreateModelDto(keys.get(index), types.get(index));
+            ModelEntryDto model = TestUtils.generateModelEntryDto(keys.get(index), types.get(index));
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(model).size());
             Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(model).
@@ -85,21 +85,21 @@ public class CollectWithEmailTest {
             ModelEntry entry = response.body().as(ModelEntry.class);
 
             //Create model version
-            ContentDto content = TestUtils.generateContentDto(keys.get(index), types.get(index), locale);
-            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(content).size());
+            ModelVersionDto dto = TestUtils.generateModelVersionDto(keys.get(index), types.get(index), locale);
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(dto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.JSON).body(content).
+                    contentType(ContentType.JSON).body(dto).
                     when().post("/models/" + entry.id + "/versions");
             response.then().statusCode(200);
-            ModelVersion version = response.body().as(ModelVersion.class);
+            ModelVersionDto version = response.body().as(ModelVersionDto.class);
 
             //Activate model version
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
-                    when().put("/models/" + entry.id + "/versions/" + version.id + "/status");
+                    when().put("/models/" + entry.id + "/versions/" + version.getId() + "/status");
             response.then().statusCode(200);
-            version = response.body().as(ModelVersion.class);
-            assertEquals(ModelVersion.Status.ACTIVE, version.status);
+            version = response.body().as(ModelVersionDto.class);
+            assertEquals(ModelVersion.Status.ACTIVE, version.getStatus());
         }
 
         //PART 1

@@ -53,19 +53,6 @@ public class ModelVersion extends PanacheEntityBase {
         return new ConsentElementIdentifier(entry.type, entry.key, this.serial);
     }
 
-    public void addAvailableLocale(String locale) {
-        List<String> locales;
-        if ( availableLocales.isEmpty() ) {
-            locales = new ArrayList<>();
-        } else {
-            locales = new ArrayList<>(Arrays.asList(availableLocales.split(",")));
-        }
-        if ( !locales.contains(locale) ) {
-            locales.add(locale);
-            availableLocales = String.join(",", locales);
-        }
-    }
-
     public void addCounterpart(String counterpart) {
         List<String> cp = getCounterParts();
         if ( !cp.contains(counterpart) ) {

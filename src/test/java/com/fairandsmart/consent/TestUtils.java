@@ -1,7 +1,7 @@
 package com.fairandsmart.consent;
 
-import com.fairandsmart.consent.api.dto.ContentDto;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
+import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.model.*;
 import org.jsoup.Connection;
@@ -10,6 +10,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class TestUtils {
 
-    public static ModelEntryDto generateCreateModelDto(String key, String type) {
+    public static ModelEntryDto generateModelEntryDto(String key, String type) {
         ModelEntryDto dto = new ModelEntryDto();
         dto.setKey(key);
         dto.setType(type);
@@ -26,28 +27,28 @@ public class TestUtils {
         return dto;
     }
 
-    public static ContentDto generateContentDto(String key, String type, String locale) {
-        ContentDto dto = new ContentDto();
-        dto.setLocale(locale);
+    public static ModelVersionDto generateModelVersionDto(String key, String type, String locale) {
+        ModelVersionDto dto = new ModelVersionDto();
+        dto.setDefaultLocale(locale);
 
         switch (type) {
             case Header.TYPE:
-                dto.setContent(generateHeader(key));
+                dto.setData(Collections.singletonMap(locale, generateHeader(key)));
                 break;
             case Footer.TYPE:
-                dto.setContent(generateFooter(key));
+                dto.setData(Collections.singletonMap(locale, generateFooter(key)));
                 break;
             case Treatment.TYPE:
-                dto.setContent(generateTreatment(key));
+                dto.setData(Collections.singletonMap(locale, generateTreatment(key)));
                 break;
             case Conditions.TYPE:
-                dto.setContent(generateConditions(key));
+                dto.setData(Collections.singletonMap(locale, generateConditions(key)));
                 break;
             case Email.TYPE:
-                dto.setContent(generateEmail(key));
+                dto.setData(Collections.singletonMap(locale, generateEmail(key)));
                 break;
             case Theme.TYPE:
-                dto.setContent(generateTheme(key));
+                dto.setData(Collections.singletonMap(locale, generateTheme(key)));
                 break;
         }
 
