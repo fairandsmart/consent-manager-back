@@ -1,7 +1,7 @@
 package com.fairandsmart.consent;
 
 import com.fairandsmart.consent.api.dto.ContentDto;
-import com.fairandsmart.consent.api.dto.CreateModelDto;
+import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.model.*;
 import org.jsoup.Connection;
@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 public class TestUtils {
 
-    public static CreateModelDto generateCreateModelDto(String key, String type) {
-        CreateModelDto dto = new CreateModelDto();
+    public static ModelEntryDto generateCreateModelDto(String key, String type) {
+        ModelEntryDto dto = new ModelEntryDto();
         dto.setKey(key);
         dto.setType(type);
         dto.setName("Name " + key);

@@ -2,7 +2,7 @@ package com.fairandsmart.consent.usecase;
 
 import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.ContentDto;
-import com.fairandsmart.consent.api.dto.CreateModelDto;
+import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
@@ -68,7 +68,7 @@ public class SimpleCollectTest {
         List<String> types = List.of(Header.TYPE, Treatment.TYPE, Treatment.TYPE, Footer.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
-            CreateModelDto model = TestUtils.generateCreateModelDto(keys.get(index), types.get(index));
+            ModelEntryDto model = TestUtils.generateCreateModelDto(keys.get(index), types.get(index));
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(model).size());
             Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(model).

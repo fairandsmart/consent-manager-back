@@ -2,8 +2,7 @@ package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.ContentDto;
-import com.fairandsmart.consent.api.dto.CreateModelDto;
-import com.fairandsmart.consent.api.dto.UpdateModelDto;
+import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -61,7 +60,7 @@ public class ModelsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelEntry createEntry(@Valid CreateModelDto dto) throws EntityAlreadyExistsException {
+    public ModelEntry createEntry(@Valid ModelEntryDto dto) throws EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "POST /models");
         return consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
     }
@@ -78,7 +77,7 @@ public class ModelsResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelEntry updateEntry(@PathParam("id") @Valid @UUID String id, UpdateModelDto dto) throws EntityNotFoundException, AccessDeniedException {
+    public ModelEntry updateEntry(@PathParam("id") @Valid @UUID String id, ModelEntryDto dto) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "PUT /models/" + id);
         return consentService.updateEntry(id, dto.getName(), dto.getDescription());
     }
