@@ -406,18 +406,11 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentForm generateForm(String token, String subject) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
+    public ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
         //TODO Handle case of an optout token (models are already ids and not keys...)
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
             ConsentContext ctx = (ConsentContext) this.token.readToken(token);
-            if (StringUtils.isEmpty(ctx.getSubject())) {
-                if (!StringUtils.isEmpty(subject)) {
-                    ctx.setSubject(subject);
-                } else if (!ctx.isPreview()) {
-                    throw new ConsentServiceException("Subject is empty");
-                }
-            }
 
             List<Record> previousConsents = new ArrayList<>();
             if (!ctx.isConditions() && !ctx.isPreview()) {
@@ -466,7 +459,7 @@ public class ConsentServiceBean implements ConsentService {
 
             form.setToken(this.token.generateToken(ctx));
             return form;
-        } catch (TokenServiceException | ConsentServiceException e) {
+        } catch (TokenServiceException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
         }
     }

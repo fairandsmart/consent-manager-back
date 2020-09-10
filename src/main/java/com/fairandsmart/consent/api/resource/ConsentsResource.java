@@ -40,7 +40,7 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken, @QueryParam("subject") String subject) throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException, TemplateServiceException {
+    public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException, TemplateServiceException {
         LOGGER.log(Level.INFO, "GET /consents");
         String token;
         if (!StringUtils.isEmpty(htoken)) {
@@ -50,7 +50,7 @@ public class ConsentsResource {
         } else {
             throw new AccessDeniedException("Unable to find token neither in header nor as query param");
         }
-        ConsentForm form = consentService.generateForm(token, subject);
+        ConsentForm form = consentService.generateForm(token);
         return templateService.buildModel(form);
     }
 
