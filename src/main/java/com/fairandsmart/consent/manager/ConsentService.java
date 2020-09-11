@@ -27,7 +27,7 @@ public interface ConsentService {
 
     CollectionPage<ModelEntry> listEntries(ModelFilter filter);
 
-    ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException;
+    ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, AccessDeniedException;
 
     ModelEntry getEntry(String entryId) throws EntityNotFoundException, AccessDeniedException;
 

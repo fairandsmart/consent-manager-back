@@ -3,6 +3,7 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
+import com.fairandsmart.consent.api.dto.ModelVersionDtoLight;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("/models")
 public class ModelsResource {
@@ -42,7 +44,7 @@ public class ModelsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public CollectionPage<ModelEntry> listEntries(
+    public CollectionPage<ModelEntryDto> listEntries(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("order") @DefaultValue("key") String order,
@@ -55,32 +57,53 @@ public class ModelsResource {
         filter.setOrder(order);
         filter.setDirection(direction);
         filter.setTypes(types);
-        return consentService.listEntries(filter);
+        CollectionPage<ModelEntry> entries = consentService.listEntries(filter);
+        CollectionPage<ModelEntryDto> dto = new CollectionPage<>(entries);
+        dto.setValues(entries.getValues().stream().map(e -> ModelEntryDto.fromModelEntry(e)).collect(Collectors.toList()));
+        dto.getValues().forEach(
+            (value) -> {
+                try {
+                    value.setVersions(consentService.getVersionHistoryForEntry(value.getId()).stream().map(v -> ModelVersionDtoLight.fromModelVersion(v)).collect(Collectors.toList()));
+                } catch (ConsentManagerException e) {
+                    e.printStackTrace();
+                }
+            }
+        );
+        return dto;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelEntry createEntry(@Valid ModelEntryDto dto) throws EntityAlreadyExistsException {
+    public ModelEntryDto createEntry(@Valid ModelEntryDto dto) throws EntityAlreadyExistsException, ConsentManagerException {
         LOGGER.log(Level.INFO, "POST /models");
-        return consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
+        ModelEntry entry = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
+        ModelEntryDto entryDto = ModelEntryDto.fromModelEntry(entry);
+        entryDto.setVersions(consentService.getVersionHistoryForEntry(entryDto.getId()).stream().map(v -> ModelVersionDtoLight.fromModelVersion(v)).collect(Collectors.toList()));
+        return entryDto;
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelEntry getEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, AccessDeniedException {
+    public ModelEntryDto getEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "GET /models/" + id);
-        return consentService.getEntry(id);
+        ModelEntry entry = consentService.getEntry(id);
+        ModelEntryDto entryDto = ModelEntryDto.fromModelEntry(entry);
+        entryDto.setVersions(consentService.getVersionHistoryForEntry(entryDto.getId()).stream().map(v -> ModelVersionDtoLight.fromModelVersion(v)).collect(Collectors.toList()));
+        return entryDto;
     }
 
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelEntry updateEntry(@PathParam("id") @Valid @UUID String id, ModelEntryDto dto) throws EntityNotFoundException, AccessDeniedException {
+    public ModelEntryDto updateEntry(@PathParam("id") @Valid @UUID String id, ModelEntryDto dto) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "PUT /models/" + id);
-        return consentService.updateEntry(id, dto.getName(), dto.getDescription());
+        ModelEntry entry = consentService.updateEntry(id, dto.getName(), dto.getDescription());
+        ModelEntryDto entryDto = ModelEntryDto.fromModelEntry(entry);
+        entryDto.setVersions(consentService.getVersionHistoryForEntry(entryDto.getId()).stream().map(v -> ModelVersionDtoLight.fromModelVersion(v)).collect(Collectors.toList()));
+        return entryDto;
     }
 
     @GET

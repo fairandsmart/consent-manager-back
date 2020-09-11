@@ -42,7 +42,7 @@ public class ModelVersion extends PanacheEntityBase {
     public String counterparts = "";
     public long creationDate;
     public long modificationDate;
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     public Map<String, ModelContent> content = new HashMap<>();
 
     public ModelData getData(String locale) throws ModelDataSerializationException {

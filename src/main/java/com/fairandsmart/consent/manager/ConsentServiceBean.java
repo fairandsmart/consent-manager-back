@@ -99,9 +99,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException {
+    public ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Creating new entry");
-        //TODO restrict to admin rôle
+        authentication.ensureConnectedIdentifierIsAdmin();
         if (ModelEntry.isKeyAlreadyExistsForOwner(config.owner(), key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
         }
@@ -120,6 +120,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public ModelEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Getting entry for id: " + id);
+        authentication.ensureConnectedIdentifierIsOperator();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         if (!entry.owner.equals(config.owner())) {
@@ -137,9 +138,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelEntry updateEntry(String id, String name, String description) throws EntityNotFoundException {
+    public ModelEntry updateEntry(String id, String name, String description) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Updating entry for id: " + id);
-        //TODO restrict to admin rôle
+        authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", id, config.owner()).singleResultOptional();
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         entry.name = name;
@@ -166,7 +167,7 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Creating new version for entry with id: " + entryId);
-        //TODO restrict to admin rôle
+        authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", entryId, config.owner()).singleResultOptional();
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + entryId));
@@ -297,7 +298,7 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelVersion updateVersion(String id, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating content for version with id: " + id);
-        //TODO restrict to admin
+        authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
@@ -331,7 +332,7 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelVersion updateVersionType(String id, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating type for version with id: " + id);
-        //TODO restrict to admin
+        authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
@@ -350,7 +351,7 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
         LOGGER.log(Level.INFO, "Updating status for version with id: " + id);
-        //TODO restrict to admin
+        authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
@@ -393,7 +394,7 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public void deleteVersion(String id) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Deleting version with id: " + id);
-        //TODO restrict to admin
+        authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {

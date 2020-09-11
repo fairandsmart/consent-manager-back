@@ -15,6 +15,14 @@ public class CollectionPage<T> {
         values = new ArrayList<>();
     }
 
+    public CollectionPage(CollectionPage another) {
+        this.page = another.page;
+        this.pageSize = another.pageSize;
+        this.totalPages = another.totalPages;
+        this.totalCount = another.totalCount;
+        values = new ArrayList<>();
+    }
+
     public List<T> getValues() {
         return values;
     }
@@ -54,4 +62,5 @@ public class CollectionPage<T> {
     public void setTotalCount(long totalCount) {
         this.totalCount = totalCount;
     }
+
 }
