@@ -14,6 +14,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import java_cup.version;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
@@ -74,24 +75,25 @@ public class SimpleCollectTest {
                     contentType(ContentType.JSON).body(model).
                     when().post("/models");
             response.then().statusCode(200);
-            ModelEntry entry = response.body().as(ModelEntry.class);
+            ModelEntryDto entry = response.body().as(ModelEntryDto.class);
 
             //Create model version
             ModelVersionDto dto = TestUtils.generateModelVersionDto(keys.get(index), types.get(index), locale);
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(dto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(dto).
-                    when().post("/models/" + entry.id + "/versions");
+                    when().post("/models/" + entry.getId() + "/versions");
             response.then().statusCode(200);
-            ModelVersionDto version = response.body().as(ModelVersionDto.class);
+            dto = response.body().as(ModelVersionDto.class);
 
             //Activate model version
+            dto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
-                    when().put("/models/" + entry.id + "/versions/" + version.getId() + "/status");
+                    contentType(ContentType.JSON).body(dto).
+                    when().put("/models/" + entry.getId() + "/versions/" + dto.getId() + "/status");
             response.then().statusCode(200);
-            version = response.body().as(ModelVersionDto.class);
-            assertEquals(ModelVersion.Status.ACTIVE, version.getStatus());
+            dto = response.body().as(ModelVersionDto.class);
+            assertEquals(ModelVersion.Status.ACTIVE, dto.getStatus());
         }
 
         ConsentContext ctx = new ConsentContext()

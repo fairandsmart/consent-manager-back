@@ -17,6 +17,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import java_cup.version;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -76,30 +77,31 @@ public class CollectWithEmailTest {
         List<String> types = List.of(Header.TYPE, Treatment.TYPE, Treatment.TYPE, Footer.TYPE, Email.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
-            ModelEntryDto model = TestUtils.generateModelEntryDto(keys.get(index), types.get(index));
-            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(model).size());
+            ModelEntryDto entryDto = TestUtils.generateModelEntryDto(keys.get(index), types.get(index));
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(entryDto).size());
             Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.JSON).body(model).
+                    contentType(ContentType.JSON).body(entryDto).
                     when().post("/models");
             response.then().statusCode(200);
-            ModelEntry entry = response.body().as(ModelEntry.class);
+            entryDto = response.body().as(ModelEntryDto.class);
 
             //Create model version
-            ModelVersionDto dto = TestUtils.generateModelVersionDto(keys.get(index), types.get(index), locale);
-            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(dto).size());
+            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(keys.get(index), types.get(index), locale);
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(versionDto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.JSON).body(dto).
-                    when().post("/models/" + entry.id + "/versions");
+                    contentType(ContentType.JSON).body(versionDto).
+                    when().post("/models/" + entryDto.getId() + "/versions");
             response.then().statusCode(200);
-            ModelVersionDto version = response.body().as(ModelVersionDto.class);
+            versionDto = response.body().as(ModelVersionDto.class);
 
             //Activate model version
+            versionDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.TEXT).body(ModelVersion.Status.ACTIVE).
-                    when().put("/models/" + entry.id + "/versions/" + version.getId() + "/status");
+                    contentType(ContentType.JSON).body(versionDto).
+                    when().put("/models/" + entryDto.getId() + "/versions/" + versionDto.getId() + "/status");
             response.then().statusCode(200);
-            version = response.body().as(ModelVersionDto.class);
-            assertEquals(ModelVersion.Status.ACTIVE, version.getStatus());
+            versionDto = response.body().as(ModelVersionDto.class);
+            assertEquals(ModelVersion.Status.ACTIVE, versionDto.getStatus());
         }
 
         //PART 1

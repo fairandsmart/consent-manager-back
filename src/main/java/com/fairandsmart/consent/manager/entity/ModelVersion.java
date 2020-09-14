@@ -167,9 +167,14 @@ public class ModelVersion extends PanacheEntityBase {
             return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId + " and owner: " + owner));
         }
 
-        public static ModelVersion findModelVersionForSerial(String serial) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {
+        public static ModelVersion findModelVersionForSerial(String serial, boolean forceContentLoad) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {
             Optional<ModelVersion> optional = ModelVersion.find("serial = ?1", serial).singleResultOptional();
-            return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
+            ModelVersion version = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
+            if ( forceContentLoad ) {
+                //Force load of lazy collection, no better way found
+                version.content.entrySet().stream().map(e -> e.toString());
+            }
+            return version;
         }
 
     }

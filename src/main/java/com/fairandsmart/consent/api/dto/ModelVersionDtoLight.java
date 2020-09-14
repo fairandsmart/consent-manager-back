@@ -14,7 +14,6 @@ public class ModelVersionDtoLight {
     private String parent;
     private String child;
     private String author;
-    @NotNull
     private String defaultLocale;
     private List<String> availableLocales;
     private ModelVersion.Status status;

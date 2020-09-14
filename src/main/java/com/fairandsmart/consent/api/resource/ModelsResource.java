@@ -20,6 +20,7 @@ import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.template.TemplateServiceException;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -168,6 +169,7 @@ public class ModelsResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{id}/versions/{vid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -181,12 +183,13 @@ public class ModelsResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{id}/versions/{vid}/status")
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelVersionDto updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Status status) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException, ModelDataSerializationException {
+    public ModelVersionDto updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/status");
-        ModelVersion version = consentService.updateVersionStatus(vid, status);
+        ModelVersion version = consentService.updateVersionStatus(vid, dto.getStatus());
         if ( !version.entry.id.equals(id) ) {
             throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
         }
@@ -194,12 +197,13 @@ public class ModelsResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{id}/versions/{vid}/type")
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelVersionDto updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Type type) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
+    public ModelVersionDto updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/type");
-        ModelVersion version = consentService.updateVersionType(vid, type);
+        ModelVersion version = consentService.updateVersionType(vid, dto.getType());
         return ModelVersionDto.fromModelVersion(version);
     }
 

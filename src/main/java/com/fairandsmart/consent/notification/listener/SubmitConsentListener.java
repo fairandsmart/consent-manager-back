@@ -14,6 +14,7 @@ import org.apache.commons.lang3.LocaleUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +51,7 @@ public class SubmitConsentListener {
                 LOGGER.log(Level.FINE, "token is missing in event, nothing to notify...");
             }
         } catch (ClassCastException e) {
-            LOGGER.log(Level.SEVERE, "event data cannot be readed as a ConsentOptOut", e);
+            LOGGER.log(Level.SEVERE, "event data cannot be read as a ConsentOptOut", e);
         } catch (ModelDataSerializationException e) {
             LOGGER.log(Level.SEVERE, "unable to read model data", e);
         } catch (TemplateServiceException e) {

@@ -536,8 +536,6 @@ public class ConsentServiceBean implements ConsentService {
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
             Receipt receipt = this.saveConsent(ctx, valuesMap, "");
 
-            //TODO Build the token for the receipt
-
             if (!StringUtils.isEmpty(ctx.getOptoutRecipient())) {
                 Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
                 if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
@@ -546,11 +544,11 @@ public class ConsentServiceBean implements ConsentService {
                         optout.setLocale(ctx.getLocale());
                         optout.setRecipient(ctx.getOptoutRecipient());
                         //TODO avoid converting element identifier to key but modify the getForm method
-                        ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial());
+                        ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial(), true);
                         optout.setModel(optoutModel);
                         ctx.setOptoutModel(optoutModel.entry.key);
                         if (!StringUtils.isEmpty(ctx.getTheme())) {
-                            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial());
+                            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
                             optout.setTheme(theme);
                             ctx.setTheme(theme.entry.key);
                         }
@@ -799,16 +797,16 @@ public class ConsentServiceBean implements ConsentService {
             } else {
                 Header header = null;
                 if (headId != null) {
-                    header = (Header) ModelVersion.SystemHelper.findModelVersionForSerial(headId.getSerial()).getData(ctx.getLocale());
+                    header = (Header) ModelVersion.SystemHelper.findModelVersionForSerial(headId.getSerial(), false).getData(ctx.getLocale());
                 }
                 Footer footer = null;
                 if (footId != null) {
-                    footer = (Footer) ModelVersion.SystemHelper.findModelVersionForSerial(footId.getSerial()).getData(ctx.getLocale());
+                    footer = (Footer) ModelVersion.SystemHelper.findModelVersionForSerial(footId.getSerial(), false).getData(ctx.getLocale());
                 }
                 Map<Treatment, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
                     try {
-                        Treatment t = (Treatment) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial).getData(ctx.getLocale());
+                        Treatment t = (Treatment) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLocale());
                         trecords.put(t, r);
                     } catch (EntityNotFoundException | ModelDataSerializationException e) {
                         //
