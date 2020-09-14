@@ -11,6 +11,7 @@ import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.InvalidStatusException;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
+import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -195,13 +196,14 @@ public class ModelsResource {
     @POST
     @Path("/{id}/versions/{vid}/preview")
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException {
+    public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid + "/preview");
         ModelVersion version = consentService.getVersion(vid);
         if ( !version.entry.id.equals(id) ) {
             throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
         }
-        return templateService.buildModel(version);
+        ModelData data = version.getData(dto.getLocale());
+        return templateService.buildModel(data);
     }
 
     @DELETE

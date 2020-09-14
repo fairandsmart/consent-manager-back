@@ -46,7 +46,11 @@ public class ModelVersion extends PanacheEntityBase {
     public Map<String, ModelContent> content = new HashMap<>();
 
     public ModelData getData(String locale) throws ModelDataSerializationException {
-        return content.get(locale).getDataObject();
+        if ( content.containsKey(locale) ) {
+            return content.get(locale).getDataObject();
+        } else {
+            return content.get(defaultLocale).getDataObject();
+        }
     }
 
     public ConsentElementIdentifier getIdentifier() {
