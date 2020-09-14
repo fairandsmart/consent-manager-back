@@ -1,9 +1,6 @@
 package com.fairandsmart.consent.api.resource;
 
-import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.api.dto.ModelEntryDto;
-import com.fairandsmart.consent.api.dto.ModelVersionDto;
-import com.fairandsmart.consent.api.dto.ModelVersionDtoLight;
+import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -163,6 +160,9 @@ public class ModelsResource {
     public ModelVersionDto getVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, AccessDeniedException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid);
         ModelVersion version = consentService.getVersion(vid);
+        if ( !version.entry.id.equals(id) ) {
+            throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
+        }
         return ModelVersionDto.fromModelVersion(version);
     }
 
@@ -173,6 +173,9 @@ public class ModelsResource {
     public ModelVersionDto updateVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid);
         ModelVersion version = consentService.updateVersion(vid, dto.getDefaultLocale(), dto.getData());
+        if ( !version.entry.id.equals(id) ) {
+            throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
+        }
         return ModelVersionDto.fromModelVersion(version);
     }
 
@@ -183,7 +186,22 @@ public class ModelsResource {
     public ModelVersionDto updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Status status) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/status");
         ModelVersion version = consentService.updateVersionStatus(vid, status);
+        if ( !version.entry.id.equals(id) ) {
+            throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
+        }
         return ModelVersionDto.fromModelVersion(version);
+    }
+
+    @POST
+    @Path("/{id}/versions/{vid}/preview")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid + "/preview");
+        ModelVersion version = consentService.getVersion(vid);
+        if ( !version.entry.id.equals(id) ) {
+            throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
+        }
+        return templateService.buildModel(version);
     }
 
     @DELETE
@@ -191,22 +209,11 @@ public class ModelsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id + "/versions/" + vid);
+        ModelVersion version = consentService.getVersion(vid);
+        if ( !version.entry.id.equals(id) ) {
+            throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
+        }
         consentService.deleteVersion(vid);
     }
-
-    /*
-    @GET
-    @Path("/themes/preview")
-    @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<ConsentForm> getThemePreview(@QueryParam("locale") @DefaultValue("en") String locale, @QueryParam("orientation") String orientation) throws ModelDataSerializationException, TemplateServiceException {
-        LOGGER.log(Level.INFO, "GET /consents/themes/preview");
-        ConsentForm.Orientation realOrientation = ConsentForm.Orientation.VERTICAL;
-        if (ConsentForm.Orientation.HORIZONTAL.name().equals(orientation)) {
-            realOrientation = ConsentForm.Orientation.HORIZONTAL;
-        }
-        ConsentForm form = consentService.generateLipsumForm(realOrientation, locale);
-        return templateService.buildModel(form);
-    }
-    */
 
 }
