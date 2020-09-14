@@ -3,6 +3,7 @@ package com.fairandsmart.consent;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.model.*;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
@@ -53,6 +54,35 @@ public class TestUtils {
         }
 
         return dto;
+    }
+
+    public static Map<String, ModelData> generateModelData(String key, String type, String locale) {
+        ModelData modelData = null;
+
+        switch (type) {
+            case Header.TYPE:
+                modelData = generateHeader(key);
+                break;
+            case Footer.TYPE:
+                modelData = generateFooter(key);
+                break;
+            case Treatment.TYPE:
+                modelData = generateTreatment(key);
+                break;
+            case Conditions.TYPE:
+                modelData = generateConditions(key);
+                break;
+            case Email.TYPE:
+                modelData = generateEmail(key);
+                break;
+            case Theme.TYPE:
+                modelData = generateTheme(key);
+                break;
+        }
+
+        Map<String, ModelData> map = new HashMap<>();
+        map.put(locale, modelData);
+        return map;
     }
 
     public static Header generateHeader(String key) {

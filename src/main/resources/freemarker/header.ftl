@@ -1,6 +1,6 @@
 <#if data.header?has_content>
     <input name="header" value="${data.header.identifier}" hidden/>
-    <#-- Cette ligne est inutile puisqu'elle est déjà appliquée dans logo.ftl, qui précède header.ftl dans tous les templates.
+    <#-- Cette ligne est inutile puisqu'elle est déjà appliquée dans "header-logo.ftl", qui précède header.ftl dans tous les templates.
     Si cela venait à changer, il faudrait rétablir cette ligne.
     <@fetchMultiLangContent data.header></@fetchMultiLangContent> -->
 

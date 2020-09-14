@@ -10,9 +10,7 @@ import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
-import com.fairandsmart.consent.manager.model.Footer;
-import com.fairandsmart.consent.manager.model.Header;
-import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import io.quarkus.test.junit.QuarkusTest;
@@ -255,6 +253,85 @@ public class ConsentServiceTest {
         assertEquals(1, records.size());
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
         assertEquals(0, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
+    }
+
+    @Test
+    @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testPreviews() throws EntityNotFoundException, InvalidStatusException, ConsentManagerException, EntityAlreadyExistsException, ModelDataSerializationException {
+        String locale = "fr_FR";
+        String hKey = UUID.randomUUID().toString();
+        String tKey = UUID.randomUUID().toString();
+        String fKey = UUID.randomUUID().toString();
+        String thKey = UUID.randomUUID().toString();
+        String cKey = UUID.randomUUID().toString();
+        String eKey = UUID.randomUUID().toString();
+
+        List<String> keys = List.of(hKey, tKey, fKey, thKey, cKey, eKey);
+        List<String> types = List.of(Header.TYPE, Treatment.TYPE, Footer.TYPE, Theme.TYPE, Conditions.TYPE, Email.TYPE);
+        List<String> entriesId = new ArrayList<>();
+        for (int index = 0; index < keys.size(); index++) {
+            String key = keys.get(index);
+            String type = types.get(index);
+            ModelEntry entry = service.createEntry(key, "Name " + key, "Description " + key, type);
+            assertNotNull(entry);
+            ModelVersion version = service.createVersion(entry.id, locale, TestUtils.generateModelData(key, type, locale));
+            service.updateVersionStatus(version.id, ModelVersion.Status.ACTIVE);
+            entriesId.add(entry.id);
+        }
+
+        // Header preview
+        ConsentForm hForm = service.generatePreview(entriesId.get(0), locale, ConsentForm.Orientation.VERTICAL);
+        assertEquals("PREVIEW", hForm.getToken());
+        assertTrue(hForm.isPreview());
+        assertFalse(hForm.isConditions());
+        assertNotNull(hForm.getHeader());
+        assertEquals(0, hForm.getElements().size());
+        assertNull(hForm.getFooter());
+        assertNull(hForm.getTheme());
+
+        // Treatment preview
+        ConsentForm tForm = service.generatePreview(entriesId.get(1), locale, ConsentForm.Orientation.VERTICAL);
+        assertEquals("PREVIEW", tForm.getToken());
+        assertTrue(tForm.isPreview());
+        assertFalse(tForm.isConditions());
+        assertNull(tForm.getHeader());
+        assertEquals(1, tForm.getElements().size());
+        assertNull(tForm.getFooter());
+        assertNull(tForm.getTheme());
+
+        // Footer preview
+        ConsentForm fForm = service.generatePreview(entriesId.get(2), locale, ConsentForm.Orientation.VERTICAL);
+        assertEquals("PREVIEW", fForm.getToken());
+        assertTrue(fForm.isPreview());
+        assertFalse(fForm.isConditions());
+        assertNull(fForm.getHeader());
+        assertEquals(0, fForm.getElements().size());
+        assertNotNull(fForm.getFooter());
+        assertNull(fForm.getTheme());
+
+        // Theme preview
+        ConsentForm thForm = service.generatePreview(entriesId.get(3), locale, ConsentForm.Orientation.VERTICAL);
+        assertEquals("PREVIEW", thForm.getToken());
+        assertTrue(thForm.isPreview());
+        assertFalse(thForm.isConditions());
+        assertNotNull(thForm.getHeader());
+        assertEquals(2, thForm.getElements().size());
+        assertNotNull(thForm.getFooter());
+        assertNotNull(thForm.getTheme());
+
+        // Conditions preview
+        ConsentForm cForm = service.generatePreview(entriesId.get(4), locale, ConsentForm.Orientation.VERTICAL);
+        assertEquals("PREVIEW", cForm.getToken());
+        assertTrue(cForm.isPreview());
+        assertTrue(cForm.isConditions());
+        assertNull(cForm.getHeader());
+        assertEquals(1, tForm.getElements().size());
+        assertNull(cForm.getFooter());
+        assertNull(cForm.getTheme());
+
+        // Email preview
+        // TODO
     }
 
 }

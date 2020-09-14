@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="${locale}">
 <head>
-    <#include "macros/lang-macros.ftl">
-    <#include "macros/elements-macros.ftl">
+    <#include "../macros/lang-macros.ftl">
+    <#include "../macros/elements-macros.ftl">
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -12,7 +12,6 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/common.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/consent.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/horizontal.css">
-    <#include "theme.ftl">
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
@@ -22,11 +21,13 @@
         <input name="token" id="token" value="${data.token}" hidden/>
 
         <div class="left">
-            <#include "header-logo.ftl">
+            <#if data.header??>
+                <#include "../header-logo.ftl">
 
-            <div class="left-content">
-                <#include "header.ftl">
-            </div>
+                <div class="left-content">
+                    <#include "../header.ftl">
+                </div>
+            </#if>
 
             <div class="content-fade fade-inverted"></div>
         </div>
@@ -41,11 +42,13 @@
             <div class="treatments">
                 <#list data.elements as element>
                     <@fetchMultiLangContent element></@fetchMultiLangContent>
-                    <#include element.entry.type + ".ftl">
+                    <#include "../" + element.entry.type + ".ftl">
                 </#list>
             </div>
 
-            <#include "footer.ftl">
+            <#if data.footer??>
+                <#include "../footer.ftl">
+            </#if>
         </div>
     </form>
 

@@ -25,7 +25,7 @@
             <button type="button" class="close-btn">×</button>
         </div>
 
-        <#include "logo.ftl">
+        <#include "header-logo.ftl">
 
         <div class="treatments">
             <#include "header.ftl">
@@ -35,6 +35,7 @@
                 <#include element.entry.type + ".ftl">
             </#list>
         </div>
+
         <#if data.footer??>
             <#include "footer.ftl">
         </#if>

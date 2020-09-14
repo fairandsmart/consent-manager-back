@@ -25,5 +25,6 @@ public class PreviewDto {
     public void setOrientation(ConsentForm.Orientation orientation) {
         this.orientation = orientation;
     }
+
 }
 

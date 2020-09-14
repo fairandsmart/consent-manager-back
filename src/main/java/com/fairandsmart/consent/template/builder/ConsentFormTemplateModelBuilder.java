@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
-public class ConsentFormTemplateModelBuilder  implements TemplateModelBuilder {
+public class ConsentFormTemplateModelBuilder implements TemplateModelBuilder {
 
     private static final Logger LOGGER = Logger.getLogger(ConsentFormTemplateModelBuilder.class.getName());
 

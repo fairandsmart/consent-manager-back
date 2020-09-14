@@ -10,7 +10,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.transaction.Transactional;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Optional;
