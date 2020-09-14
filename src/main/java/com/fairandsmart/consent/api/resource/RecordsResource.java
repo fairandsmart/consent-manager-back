@@ -1,25 +1,13 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.api.dto.OperatorRecordDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.manager.ConsentService;
-import com.fairandsmart.consent.manager.ConsentServiceException;
-import com.fairandsmart.consent.manager.InvalidConsentException;
 import com.fairandsmart.consent.manager.entity.Record;
-import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.filter.UserRecordFilter;
-import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.security.AuthenticationService;
-import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
-import com.fairandsmart.consent.template.TemplateServiceException;
-import com.fairandsmart.consent.token.InvalidTokenException;
-import com.fairandsmart.consent.token.TokenExpiredException;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -27,10 +15,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Path("/records")
 public class RecordsResource {
@@ -67,6 +53,7 @@ public class RecordsResource {
         return consentService.listRecords(filter);
     }
 
+    /*
     @GET
     @Path("/subset")
     @Produces(MediaType.APPLICATION_JSON)
@@ -136,5 +123,6 @@ public class RecordsResource {
         Receipt receipt = consentService.createOperatorRecords(dto.getToken(), dto.getValues(), dto.getComment());
         return templateService.buildModel(receipt);
     }
+    */
 
 }

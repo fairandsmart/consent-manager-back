@@ -193,6 +193,16 @@ public class ModelsResource {
         return ModelVersionDto.fromModelVersion(version);
     }
 
+    @PUT
+    @Path("/{id}/versions/{vid}/type")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ModelVersionDto updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Type type) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
+        LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/type");
+        ModelVersion version = consentService.updateVersionType(vid, type);
+        return ModelVersionDto.fromModelVersion(version);
+    }
+
     @POST
     @Path("/{id}/versions/{vid}/preview")
     @Produces(MediaType.TEXT_HTML)

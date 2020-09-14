@@ -338,6 +338,25 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
+    public ModelVersion updateVersionType(String id, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Updating type for version with id: " + id);
+        authentication.ensureConnectedIdentifierIsAdmin();
+        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
+        ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
+        if (!version.child.isEmpty()) {
+            throw new ConsentManagerException("Unable to update type for version that is not last one");
+        }
+        if (!version.status.equals(ModelVersion.Status.DRAFT)) {
+            throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
+        }
+        version.type = type;
+        version.modificationDate = System.currentTimeMillis();
+        version.persist();
+        return version;
+    }
+
+    @Override
+    @Transactional
     public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
         LOGGER.log(Level.INFO, "Updating status for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();

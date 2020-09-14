@@ -2,6 +2,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
@@ -52,7 +53,7 @@ public class ConsentServiceTest {
 
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
-    public void testCreateEntryForExistingKey() throws EntityAlreadyExistsException {
+    public void testCreateEntryForExistingKey() throws EntityAlreadyExistsException, AccessDeniedException {
         LOGGER.info("#### Test create entry for existing key");
         final String key = UUID.randomUUID().toString();
         ModelEntry entry = service.createEntry(key, "header1", "description1", Header.TYPE);
