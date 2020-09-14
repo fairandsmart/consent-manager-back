@@ -49,7 +49,7 @@ public class ModelsResource {
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("order") @DefaultValue("key") String order,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
-            @QueryParam("types") List<String> types) {
+            @QueryParam("types") List<String> types) throws ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models");
         ModelFilter filter = new ModelFilter();
         filter.setPage(page);
@@ -60,37 +60,37 @@ public class ModelsResource {
         CollectionPage<ModelEntry> entries = consentService.listEntries(filter);
         CollectionPage<ModelEntryDto> dto = new CollectionPage<>(entries);
         dto.setValues(entries.getValues().stream().map(e -> ModelEntryDto.fromModelEntry(e)).collect(Collectors.toList()));
-        dto.getValues().forEach(
-            (value) -> {
-                try {
-                    value.setVersions(consentService.getVersionHistoryForEntry(value.getId()).stream().map(v -> ModelVersionDtoLight.fromModelVersion(v)).collect(Collectors.toList()));
-                } catch (ConsentManagerException e) {
-                    e.printStackTrace();
-                }
+        for ( ModelEntryDto entryDto : dto.getValues() ) {
+            for ( ModelVersion version : consentService.getVersionHistoryForEntry(entryDto.getId()) ) {
+                entryDto.getVersions().add(ModelVersionDtoLight.fromModelVersion(version));
             }
-        );
+        }
         return dto;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelEntryDto createEntry(@Valid ModelEntryDto dto) throws EntityAlreadyExistsException, ConsentManagerException {
+    public ModelEntryDto createEntry(@Valid ModelEntryDto dto) throws EntityAlreadyExistsException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "POST /models");
         ModelEntry entry = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
         ModelEntryDto entryDto = ModelEntryDto.fromModelEntry(entry);
-        entryDto.setVersions(consentService.getVersionHistoryForEntry(entryDto.getId()).stream().map(v -> ModelVersionDtoLight.fromModelVersion(v)).collect(Collectors.toList()));
+        for ( ModelVersion version : consentService.getVersionHistoryForEntry(entryDto.getId()) ) {
+            entryDto.getVersions().add(ModelVersionDtoLight.fromModelVersion(version));
+        }
         return entryDto;
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelEntryDto getEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException {
+    public ModelEntryDto getEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id);
         ModelEntry entry = consentService.getEntry(id);
         ModelEntryDto entryDto = ModelEntryDto.fromModelEntry(entry);
-        entryDto.setVersions(consentService.getVersionHistoryForEntry(entryDto.getId()).stream().map(v -> ModelVersionDtoLight.fromModelVersion(v)).collect(Collectors.toList()));
+        for ( ModelVersion version : consentService.getVersionHistoryForEntry(entryDto.getId()) ) {
+            entryDto.getVersions().add(ModelVersionDtoLight.fromModelVersion(version));
+        }
         return entryDto;
     }
 
@@ -98,22 +98,31 @@ public class ModelsResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelEntryDto updateEntry(@PathParam("id") @Valid @UUID String id, ModelEntryDto dto) throws EntityNotFoundException, ConsentManagerException {
+    public ModelEntryDto updateEntry(@PathParam("id") @Valid @UUID String id, ModelEntryDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id);
         ModelEntry entry = consentService.updateEntry(id, dto.getName(), dto.getDescription());
         ModelEntryDto entryDto = ModelEntryDto.fromModelEntry(entry);
-        entryDto.setVersions(consentService.getVersionHistoryForEntry(entryDto.getId()).stream().map(v -> ModelVersionDtoLight.fromModelVersion(v)).collect(Collectors.toList()));
+        for ( ModelVersion version : consentService.getVersionHistoryForEntry(entryDto.getId()) ) {
+            entryDto.getVersions().add(ModelVersionDtoLight.fromModelVersion(version));
+        }
         return entryDto;
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public void deleteEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException {
+        LOGGER.log(Level.INFO, "DELETE /models/" + id);
+        consentService.deleteEntry(id);
     }
 
     @GET
     @Path("/{id}/versions")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ModelVersionDto> listVersions(@PathParam("id") @Valid @UUID String id) throws ConsentManagerException, ModelDataSerializationException {
+    public List<ModelVersionDtoLight> listVersions(@PathParam("id") @Valid @UUID String id) throws ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions");
-        List<ModelVersionDto> dto = new ArrayList<>();
+        List<ModelVersionDtoLight> dto = new ArrayList<>();
         for ( ModelVersion version : consentService.getVersionHistoryForEntry(id) ) {
-            dto.add(ModelVersionDto.fromModelVersion(version));
+            dto.add(ModelVersionDtoLight.fromModelVersion(version));
         }
         return dto;
     }
@@ -163,7 +172,7 @@ public class ModelsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto updateVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid);
-        ModelVersion version = consentService.updateVersion(id, dto.getDefaultLocale(), dto.getData());
+        ModelVersion version = consentService.updateVersion(vid, dto.getDefaultLocale(), dto.getData());
         return ModelVersionDto.fromModelVersion(version);
     }
 
@@ -177,16 +186,6 @@ public class ModelsResource {
         return ModelVersionDto.fromModelVersion(version);
     }
 
-    @PUT
-    @Path("/{id}/versions/{vid}/type")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_JSON)
-    public ModelVersionDto updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, ModelVersion.Type type) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
-        LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/type");
-        ModelVersion version = consentService.updateVersionType(vid, type);
-        return ModelVersionDto.fromModelVersion(version);
-    }
-
     @DELETE
     @Path("/{id}/versions/{vid}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -195,6 +194,7 @@ public class ModelsResource {
         consentService.deleteVersion(vid);
     }
 
+    /*
     @GET
     @Path("/themes/preview")
     @Produces(MediaType.TEXT_HTML)
@@ -207,5 +207,6 @@ public class ModelsResource {
         ConsentForm form = consentService.generateLipsumForm(realOrientation, locale);
         return templateService.buildModel(form);
     }
+    */
 
 }

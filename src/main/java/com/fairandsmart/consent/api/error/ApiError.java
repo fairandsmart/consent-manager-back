@@ -69,6 +69,11 @@ public class ApiError {
         this.instance = instance;
     }
 
+    public ApiError withInstance(String instance) {
+        this.setInstance(instance);
+        return this;
+    }
+
     public String getStacktrace() {
         return stacktrace;
     }

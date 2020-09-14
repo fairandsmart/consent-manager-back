@@ -5,6 +5,7 @@ import com.fairandsmart.consent.manager.entity.ModelEntry;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ModelEntryDto {
@@ -18,7 +19,7 @@ public class ModelEntryDto {
     private String description;
     @NotNull
     private String type;
-    private List<ModelVersionDtoLight> versions;
+    private List<ModelVersionDtoLight> versions = new ArrayList<>();
 
     public ModelEntryDto() {
     }

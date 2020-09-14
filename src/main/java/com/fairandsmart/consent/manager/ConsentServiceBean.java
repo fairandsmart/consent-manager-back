@@ -90,9 +90,17 @@ public class ConsentServiceBean implements ConsentService {
         PanacheQuery<ModelEntry> query;
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
-            query = ModelEntry.find("owner = ?1 and type in ?2", sort, config.owner(), filter.getTypes());
+            if ( filter.getTypes() == null || filter.getTypes().isEmpty() ) {
+                query = ModelEntry.find("owner = ?1", sort, config.owner());
+            } else {
+                query = ModelEntry.find("owner = ?1 and type in ?2", sort, config.owner(), filter.getTypes());
+            }
         } else {
-            query = ModelEntry.find("owner = ?1 and type in ?2", config.owner(), filter.getTypes());
+            if ( filter.getTypes() == null || filter.getTypes().isEmpty() ) {
+                query = ModelEntry.find("owner = ?1", config.owner());
+            } else {
+                query = ModelEntry.find("owner = ?1 and type in ?2", config.owner(), filter.getTypes());
+            }
         }
         return PageUtil.paginateQuery(query, filter);
     }
@@ -153,7 +161,7 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public void deleteEntry(String id) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "Deleting entry with id: " + id);
-        //TODO restrict to admin rôle
+        authentication.ensureConnectedIdentifierIsAdmin();
         List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", config.owner(), id).list();
         if (versions.isEmpty() || versions.stream().allMatch(v -> v.status.equals(ModelVersion.Status.DRAFT))) {
             ModelEntry.deleteById(id);
@@ -326,25 +334,6 @@ public class ConsentServiceBean implements ConsentService {
             throw new ConsentManagerException("unable to serialise data", ex);
         }
 
-    }
-
-    @Override
-    @Transactional
-    public ModelVersion updateVersionType(String id, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Updating type for version with id: " + id);
-        authentication.ensureConnectedIdentifierIsAdmin();
-        Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
-        ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
-        if (!version.child.isEmpty()) {
-            throw new ConsentManagerException("Unable to update type for version that is not last one");
-        }
-        if (!version.status.equals(ModelVersion.Status.DRAFT)) {
-            throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
-        }
-        version.type = type;
-        version.modificationDate = System.currentTimeMillis();
-        version.persist();
-        return version;
     }
 
     @Override

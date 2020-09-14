@@ -113,7 +113,7 @@ public class ModelVersionDtoLight {
         this.modificationDate = modificationDate;
     }
 
-    public static ModelVersionDtoLight fromModelVersion(ModelVersion version) {
+    public static ModelVersionDtoLight fromModelVersion(ModelVersion version) throws ModelDataSerializationException {
         ModelVersionDtoLight dto = new ModelVersionDtoLight();
         dto.setId(version.id);
         dto.setAuthor(version.author);

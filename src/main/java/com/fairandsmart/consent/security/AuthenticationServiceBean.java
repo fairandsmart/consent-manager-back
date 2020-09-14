@@ -2,12 +2,11 @@ package com.fairandsmart.consent.security;
 
 import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.manager.ConsentService;
-import com.fasterxml.uuid.StringArgGenerator;
 import io.quarkus.security.identity.SecurityIdentity;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,15 +29,21 @@ public class AuthenticationServiceBean implements AuthenticationService {
     }
 
     @Override
+    public Set<String> listConnectedIdentifierRoles() {
+        return identity.getRoles();
+    }
+
+    @Override
     public boolean isConnectedIdentifierAdmin() {
         return identity.hasRole(securityConfig.adminRoleName());
     }
 
     @Override
     public void ensureConnectedIdentifierIsAdmin() throws AccessDeniedException {
-        if (!identity.hasRole(securityConfig.adminRoleName())) {
-            throw new AccessDeniedException("Connected Identifier doest not has required " + securityConfig.adminRoleName() + " role.");
+        if (identity.hasRole(securityConfig.adminRoleName())) {
+            return;
         }
+        throw new AccessDeniedException("Connected Identifier doest not has required " + securityConfig.adminRoleName() + " role.");
     }
 
     @Override
@@ -48,8 +53,9 @@ public class AuthenticationServiceBean implements AuthenticationService {
 
     @Override
     public void ensureConnectedIdentifierIsOperator() throws AccessDeniedException {
-        if (!identity.hasRole(securityConfig.adminRoleName()) && !identity.hasRole(securityConfig.operatorRoleName())) {
-            throw new AccessDeniedException("Connected Identifier doest not has required " + securityConfig.operatorRoleName() + " role.");
+        if (identity.hasRole(securityConfig.adminRoleName()) || identity.hasRole(securityConfig.operatorRoleName())) {
+            return;
         }
+        throw new AccessDeniedException("Connected Identifier doest not has required " + securityConfig.operatorRoleName() + " role.");
     }
 }
