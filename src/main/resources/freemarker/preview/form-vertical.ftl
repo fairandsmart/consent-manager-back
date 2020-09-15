@@ -9,41 +9,37 @@
     <meta name="description" content="Outil de gestion des consentements Fair&Smart">
     <meta name="author" content="Fair&Smart">
 
-    <link rel="stylesheet" type="text/css" href="/META-INF/resources/assets/css/common.css">
-    <link rel="stylesheet" type="text/css" href="/META-INF/resources/assets/css/consent.css">
-    <link rel="stylesheet" type="text/css" href="/META-INF/resources/assets/css/vertical.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/common.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/consent.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/vertical.css">
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
 
 <body>
-<form id="consent" class="consent-form">
-    <div class="close-wrapper">
-        <button type="button" class="close-btn">×</button>
-    </div>
-
-    <#if data.header??>
-        <#include "../header-logo.ftl">
-    </#if>
-
-    <div class="treatments">
+    <form id="consent" class="consent-form">
         <#if data.header??>
-            <#include "../header.ftl">
+            <#include "../header-logo.ftl">
         </#if>
 
-        <#list data.elements as element>
-            <@fetchMultiLangContent element></@fetchMultiLangContent>
-            <#include "../" + element.entry.type + ".ftl">
-        </#list>
-    </div>
+        <div class="treatments">
+            <#if data.header??>
+                <#include "../header.ftl">
+            </#if>
 
-    <#if data.footer??>
-        <#include "../footer.ftl">
-    </#if>
-</form>
+            <#list data.elements as element>
+                <@fetchMultiLangContent element></@fetchMultiLangContent>
+                <#include "../" + element.entry.type + ".ftl">
+            </#list>
+        </div>
 
-<script src="/META-INF/resources/assets/js/consent.js"></script>
-<script src="/META-INF/resources/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin="" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
+        <#if data.footer??>
+            <#include "../footer.ftl">
+        </#if>
+    </form>
+
+    <script src="/assets/js/consent.js"></script>
+    <script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin="" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
 
 </body>
 </html>

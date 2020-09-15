@@ -33,10 +33,6 @@
         </div>
 
         <div class="right">
-            <div class="close-wrapper">
-                <button type="button" class="close-btn">×</button>
-            </div>
-
             <div class="content-fade"></div>
 
             <div class="treatments">
@@ -52,8 +48,8 @@
         </div>
     </form>
 
-<script src="/assets/js/consent.js"></script>
-<script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin="" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
+    <script src="/assets/js/consent.js"></script>
+    <script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin="" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
 
 </body>
 </html>

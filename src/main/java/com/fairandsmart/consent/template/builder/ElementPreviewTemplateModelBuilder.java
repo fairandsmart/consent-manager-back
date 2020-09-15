@@ -33,6 +33,7 @@ public class ElementPreviewTemplateModelBuilder implements TemplateModelBuilder 
         ConsentForm form = new ConsentForm();
         form.setLocale(dto.getLocale());
         form.setOrientation(dto.getOrientation());
+        form.setToken("PREVIEW");
         form.setPreview(true);
         form.setConditions(false);
         switch (dto.getData().entry.type) {
@@ -61,7 +62,11 @@ public class ElementPreviewTemplateModelBuilder implements TemplateModelBuilder 
         if (form.isConditions()) {
             model.setTemplate("conditions.ftl");
         } else if (form.getTheme() != null) {
-            model.setTemplate("preview/theme.ftl");
+            if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
+                model.setTemplate("preview/theme-horizontal.ftl");
+            } else {
+                model.setTemplate("preview/theme-vertical.ftl");
+            }
         } else if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
             model.setTemplate("preview/form-horizontal.ftl");
         } else {
