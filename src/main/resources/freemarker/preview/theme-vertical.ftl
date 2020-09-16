@@ -12,7 +12,6 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/common.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/consent.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/vertical.css">
-
     <style>${data.theme.getData(locale).css}</style>
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
@@ -152,7 +151,7 @@
 
         <div class="footer">
             <div class="footer-body">
-                Nulla in aliquet elit. Quisque ultricies hendrerit mi accumsan lobortis. Mauris elementum ipsum vitae euismod accumsan. Duis eget placerat mi, at eleifend mauris.
+                Nulla in aliquet elit. Quisque ultricies hendrerit mi accumsan lobortis. Mauris elementum ipsum vitae euismod accumsan. Duis eget placerat mi.
             </div>
 
             <div class="accept-all-container">

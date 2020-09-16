@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.api.dto.PreviewDto;
 import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
@@ -59,6 +60,8 @@ public interface ConsentService {
     ModelVersion updateVersionType(String versionId, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException;
 
     ModelVersion updateVersionStatus(String versionId, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException;
+
+    ConsentForm previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException;
 
     void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 

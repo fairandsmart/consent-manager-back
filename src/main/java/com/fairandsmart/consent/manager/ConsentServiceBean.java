@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.api.dto.PreviewDto;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.handler.ConsentContextHandler;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
@@ -28,9 +29,6 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import org.apache.commons.lang3.StringUtils;
@@ -43,9 +41,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -222,8 +218,8 @@ public class ConsentServiceBean implements ConsentService {
             for (Map.Entry<String, ModelData> e : data.entrySet()) {
                 latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
             }
-            latest.availableLocales = data.keySet().stream().collect(Collectors.joining(","));
-            if ( latest.content.keySet().contains(defaultLocale) ) {
+            latest.availableLocales = String.join(",", data.keySet());
+            if ( latest.content.containsKey(defaultLocale) ) {
                 latest.defaultLocale = defaultLocale;
             } else {
                 throw new ConsentManagerException("Default Locale does not exists in content locales");
@@ -321,8 +317,8 @@ public class ConsentServiceBean implements ConsentService {
             for (Map.Entry<String, ModelData> entry : data.entrySet()) {
                 version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
             }
-            version.availableLocales = data.keySet().stream().collect(Collectors.joining(","));
-            if ( version.content.keySet().contains(defaultLocale) ) {
+            version.availableLocales = String.join(",", data.keySet());
+            if ( version.content.containsKey(defaultLocale) ) {
                 version.defaultLocale = defaultLocale;
             } else {
                 throw new ConsentManagerException("Default Locale does not exists in content locales");
@@ -396,6 +392,43 @@ public class ConsentServiceBean implements ConsentService {
             }
         }
         return version;
+    }
+
+    @Override
+    public ConsentForm previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException {
+        ModelVersion version = this.getVersion(versionId);
+        if ( !version.entry.id.equals(entryId) ) {
+            throw new EntityNotFoundException("Unable to find a version with id: " + versionId + " in entry with id: " + entryId);
+        }
+
+        ConsentForm form = new ConsentForm();
+        form.setLocale(dto.getLocale());
+        form.setOrientation(dto.getOrientation());
+        form.setToken("PREVIEW");
+        form.setPreview(true);
+        form.setConditions(false);
+        switch (version.entry.type) {
+            case Header.TYPE:
+                form.setHeader(version);
+                break;
+            case Footer.TYPE:
+                form.setFooter(version);
+                break;
+            case Treatment.TYPE:
+                form.addElement(version);
+                break;
+            case Conditions.TYPE:
+                form.addElement(version);
+                form.setConditions(true);
+                break;
+            case Theme.TYPE:
+                form.setTheme(version);
+                break;
+            case Email.TYPE:
+                form.setOptoutEmail(version);
+                break;
+        }
+        return form;
     }
 
     @Override
@@ -795,24 +828,6 @@ public class ConsentServiceBean implements ConsentService {
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
-    }
-
-    private ModelVersion generateVersionForPreview(String locale, ModelData data) throws ModelDataSerializationException {
-        ModelContent previewContent = new ModelContent();
-        previewContent.setDataObject(data);
-
-        ModelEntry previewEntry = new ModelEntry();
-        previewEntry.key = "PREVIEW";
-        previewEntry.type = data.getType();
-
-        ModelVersion previewVersion = new ModelVersion();
-        previewVersion.type = ModelVersion.Type.MAJOR;
-        previewVersion.serial = "PREVIEW";
-        previewVersion.defaultLocale = locale;
-        previewVersion.availableLocales = locale;
-        previewVersion.entry = previewEntry;
-        previewVersion.content.put(locale, previewContent);
-        return previewVersion;
     }
 
 }

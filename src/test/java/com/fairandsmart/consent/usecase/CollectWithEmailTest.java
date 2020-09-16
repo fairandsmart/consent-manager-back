@@ -65,7 +65,6 @@ public class CollectWithEmailTest {
     @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testCollectWithEmail() throws InterruptedException {
-
         //SETUP
         //Check that the app is running
         given().contentType(ContentType.JSON).

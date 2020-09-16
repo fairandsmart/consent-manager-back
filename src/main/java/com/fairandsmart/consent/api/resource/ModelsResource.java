@@ -56,7 +56,7 @@ public class ModelsResource {
         filter.setTypes(types);
         CollectionPage<ModelEntry> entries = consentService.listEntries(filter);
         CollectionPage<ModelEntryDto> dto = new CollectionPage<>(entries);
-        dto.setValues(entries.getValues().stream().map(e -> ModelEntryDto.fromModelEntry(e)).collect(Collectors.toList()));
+        dto.setValues(entries.getValues().stream().map(ModelEntryDto::fromModelEntry).collect(Collectors.toList()));
         for ( ModelEntryDto entryDto : dto.getValues() ) {
             for ( ModelVersion version : consentService.getVersionHistoryForEntry(entryDto.getId()) ) {
                 entryDto.getVersions().add(ModelVersionDtoLight.fromModelVersion(version));
@@ -107,6 +107,7 @@ public class ModelsResource {
 
     @DELETE
     @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
     public void deleteEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id);
         consentService.deleteEntry(id);
@@ -207,15 +208,11 @@ public class ModelsResource {
 
     @POST
     @Path("/{id}/versions/{vid}/preview")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid + "/preview");
-        ModelVersion version = consentService.getVersion(vid);
-        if ( !version.entry.id.equals(id) ) {
-            throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
-        }
-        PreviewDtoFull data = new PreviewDtoFull().withLocale(dto.getLocale()).withOrientation(dto.getOrientation()).withData(version);
-        return templateService.buildModel(data);
+        return templateService.buildModel(consentService.previewVersion(id, vid, dto));
     }
 
     @DELETE

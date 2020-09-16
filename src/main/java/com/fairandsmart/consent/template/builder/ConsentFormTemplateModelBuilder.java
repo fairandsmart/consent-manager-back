@@ -29,13 +29,20 @@ public class ConsentFormTemplateModelBuilder implements TemplateModelBuilder {
         model.setBundle(bundle);
         model.setData(form);
 
+        String orientation = form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL) ? "horizontal" : "vertical";
         if (form.isConditions()) {
             model.setTemplate("conditions.ftl");
-        } else if (form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL)) {
-            model.setTemplate("form-horizontal.ftl");
+        } else if (form.isPreview()) {
+            if (form.getOptoutEmail() != null) {
+                model.setTemplate("preview/email.ftl");
+            } else {
+                String type = form.getTheme() != null ? "theme" : "form";
+                model.setTemplate("preview/" + type + "-" + orientation + ".ftl");
+            }
         } else {
-            model.setTemplate("form-vertical.ftl");
+            model.setTemplate("form-" + orientation + ".ftl");
         }
+
         LOGGER.log(Level.FINE, model.toString());
         return model;
     }
