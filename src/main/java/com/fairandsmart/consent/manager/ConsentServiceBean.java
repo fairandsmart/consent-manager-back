@@ -487,35 +487,6 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentForm generateLipsumForm(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException {
-        ConsentForm form = new ConsentForm();
-        form.setLocale(locale);
-        form.setOrientation(orientation);
-        form.setPreview(true);
-        form.setConditions(false);
-        form.setToken("PREVIEW");
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            CollectionType dataTypeRef =
-                    TypeFactory.defaultInstance().constructCollectionType(List.class, ModelData.class);
-            String jsonFileName = "preview/lipsum.json";
-            URL jsonFile = getClass().getClassLoader().getSystemResource(jsonFileName);
-            if (jsonFile == null) jsonFile = getClass().getClassLoader().getResource(jsonFileName);
-            List<ModelData> data = mapper.readValue(jsonFile, dataTypeRef);
-
-            form.setHeader(generateVersionForPreview(locale, data.get(0)));
-            form.addElement(generateVersionForPreview(locale, data.get(1)));
-            form.addElement(generateVersionForPreview(locale, data.get(2)));
-            form.setFooter(generateVersionForPreview(locale, data.get(3)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return form;
-    }
-
-    @Override
     @Transactional
     public Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Submitting consent");

@@ -7,11 +7,9 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.common.validation.UUID;
-import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.InvalidStatusException;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
-import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -216,7 +214,7 @@ public class ModelsResource {
         if ( !version.entry.id.equals(id) ) {
             throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
         }
-        ModelData data = version.getData(dto.getLocale());
+        PreviewDtoFull data = new PreviewDtoFull().withLocale(dto.getLocale()).withOrientation(dto.getOrientation()).withData(version);
         return templateService.buildModel(data);
     }
 

@@ -20,7 +20,6 @@ import com.fairandsmart.consent.token.TokenExpiredException;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public interface ConsentService {
@@ -66,8 +65,6 @@ public interface ConsentService {
     String buildToken(ConsentContext ctx) throws AccessDeniedException;
 
     ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
-
-    ConsentForm generateLipsumForm(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException;
 
     Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 
