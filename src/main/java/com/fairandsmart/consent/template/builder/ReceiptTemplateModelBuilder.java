@@ -3,7 +3,6 @@ package com.fairandsmart.consent.template.builder;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateModelBuilder;
-import liquibase.pro.packaged.T;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 

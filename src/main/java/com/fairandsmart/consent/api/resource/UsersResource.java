@@ -17,7 +17,7 @@ public class UsersResource {
     private static final Logger LOGGER = Logger.getLogger(UsersResource.class.getName());
 
     @Inject
-    private AuthenticationService authenticationService;
+    AuthenticationService authenticationService;
 
     @GET
     @Path("/me")

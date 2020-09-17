@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.api.dto.PreviewDto;
 import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.model.UserRecord;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
@@ -20,7 +21,6 @@ import com.fairandsmart.consent.token.TokenExpiredException;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public interface ConsentService {
@@ -61,13 +61,13 @@ public interface ConsentService {
 
     ModelVersion updateVersionStatus(String versionId, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException;
 
+    ConsentForm previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException;
+
     void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 
     String buildToken(ConsentContext ctx) throws AccessDeniedException;
 
     ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
-
-    ConsentForm generateLipsumForm(ConsentForm.Orientation orientation, String locale) throws ModelDataSerializationException;
 
     Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 

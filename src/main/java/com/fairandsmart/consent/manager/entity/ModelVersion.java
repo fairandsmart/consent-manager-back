@@ -7,7 +7,6 @@ import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
-import org.jline.terminal.Size;
 
 import javax.persistence.*;
 import java.util.*;
@@ -172,7 +171,7 @@ public class ModelVersion extends PanacheEntityBase {
             ModelVersion version = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
             if ( forceContentLoad ) {
                 //Force load of lazy collection, no better way found
-                version.content.entrySet().stream().map(e -> e.toString());
+                version.content.entrySet().stream().map(Object::toString);
             }
             return version;
         }

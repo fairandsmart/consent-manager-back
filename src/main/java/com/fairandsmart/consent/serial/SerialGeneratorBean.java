@@ -5,7 +5,6 @@ import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.common.util.Lock;
 import com.fairandsmart.consent.common.util.LockType;
 import com.fairandsmart.consent.serial.entity.Sequence;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,7 +24,7 @@ public class SerialGeneratorBean implements SerialGenerator {
     private static final Random random = new Random();
 
     @Inject
-    private SerialConfig config;
+    protected SerialConfig config;
 
     private static final Map<String, Sequence> pools = new HashMap<>();
 

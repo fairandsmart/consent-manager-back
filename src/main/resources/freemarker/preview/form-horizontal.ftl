@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="${locale}">
 <head>
-    <#include "macros/lang-macros.ftl">
-    <#include "macros/elements-macros.ftl">
+    <#include "../macros/lang-macros.ftl">
+    <#include "../macros/elements-macros.ftl">
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,8 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="/assets/css/common.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/consent.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/vertical.css">
-    <#include "theme.ftl">
+    <link rel="stylesheet" type="text/css" href="/assets/css/horizontal.css">
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
@@ -21,22 +20,32 @@
     <form method="post" id="consent" action="#" class="consent-form">
         <input name="token" id="token" value="${data.token}" hidden/>
 
-        <div class="close-wrapper">
-            <button type="button" class="close-btn">×</button>
+        <div class="left">
+            <#if data.header??>
+                <#include "../header-logo.ftl">
+
+                <div class="left-content">
+                    <#include "../header.ftl">
+                </div>
+            </#if>
+
+            <div class="content-fade fade-inverted"></div>
         </div>
 
-        <#include "header-logo.ftl">
+        <div class="right">
+            <div class="content-fade"></div>
 
-        <div class="treatments">
-            <#include "header.ftl">
+            <div class="treatments">
+                <#list data.elements as element>
+                    <@fetchMultiLangContent element></@fetchMultiLangContent>
+                    <#include "../" + element.entry.type + ".ftl">
+                </#list>
+            </div>
 
-            <#list data.elements as element>
-                <@fetchMultiLangContent element></@fetchMultiLangContent>
-                <#include element.entry.type + ".ftl">
-            </#list>
+            <#if data.footer??>
+                <#include "../footer.ftl">
+            </#if>
         </div>
-
-        <#include "footer.ftl">
     </form>
 
     <script src="/assets/js/consent.js"></script>

@@ -3,7 +3,6 @@ package com.fairandsmart.consent.api.dto;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 

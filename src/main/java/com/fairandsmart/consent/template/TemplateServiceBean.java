@@ -10,9 +10,8 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.transaction.Transactional;
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +55,7 @@ public class TemplateServiceBean implements TemplateService {
         LOGGER.log(Level.FINE, "Rendering model: " + model);
         try {
             Template template = cfg.getTemplate(model.getTemplate());
-            Writer writer = new OutputStreamWriter(output, Charset.forName("UTF8"));
+            Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
             template.process(model, writer);
         } catch (IOException | TemplateException e ) {
             throw new TemplateServiceException("Unable to apply template", e);
@@ -66,7 +65,7 @@ public class TemplateServiceBean implements TemplateService {
     @Override
     public <T> TemplateModel<T> buildModel(T data) throws TemplateServiceException {
         Optional<TemplateModel<T>> model = builders.stream().filter(b -> b.canBuild(data)).findFirst().map(b -> b.build(data));
-        if ( !model.isPresent() ) {
+        if (model.isEmpty()) {
             throw new TemplateServiceException("Unable to find a builder for data of class " + data.getClass().getName());
         }
         return model.get();

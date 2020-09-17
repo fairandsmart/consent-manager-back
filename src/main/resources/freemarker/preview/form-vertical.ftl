@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="${locale}">
 <head>
-    <#include "macros/lang-macros.ftl">
-    <#include "macros/elements-macros.ftl">
+    <#include "../macros/lang-macros.ftl">
+    <#include "../macros/elements-macros.ftl">
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -12,31 +12,30 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/common.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/consent.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/vertical.css">
-    <#include "theme.ftl">
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
 
 <body>
-    <form method="post" id="consent" action="#" class="consent-form">
-        <input name="token" id="token" value="${data.token}" hidden/>
-
-        <div class="close-wrapper">
-            <button type="button" class="close-btn">×</button>
-        </div>
-
-        <#include "header-logo.ftl">
+    <form id="consent" class="consent-form">
+        <#if data.header??>
+            <#include "../header-logo.ftl">
+        </#if>
 
         <div class="treatments">
-            <#include "header.ftl">
+            <#if data.header??>
+                <#include "../header.ftl">
+            </#if>
 
             <#list data.elements as element>
                 <@fetchMultiLangContent element></@fetchMultiLangContent>
-                <#include element.entry.type + ".ftl">
+                <#include "../" + element.entry.type + ".ftl">
             </#list>
         </div>
 
-        <#include "footer.ftl">
+        <#if data.footer??>
+            <#include "../footer.ftl">
+        </#if>
     </form>
 
     <script src="/assets/js/consent.js"></script>

@@ -32,8 +32,8 @@
                 <button type="button" class="submit reject" onclick="rejectConditions()">${langContent.rejectLabel}</button>
                 <button type="button" class="submit accept" onclick="acceptConditions()">${langContent.acceptLabel}</button>
             </div>
-            <button type="submit" id="submit" hidden></button>
         </#if>
+        <button type="submit" id="submit" hidden></button>
     </form>
 <#else>
     <div class="conditions-wrapper">

@@ -10,22 +10,21 @@
     <meta name="author" content="Fair&Smart">
 
     <link rel="stylesheet" type="text/css" href="/assets/css/common.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/consent.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/vertical.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/email.css">
     <#include "theme.ftl">
 
     <title>${langContent.subject}</title>
 </head>
 
 <body class="fsc-body fsc-opt-out">
-<div class="container">
-    <div class="col-lg-8 offset-lg-2 col-md-12 fsc-wrapper">
-        <h1 class="fsc-opt-out-title h2">${langContent.title}</h1>
-        <div class="fsc-opt-out-body">${langContent.body}</div>
-        <div class="fsc-opt-out-button"><a id="form-url" class="btn btn-primary" href="${(data.url?has_content)?then(data.url, "#")}">${langContent.buttonLabel}</a></div>
-        <div class="fsc-opt-out-footer">${langContent.footer}</div>
-        <div class="fsc-opt-out-signature">${langContent.signature}</div>
+    <div class="container">
+        <div class="fsc-opt-out-wrapper">
+            <h1 class="fsc-opt-out-title h2">${langContent.title}</h1>
+            <div class="fsc-opt-out-body">${langContent.body}</div>
+            <div class="fsc-opt-out-button"><a id="form-url" class="btn btn-primary" href="${(data.url?has_content)?then(data.url, '#')}">${langContent.buttonLabel}</a></div>
+            <div class="fsc-opt-out-footer">${langContent.footer}</div>
+            <div class="fsc-opt-out-signature">${langContent.signature}</div>
+        </div>
     </div>
-</div>
 </body>
 </html>
