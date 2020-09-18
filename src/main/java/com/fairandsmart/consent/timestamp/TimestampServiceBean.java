@@ -2,6 +2,7 @@ package com.fairandsmart.consent.timestamp;
 
 import com.fairandsmart.consent.common.config.TsaConfig;
 import io.quarkus.runtime.Startup;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import xades4j.XAdES4jException;
@@ -17,8 +18,11 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +32,10 @@ public class TimestampServiceBean implements TimestampService {
 
     private static final Logger LOGGER = Logger.getLogger(TimestampServiceBean.class.getName());
 
+    @ConfigProperty(name = "consent.keystore.path", defaultValue = "")
+    Optional<String> keystorePathConfig;
+    String keystorePathDefault = System.getProperty("user.home") + "/.consent-manager/keystore.jks";
+
     @Inject
     TsaConfig config;
 
@@ -36,14 +44,33 @@ public class TimestampServiceBean implements TimestampService {
     @PostConstruct
     public void init() throws TimestampServiceException {
         LOGGER.log(Level.INFO, "Initializing TimestampService");
+
+//        expected behavior:
+//        - keystorePath not defined => always copy ours (dev mode)
+//        - keystorePath defined => check it exists, or give up (prod mode)
+
+        String keystorePath;
+        if (keystorePathConfig.isPresent()) {
+            keystorePath = String.valueOf(keystorePathConfig);
+        } else {
+            keystorePath = keystorePathDefault;
+            LOGGER.log(Level.WARNING, "consent.keystore.path undefined, copying our to {0}", keystorePath);
+            File keystoreFile = new File(keystorePath);
+            if (keystoreFile.exists()) {
+                LOGGER.log(Level.WARNING, "{0} already exists, overwriting", keystorePath);
+                if (!keystoreFile.delete()) throw new TimestampServiceException("could not delete {0}, please check");
+            }
+            InputStream defaultKeystore = this.getClass().getClassLoader().getResourceAsStream("keystore.jks");
+            assert defaultKeystore != null;
+            try {
+                Files.copy(defaultKeystore, Paths.get(keystorePath));
+            } catch (IOException e) {
+                throw new TimestampServiceException(String.format("could not copy default keystore to %s : %s", keystorePath, e.toString()));
+            }
+        }
+
         try {
-            Path keystore1 = Paths.get(ClassLoader.getSystemClassLoader().getResource("keystore.jks").toURI());
-            LOGGER.log(Level.INFO, keystore1.toString());
-            LOGGER.log(Level.INFO, new File(keystore1.toString()).getAbsolutePath());
-            Path keystore2 = Paths.get(this.getClass().getClassLoader().getResource("keystore.jks").toURI());
-            LOGGER.log(Level.INFO, keystore2.toString());
-            LOGGER.log(Level.INFO, new File(keystore2.toString()).getAbsolutePath());
-            KeyingDataProvider kp = new FileSystemKeyStoreKeyingDataProvider("JKS", keystore1.toString(),
+            KeyingDataProvider kp = new FileSystemKeyStoreKeyingDataProvider("JKS", keystorePath,
                     new FirstCertificateSelector(),
                     new DirectPasswordProvider("password"),
                     new DirectPasswordProvider("password"), false);

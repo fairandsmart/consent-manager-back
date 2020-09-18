@@ -13,25 +13,26 @@ FS_ENVIRONMENT_NAME=${FS_ENVIRONMENT_NAME:-dev}
 FS_BACKEND_TYPE=consent-manager-back
 
 # vars
-FS_CORS_ORIGINS=${FS_CORS_ORIGINS:-}
-FS_CORS_METHODS=${FS_CORS_METHODS:-OPTIONS,GET,PUT,POST,DELETE}
-FS_CORS_EXPOSED_HEADERS=${FS_CORS_EXPOSED_HEADERS:-Content-Disposition}
-FS_CORS_AC_MAX_AGE=${FS_CORS_AC_MAX_AGE:-24H}
-FS_AUTH_URI=${FS_AUTH_URI:-http://127.0.0.1:8080}
-FS_AUTH_REALM=${FS_AUTH_REALM:-FairAndSmart}
 FS_AUTH_CLIENTID=${FS_AUTH_CLIENTID:-fsconsentmgr}
+FS_AUTH_REALM=${FS_AUTH_REALM:-FairAndSmart}
+FS_AUTH_URI=${FS_AUTH_URI:-http://127.0.0.1:8080}
+FS_CONSENT_PROCESSOR=${FS_CONSENT_PROCESSOR:-https://www.fairandsmart.com}
 FS_CONSENTMANAGER_BACKEND="${FS_CONSENTMANAGER_BACKEND:-h2}"
+FS_CORS_AC_MAX_AGE=${FS_CORS_AC_MAX_AGE:-24H}
+FS_CORS_EXPOSED_HEADERS=${FS_CORS_EXPOSED_HEADERS:-Content-Disposition}
+FS_CORS_METHODS=${FS_CORS_METHODS:-OPTIONS,GET,PUT,POST,DELETE}
+FS_CORS_ORIGINS=${FS_CORS_ORIGINS:-}
 FS_DEBUG=${FS_DEBUG:-}
 FS_JVM_ARGS=${FS_JVM_ARGS:-}
+FS_KEYSTORE_PATH=${FS_KEYSTORE_PATH:-}
 FS_MAXHEAPSIZE=${FS_MAXHEAPSIZE:-1g}
-FS_CONSENT_PROCESSOR=${FS_CONSENT_PROCESSOR:-https://www.fairandsmart.com}
-FS_UNAUTHENTICATED=${FS_UNAUTHENTICATED:-anonymous}
 FS_SERIAL_PREFIX=${FS_SERIAL_PREFIX:-U}
 FS_SERIAL_SLOT_CAPACITY=${FS_SERIAL_SLOT_CAPACITY:-100}
 FS_SERIAL_SLOT_INITIAL=${FS_SERIAL_SLOT_INITIAL:-0}
-FS_TSA_URL=${FS_TSA_URL:-https://127.0.0.1:8580/tsr}
-FS_TOKEN_SECRET=${FS_TOKEN_SECRET:-ThisIsASuperSecret}
 FS_TOKEN_ISSUER=${FS_TOKEN_ISSUER:-admin}
+FS_TOKEN_SECRET=${FS_TOKEN_SECRET:-ThisIsASuperSecret}
+FS_TSA_URL=${FS_TSA_URL:-https://127.0.0.1:8580/tsr}
+FS_UNAUTHENTICATED=${FS_UNAUTHENTICATED:-anonymous}
 
 [[ -z "$FS_DEBUG" ]] || set -x
 
@@ -70,12 +71,13 @@ mkdir -p /data/home
 
 # Consent manager configuration
 sed -i "s|##FS_CONSENT_PROCESSOR##|$FS_CONSENT_PROCESSOR|" /config/application.properties
-sed -i "s|##FS_UNAUTHENTICATED##|$FS_UNAUTHENTICATED|" /config/application.properties
+sed -i "s|##FS_KEYSTORE_PATH##|$FS_KEYSTORE_PATH|" /config/application.properties
 sed -i "s|##FS_SERIAL_PREFIX##|$FS_SERIAL_PREFIX|" /config/application.properties
 sed -i "s|##FS_SERIAL_SLOT_CAPACITY##|$FS_SERIAL_SLOT_CAPACITY|" /config/application.properties
 sed -i "s|##FS_SERIAL_SLOT_INITIAL##|$FS_SERIAL_SLOT_INITIAL|" /config/application.properties
-sed -i "s|##FS_TOKEN_SECRET##|$FS_TOKEN_SECRET|" /config/application.properties
 sed -i "s|##FS_TOKEN_ISSUER##|$FS_TOKEN_ISSUER|" /config/application.properties
+sed -i "s|##FS_TOKEN_SECRET##|$FS_TOKEN_SECRET|" /config/application.properties
+sed -i "s|##FS_UNAUTHENTICATED##|$FS_UNAUTHENTICATED|" /config/application.properties
 
 # Public links configuration
 sed -i "s|##FS_TSA_URL##|$FS_TSA_URL|" /config/application.properties
