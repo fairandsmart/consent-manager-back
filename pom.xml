@@ -1,44 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fairandsmart</groupId>
     <artifactId>consent-manager-back</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>FairAndSmart Consent Manager Backend</name>
+    <scm>
+        <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
+        <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}
+        </developerConnection>
+        <url>https://gitlab.fairandsmart.tech/fairandsmart/${project.artifactId}</url>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>fns-nexus</id>
+            <name>Fair And Smart Nexus Releases</name>
+            <url>https://repository.fairandsmart.tech/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>fns-nexus</id>
+            <name>Fair And Smart Nexus Snapshots</name>
+            <url>https://repository.fairandsmart.tech/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
     <properties>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.inceptionYear>2020</project.inceptionYear>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-        <version.maven-deploy-plugin>3.0.0-M1</version.maven-deploy-plugin>
+        <version.bouncycastle>1.64</version.bouncycastle>
+        <version.commons-codec>1.14</version.commons-codec>
+        <version.dependency-check-maven>5.3.2</version.dependency-check-maven>
+        <version.exist>5.2.0</version.exist>
+        <version.freemarker>2.3.30</version.freemarker>
+        <version.jackson>2.11.1</version.jackson>
+        <version.java-jwt>3.10.3</version.java-jwt>
+        <version.jsoup>1.13.1</version.jsoup>
+        <version.maven>3.6.2</version.maven>
         <version.maven-clean-plugin>3.1.0</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.8.1</version.maven-compiler-plugin>
-        <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
         <version.maven-dependency-check-plugin>5.3.2</version.maven-dependency-check-plugin>
+        <version.maven-deploy-plugin>3.0.0-M1</version.maven-deploy-plugin>
         <version.maven-enforcer-plugin>3.0.0-M3</version.maven-enforcer-plugin>
         <version.maven-failsafe-plugin>2.22.0</version.maven-failsafe-plugin>
         <version.maven-install-plugin>3.0.0-M1</version.maven-install-plugin>
         <version.maven-jar-plugin>3.2.0</version.maven-jar-plugin>
+        <version.maven-quarkus-plugin>1.7.2.Final</version.maven-quarkus-plugin>
         <version.maven-resources-plugin>3.1.0</version.maven-resources-plugin>
         <version.maven-site-plugin>3.9.0</version.maven-site-plugin>
+        <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
+        <version.quarkus>1.7.2.Final</version.quarkus>
+        <version.resteasy-client>4.5.3.Final</version.resteasy-client>
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
-        <version.maven>3.6.2</version.maven>
-        <version.dependency-check-maven>5.3.2</version.dependency-check-maven>
-
-        <version.quarkus>1.7.2.Final</version.quarkus>
-        <version.maven-quarkus-plugin>1.7.2.Final</version.maven-quarkus-plugin>
-        <version.commons-codec>1.14</version.commons-codec>
-        <version.java-jwt>3.10.3</version.java-jwt>
-        <version.freemarker>2.3.30</version.freemarker>
-        <version.jsoup>1.13.1</version.jsoup>
         <version.xades4j>1.5.1</version.xades4j>
-        <version.resteasy-client>4.5.3.Final</version.resteasy-client>
-        <version.jackson>2.11.1</version.jackson>
-        <version.bouncycastle>1.64</version.bouncycastle>
-        <version.exist>5.2.0</version.exist>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -143,8 +160,8 @@
             <version>${version.java-jwt}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -174,20 +191,20 @@
             <version>${version.exist}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-jcl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-jul</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -257,7 +274,6 @@
                 <version>${version.maven-site-plugin}</version>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>${version.maven-deploy-plugin}</version>
                 <configuration>
@@ -293,10 +309,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${version.maven-enforcer-plugin}</version>
-                <inherited>true</inherited>
                 <executions>
                     <execution>
                         <id>enforce maven version</id>
@@ -313,27 +327,10 @@
                         </configuration>
                     </execution>
                 </executions>
+                <inherited>true</inherited>
             </plugin>
         </plugins>
     </build>
-    <scm>
-        <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
-        <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}
-        </developerConnection>
-        <url>https://gitlab.fairandsmart.tech/fairandsmart/${project.artifactId}</url>
-    </scm>
-    <distributionManagement>
-        <repository>
-            <id>fns-nexus</id>
-            <name>Fair And Smart Nexus Releases</name>
-            <url>https://repository.fairandsmart.tech/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>fns-nexus</id>
-            <name>Fair And Smart Nexus Snapshots</name>
-            <url>https://repository.fairandsmart.tech/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
     <profiles>
         <profile>
             <id>CI</id>
@@ -342,9 +339,6 @@
                     <name>env.CI</name>
                 </property>
             </activation>
-            <properties>
-                <quarkus.package.type>uber-jar</quarkus.package.type>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -353,13 +347,13 @@
                         <version>${version.versions-maven-plugin}</version>
                         <executions>
                             <execution>
+                                <phase>validate</phase>
                                 <goals>
                                     <goal>display-property-updates</goal>
                                     <goal>display-plugin-updates</goal>
                                     <goal>display-parent-updates</goal>
                                     <goal>display-dependency-updates</goal>
                                 </goals>
-                                <phase>validate</phase>
                                 <configuration>
                                     <processDependencyManagement>false</processDependencyManagement>
                                     <processPluginDependenciesInPluginManagement>false
@@ -372,6 +366,14 @@
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
                         <version>${version.dependency-check-maven}</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                         <configuration>
                             <enableRetired>true</enableRetired>
                             <enableExperimental>true</enableExperimental>
@@ -393,17 +395,12 @@
                             </suppressionFiles>
                             <failBuildOnCVSS>11</failBuildOnCVSS>
                         </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                                <phase>verify</phase>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
+            <properties>
+                <quarkus.package.type>uber-jar</quarkus.package.type>
+            </properties>
         </profile>
         <profile>
             <id>native</id>
@@ -415,7 +412,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${version.maven-failsafe-plugin}</version>
                         <executions>

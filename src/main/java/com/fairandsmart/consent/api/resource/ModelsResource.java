@@ -215,6 +215,15 @@ public class ModelsResource {
         return templateService.buildModel(consentService.previewVersion(id, vid, dto));
     }
 
+    @POST
+    @Path("/{id}/versions/new/preview")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
+        LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/new/preview");
+        return templateService.buildModel(consentService.previewVersion(id, "new", dto));
+    }
+
     @DELETE
     @Path("/{id}/versions/{vid}")
     @Produces(MediaType.APPLICATION_JSON)

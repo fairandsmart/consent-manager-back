@@ -61,7 +61,7 @@ public interface ConsentService {
 
     ModelVersion updateVersionStatus(String versionId, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException;
 
-    ConsentForm previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException;
+    ConsentForm previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException, ModelDataSerializationException;
 
     void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 

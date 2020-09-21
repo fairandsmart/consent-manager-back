@@ -6,7 +6,7 @@
         <div class="treatment-header">
             <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>
 
-            <#assign isChecked=(data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted")>
+            <#assign isChecked=(!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted")>
             <@toggleSwitch "${element.identifier}" isChecked></@toggleSwitch>
         </div>
 
@@ -19,14 +19,12 @@
         </div>
 
         <#-- Retention -->
-        <#if langContent.retentionBody?has_content>
-            <div class="item-wrapper">
-                <#if langContent.retentionTitle?has_content>
-                    <h4>${langContent.retentionTitle}</h4>
-                </#if>
-                <p class="treatment-body">${langContent.retentionBody}</p>
-            </div>
-        </#if>
+        <div class="item-wrapper">
+            <#if langContent.retentionTitle?has_content>
+                <h4>${langContent.retentionTitle}</h4>
+            </#if>
+            <p class="treatment-body"><@valueOrError langContent.retentionBody "missingValue"></@valueOrError></p>
+        </div>
 
         <#-- Usage & purposes -->
         <div class="item-wrapper">

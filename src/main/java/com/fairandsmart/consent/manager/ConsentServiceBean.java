@@ -3,6 +3,7 @@ package com.fairandsmart.consent.manager;
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
 import com.fairandsmart.consent.common.config.MainConfig;
+import com.fairandsmart.consent.manager.cache.PreviewCache;
 import com.fairandsmart.consent.manager.handler.ConsentContextHandler;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.util.PageUtil;
@@ -78,6 +79,10 @@ public class ConsentServiceBean implements ConsentService {
     @Inject
     MainConfig config;
 
+    /* Keys are ModelEntries ids since only one version per entry can be previewed. It helps clearing the cache when an entry is deleted. */
+    @Inject
+    PreviewCache previewCache;
+
     /* MODELS MANAGEMENT */
 
     @Override
@@ -86,13 +91,13 @@ public class ConsentServiceBean implements ConsentService {
         PanacheQuery<ModelEntry> query;
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
-            if ( filter.getTypes() == null || filter.getTypes().isEmpty() ) {
+            if (filter.getTypes() == null || filter.getTypes().isEmpty()) {
                 query = ModelEntry.find("owner = ?1", sort, config.owner());
             } else {
                 query = ModelEntry.find("owner = ?1 and type in ?2", sort, config.owner(), filter.getTypes());
             }
         } else {
-            if ( filter.getTypes() == null || filter.getTypes().isEmpty() ) {
+            if (filter.getTypes() == null || filter.getTypes().isEmpty()) {
                 query = ModelEntry.find("owner = ?1", config.owner());
             } else {
                 query = ModelEntry.find("owner = ?1 and type in ?2", config.owner(), filter.getTypes());
@@ -161,6 +166,7 @@ public class ConsentServiceBean implements ConsentService {
         List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", config.owner(), id).list();
         if (versions.isEmpty() || versions.stream().allMatch(v -> v.status.equals(ModelVersion.Status.DRAFT))) {
             ModelEntry.deleteById(id);
+            previewCache.remove(id);
         } else {
             //TODO Maybe allow this but ensure that all corresponding records are going to be deleted... and that receipt may be corrupted.
             throw new ConsentManagerException("unable to delete entry that have not only DRAFT versions");
@@ -175,7 +181,7 @@ public class ConsentServiceBean implements ConsentService {
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelEntry> optional = ModelEntry.find("id = ?1 and owner = ?2", entryId, config.owner()).singleResultOptional();
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + entryId));
-        if ( data.values().stream().anyMatch(d -> !d.getType().equals(entry.type)) ) {
+        if (data.values().stream().anyMatch(d -> !d.getType().equals(entry.type))) {
             throw new ConsentManagerException("One content data type does not belongs to entry type: " + entry.type);
         }
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and entry.id = ?2 and child = ?3", config.owner(), entryId, "").singleResultOptional();
@@ -219,13 +225,16 @@ public class ConsentServiceBean implements ConsentService {
                 latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
             }
             latest.availableLocales = String.join(",", data.keySet());
-            if ( latest.content.containsKey(defaultLocale) ) {
+            if (latest.content.containsKey(defaultLocale)) {
                 latest.defaultLocale = defaultLocale;
             } else {
                 throw new ConsentManagerException("Default Locale does not exists in content locales");
             }
             latest.modificationDate = now;
             latest.persist();
+            if (previewCache.containsKey(latest.entry.id)) {
+                previewCache.put(latest.entry.id, latest);
+            }
             return latest;
         } catch (SerialGeneratorException ex) {
             throw new ConsentManagerException("unable to generate serial number for new version", ex);
@@ -306,7 +315,7 @@ public class ConsentServiceBean implements ConsentService {
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelVersion> voptional = ModelVersion.find("owner = ?1 and id = ?2", config.owner(), id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
-        if ( data.values().stream().anyMatch(d -> !d.getType().equals(version.entry.type)) ) {
+        if (data.values().stream().anyMatch(d -> !d.getType().equals(version.entry.type))) {
             throw new ConsentManagerException("One content data type does not belongs to entry type: " + version.entry.type);
         }
         if (!version.child.isEmpty()) {
@@ -318,13 +327,16 @@ public class ConsentServiceBean implements ConsentService {
                 version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
             }
             version.availableLocales = String.join(",", data.keySet());
-            if ( version.content.containsKey(defaultLocale) ) {
+            if (version.content.containsKey(defaultLocale)) {
                 version.defaultLocale = defaultLocale;
             } else {
                 throw new ConsentManagerException("Default Locale does not exists in content locales");
             }
             version.modificationDate = System.currentTimeMillis();
             version.persist();
+            if (previewCache.containsKey(version.entry.id)) {
+                previewCache.put(version.entry.id, version);
+            }
             return version;
         } catch (ModelDataSerializationException ex) {
             throw new ConsentManagerException("unable to serialise data", ex);
@@ -395,10 +407,23 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentForm previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException {
-        ModelVersion version = this.getVersion(versionId);
-        if ( !version.entry.id.equals(entryId) ) {
-            throw new EntityNotFoundException("Unable to find a version with id: " + versionId + " in entry with id: " + entryId);
+    public ConsentForm previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
+        ModelVersion version = previewCache.lookup(entryId);
+        if (version == null) {
+            if (versionId != null && !versionId.equals("new")) {
+                version = this.getVersion(versionId);
+                if (!version.entry.id.equals(entryId)) {
+                    throw new EntityNotFoundException("Unable to find a version with id: " + versionId + " in entry with id: " + entryId);
+                }
+            } else {
+                version = new ModelVersion();
+                version.entry = this.getEntry(entryId);
+            }
+        }
+
+        if (dto.getData() != null) {
+            version.content.put(dto.getLocale(), new ModelContent().withDataObject(dto.getData()));
+            previewCache.put(entryId, version);
         }
 
         ConsentForm form = new ConsentForm();
@@ -407,6 +432,7 @@ public class ConsentServiceBean implements ConsentService {
         form.setToken("PREVIEW");
         form.setPreview(true);
         form.setConditions(false);
+
         switch (version.entry.type) {
             case Header.TYPE:
                 form.setHeader(version);
@@ -428,6 +454,7 @@ public class ConsentServiceBean implements ConsentService {
                 form.setOptoutEmail(version);
                 break;
         }
+
         return form;
     }
 
@@ -452,9 +479,9 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public String buildToken(ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
-        if ( ctx.getSubject() == null || ctx.getSubject().isEmpty() ) {
+        if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
             ctx.setSubject(authentication.getConnectedIdentifier());
-        } else if ( !ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierAdmin()) {
+        } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierAdmin()) {
             throw new AccessDeniedException("Only admin can generate token for other identifier than connected one");
         }
         return token.generateToken(ctx);
@@ -563,7 +590,7 @@ public class ConsentServiceBean implements ConsentService {
                             ctx.setFooter(ConsentElementIdentifier.deserialize(ctx.getFooter()).getKey());
                         }
                         List<String> celements = new ArrayList<>();
-                        for ( String element : ctx.getElements() ) {
+                        for (String element : ctx.getElements()) {
                             celements.add(ConsentElementIdentifier.deserialize(element).getKey());
                         }
                         ctx.setElements(celements);
@@ -573,7 +600,7 @@ public class ConsentServiceBean implements ConsentService {
                         URI optoutUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", optout.getToken()).build();
                         optout.setUrl(optoutUri.toString());
                         notification.notify(event.withData(optout));
-                    } catch (EntityNotFoundException | IllegalIdentifierException e ) {
+                    } catch (EntityNotFoundException | IllegalIdentifierException e) {
                         LOGGER.log(Level.SEVERE, "Unable to load optout model", e);
                     }
                 } else {
