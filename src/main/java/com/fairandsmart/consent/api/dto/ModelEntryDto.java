@@ -20,6 +20,7 @@ public class ModelEntryDto {
     @NotNull
     private String type;
     private List<ModelVersionDtoLight> versions = new ArrayList<>();
+    private boolean hasActiveVersion = false;
 
     public ModelEntryDto() {
     }
@@ -72,6 +73,14 @@ public class ModelEntryDto {
         this.versions = versions;
     }
 
+    public boolean isHasActiveVersion() {
+        return hasActiveVersion;
+    }
+
+    public void setHasActiveVersion(boolean hasActiveVersion) {
+        this.hasActiveVersion = hasActiveVersion;
+    }
+
     public static ModelEntryDto fromModelEntry(ModelEntry entry) {
         ModelEntryDto dto = new ModelEntryDto();
         dto.setId(entry.id);
@@ -79,6 +88,7 @@ public class ModelEntryDto {
         dto.setName(entry.name);
         dto.setType(entry.type);
         dto.setDescription(entry.description);
+        dto.setHasActiveVersion(entry.hasActiveVersion);
         return dto;
     }
 }

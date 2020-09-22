@@ -143,4 +143,9 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet author="manon" id="active-versions">
+        <addColumn tableName="MODELENTRY">
+            <column name="HASACTIVEVERSION" type="BOOLEAN" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
