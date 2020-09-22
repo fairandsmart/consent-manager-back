@@ -1,6 +1,5 @@
 <div class="logo-wrapper">
     <#if data.header?has_content>
-        <#-- CF header.ftl -->
         <@fetchMultiLangContent data.header></@fetchMultiLangContent>
 
         <#if langContent?is_hash && langContent.logoPath?has_content>

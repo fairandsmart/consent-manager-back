@@ -417,7 +417,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentForm previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
+    public PreviewDto previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
         ModelVersion version = previewCache.lookup(entryId);
         if (version == null) {
             if (versionId != null && !versionId.equals("new")) {
@@ -434,38 +434,10 @@ public class ConsentServiceBean implements ConsentService {
         if (dto.getData() != null) {
             version.content.put(dto.getLocale(), new ModelContent().withDataObject(dto.getData()));
             previewCache.put(entryId, version);
+        } else {
+            dto.setData(version.content.get(dto.getLocale()).getDataObject());
         }
-
-        ConsentForm form = new ConsentForm();
-        form.setLocale(dto.getLocale());
-        form.setOrientation(dto.getOrientation());
-        form.setToken("PREVIEW");
-        form.setPreview(true);
-        form.setConditions(false);
-
-        switch (version.entry.type) {
-            case Header.TYPE:
-                form.setHeader(version);
-                break;
-            case Footer.TYPE:
-                form.setFooter(version);
-                break;
-            case Treatment.TYPE:
-                form.addElement(version);
-                break;
-            case Conditions.TYPE:
-                form.addElement(version);
-                form.setConditions(true);
-                break;
-            case Theme.TYPE:
-                form.setTheme(version);
-                break;
-            case Email.TYPE:
-                form.setOptoutEmail(version);
-                break;
-        }
-
-        return form;
+        return dto;
     }
 
     @Override

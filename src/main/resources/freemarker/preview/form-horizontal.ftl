@@ -9,47 +9,60 @@
     <meta name="description" content="Outil de gestion des consentements Fair&Smart">
     <meta name="author" content="Fair&Smart">
 
-    <link rel="stylesheet" type="text/css" href="/assets/css/common.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/consent.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/horizontal.css">
+    <#include "../style/common-style.ftl">
+    <#include "../style/consent-style.ftl">
+    <#include "../style/horizontal-style.ftl">
+    <#if data.theme??>
+        <@fetchMultiLangContent data.theme></@fetchMultiLangContent>
+        <#assign theme=langContent>
+        <#if theme?is_hash>
+            <style>${theme.css}</style>
+        </#if>
+    </#if>
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
 
 <body>
-    <form method="post" id="consent" action="#" class="consent-form">
-        <input name="token" id="token" value="${data.token}" hidden/>
+<div class="consent-form">
 
-        <div class="left">
-            <#if data.header??>
-                <#include "../header-logo.ftl">
+    <div class="left">
+        <#if data.header??>
+            <@fetchMultiLangContent data.header></@fetchMultiLangContent>
+            <#assign header=langContent>
+            <#include "header-logo.ftl">
 
-                <div class="left-content">
-                    <#include "../header.ftl">
-                </div>
-            </#if>
-
-            <div class="content-fade fade-inverted"></div>
-        </div>
-
-        <div class="right">
-            <div class="content-fade"></div>
-
-            <div class="treatments">
-                <#list data.elements as element>
-                    <@fetchMultiLangContent element></@fetchMultiLangContent>
-                    <#include "../" + element.entry.type + ".ftl">
-                </#list>
+            <div class="left-content">
+                <#include "header.ftl">
             </div>
+        </#if>
 
-            <#if data.footer??>
-                <#include "../footer.ftl">
-            </#if>
+        <div class="content-fade fade-inverted"></div>
+    </div>
+
+    <div class="right">
+        <div class="content-fade"></div>
+
+        <div class="treatments">
+            <#list data.elements as element>
+                <@fetchMultiLangContent element></@fetchMultiLangContent>
+                <#assign treatment=langContent>
+                <#assign identifier=element?index>
+                <#include element.entry.type + ".ftl">
+            </#list>
         </div>
-    </form>
 
-    <script src="/assets/js/consent.js"></script>
-    <script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin="" integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
+        <#if data.footer??>
+            <@fetchMultiLangContent data.footer></@fetchMultiLangContent>
+            <#assign footer=langContent>
+            <#include "footer.ftl">
+        </#if>
+    </div>
+</div>
+
+<script src="/assets/js/consent.js"></script>
+<script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin=""
+        integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
 
 </body>
 </html>

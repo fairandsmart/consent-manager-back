@@ -33,12 +33,7 @@ public class ConsentFormTemplateModelBuilder implements TemplateModelBuilder {
         if (form.isConditions()) {
             model.setTemplate("conditions.ftl");
         } else if (form.isPreview()) {
-            if (form.getOptoutEmail() != null) {
-                model.setTemplate("preview/email.ftl");
-            } else {
-                String type = form.getTheme() != null ? "theme" : "form";
-                model.setTemplate("preview/" + type + "-" + orientation + ".ftl");
-            }
+            model.setTemplate("preview/form-" + orientation + ".ftl");
         } else {
             model.setTemplate("form-" + orientation + ".ftl");
         }

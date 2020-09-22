@@ -1,39 +1,36 @@
 <div class="treatment">
-    <@fetchMultiLangContent element></@fetchMultiLangContent>
-
-    <#if langContent?is_hash && langContent?has_content>
+    <#if treatment?is_hash>
     <#-- Header -->
         <div class="treatment-header">
-            <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>
+            <h3><@valueOrError treatment.treatmentTitle "missingValue"></@valueOrError></h3>
 
-            <#assign isChecked=(!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted")>
-            <@toggleSwitch "${element.identifier}" isChecked></@toggleSwitch>
+            <@toggleSwitch "${identifier}"></@toggleSwitch>
         </div>
 
     <#-- Data -->
         <div class="item-wrapper">
-            <#if langContent.dataTitle?has_content>
-                <h4>${langContent.dataTitle}</h4>
+            <#if treatment.dataTitle?has_content>
+                <h4>${treatment.dataTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError langContent.dataBody "missingValue"></@valueOrError></p>
+            <p class="treatment-body"><@valueOrError treatment.dataBody "missingValue"></@valueOrError></p>
         </div>
 
     <#-- Retention -->
         <div class="item-wrapper">
-            <#if langContent.retentionTitle?has_content>
-                <h4>${langContent.retentionTitle}</h4>
+            <#if treatment.retentionTitle?has_content>
+                <h4>${treatment.retentionTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError langContent.retentionBody "missingValue"></@valueOrError></p>
+            <p class="treatment-body"><@valueOrError treatment.retentionBody "missingValue"></@valueOrError></p>
         </div>
 
     <#-- Usage & purposes -->
         <div class="item-wrapper">
-            <#if langContent.usageTitle?has_content>
-                <h4>${langContent.usageTitle}</h4>
+            <#if treatment.usageTitle?has_content>
+                <h4>${treatment.usageTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError langContent.usageBody "missingValue"></@valueOrError></p>
+            <p class="treatment-body"><@valueOrError treatment.usageBody "missingValue"></@valueOrError></p>
             <p class="treatment-body purpose-container">
-                <#list langContent.purposes as purpose>
+                <#list treatment.purposes as purpose>
                     <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png"
                          alt="${purpose?lower_case}"/>
                 </#list>
@@ -41,21 +38,21 @@
         </div>
 
     <#-- Data controller -->
-        <#if langContent.showDataController && langContent.dataController?has_content>
-            <#assign dataController=langContent.dataController>
-            <#include "data-controller.ftl">
+        <#if treatment.showDataController && treatment.dataController?has_content>
+            <#assign dataController=treatment.dataController>
+            <#include "../data-controller.ftl">
         </#if>
 
     <#-- Sensitive data -->
-        <#if langContent.containsSensitiveData || langContent.containsMedicalData>
+        <#if treatment.containsSensitiveData || treatment.containsMedicalData>
             <div class="block-wrapper">
                 <h4><@readBundle "defaultSensitiveDataTitle"></@readBundle></h4>
 
                 <ul class="treatment-body">
-                    <#if langContent.containsSensitiveData>
+                    <#if treatment.containsSensitiveData>
                         <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
                     </#if>
-                    <#if langContent.containsMedicalData>
+                    <#if treatment.containsMedicalData>
                         <li><span class="list-value"><@readBundle "containsMedicalData"></@readBundle></span></li>
                     </#if>
                 </ul>
@@ -63,12 +60,12 @@
         </#if>
 
     <#-- Third parties -->
-        <#if langContent.thirdParties?has_content>
+        <#if treatment.thirdParties?has_content>
             <div class="block-wrapper">
                 <h4><@readBundle "defaultThirdPartiesTitle"></@readBundle></h4>
 
                 <ul class="treatment-body">
-                    <#list langContent.thirdParties as thirdParty>
+                    <#list treatment.thirdParties as thirdParty>
                         <li><span class="list-label">${thirdParty.name} :</span> <span
                                     class="list-value">${thirdParty.value}</span></li>
                     </#list>
