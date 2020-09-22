@@ -215,6 +215,7 @@ public class ConsentServiceBean implements ConsentService {
                 newversion.counterparts = latest.counterparts;
                 newversion.type = ModelVersion.Type.MINOR;
                 newversion.addCounterpart(latest.serial);
+                newversion.persist();
 
                 latest.child = newversion.id;
                 latest.persist();

@@ -48,7 +48,7 @@ public class AuthenticationServiceTest {
         try {
             authenticationService.ensureConnectedIdentifierIsAdmin();
             fail("This should raise an AccessDeniedException");
-        } catch ( AccessDeniedException e ) {
+        } catch (AccessDeniedException e) {
             //
         }
         authenticationService.ensureConnectedIdentifierIsOperator();
@@ -68,13 +68,13 @@ public class AuthenticationServiceTest {
         try {
             authenticationService.ensureConnectedIdentifierIsAdmin();
             fail("This should raise an AccessDeniedException");
-        } catch ( AccessDeniedException e ) {
+        } catch (AccessDeniedException e) {
             //
         }
         try {
             authenticationService.ensureConnectedIdentifierIsOperator();
             fail("This should raise an AccessDeniedException");
-        } catch ( AccessDeniedException e ) {
+        } catch (AccessDeniedException e) {
             //
         }
     }

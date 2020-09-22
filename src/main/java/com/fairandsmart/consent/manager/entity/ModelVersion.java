@@ -45,7 +45,7 @@ public class ModelVersion extends PanacheEntityBase {
     public Map<String, ModelContent> content = new HashMap<>();
 
     public ModelData getData(String locale) throws ModelDataSerializationException {
-        if ( content.containsKey(locale) ) {
+        if (content.containsKey(locale)) {
             return content.get(locale).getDataObject();
         } else {
             return content.get(defaultLocale).getDataObject();
@@ -58,14 +58,14 @@ public class ModelVersion extends PanacheEntityBase {
 
     public void addCounterpart(String counterpart) {
         List<String> cp = getCounterParts();
-        if ( !cp.contains(counterpart) ) {
+        if (!cp.contains(counterpart)) {
             cp.add(counterpart);
             this.setCounterParts(cp);
         }
     }
 
     public void setCounterParts(List<String> counterparts) {
-        if ( counterparts.isEmpty() ) {
+        if (counterparts.isEmpty()) {
             this.counterparts = "";
         } else {
             this.counterparts = String.join(",", counterparts);
@@ -73,7 +73,7 @@ public class ModelVersion extends PanacheEntityBase {
     }
 
     public List<String> getCounterParts() {
-        if ( counterparts == null || counterparts.isEmpty() ) {
+        if (counterparts == null || counterparts.isEmpty()) {
             return new ArrayList<>();
         } else {
             return Arrays.stream(counterparts.split(",")).collect(Collectors.toList());
@@ -130,23 +130,23 @@ public class ModelVersion extends PanacheEntityBase {
             return versions.stream().filter(v -> v.parent.isEmpty()).findFirst().orElseThrow(() -> new ConsentManagerException("unable to find root version"));
         }
 
-        public static ModelVersion findVersion(String serial, List<ModelVersion> versions) {
-            return versions.stream().filter(v -> v.serial.equals(serial)).findFirst().orElse(null);
+        public static ModelVersion findVersion(String id, List<ModelVersion> versions) {
+            return versions.stream().filter(v -> v.id.equals(id)).findFirst().orElse(null);
         }
 
         public static List<ModelVersion> orderVersions(List<ModelVersion> versions) throws ConsentManagerException {
-            if ( versions.isEmpty() ) {
+            if (versions.isEmpty()) {
                 return versions;
             }
             List<ModelVersion> ordered = new ArrayList<>();
             ordered.add(ModelVersion.HistoryHelper.findRootVersion(versions));
             String next = ordered.get(0).child;
-            while ( next != null && !next.isEmpty() ) {
+            while (next != null && !next.isEmpty()) {
                 ModelVersion version = findVersion(next, versions);
                 ordered.add(version);
                 next = version.child;
             }
-            if ( ordered.size() != versions.size() ) {
+            if (ordered.size() != versions.size()) {
                 throw new ConsentManagerException("error while ordering versions");
             }
             return ordered;
@@ -169,7 +169,7 @@ public class ModelVersion extends PanacheEntityBase {
         public static ModelVersion findModelVersionForSerial(String serial, boolean forceContentLoad) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {
             Optional<ModelVersion> optional = ModelVersion.find("serial = ?1", serial).singleResultOptional();
             ModelVersion version = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for serial: " + serial));
-            if ( forceContentLoad ) {
+            if (forceContentLoad) {
                 //Force load of lazy collection, no better way found
                 version.content.entrySet().stream().map(Object::toString);
             }

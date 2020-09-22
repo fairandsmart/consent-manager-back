@@ -63,7 +63,7 @@ public class ConsentServiceTest {
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testCreateAndUpdateHeaderEntry() throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException {
-        LOGGER.info("#### Test create and Update Header entry");
+        LOGGER.info("#### Test create and update Header entry");
         LOGGER.info("List existing entries for headers");
         CollectionPage<ModelEntry> headers = service.listEntries(new ModelFilter().withTypes(Collections.singletonList(Header.TYPE)).withPage(1).withSize(5));
         long headersCountBeforeCreate = headers.getTotalCount();
@@ -106,20 +106,20 @@ public class ConsentServiceTest {
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testCreateAndUpdateHeaderContent() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, ModelDataSerializationException, InvalidStatusException {
-        LOGGER.info("#### Test create and Update Header content");
+        LOGGER.info("#### Test create and update Header content");
         LOGGER.info("Create entry");
         String key = UUID.randomUUID().toString();
         String entryId = service.createEntry(key, "Name " + key, "Description " + key, Header.TYPE).id;
         assertNotNull(entryId);
 
         LOGGER.info("List versions");
-        List<ModelVersion> versions = service.getVersionHistoryForKey(entryId);
+        List<ModelVersion> versions = service.getVersionHistoryForEntry(entryId);
         assertEquals(0, versions.size());
 
         String locale = "fr_FR";
         LOGGER.info("Create Header " + key);
         Header header = TestUtils.generateHeader(key);
-        String versionId = service.createVersion(entryId, locale, Collections.singletonMap(locale,header)).id;
+        String versionId = service.createVersion(entryId, locale, Collections.singletonMap(locale, header)).id;
 
         LOGGER.info("List versions");
         versions = service.getVersionHistoryForEntry(entryId);
@@ -138,7 +138,7 @@ public class ConsentServiceTest {
         //At this point no version is active
         assertThrows(EntityNotFoundException.class, () -> service.findActiveVersionForKey(key));
 
-        LOGGER.log(Level.INFO, "Activate entry");
+        LOGGER.log(Level.INFO, "Activate version");
         service.updateVersionStatus(versionId, ModelVersion.Status.ACTIVE);
 
         version = service.findActiveVersionForKey(key);
@@ -148,6 +148,75 @@ public class ConsentServiceTest {
         version = service.findLatestVersionForKey(key);
         assertEquals(versions.get(0), version);
         assertEquals(ModelVersion.Status.ACTIVE, version.status);
+    }
+
+    @Test
+    @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testHeaderVersionHistory() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException {
+        LOGGER.info("#### Test Header versions history");
+        LOGGER.info("Create entry");
+        String key = UUID.randomUUID().toString();
+        String entryId = service.createEntry(key, "Name " + key, "Description " + key, Header.TYPE).id;
+        assertNotNull(entryId);
+
+        LOGGER.info("List versions");
+        List<ModelVersion> versions = service.getVersionHistoryForEntry(entryId);
+        assertEquals(0, versions.size());
+
+        String locale = "fr_FR";
+        LOGGER.info("Create Header " + key + " version 1");
+        Header header = TestUtils.generateHeader(key);
+        String versionId = service.createVersion(entryId, locale, Collections.singletonMap(locale, header)).id;
+
+        LOGGER.info("List versions");
+        versions = service.getVersionHistoryForEntry(entryId);
+        assertEquals(1, versions.size());
+        assertEquals(ModelVersion.Status.DRAFT, versions.get(0).status);
+
+        LOGGER.log(Level.INFO, "Activate version 1");
+        service.updateVersionStatus(versionId, ModelVersion.Status.ACTIVE);
+
+        ModelVersion version = service.findActiveVersionForKey(key);
+        assertEquals(versions.get(0), version);
+
+        version = service.findLatestVersionForKey(key);
+        assertEquals(versions.get(0), version);
+        assertEquals(ModelVersion.Status.ACTIVE, version.status);
+
+        LOGGER.info("Create Header " + key + " version 2");
+        Header header2 = TestUtils.generateHeader(key);
+        String version2Id = service.createVersion(entryId, locale, Collections.singletonMap(locale, header2)).id;
+
+        LOGGER.info("List versions");
+        versions = service.getVersionHistoryForEntry(entryId);
+        assertEquals(2, versions.size());
+        assertEquals(ModelVersion.Status.ACTIVE, versions.get(0).status);
+        assertEquals(ModelVersion.Status.DRAFT, versions.get(1).status);
+
+        version = service.findActiveVersionForKey(key);
+        assertEquals(versions.get(0), version);
+
+        version = service.findLatestVersionForKey(key);
+        assertEquals(versions.get(1), version);
+        assertEquals(ModelVersion.Status.DRAFT, version.status);
+
+        LOGGER.log(Level.INFO, "Activate version 2");
+        service.updateVersionStatus(version2Id, ModelVersion.Status.ACTIVE);
+
+        LOGGER.info("List versions");
+        versions = service.getVersionHistoryForEntry(entryId);
+        assertEquals(2, versions.size());
+        assertEquals(ModelVersion.Status.ARCHIVED, versions.get(0).status);
+        assertEquals(ModelVersion.Status.ACTIVE, versions.get(1).status);
+
+        version = service.findActiveVersionForKey(key);
+        assertEquals(versions.get(1), version);
+
+        version = service.findLatestVersionForKey(key);
+        assertEquals(versions.get(1), version);
+        assertEquals(ModelVersion.Status.ACTIVE, version.status);
+
     }
 
     @Test
