@@ -393,9 +393,6 @@ public class ConsentServiceBean implements ConsentService {
                     version.counterparts = "";
                 }
                 version.persist();
-                ModelEntry entry = ModelEntry.findById(version.entry.id);
-                entry.hasActiveVersion = true;
-                entry.persist();
             }
         }
         if (status.equals(ModelVersion.Status.ARCHIVED)) {
@@ -405,13 +402,6 @@ public class ConsentServiceBean implements ConsentService {
                 version.modificationDate = System.currentTimeMillis();
                 version.status = ModelVersion.Status.ARCHIVED;
                 version.persist();
-                ModelEntry entry = ModelEntry.findById(version.entry.id);
-                try {
-                    findActiveVersionForEntry(entry.id);
-                } catch (EntityNotFoundException e) {
-                    entry.hasActiveVersion = false;
-                    entry.persist();
-                }
             }
         }
         return version;

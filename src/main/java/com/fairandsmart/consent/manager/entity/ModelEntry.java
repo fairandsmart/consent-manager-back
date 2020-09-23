@@ -28,7 +28,6 @@ public class ModelEntry extends PanacheEntityBase {
     public String owner;
     @Column(length = 5000)
     public String branches;
-    public boolean hasActiveVersion;
 
     public static boolean isKeyAlreadyExistsForOwner(String owner, String key) {
         return ModelEntry.count("owner = ?1 and key = ?2", owner, key) > 0;
@@ -46,7 +45,6 @@ public class ModelEntry extends PanacheEntityBase {
                 ", author='" + author + '\'' +
                 ", owner='" + owner + '\'' +
                 ", branches='" + branches + '\'' +
-                ", hasActiveVersion=" + hasActiveVersion +
                 '}';
     }
 
