@@ -46,7 +46,7 @@
         <div class="treatments">
             <#list data.elements as element>
                 <@fetchMultiLangContent element></@fetchMultiLangContent>
-                <#assign treatment=langContent>
+                <#assign element_content=langContent>
                 <#assign identifier=element?index>
                 <#include element.entry.type + ".ftl">
             </#list>
