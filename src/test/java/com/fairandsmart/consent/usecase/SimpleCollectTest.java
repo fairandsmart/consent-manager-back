@@ -58,16 +58,21 @@ public class SimpleCollectTest {
     public void testSimpleCollect() {
         //INITIAL SETUP
         //Check that the app is running
+        LOGGER.log(Level.INFO, "Initial setup");
         given().contentType(ContentType.JSON).
                 when().get("/health").
                 then().body("status", equalTo("UP"));
 
         //Generate test elements
+        LOGGER.log(Level.INFO, "Generating entries");
         List<String> keys = List.of(hKey, t1Key, t2Key, fKey);
         List<String> types = List.of(Header.TYPE, Treatment.TYPE, Treatment.TYPE, Footer.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
-            ModelEntryDto model = TestUtils.generateModelEntryDto(keys.get(index), types.get(index));
+            String key = keys.get(index);
+            String type = types.get(index);
+            LOGGER.log(Level.INFO, "Creating " + type + " entry");
+            ModelEntryDto model = TestUtils.generateModelEntryDto(key, type);
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(model).size());
             Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(model).
@@ -76,7 +81,8 @@ public class SimpleCollectTest {
             ModelEntryDto entry = response.body().as(ModelEntryDto.class);
 
             //Create model version
-            ModelVersionDto dto = TestUtils.generateModelVersionDto(keys.get(index), types.get(index), locale);
+            LOGGER.log(Level.INFO, "Creating " + type + " version");
+            ModelVersionDto dto = TestUtils.generateModelVersionDto(key, type, locale);
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(dto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(dto).
@@ -85,6 +91,7 @@ public class SimpleCollectTest {
             dto = response.body().as(ModelVersionDto.class);
 
             //Activate model version
+            LOGGER.log(Level.INFO, "Activating " + type + " version");
             dto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(dto).
@@ -94,6 +101,7 @@ public class SimpleCollectTest {
             assertEquals(ModelVersion.Status.ACTIVE, dto.getStatus());
         }
 
+        LOGGER.log(Level.INFO, "Creating context & token");
         ConsentContext ctx = new ConsentContext()
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
@@ -150,6 +158,7 @@ public class SimpleCollectTest {
 
         //PART 2
         //Post user answer
+        LOGGER.log(Level.INFO, "Posting user answer");
         Response postResponse = given().contentType(ContentType.URLENC).
                 formParams(values).when().post("/consents");
         String postPage = postResponse.asString();
@@ -185,6 +194,7 @@ public class SimpleCollectTest {
 
         //PART 4
         //Post user new answer
+        LOGGER.log(Level.INFO, "Posting new user answer");
         postResponse = given().contentType(ContentType.URLENC).
                 formParams(values).when().post("/consents");
         postPage = postResponse.asString();

@@ -64,17 +64,22 @@ public class CollectWithEmailTest {
     @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testCollectWithEmail() throws InterruptedException {
         //SETUP
+        LOGGER.log(Level.INFO, "Initial setup");
         //Check that the app is running
         given().contentType(ContentType.JSON).
                 when().get("/health").
                 then().body("status", equalTo("UP"));
 
         //Generate test elements
+        LOGGER.log(Level.INFO, "Generating entries");
         List<String> keys = List.of(hKey, t1Key, t2Key, fKey, eKey);
         List<String> types = List.of(Header.TYPE, Treatment.TYPE, Treatment.TYPE, Footer.TYPE, Email.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
-            ModelEntryDto entryDto = TestUtils.generateModelEntryDto(keys.get(index), types.get(index));
+            String key = keys.get(index);
+            String type = types.get(index);
+            LOGGER.log(Level.INFO, "Creating " + type + " entry");
+            ModelEntryDto entryDto = TestUtils.generateModelEntryDto(key, type);
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(entryDto).size());
             Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(entryDto).
@@ -83,7 +88,8 @@ public class CollectWithEmailTest {
             entryDto = response.body().as(ModelEntryDto.class);
 
             //Create model version
-            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(keys.get(index), types.get(index), locale);
+            LOGGER.log(Level.INFO, "Creating " + type + " version");
+            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(key, type, locale);
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(versionDto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(versionDto).
@@ -92,6 +98,7 @@ public class CollectWithEmailTest {
             versionDto = response.body().as(ModelVersionDto.class);
 
             //Activate model version
+            LOGGER.log(Level.INFO, "Activating " + type + " version");
             versionDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(versionDto).
@@ -103,6 +110,7 @@ public class CollectWithEmailTest {
 
         //PART 1
         //Use basic consent context for first generation
+        LOGGER.log(Level.INFO, "Creating context & token");
         ConsentContext ctx = new ConsentContext()
                 .setSubject("mmichu")
                 .setValidity("P2Y")
@@ -131,11 +139,13 @@ public class CollectWithEmailTest {
         LOGGER.log(Level.INFO, "Form Values: " + values);
 
         //PART 3
+        LOGGER.log(Level.INFO, "Posting user answer");
         Response postResponse = given().contentType(ContentType.URLENC).formParams(values).when().post("/consents");
         postResponse.then().assertThat().statusCode(200);
 
         //PART 4
         Thread.sleep(500);
+        LOGGER.log(Level.INFO, "Checking email");
         assertTrue(mailbox.getTotalMessagesSent() > 0);
         List<Mail> sent = mailbox.getMessagesSentTo(recipient);
         assertEquals(1, sent.size());

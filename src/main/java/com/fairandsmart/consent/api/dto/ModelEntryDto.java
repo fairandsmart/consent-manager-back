@@ -74,10 +74,6 @@ public class ModelEntryDto {
         this.versions = versions;
     }
 
-    public boolean isHasActiveVersion() {
-        return this.versions.stream().anyMatch(v -> v.getStatus().equals(ModelVersion.Status.ACTIVE));
-    }
-
     public static ModelEntryDto fromModelEntry(ModelEntry entry, List<ModelVersion> versions) throws ModelDataSerializationException {
         ModelEntryDto dto = new ModelEntryDto();
         dto.setId(entry.id);
