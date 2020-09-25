@@ -148,6 +148,11 @@
             <column name="HASACTIVEVERSION" type="BOOLEAN" defaultValue="false"/>
         </addColumn>
     </changeSet>
+    <changeSet author="fpierre" id="dropColumn-has-active-version">
+        <dropColumn tableName="MODELENTRY">
+            <column name="HASACTIVEVERSION"/>
+        </dropColumn>
+    </changeSet>
     <changeSet author="jblanchard" id="add-subject-table">
         <createTable tableName="SUBJECT" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">

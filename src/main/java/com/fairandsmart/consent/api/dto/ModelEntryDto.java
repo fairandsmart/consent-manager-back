@@ -1,7 +1,9 @@
 package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.common.validation.ModelKey;
+import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.manager.entity.ModelVersion;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -20,7 +22,6 @@ public class ModelEntryDto {
     @NotNull
     private String type;
     private List<ModelVersionDtoLight> versions = new ArrayList<>();
-    private boolean hasActiveVersion = false;
 
     public ModelEntryDto() {
     }
@@ -73,22 +74,19 @@ public class ModelEntryDto {
         this.versions = versions;
     }
 
-    public boolean isHasActiveVersion() {
-        return hasActiveVersion;
-    }
-
-    public void setHasActiveVersion(boolean hasActiveVersion) {
-        this.hasActiveVersion = hasActiveVersion;
-    }
-
-    public static ModelEntryDto fromModelEntry(ModelEntry entry) {
+    public static ModelEntryDto fromModelEntry(ModelEntry entry, List<ModelVersion> versions) throws ModelDataSerializationException {
         ModelEntryDto dto = new ModelEntryDto();
         dto.setId(entry.id);
         dto.setKey(entry.key);
         dto.setName(entry.name);
         dto.setType(entry.type);
         dto.setDescription(entry.description);
-        dto.setHasActiveVersion(entry.hasActiveVersion);
+        List<ModelVersionDtoLight> lightVersions = new ArrayList<>();
+        for (ModelVersion version : versions) {
+            ModelVersionDtoLight modelVersionDtoLight = ModelVersionDtoLight.fromModelVersion(version);
+            lightVersions.add(modelVersionDtoLight);
+        }
+        dto.setVersions(lightVersions);
         return dto;
     }
 }
