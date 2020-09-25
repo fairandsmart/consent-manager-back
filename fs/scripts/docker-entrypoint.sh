@@ -13,9 +13,10 @@ FS_ENVIRONMENT_NAME=${FS_ENVIRONMENT_NAME:-dev}
 FS_BACKEND_TYPE=consent-manager-back
 
 # vars
+FS_AUTH_BACK_URI=${FS_AUTH_BACK_URI:-http://keycloak:8080}
 FS_AUTH_CLIENTID=${FS_AUTH_CLIENTID:-fsconsentmgr}
+FS_AUTH_FRONT_URI=${FS_AUTH_FRONT_URI:-}
 FS_AUTH_REALM=${FS_AUTH_REALM:-FairAndSmart}
-FS_AUTH_URI=${FS_AUTH_URI:-http://127.0.0.1:8080}
 FS_CONSENT_PROCESSOR=${FS_CONSENT_PROCESSOR:-https://www.fairandsmart.com}
 FS_CONSENTMANAGER_BACKEND="${FS_CONSENTMANAGER_BACKEND:-h2}"
 FS_CORS_AC_MAX_AGE=${FS_CORS_AC_MAX_AGE:-24H}
@@ -31,10 +32,15 @@ FS_SERIAL_SLOT_CAPACITY=${FS_SERIAL_SLOT_CAPACITY:-100}
 FS_SERIAL_SLOT_INITIAL=${FS_SERIAL_SLOT_INITIAL:-0}
 FS_TOKEN_ISSUER=${FS_TOKEN_ISSUER:-admin}
 FS_TOKEN_SECRET=${FS_TOKEN_SECRET:-ThisIsASuperSecret}
-FS_TSA_URL=${FS_TSA_URL:-https://127.0.0.1:8580/tsr}
+FS_TSA_URL=${FS_TSA_URL:-https://www.freetsa.org/tsr}
 FS_UNAUTHENTICATED=${FS_UNAUTHENTICATED:-anonymous}
 
 [[ -z "$FS_DEBUG" ]] || set -x
+
+# sanity checks
+
+[ -z "$FS_CORS_ORIGINS" ] && fs_error "Please set FS_CORS_ORIGINS up"
+[ -z "$FS_AUTH_FRONT_URI" ] && fs_error "Please set FS_AUTH_FRONT_URI up"
 
 cp -a /config/application-template.properties /config/application.properties
 
@@ -48,7 +54,8 @@ sed -i "s|##FS_CORS_EXPOSED_HEADERS##|$FS_CORS_EXPOSED_HEADERS|" /config/applica
 sed -i "s|##FS_CORS_AC_MAX_AGE##|$FS_CORS_AC_MAX_AGE|" /config/application.properties
 
 # Keycloak configuration
-sed -i "s|##FS_AUTH_URI##|$FS_AUTH_URI|" /config/application.properties
+sed -i "s|##FS_AUTH_BACK_URI##|$FS_AUTH_BACK_URI|" /config/application.properties
+sed -i "s|##FS_AUTH_FRONT_URI##|$FS_AUTH_FRONT_URI|" /config/application.properties
 sed -i "s|##FS_AUTH_REALM##|$FS_AUTH_REALM|" /config/application.properties
 sed -i "s|##FS_AUTH_CLIENTID##|$FS_AUTH_CLIENTID|" /config/application.properties
 
