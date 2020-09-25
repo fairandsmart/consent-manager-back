@@ -689,6 +689,22 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
+    @Override
+    public List<String> listSubjects() {
+        List<String> subjects = new ArrayList<>();
+        // TODO
+        subjects.add("roger94");
+        subjects.add("gerard66");
+        subjects.add("martine43");
+        subjects.add("martin18");
+        subjects.add("albert13");
+        subjects.add("alain75");
+        subjects.add("alice83");
+        subjects.add("paul44");
+        subjects.add("germaine61");
+        return subjects;
+    }
+
     /* INTERNAL */
 
     private UserRecord findUserRecord(ModelEntry entry, UserRecordFilter filter) {

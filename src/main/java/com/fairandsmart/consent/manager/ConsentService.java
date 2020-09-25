@@ -81,4 +81,6 @@ public interface ConsentService {
 
     Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 
+    List<String> listSubjects();
+
 }

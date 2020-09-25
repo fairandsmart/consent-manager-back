@@ -15,6 +15,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -124,5 +125,13 @@ public class RecordsResource {
         return templateService.buildModel(receipt);
     }
     */
+
+    @GET
+    @Path("subjects")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<String> listSubjects() {
+        LOGGER.log(Level.INFO, "GET /subjects");
+        return consentService.listSubjects();
+    }
 
 }
