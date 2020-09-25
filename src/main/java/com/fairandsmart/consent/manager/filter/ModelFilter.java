@@ -1,9 +1,13 @@
 package com.fairandsmart.consent.manager.filter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ModelFilter implements SortableFilter, PaginableFilter {
+public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFilter {
 
+    private String owner;
     private List<String> types;
     private int page;
     private int size;
@@ -11,6 +15,14 @@ public class ModelFilter implements SortableFilter, PaginableFilter {
     private String direction;
 
     public ModelFilter() {
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public List<String> getTypes() {
@@ -52,6 +64,7 @@ public class ModelFilter implements SortableFilter, PaginableFilter {
         return this;
     }
 
+    @Override
     public String getOrder() {
         return order;
     }
@@ -65,6 +78,7 @@ public class ModelFilter implements SortableFilter, PaginableFilter {
         return this;
     }
 
+    @Override
     public String getDirection() {
         return direction;
     }
@@ -79,13 +93,27 @@ public class ModelFilter implements SortableFilter, PaginableFilter {
     }
 
     @Override
-    public String toString() {
-        return "ModelFilter{" +
-                "types=" + types +
-                ", page=" + page +
-                ", size=" + size +
-                ", order='" + order + '\'' +
-                ", direction='" + direction + '\'' +
-                '}';
+    public String getQueryString() {
+        List<String> parts = new ArrayList<>();
+        if (owner != null && !owner.isEmpty()) {
+            parts.add("owner = :owner");
+        }
+        if (types != null && !types.isEmpty()) {
+            parts.add("type in :types");
+        }
+        return String.join(" and ", parts);
     }
+
+    @Override
+    public Map<String, Object> getQueryParams() {
+        Map<String, Object> params = new HashMap<>();
+        if (owner != null && !owner.isEmpty()) {
+            params.put("owner", owner);
+        }
+        if (types != null && !types.isEmpty()) {
+            params.put("types", types);
+        }
+        return params;
+    }
+
 }

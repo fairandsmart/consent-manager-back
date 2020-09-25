@@ -161,6 +161,14 @@ public class ModelVersion extends PanacheEntityBase {
             return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key + " and owner: " + owner));
         }
 
+        public static List<String> findActiveSerialsForKey(String owner, String key) {
+            ModelVersion version = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResult();
+            if ( version == null ) {
+                return Collections.emptyList();
+            }
+            return version.getSerials();
+        }
+
         public static ModelVersion findActiveVersionByEntryId(String owner, String entryId) throws EntityNotFoundException {
             Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and status = ?3", owner, entryId, ModelVersion.Status.ACTIVE).singleResultOptional();
             return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId + " and owner: " + owner));

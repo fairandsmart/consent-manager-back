@@ -4,10 +4,8 @@ import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.cache.PreviewCache;
-import com.fairandsmart.consent.manager.handler.ConsentContextHandler;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.util.PageUtil;
-import com.fairandsmart.consent.manager.filter.MixedRecordsFilter;
 import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -17,7 +15,7 @@ import com.fairandsmart.consent.common.util.SortUtil;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.filter.UserRecordFilter;
+import com.fairandsmart.consent.manager.rule.*;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
@@ -50,6 +48,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.fairandsmart.consent.manager.entity.ModelEntry.DEFAULT_BRANCHE;
 
@@ -71,9 +70,6 @@ public class ConsentServiceBean implements ConsentService {
     Instance<ReceiptStore> stores;
 
     @Inject
-    Instance<ConsentContextHandler> contextHandlers;
-
-    @Inject
     NotificationService notification;
 
     @Inject
@@ -83,25 +79,21 @@ public class ConsentServiceBean implements ConsentService {
     @Inject
     PreviewCache previewCache;
 
+    @Inject
+    RecordStatusFitlerChain statusFilterChain;
+
     /* MODELS MANAGEMENT */
 
     @Override
     public CollectionPage<ModelEntry> listEntries(ModelFilter filter) {
         LOGGER.log(Level.INFO, "Listing models entries");
         PanacheQuery<ModelEntry> query;
+        filter.setOwner(config.owner());
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
-            if (filter.getTypes() == null || filter.getTypes().isEmpty()) {
-                query = ModelEntry.find("owner = ?1", sort, config.owner());
-            } else {
-                query = ModelEntry.find("owner = ?1 and type in ?2", sort, config.owner(), filter.getTypes());
-            }
+            query = ModelEntry.find(filter.getQueryString(), sort, filter.getQueryParams());
         } else {
-            if (filter.getTypes() == null || filter.getTypes().isEmpty()) {
-                query = ModelEntry.find("owner = ?1", config.owner());
-            } else {
-                query = ModelEntry.find("owner = ?1 and type in ?2", config.owner(), filter.getTypes());
-            }
+            query = ModelEntry.find(filter.getQueryString(), filter.getQueryParams());
         }
         return PageUtil.paginateQuery(query, filter);
     }
@@ -479,7 +471,7 @@ public class ConsentServiceBean implements ConsentService {
 
             List<Record> previousConsents = new ArrayList<>();
             if (!ctx.isConditions() && !ctx.isPreview()) {
-                previousConsents = findRecordsForContext(ctx);
+                previousConsents = systemFindRecordsForContext(ctx);
             }
 
             ConsentForm form = new ConsentForm();
@@ -598,145 +590,78 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public List<Record> findRecordsForContext(ConsentContext ctx) {
+    public CollectionPage<Record> listRecords(RecordFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Listing records");
-        List<Record> records = new ArrayList<>();
-
-        try {
-            //TODO Maybe add also a condition on the status (COMMITTED)
-            for (ConsentContextHandler handler : contextHandlers) {
-                if (handler.canHandle(ctx)) {
-                    records.addAll(handler.findRecords(ctx));
-                }
-            }
-        } catch (EntityNotFoundException e) {
-            LOGGER.log(Level.WARNING, "Entity not found exception: " + e.getMessage());
+        if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
+            throw new AccessDeniedException("You must be operator to perform sur records search");
         }
-
-        LOGGER.log(Level.INFO, "Found " + records.size() + " record(s)");
-        return records;
-    }
-
-    @Override
-    public CollectionPage<Record> listRecords(RecordFilter filter) {
-        LOGGER.log(Level.INFO, "Listing records");
+        filter.setOwner(config.owner());
         PanacheQuery<Record> query;
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
-            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", sort, config.owner(), "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
+            query = Record.find(filter.getQueryString(), sort, filter.getQueryParams());
         } else {
-            query = Record.find("owner = ?1 and subject like ?2 and status = ?3", config.owner(), "%" + filter.getQuery() + "%", Record.Status.COMMITTED);
+            query = Record.find(filter.getQueryString(), filter.getQueryParams());
         }
         return PageUtil.paginateQuery(query, filter);
     }
 
     @Override
-    public CollectionPage<UserRecord> listUserRecords(UserRecordFilter filter) {
-        List<ModelEntry> entries = ModelEntry.find("owner = ?1 and type in ?2", config.owner(), Arrays.asList(Treatment.TYPE, Conditions.TYPE)).list();
-
-        List<UserRecord> userRecords = new ArrayList<>();
-        entries.forEach(entry -> userRecords.add(findUserRecord(entry, filter)));
-        userRecords.sort((r1, r2) -> r1.compare(r2, filter));
-
-        return PageUtil.paginateList(userRecords, filter);
+    public Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "Listing records for subject");
+        if (!authentication.isConnectedIdentifierOperator() && !subject.equals(authentication.getConnectedIdentifier())) {
+            throw new AccessDeniedException("You must be operator to perform sur records search");
+        }
+        RecordFilter filter = new RecordFilter();
+        filter.setOwner(config.owner());
+        filter.setStatus(Collections.singletonList(Record.Status.COMMITTED));
+        filter.setSubject(subject);
+        Stream<Record> records = Record.stream(filter.getQueryString(), filter.getQueryParams());
+        Map<String, List<Record>> result = records.collect(Collectors.groupingBy(record -> record.bodyKey));
+        result.entrySet().stream().forEach(entry -> {
+            Collections.sort(entry.getValue());
+            statusFilterChain.apply(entry.getValue());
+        });
+        return result;
+        //TODO We could create a subject based record cache avoiding checking all of that each request
+        //  cache will be invalidated :
+        //  - when a consent is submitted for the subject
+        //  - when a model is modified
     }
 
     @Override
-    public CollectionPage<UserRecord> listRecordsForUsers(MixedRecordsFilter filter) {
-        List<ModelEntry> entries = new ArrayList<>();
-
-        if (filter.getTreatments().size() > 0) {
-            entries.addAll(ModelEntry.find(
-                    "owner = ?1 and key in ?2 and type = ?3",
-                    config.owner(),
-                    filter.getTreatments(),
-                    Treatment.TYPE).list());
+    public List<String> findSubjects(String name) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "Searching subjects");
+        if (!authentication.isConnectedIdentifierOperator()) {
+            throw new AccessDeniedException("You must be operator to search for subjects");
         }
-        if (filter.getConditions().size() > 0) {
-            entries.addAll(ModelEntry.find(
-                    "owner = ?1 and key in ?2 and type = ?3",
-                    config.owner(),
-                    filter.getConditions(),
-                    Conditions.TYPE).list());
-        }
-
-        List<UserRecord> records = new ArrayList<>();
-        entries.forEach(entry -> filter.getUsers().forEach(user -> records.add(findRecordForUser(entry, user))));
-        records.sort((r1, r2) -> r1.compare(r2, filter));
-
-        return PageUtil.paginateList(records, filter);
+        List<Subject> result = Subject.list("owner = ?1 and name like ?2", config.owner(), "%" + name + "%");
+        return result.stream().map(s -> s.name).collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public Receipt createOperatorRecords(String token, Map<String, String> values, String comment) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
-        LOGGER.log(Level.INFO, "Creating record for operator");
-        try {
-            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
-
-            ModelVersion headerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getHeader());
-            ctx.setHeader(headerVersion.getIdentifier().serialize());
-            ModelVersion footerVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getFooter());
-            ctx.setFooter(footerVersion.getIdentifier().serialize());
-            List<String> newElements = new ArrayList<>();
-            for (String element : ctx.getElements()) {
-                ModelVersion elementVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), element);
-                newElements.add(elementVersion.getIdentifier().serialize());
-            }
-            ctx.setElements(newElements);
-
-            Map<String, String> valuesMap = new HashMap<>();
-            valuesMap.put("header", headerVersion.getIdentifier().serialize());
-            valuesMap.put("footer", footerVersion.getIdentifier().serialize());
-            for (Map.Entry<String, String> value : values.entrySet()) {
-                ModelVersion bodyVersion = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), value.getKey());
-                valuesMap.put(bodyVersion.getIdentifier().serialize(), value.getValue());
-            }
-
-            return this.saveConsent(ctx, valuesMap, comment);
-        } catch (TokenServiceException | ConsentServiceException | EntityNotFoundException e) {
-            throw new ConsentServiceException("Unable to submit consent", e);
+    public List<Record> systemFindRecordsForContext(ConsentContext ctx) {
+        LOGGER.log(Level.INFO, "Listing records");
+        RecordFilter filter = new RecordFilter();
+        filter.setOwner(config.owner());
+        filter.setSubject(ctx.getSubject());
+        filter.setStatus(Collections.singletonList(Record.Status.COMMITTED));
+        if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
+            filter.setHeaders(ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), ctx.getHeader()));
         }
+        if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
+            filter.setFooters(ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), ctx.getFooter()));
+        }
+        filter.setElements(ctx.getElements().stream().flatMap(e -> ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), e).stream()).collect(Collectors.toList()));
+        List<Record> records = Record.find(filter.getQueryString(), filter.getQueryParams()).list();
+        List<Record> latest = new ArrayList<>();
+        for (String element: ctx.getElements()) {
+            records.stream().filter(record -> record.bodyKey.equals(element)).sorted().findFirst().ifPresent(r -> latest.add(r));
+        }
+        return latest;
     }
 
-    /* INTERNAL */
-
-    private UserRecord findUserRecord(ModelEntry entry, UserRecordFilter filter) {
-        UserRecord record = findRecordForUser(entry, filter.getUser());
-        boolean isFilterCompliant = true;
-        if (!StringUtils.isEmpty(record.getValue())) {
-            if (!StringUtils.isEmpty(filter.getCollectionMethod()) && !filter.getCollectionMethod().equals(record.getCollectionMethod())) {
-                isFilterCompliant = false;
-            }
-            if (!StringUtils.isEmpty(filter.getValue()) && !filter.getValue().equals(record.getValue())) {
-                isFilterCompliant = false;
-            }
-            if (filter.getDateAfter() > 0 && filter.getDateAfter() > record.getCreationTimestamp()) {
-                isFilterCompliant = false;
-            }
-            if (filter.getDateBefore() > 0 && filter.getDateBefore() < record.getCreationTimestamp()) {
-                isFilterCompliant = false;
-            }
-        }
-        return isFilterCompliant ? record : UserRecord.fromEntryAndSubject(entry, filter.getUser());
-    }
-
-    private UserRecord findRecordForUser(ModelEntry entry, String user) {
-        Optional<Record> optional = Record.find(
-                "owner = ?1 and type = ?2 and bodyKey = ?3 and subject = ?4",
-                Sort.by("creationTimestamp", Sort.Direction.Descending),
-                entry.owner,
-                entry.type,
-                entry.key,
-                user)
-                .firstResultOptional();
-
-        if (optional.isPresent()) {
-            return UserRecord.fromRecord(optional.get());
-        } else {
-            return UserRecord.fromEntryAndSubject(entry, user);
-        }
-    }
+    //INTERN
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
         if (ctx.getHeader() == null && values.containsKey("header")) {
@@ -772,6 +697,12 @@ public class ConsentServiceBean implements ConsentService {
             ConsentElementIdentifier footId = null;
             if (!StringUtils.isEmpty(ctx.getFooter())) {
                 footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
+            }
+            if (!Subject.existsForOwner(config.owner(), ctx.getSubject())) {
+                Subject subject = new Subject();
+                subject.owner = config.owner();
+                subject.name = ctx.getSubject();
+                Subject.persist(subject);
             }
             List<Record> records = new ArrayList<>();
             for (Map.Entry<String, String> value : values.entrySet()) {

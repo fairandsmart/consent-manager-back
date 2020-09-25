@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.Map;
 
 @Entity
-public class Record extends PanacheEntityBase {
+public class Record extends PanacheEntityBase implements Comparable<Record> {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -36,6 +36,8 @@ public class Record extends PanacheEntityBase {
     public String value;
     @Enumerated(EnumType.STRING)
     public Status status;
+    @Transient
+    public String statusExplanation;
     @Enumerated(EnumType.STRING)
     public ConsentContext.CollectionMethod collectionMethod;
     public String author;
@@ -47,7 +49,10 @@ public class Record extends PanacheEntityBase {
     public enum Status {
         PENDING,
         COMMITTED,
-        EXPIRED
+        DELETED,
+        VALID,
+        OBSOLETE,
+        IRRELEVANT
     }
 
     @Override
@@ -71,11 +76,17 @@ public class Record extends PanacheEntityBase {
                 ", footKey='" + footKey + '\'' +
                 ", value='" + value + '\'' +
                 ", status=" + status +
+                ", statusExplanation='" + statusExplanation + '\'' +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", comment='" + comment + '\'' +
                 ", attributes=" + attributes +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Record other) {
+        return Long.compare(creationTimestamp, other.creationTimestamp);
     }
 
     public int compare(Record other, SortableFilter filter) {

@@ -148,4 +148,13 @@
             <column name="HASACTIVEVERSION" type="BOOLEAN" defaultValue="false"/>
         </addColumn>
     </changeSet>
+    <changeSet author="jblanchard" id="add-subject-table">
+        <createTable tableName="SUBJECT" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="OWNER" type="VARCHAR(255)"/>
+            <column name="NAME" type="VARCHAR(2000)"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
