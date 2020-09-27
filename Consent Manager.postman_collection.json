@@ -1,0 +1,769 @@
+{
+	"info": {
+		"_postman_id": "f8fcdfa9-9bef-464d-bdc0-dde72d6bf28a",
+		"name": "Consent Manager",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "[Auth] Request Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8b6327f7-81b4-47f2-ab4c-0eace2cb010e",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"TOKEN\", jsonData.access_token);",
+									"pm.environment.set(\"REFRESH_TOKEN\", jsonData.refresh_token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{authclient}}",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{authusername}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{authpassword}}",
+									"type": "text"
+								}
+							],
+							"options": {
+								"urlencoded": {}
+							}
+						},
+						"url": {
+							"raw": "{{authhost}}/auth/realms/FairAndSmart/protocol/openid-connect/token",
+							"host": [
+								"{{authhost}}"
+							],
+							"path": [
+								"auth",
+								"realms",
+								"FairAndSmart",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Auth] Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e60236c9-99a9-43e3-9b7c-564f512c1582",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"TOKEN\", jsonData.access_token);",
+									"pm.environment.set(\"REFRESH_TOKEN\", jsonData.refresh_token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "refresh_token",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{authclient}}",
+									"type": "text"
+								},
+								{
+									"key": "refresh_token",
+									"value": "{{REFRESH_TOKEN}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{authhost}}/auth/realms/FairAndSmart/protocol/openid-connect/token",
+							"host": [
+								"{{authhost}}"
+							],
+							"path": [
+								"auth",
+								"realms",
+								"FairAndSmart",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[User] get me",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/users/me",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"users",
+								"me"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Model Entry",
+			"item": [
+				{
+					"name": "[ModelEntry] list",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/models?page=0&size=10&order=key&direction=asc",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "order",
+									"value": "key"
+								},
+								{
+									"key": "direction",
+									"value": "asc"
+								},
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelEntry] create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"h2\",\n\t\"name\": \"Test\",\n\t\"description\": \"Infos de test\",\n\t\"type\": \"header\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{apihost}}/models",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelEntry] get",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelEntry] update",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test\",\n\t\"description\": \"Infos de test\"\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelEntry] delete",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Model Version",
+			"item": [
+				{
+					"name": "[ModelVersion] list",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelVersion] create",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"defaultLocale\": \"fr_FR\",\n    \"data\": {\n        \"fr_FR\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"Un titre de header de test\",\n            \"body\": \"Ceci est le body de test de mon header de test\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Moi\"\n            },\n            \"showDataController\": false,\n            \"scope\": \"Scope de test\",\n            \"showScope\": false,\n            \"shortNoticeLink\": \"Plus d'information ici : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy.html\",\n            \"customPrivacyPolicyText\" : \"Notre politique de confidentialité\"\n        },\n        \"en_US\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"A title for testing header type\",\n            \"body\": \"Main body of my testing header model\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Me\"\n            },\n            \"showDataController\": false,\n            \"shortNoticeLink\": \"This is short notice link : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy_en.html\",\n            \"customPrivacyPolicyText\" : \"Our dedicated privacy policy\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelVersion] latest",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions/latest",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions",
+								"latest"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelVersion] active",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions/active",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions",
+								"active"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelVersion] get",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions/{{version_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions",
+								"{{version_id}}"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelVersion] update",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"defaultLocale\": \"fr_FR\",\n    \"data\": {\n        \"fr_FR\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"Un titre de header de test (updated)\",\n            \"body\": \"Ceci est le body de test de mon header de test (updated)\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Moi\"\n            },\n            \"showDataController\": false,\n            \"scope\": \"Scope de test\",\n            \"showScope\": false,\n            \"shortNoticeLink\": \"Plus d'information ici : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy.html\",\n            \"customPrivacyPolicyText\" : \"Notre politique de confidentialité\"\n        },\n        \"en_US\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"A title for testing header type (updated)\",\n            \"body\": \"Main body of my testing header model (updated)\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Me\"\n            },\n            \"showDataController\": false,\n            \"shortNoticeLink\": \"This is short notice link : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy_en.html\",\n            \"customPrivacyPolicyText\" : \"Our dedicated privacy policy\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions/{{version_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions",
+								"{{version_id}}"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelVersion] status (active)",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions/{{version_id}}/status",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions",
+								"{{version_id}}",
+								"status"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelVersion] status (archived)",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"ARCHIVED\"\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions/{{version_id}}/status",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions",
+								"{{version_id}}",
+								"status"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[ModelVersion] delete",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/models/{{entry_id}}/versions/{{version_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"models",
+								"{{entry_id}}",
+								"versions",
+								"{{version_id}}"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

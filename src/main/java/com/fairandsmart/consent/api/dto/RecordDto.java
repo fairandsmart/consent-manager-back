@@ -1,7 +1,10 @@
 package com.fairandsmart.consent.api.dto;
 
+import com.fairandsmart.consent.manager.entity.Record;
+
 public class RecordDto {
 
+    private String serial;
     private String headerKey;
     private String bodyKey;
     private String footerKey;
@@ -15,6 +18,14 @@ public class RecordDto {
     private String comment;
 
     public RecordDto() {
+    }
+
+    public String getSerial() {
+        return serial;
+    }
+
+    public void setSerial(String serial) {
+        this.serial = serial;
     }
 
     public String getHeaderKey() {
@@ -103,5 +114,22 @@ public class RecordDto {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public static final RecordDto fromRecord(Record record) {
+        RecordDto dto = new RecordDto();
+        dto.setSubject(record.subject);
+        dto.setSerial(record.serial);
+        dto.setHeaderKey(record.headKey);
+        dto.setBodyKey(record.bodyKey);
+        dto.setFooterKey(record.footKey);
+        dto.setCreationTimestamp(record.creationTimestamp);
+        dto.setExpirationTimestamp(record.expirationTimestamp);
+        dto.setCollectionMethod(record.collectionMethod.toString());
+        dto.setType(record.type);
+        dto.setComment(record.comment);
+        dto.setStatus(record.status.toString());
+        dto.setValue(record.value);
+        return dto;
     }
 }

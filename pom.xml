@@ -47,11 +47,11 @@
         <version.maven-failsafe-plugin>2.22.0</version.maven-failsafe-plugin>
         <version.maven-install-plugin>3.0.0-M1</version.maven-install-plugin>
         <version.maven-jar-plugin>3.2.0</version.maven-jar-plugin>
-        <version.maven-quarkus-plugin>1.7.2.Final</version.maven-quarkus-plugin>
+        <version.maven-quarkus-plugin>1.8.0.Final</version.maven-quarkus-plugin>
         <version.maven-resources-plugin>3.1.0</version.maven-resources-plugin>
         <version.maven-site-plugin>3.9.0</version.maven-site-plugin>
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
-        <version.quarkus>1.7.2.Final</version.quarkus>
+        <version.quarkus>1.8.0.Final</version.quarkus>
         <version.resteasy-client>4.5.3.Final</version.resteasy-client>
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>

@@ -223,44 +223,38 @@ public class ConsentServiceTest {
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testCreateAndReadRecord() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
-        LOGGER.info("Listing existing entries");
+        LOGGER.info("Listing Create and Read records");
         List<String> types = new ArrayList<>();
         types.add(Header.TYPE);
         types.add(Treatment.TYPE);
         types.add(Footer.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
-
-        LOGGER.log(Level.INFO, "Creating, updating and activating entries");
         String locale = "fr_FR";
-
         String hKey = UUID.randomUUID().toString();
         ModelEntry eh1 = service.createEntry(hKey, "Name " + hKey, "Description " + hKey, Header.TYPE);
         assertNotNull(eh1);
         ModelVersion v1h1 = service.createVersion(eh1.id, locale, Collections.singletonMap(locale, TestUtils.generateHeader(hKey)));
         service.updateVersionStatus(v1h1.id, ModelVersion.Status.ACTIVE);
-
         String t1Key = UUID.randomUUID().toString();
         ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Treatment.TYPE);
         assertNotNull(et1);
         ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t1Key)));
         service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
-
         String t2Key = UUID.randomUUID().toString();
         ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Treatment.TYPE);
         assertNotNull(et2);
         ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
-
         String fKey = UUID.randomUUID().toString();
         ModelEntry ef1 = service.createEntry(fKey, "Name " + fKey, "Description " + fKey, Footer.TYPE);
         assertNotNull(ef1);
         ModelVersion v1f1 = service.createVersion(ef1.id, locale, Collections.singletonMap(locale, TestUtils.generateFooter(fKey)));
         service.updateVersionStatus(v1f1.id, ModelVersion.Status.ACTIVE);
-
-        LOGGER.info("Listing existing entries");
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         assertEquals(entriesCount + 4, entries.getTotalCount());
+
+
 
         LOGGER.log(Level.INFO, "Creating READ context and token");
         ConsentContext readCtx = new ConsentContext()
@@ -274,7 +268,7 @@ public class ConsentServiceTest {
         String readToken = service.buildToken(readCtx);
 
         LOGGER.log(Level.INFO, "Reading consent records before submit");
-        List<Record> records = service.findRecordsForContext(readCtx);
+        List<Record> records = service.systemFindRecordsForContext(readCtx);
         assertEquals(0, records.size());
 
         LOGGER.log(Level.INFO, "First consent form");
@@ -291,7 +285,7 @@ public class ConsentServiceTest {
         service.submitConsent(form.getToken(), values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
-        records = service.findRecordsForContext(readCtx);
+        records = service.systemFindRecordsForContext(readCtx);
         assertEquals(2, records.size());
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
@@ -307,7 +301,7 @@ public class ConsentServiceTest {
         service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.log(Level.INFO, "Reading consent records after new version MINOR (no effect)");
-        records = service.findRecordsForContext(readCtx);
+        records = service.systemFindRecordsForContext(readCtx);
         assertEquals(2, records.size());
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
@@ -318,10 +312,119 @@ public class ConsentServiceTest {
         service.updateVersionStatus(v3t2.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.log(Level.INFO, "Reading consent records after new version MAJOR (no more value for t2)");
-        records = service.findRecordsForContext(readCtx);
+        records = service.systemFindRecordsForContext(readCtx);
         assertEquals(1, records.size());
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
         assertEquals(0, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
+    }
+
+    @Test
+    @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testFindSubjects() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
+        LOGGER.info("Testing find subjects");
+        List<String> types = new ArrayList<>();
+        types.add(Header.TYPE);
+        types.add(Treatment.TYPE);
+        types.add(Footer.TYPE);
+        CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        long entriesCount = entries.getTotalCount();
+        String locale = "fr_FR";
+        String hKey = UUID.randomUUID().toString();
+        ModelEntry eh1 = service.createEntry(hKey, "Name " + hKey, "Description " + hKey, Header.TYPE);
+        assertNotNull(eh1);
+        ModelVersion v1h1 = service.createVersion(eh1.id, locale, Collections.singletonMap(locale, TestUtils.generateHeader(hKey)));
+        service.updateVersionStatus(v1h1.id, ModelVersion.Status.ACTIVE);
+        String t1Key = UUID.randomUUID().toString();
+        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Treatment.TYPE);
+        assertNotNull(et1);
+        ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t1Key)));
+        service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
+        String t2Key = UUID.randomUUID().toString();
+        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Treatment.TYPE);
+        assertNotNull(et2);
+        ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t2Key)));
+        service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
+        String fKey = UUID.randomUUID().toString();
+        ModelEntry ef1 = service.createEntry(fKey, "Name " + fKey, "Description " + fKey, Footer.TYPE);
+        assertNotNull(ef1);
+        ModelVersion v1f1 = service.createVersion(ef1.id, locale, Collections.singletonMap(locale, TestUtils.generateFooter(fKey)));
+        service.updateVersionStatus(v1f1.id, ModelVersion.Status.ACTIVE);
+        entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        assertEquals(entriesCount + 4, entries.getTotalCount());
+
+        LOGGER.log(Level.INFO, "Submitting a consent for sheldon");
+        ConsentContext ctx = new ConsentContext()
+                .setSubject("sheldon")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setHeader(hKey)
+                .setElements(Arrays.asList(t1Key, t2Key))
+                .setFooter(fKey)
+                .setLocale(locale)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+        String token = service.buildToken(ctx);
+        ConsentForm form = service.generateForm(token);
+        MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
+        values.putSingle("header", "element/header/" + hKey + "/" + v1h1.serial);
+        values.putSingle("element/treatment/" + t1Key + "/" + v1t1.serial, "accepted");
+        values.putSingle("element/treatment/" + t2Key + "/" + v1t2.serial, "refused");
+        values.putSingle("footer", "element/footer/" + fKey + "/" + v1f1.serial);
+        service.submitConsent(form.getToken(), values);
+
+        LOGGER.log(Level.INFO, "Submitting a consent for penny");
+        ctx = new ConsentContext()
+                .setSubject("penny")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setHeader(hKey)
+                .setElements(Arrays.asList(t1Key, t2Key))
+                .setFooter(fKey)
+                .setLocale(locale)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+        token = service.buildToken(ctx);
+        form = service.generateForm(token);
+        values = new MultivaluedHashMap<>();
+        values.putSingle("header", "element/header/" + hKey + "/" + v1h1.serial);
+        values.putSingle("element/treatment/" + t1Key + "/" + v1t1.serial, "refused");
+        values.putSingle("element/treatment/" + t2Key + "/" + v1t2.serial, "refused");
+        values.putSingle("footer", "element/footer/" + fKey + "/" + v1f1.serial);
+        service.submitConsent(form.getToken(), values);
+
+        LOGGER.log(Level.INFO, "Submitting a consent for leonard");
+        ctx = new ConsentContext()
+                .setSubject("leonard")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setHeader(hKey)
+                .setElements(Arrays.asList(t1Key, t2Key))
+                .setFooter(fKey)
+                .setLocale(locale)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+        token = service.buildToken(ctx);
+        form = service.generateForm(token);
+        values = new MultivaluedHashMap<>();
+        values.putSingle("header", "element/header/" + hKey + "/" + v1h1.serial);
+        values.putSingle("element/treatment/" + t1Key + "/" + v1t1.serial, "accepted");
+        values.putSingle("element/treatment/" + t2Key + "/" + v1t2.serial, "accepted");
+        values.putSingle("footer", "element/footer/" + fKey + "/" + v1f1.serial);
+        service.submitConsent(form.getToken(), values);
+
+        List<String> subjects = service.findSubjects("e");
+        assertEquals(3, subjects.size());
+        assertTrue(subjects.contains("sheldon"));
+        assertTrue(subjects.contains("penny"));
+        assertTrue(subjects.contains("leonard"));
+
+        subjects = service.findSubjects("on");
+        assertEquals(2, subjects.size());
+        assertTrue(subjects.contains("sheldon"));
+        assertTrue(subjects.contains("leonard"));
+
+        subjects = service.findSubjects("penny");
+        assertEquals(1, subjects.size());
+        assertTrue(subjects.contains("penny"));
+
+        subjects = service.findSubjects("rajesh");
+        assertEquals(0, subjects.size());
+
     }
 
 }
