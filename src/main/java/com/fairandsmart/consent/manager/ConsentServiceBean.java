@@ -436,7 +436,10 @@ public class ConsentServiceBean implements ConsentService {
         if (!version.status.equals(ModelVersion.Status.DRAFT)) {
             throw new ConsentManagerException("Unable to delete version that is not DRAFT");
         }
+        ModelVersion parent = ModelVersion.findById(version.parent);
+        parent.child = "";
         version.delete();
+        parent.persist();
     }
 
     /* CONSENT MANAGEMENT */

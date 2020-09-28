@@ -173,6 +173,8 @@ public class ConsentServiceTest {
         versions = service.getVersionHistoryForEntry(entryId);
         assertEquals(1, versions.size());
         assertEquals(ModelVersion.Status.DRAFT, versions.get(0).status);
+        assertEquals("", versions.get(0).parent);
+        assertEquals("", versions.get(0).child);
 
         LOGGER.log(Level.INFO, "Activate version 1");
         service.updateVersionStatus(versionId, ModelVersion.Status.ACTIVE);
@@ -193,6 +195,10 @@ public class ConsentServiceTest {
         assertEquals(2, versions.size());
         assertEquals(ModelVersion.Status.ACTIVE, versions.get(0).status);
         assertEquals(ModelVersion.Status.DRAFT, versions.get(1).status);
+        assertEquals("", versions.get(0).parent);
+        assertEquals(versions.get(1).id, versions.get(0).child);
+        assertEquals(versions.get(0).id, versions.get(1).parent);
+        assertEquals("", versions.get(1).child);
 
         version = service.findActiveVersionForKey(key);
         assertEquals(versions.get(0), version);
@@ -217,6 +223,25 @@ public class ConsentServiceTest {
         assertEquals(versions.get(1), version);
         assertEquals(ModelVersion.Status.ACTIVE, version.status);
 
+        String version3Id = service.createVersion(entryId, locale, Collections.singletonMap(locale, header)).id;
+
+        LOGGER.info("List versions");
+        versions = service.getVersionHistoryForEntry(entryId);
+        assertEquals(3, versions.size());
+        assertEquals(ModelVersion.Status.ARCHIVED, versions.get(0).status);
+        assertEquals(ModelVersion.Status.ACTIVE, versions.get(1).status);
+        assertEquals(ModelVersion.Status.DRAFT, versions.get(2).status);
+        assertEquals(versions.get(1).id, versions.get(2).parent);
+        assertEquals(versions.get(2).id, versions.get(1).child);
+
+        service.deleteVersion(version3Id);
+
+        LOGGER.info("List versions");
+        versions = service.getVersionHistoryForEntry(entryId);
+        assertEquals(2, versions.size());
+        assertEquals(ModelVersion.Status.ARCHIVED, versions.get(0).status);
+        assertEquals(ModelVersion.Status.ACTIVE, versions.get(1).status);
+        assertEquals("", versions.get(1).child);
     }
 
     @Test
