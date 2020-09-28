@@ -583,7 +583,7 @@ public class ConsentServiceBean implements ConsentService {
     public CollectionPage<Record> listRecords(RecordFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Listing records");
         if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform sur records search");
+            throw new AccessDeniedException("You must be operator to perform records search");
         }
         filter.setOwner(config.owner());
         PanacheQuery<Record> query;
@@ -600,7 +600,7 @@ public class ConsentServiceBean implements ConsentService {
     public Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Listing records for subject");
         if (!authentication.isConnectedIdentifierOperator() && !subject.equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform sur records search");
+            throw new AccessDeniedException("You must be operator to perform records search");
         }
         RecordFilter filter = new RecordFilter();
         filter.setOwner(config.owner());
@@ -608,9 +608,9 @@ public class ConsentServiceBean implements ConsentService {
         filter.setSubject(subject);
         Stream<Record> records = Record.stream(filter.getQueryString(), filter.getQueryParams());
         Map<String, List<Record>> result = records.collect(Collectors.groupingBy(record -> record.bodyKey));
-        result.entrySet().stream().forEach(entry -> {
-            Collections.sort(entry.getValue());
-            statusFilterChain.apply(entry.getValue());
+        result.forEach((key, value) -> {
+            Collections.sort(value);
+            statusFilterChain.apply(value);
         });
         return result;
         //TODO We could create a subject based record cache avoiding checking all of that each request
@@ -647,25 +647,9 @@ public class ConsentServiceBean implements ConsentService {
         List<Record> records = Record.find(filter.getQueryString(), filter.getQueryParams()).list();
         List<Record> latest = new ArrayList<>();
         for (String element : ctx.getElements()) {
-            records.stream().filter(record -> record.bodyKey.equals(element)).sorted().findFirst().ifPresent(r -> latest.add(r));
+            records.stream().filter(record -> record.bodyKey.equals(element)).sorted().findFirst().ifPresent(latest::add);
         }
         return latest;
-    }
-
-    @Override
-    public List<String> listSubjects() {
-        List<String> subjects = new ArrayList<>();
-        // TODO
-        subjects.add("roger94");
-        subjects.add("gerard66");
-        subjects.add("martine43");
-        subjects.add("martin18");
-        subjects.add("albert13");
-        subjects.add("alain75");
-        subjects.add("alice83");
-        subjects.add("paul44");
-        subjects.add("germaine61");
-        return subjects;
     }
 
     /* INTERNAL */

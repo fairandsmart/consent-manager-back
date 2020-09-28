@@ -22,6 +22,8 @@ import java.util.Map;
 
 public interface ConsentService {
 
+    /* Entries */
+
     CollectionPage<ModelEntry> listEntries(ModelFilter filter);
 
     ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, AccessDeniedException;
@@ -33,6 +35,8 @@ public interface ConsentService {
     ModelEntry updateEntry(String entryId, String name, String description) throws EntityNotFoundException, AccessDeniedException;
 
     void deleteEntry(String entryId) throws ConsentManagerException, EntityNotFoundException;
+
+    /* Versions */
 
     ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
 
@@ -62,11 +66,15 @@ public interface ConsentService {
 
     void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 
+    /* Forms */
+
     String buildToken(ConsentContext ctx) throws AccessDeniedException;
 
     ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
 
     Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
+
+    /* Records */
 
     CollectionPage<Record> listRecords(RecordFilter filter) throws AccessDeniedException;
 
@@ -75,7 +83,5 @@ public interface ConsentService {
     Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException;
 
     List<String> findSubjects(String subject) throws AccessDeniedException;
-
-    List<String> listSubjects();
 
 }

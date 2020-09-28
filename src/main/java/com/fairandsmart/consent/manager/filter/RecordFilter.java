@@ -213,4 +213,23 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         return params;
     }
 
+    @Override
+    public String toString() {
+        return "RecordFilter{" +
+                "page=" + page +
+                ", size=" + size +
+                ", owner='" + owner + '\'' +
+                ", subject='" + subject + '\'' +
+                ", status=" + status +
+                ", headers=" + headers +
+                ", elements=" + elements +
+                ", footers=" + footers +
+                ", collectionMethod='" + collectionMethod + '\'' +
+                ", after=" + after +
+                ", before=" + before +
+                ", value='" + value + '\'' +
+                ", order='" + order + '\'' +
+                ", direction='" + direction + '\'' +
+                '}';
+    }
 }
