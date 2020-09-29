@@ -116,4 +116,15 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         return params;
     }
 
+    @Override
+    public String toString() {
+        return "ModelFilter{" +
+                "owner='" + owner + '\'' +
+                ", types=" + types +
+                ", page=" + page +
+                ", size=" + size +
+                ", order='" + order + '\'' +
+                ", direction='" + direction + '\'' +
+                '}';
+    }
 }

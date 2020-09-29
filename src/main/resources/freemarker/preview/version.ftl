@@ -70,13 +70,16 @@
         </#if>
         <#if model.type=="footer">
             <style>
-                .footer {
+                .footer-preview-wrapper {
+                    width: 100%;
                     position: absolute;
                     bottom: 0;
                 }
             </style>
-            <#assign footer=model>
-            <#include "footer.ftl">
+            <div class="footer-preview-wrapper">
+                <#assign footer=model>
+                <#include "footer.ftl">
+            </div>
         </#if>
         <#if model.type=="theme">
             <#assign theme=model>

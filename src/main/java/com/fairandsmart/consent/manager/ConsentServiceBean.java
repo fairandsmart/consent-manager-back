@@ -436,7 +436,10 @@ public class ConsentServiceBean implements ConsentService {
         if (!version.status.equals(ModelVersion.Status.DRAFT)) {
             throw new ConsentManagerException("Unable to delete version that is not DRAFT");
         }
+        ModelVersion parent = ModelVersion.findById(version.parent);
+        parent.child = "";
         version.delete();
+        parent.persist();
     }
 
     /* CONSENT MANAGEMENT */
@@ -583,7 +586,7 @@ public class ConsentServiceBean implements ConsentService {
     public CollectionPage<Record> listRecords(RecordFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Listing records");
         if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform sur records search");
+            throw new AccessDeniedException("You must be operator to perform records search");
         }
         filter.setOwner(config.owner());
         PanacheQuery<Record> query;
@@ -600,7 +603,7 @@ public class ConsentServiceBean implements ConsentService {
     public Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Listing records for subject");
         if (!authentication.isConnectedIdentifierOperator() && !subject.equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform sur records search");
+            throw new AccessDeniedException("You must be operator to perform records search");
         }
         RecordFilter filter = new RecordFilter();
         filter.setOwner(config.owner());
@@ -608,9 +611,9 @@ public class ConsentServiceBean implements ConsentService {
         filter.setSubject(subject);
         Stream<Record> records = Record.stream(filter.getQueryString(), filter.getQueryParams());
         Map<String, List<Record>> result = records.collect(Collectors.groupingBy(record -> record.bodyKey));
-        result.entrySet().stream().forEach(entry -> {
-            Collections.sort(entry.getValue());
-            statusFilterChain.apply(entry.getValue());
+        result.forEach((key, value) -> {
+            Collections.sort(value);
+            statusFilterChain.apply(value);
         });
         return result;
         //TODO We could create a subject based record cache avoiding checking all of that each request
@@ -639,19 +642,20 @@ public class ConsentServiceBean implements ConsentService {
         if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
             filter.setHeaders(ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), ctx.getHeader()));
         }
+
         if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
             filter.setFooters(ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), ctx.getFooter()));
         }
         filter.setElements(ctx.getElements().stream().flatMap(e -> ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), e).stream()).collect(Collectors.toList()));
         List<Record> records = Record.find(filter.getQueryString(), filter.getQueryParams()).list();
         List<Record> latest = new ArrayList<>();
-        for (String element: ctx.getElements()) {
-            records.stream().filter(record -> record.bodyKey.equals(element)).sorted().findFirst().ifPresent(r -> latest.add(r));
+        for (String element : ctx.getElements()) {
+            records.stream().filter(record -> record.bodyKey.equals(element)).sorted().findFirst().ifPresent(latest::add);
         }
         return latest;
     }
 
-    //INTERN
+    /* INTERNAL */
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
         if (ctx.getHeader() == null && values.containsKey("header")) {
