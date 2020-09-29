@@ -16,6 +16,7 @@ import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.rule.*;
+import com.fairandsmart.consent.manager.store.LocalReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
@@ -67,7 +68,8 @@ public class ConsentServiceBean implements ConsentService {
     TokenService token;
 
     @Inject
-    Instance<ReceiptStore> stores;
+    //Instance<ReceiptStore> stores;
+    LocalReceiptStore store;
 
     @Inject
     NotificationService notification;
@@ -755,9 +757,12 @@ public class ConsentServiceBean implements ConsentService {
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();
+                /*
                 for (ReceiptStore store : stores) {
                     store.put(receipt.getTransaction(), xml);
                 }
+                 */
+                store.put(receipt.getTransaction(), xml);
             }
             return receipt;
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
