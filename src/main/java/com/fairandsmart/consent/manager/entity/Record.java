@@ -52,6 +52,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         DELETED,
         VALID,
         OBSOLETE,
+        EXPIRED,
         IRRELEVANT
     }
 

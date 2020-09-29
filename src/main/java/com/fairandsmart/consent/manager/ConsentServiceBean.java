@@ -446,8 +446,8 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
         if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
             ctx.setSubject(authentication.getConnectedIdentifier());
-        } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierAdmin()) {
-            throw new AccessDeniedException("Only admin can generate token for other identifier than connected one");
+        } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierApi()) {
+            throw new AccessDeniedException("Only admin, operator or api can generate token for other identifier than connected one");
         }
         return token.generateToken(ctx);
     }
@@ -539,7 +539,7 @@ public class ConsentServiceBean implements ConsentService {
                         ConsentOptOut optout = new ConsentOptOut();
                         optout.setLocale(ctx.getLocale());
                         optout.setRecipient(ctx.getOptoutRecipient());
-                        //TODO avoid converting element identifier to key but modify the getForm method
+                        //TODO avoid converting element identifier back to key but modify the getForm method to allow both types
                         ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial(), true);
                         optout.setModel(optoutModel);
                         ctx.setOptoutModel(optoutModel.entry.key);

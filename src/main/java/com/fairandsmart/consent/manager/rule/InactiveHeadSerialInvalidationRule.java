@@ -30,8 +30,8 @@ public class InactiveHeadSerialInvalidationRule extends RecordStatusFilterRule {
             record.status.equals(Record.Status.COMMITTED) && record.headKey != null
                 && !record.headKey.isEmpty() && getActiveSerial(record.headKey).contains(record.headSerial)
         ).forEach(record -> {
-            LOGGER.log(Level.FINE, "marking record as obsolete, " + record.id);
-            record.status = Record.Status.OBSOLETE;
+            LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
+            record.status = Record.Status.IRRELEVANT;
             record.statusExplanation = "head serial no more active";
         });
         this.applyNext(records);

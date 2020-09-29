@@ -29,8 +29,8 @@ public class InactiveBodySerialInvalidationRule extends RecordStatusFilterRule {
                 record.status.equals(Record.Status.COMMITTED) && record.bodyKey != null
                         && !record.bodyKey.isEmpty() && getActiveSerial(record.bodyKey).contains(record.bodySerial)
         ).forEach(record -> {
-            LOGGER.log(Level.FINE, "marking record as obsolete, " + record.id);
-            record.status = Record.Status.OBSOLETE;
+            LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
+            record.status = Record.Status.IRRELEVANT;
             record.statusExplanation = "body serial no more active";
         });
         this.applyNext(records);

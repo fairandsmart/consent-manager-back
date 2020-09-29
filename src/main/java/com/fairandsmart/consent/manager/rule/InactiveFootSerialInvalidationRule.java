@@ -29,8 +29,8 @@ public class InactiveFootSerialInvalidationRule extends RecordStatusFilterRule {
                 record.status.equals(Record.Status.COMMITTED) && record.footKey != null
                         && !record.footKey.isEmpty() && getActiveSerial(record.footKey).contains(record.footSerial)
         ).forEach(record -> {
-            LOGGER.log(Level.FINE, "marking record as obsolete, " + record.id);
-            record.status = Record.Status.OBSOLETE;
+            LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
+            record.status = Record.Status.IRRELEVANT;
             record.statusExplanation = "foot serial no more active";
         });
         this.applyNext(records);
