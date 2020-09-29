@@ -173,4 +173,10 @@
             <column name="OWNER" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
+    <changeSet author="jblanchard" id="add-key-columns">
+        <addColumn tableName="KEY">
+            <column name="CREATIONDATE" type="BIGINT"/>
+            <column name="LASTACCESSDATE" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
