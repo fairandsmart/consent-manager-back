@@ -80,7 +80,7 @@ public class ConsentServiceBean implements ConsentService {
     PreviewCache previewCache;
 
     @Inject
-    RecordStatusFitlerChain statusFilterChain;
+    RecordStatusFilterChain statusFilterChain;
 
     /* MODELS MANAGEMENT */
 
@@ -533,7 +533,7 @@ public class ConsentServiceBean implements ConsentService {
             // (aka form is generated before a MAJOR RELEASE and submit after)
             // Maybe use a global referential hash that would be injected in token and which could be stored as a whole database integrity check
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
-            Receipt receipt = this.saveConsent(ctx, valuesMap, "");
+            Receipt receipt = this.saveConsent(ctx, valuesMap);
 
             if (!StringUtils.isEmpty(ctx.getOptoutRecipient())) {
                 Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
@@ -678,7 +678,7 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
-    private Receipt saveConsent(ConsentContext ctx, Map<String, String> values, String comment) throws ConsentServiceException, InvalidConsentException {
+    private Receipt saveConsent(ConsentContext ctx, Map<String, String> values) throws ConsentServiceException, InvalidConsentException {
         try {
             this.checkValuesCoherency(ctx, values);
             String transaction = java.util.UUID.randomUUID().toString();
@@ -692,12 +692,19 @@ public class ConsentServiceBean implements ConsentService {
             if (!StringUtils.isEmpty(ctx.getFooter())) {
                 footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
             }
+
             if (!Subject.existsForOwner(config.owner(), ctx.getSubject())) {
                 Subject subject = new Subject();
                 subject.owner = config.owner();
                 subject.name = ctx.getSubject();
                 Subject.persist(subject);
             }
+
+            String comment = "";
+            if (values.containsKey("comment")) {
+                comment = values.get("comment");
+            }
+
             List<Record> records = new ArrayList<>();
             for (Map.Entry<String, String> value : values.entrySet()) {
                 try {
