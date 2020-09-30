@@ -23,8 +23,8 @@ public class ExpiredRecordInvalidationRule extends RecordStatusFilterRule {
         records.stream().filter(record ->
             record.expirationTimestamp < now
         ).forEach(record -> {
-            LOGGER.log(Level.FINE, "marking record as obsolete, " + record.id);
-            record.status = Record.Status.OBSOLETE;
+            LOGGER.log(Level.FINE, "marking record as expired, " + record.id);
+            record.status = Record.Status.EXPIRED;
             record.statusExplanation = "expiration date reached";
         });
         this.applyNext(records);

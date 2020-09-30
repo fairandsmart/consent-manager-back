@@ -142,24 +142,28 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-    </changeSet>
-    <changeSet author="manon" id="active-versions">
-        <addColumn tableName="MODELENTRY">
-            <column name="HASACTIVEVERSION" type="BOOLEAN" defaultValue="false"/>
-        </addColumn>
-    </changeSet>
-    <changeSet author="fpierre" id="dropColumn-has-active-version">
-        <dropColumn tableName="MODELENTRY">
-            <column name="HASACTIVEVERSION"/>
-        </dropColumn>
-    </changeSet>
-    <changeSet author="jblanchard" id="add-subject-table">
         <createTable tableName="SUBJECT" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="OWNER" type="VARCHAR(255)"/>
             <column name="NAME" type="VARCHAR(2000)"/>
+        </createTable>
+        <createTable tableName="KEY" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="USERNAME" type="VARCHAR(255)"/>
+            <column name="PASSWORD" type="VARCHAR(255)"/>
+            <column name="ROLES" type="VARCHAR(255)"/>
+            <column name="OWNER" type="VARCHAR(255)"/>
+            <column name="CREATIONDATE" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LASTACCESSDATE" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

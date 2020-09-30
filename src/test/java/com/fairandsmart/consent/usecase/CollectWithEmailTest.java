@@ -3,6 +3,7 @@ package com.fairandsmart.consent.usecase;
 import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
+import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
@@ -99,9 +100,10 @@ public class CollectWithEmailTest {
 
             //Activate model version
             LOGGER.log(Level.INFO, "Activating " + type + " version");
-            versionDto.setStatus(ModelVersion.Status.ACTIVE);
+            ModelVersionStatusDto statusDto =  new ModelVersionStatusDto();
+            statusDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.JSON).body(versionDto).
+                    contentType(ContentType.JSON).body(statusDto).
                     when().put("/models/" + entryDto.getId() + "/versions/" + versionDto.getId() + "/status");
             response.then().statusCode(200);
             versionDto = response.body().as(ModelVersionDto.class);

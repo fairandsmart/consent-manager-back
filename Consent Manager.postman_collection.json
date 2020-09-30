@@ -181,6 +181,152 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "[User] get me (key)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{key_secret}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{key_id}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apihost}}/users/me",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"users",
+								"me"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Key",
+			"item": [
+				{
+					"name": "[Key] list",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/keys",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"keys"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Key] create",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/keys",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"keys"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Key] drop",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/keys/{{keyid}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"keys",
+								"{{keyid}}"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}

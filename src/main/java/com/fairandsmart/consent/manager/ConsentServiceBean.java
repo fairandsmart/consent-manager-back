@@ -16,6 +16,7 @@ import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.rule.*;
+import com.fairandsmart.consent.manager.store.LocalReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
@@ -67,7 +68,8 @@ public class ConsentServiceBean implements ConsentService {
     TokenService token;
 
     @Inject
-    Instance<ReceiptStore> stores;
+    //Instance<ReceiptStore> stores;
+    LocalReceiptStore store;
 
     @Inject
     NotificationService notification;
@@ -449,8 +451,8 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
         if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
             ctx.setSubject(authentication.getConnectedIdentifier());
-        } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierAdmin()) {
-            throw new AccessDeniedException("Only admin can generate token for other identifier than connected one");
+        } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierApi()) {
+            throw new AccessDeniedException("Only admin, operator or api can generate token for other identifier than connected one");
         }
         return token.generateToken(ctx);
     }
@@ -542,7 +544,7 @@ public class ConsentServiceBean implements ConsentService {
                         ConsentOptOut optout = new ConsentOptOut();
                         optout.setLocale(ctx.getLocale());
                         optout.setRecipient(ctx.getOptoutRecipient());
-                        //TODO avoid converting element identifier to key but modify the getForm method
+                        //TODO avoid converting element identifier back to key but modify the getForm method to allow both types
                         ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial(), true);
                         optout.setModel(optoutModel);
                         ctx.setOptoutModel(optoutModel.entry.key);
@@ -762,9 +764,12 @@ public class ConsentServiceBean implements ConsentService {
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();
+                /*
                 for (ReceiptStore store : stores) {
                     store.put(receipt.getTransaction(), xml);
                 }
+                 */
+                store.put(receipt.getTransaction(), xml);
             }
             return receipt;
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {

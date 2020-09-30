@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Singleton
-@Startup
+//@Startup
 public class XMLDBReceiptStore implements ReceiptStore {
 
     private static final Logger LOGGER = Logger.getLogger(XMLDBReceiptStore.class.getName());

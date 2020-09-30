@@ -15,4 +15,7 @@ public interface SecurityConfig {
     @ConfigProperty(name = "roles.operator")
     String operatorRoleName();
 
+    @ConfigProperty(name = "roles.api")
+    String apiRoleName();
+
 }

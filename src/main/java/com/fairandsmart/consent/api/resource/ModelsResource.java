@@ -173,7 +173,7 @@ public class ModelsResource {
     @Path("/{id}/versions/{vid}/status")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelVersionDto updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException, ModelDataSerializationException {
+    public ModelVersionDto updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionStatusDto dto) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/status");
         ModelVersion version = consentService.updateVersionStatus(vid, dto.getStatus());
         if ( !version.entry.id.equals(id) ) {
@@ -187,7 +187,7 @@ public class ModelsResource {
     @Path("/{id}/versions/{vid}/type")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ModelVersionDto updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
+    public ModelVersionDto updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionTypeDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/type");
         ModelVersion version = consentService.updateVersionType(vid, dto.getType());
         return ModelVersionDto.fromModelVersion(version);
