@@ -45,10 +45,10 @@
         ${data.dataController.company} ${data.dataController.address} ${data.dataController.email} ${data.dataController.phoneNumber}
     </div>
 </#if>
-<div><span class="receipt-label"><@readBundle "privacy_policy"></@readBundle>: </span>${data.privacyPolicyUrl}</div>
+<div><span class="receipt-label"><@readBundle "privacy_policy"></@readBundle>: </span><#if data.privacyPolicyUrl??>${data.privacyPolicyUrl}<#else>?</#if></div>
 
-<script src="/assets/js/iframeresizer/iframeResizer-4.0.4.contentWindow.min.js" crossorigin=""
-        integrity="sha256-36C1/Kln8nS9OWK0+tTRIYQyhdp+eY117441VyJaj+o="></script>
+<script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js" crossorigin=""
+        integrity="sha256-EH+7IdRixWtW5tdBwMkTXL+HvW5tAqV4of/HbAZ7nEc="></script>
 
 <script type="text/javascript">
     window.iFrameResizer = {

@@ -24,5 +24,4 @@ public interface MainConfig {
     @ConfigProperty(name = "secret")
     String secret();
 
-
 }

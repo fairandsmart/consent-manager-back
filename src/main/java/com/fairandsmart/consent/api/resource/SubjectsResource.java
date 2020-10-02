@@ -6,7 +6,6 @@ import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.Record;
 
 import javax.inject.Inject;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -26,7 +25,7 @@ public class SubjectsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> list(@QueryParam("name") @NotNull @Min(3) String name) throws AccessDeniedException {
+    public List<String> list(@QueryParam("name") @NotNull String name) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /subjects");
         return consentService.findSubjects(name);
     }
@@ -37,7 +36,7 @@ public class SubjectsResource {
     public Map<String, List<RecordDto>> listCustomerRecords(@PathParam("subject") String subject) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /subjects/" + subject + "/records");
         Map<String, List<Record>> records = consentService.listSubjectRecords(subject);
-        return records.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue().stream().map(r -> RecordDto.fromRecord(r)).collect(Collectors.toList())));
+        return records.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().stream().map(RecordDto::fromRecord).collect(Collectors.toList())));
     }
 
 }

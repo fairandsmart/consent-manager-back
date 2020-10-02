@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 @RequestScoped
-public class RecordStatusFitlerChain extends RecordStatusFilterRule {
+public class RecordStatusFilterChain extends RecordStatusFilterRule {
 
     @Inject
     ExpiredRecordInvalidationRule expiredRecordInvalidationRule;

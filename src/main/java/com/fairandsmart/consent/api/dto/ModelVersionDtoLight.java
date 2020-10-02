@@ -19,6 +19,7 @@ public class ModelVersionDtoLight {
     private ModelVersion.Type type;
     private long creationDate;
     private long modificationDate;
+    private String identifier;
 
     public ModelVersionDtoLight() {
     }
@@ -111,6 +112,14 @@ public class ModelVersionDtoLight {
         this.modificationDate = modificationDate;
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
     public static ModelVersionDtoLight fromModelVersion(ModelVersion version) throws ModelDataSerializationException {
         ModelVersionDtoLight dto = new ModelVersionDtoLight();
         dto.setId(version.id);
@@ -124,6 +133,7 @@ public class ModelVersionDtoLight {
         dto.setType(version.type);
         dto.setCreationDate(version.creationDate);
         dto.setModificationDate(version.modificationDate);
+        dto.setIdentifier(version.getIdentifier().toString());
         return dto;
     }
 }
