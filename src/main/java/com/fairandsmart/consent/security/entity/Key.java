@@ -28,7 +28,6 @@ public class Key extends PanacheEntityBase {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @JsonIgnore
     public String id;
     public String name;
     @Username
