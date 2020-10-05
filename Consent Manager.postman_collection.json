@@ -273,8 +273,22 @@
 								"key": "Authorization",
 								"type": "text",
 								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My Key\"\n}"
+						},
 						"url": {
 							"raw": "{{apihost}}/keys",
 							"host": [

@@ -1,0 +1,4 @@
+ID,OWNER,AUTHOR,KEY,NAME,TYPE,BRANCHES,DESCRIPTION,VERSION
+64f90695-2f62-4f3a-8422-40265ce079a9,demo,haribo@localhost,H1,Header,header,master,Header de démonstration,0
+51710d9f-2348-41fc-889c-2ff3485a72cc,demo,haribo@localhost,F1,Footer,footer,master,Pied de page de démonstration,0
+cbcfd77d-89fb-42d7-b030-221ca600271e,demo,haribo@localhost,Market.1,Marketing direct,treatment,master,Traitement 'marketing direct' de démonstration,0

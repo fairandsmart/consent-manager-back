@@ -166,4 +166,12 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet author="jayblanc" id="2">
+        <loadData file="db/MODELENTRY.csv" separator="," tableName="MODELENTRY" schemaName="PUBLIC"/>
+        <loadData file="db/MODELVERSION.csv" separator="," tableName="MODELVERSION" schemaName="PUBLIC"/>
+        <loadData file="db/MODELVERSION_CONTENT.csv" separator="," tableName="MODELVERSION_CONTENT" schemaName="PUBLIC">
+            <column name="DATA" type="string"/>
+        </loadData>
+        <loadData file="db/SEQUENCE.csv" separator="," tableName="SEQUENCE" schemaName="PUBLIC"/>
+    </changeSet>
 </databaseChangeLog>
