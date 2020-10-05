@@ -45,7 +45,8 @@ public class Key extends PanacheEntityBase {
     @JsonProperty("password")
     public String secret;
     public long creationDate;
-    public long lastAccessDate;
+    @Transient
+    public long lastAccessDate = -1;
 
     public static Key create(String owner, String name, String roles) {
         Key key = new Key();
@@ -57,7 +58,6 @@ public class Key extends PanacheEntityBase {
         key.password = BcryptUtil.bcryptHash(key.secret);
         key.roles = roles;
         key.creationDate = System.currentTimeMillis();
-        key.lastAccessDate = -1;
         key.persist();
         return key;
     }

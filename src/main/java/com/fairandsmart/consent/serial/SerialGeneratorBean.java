@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.serial;
 
+import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.config.SerialConfig;
 import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.common.util.Lock;
@@ -25,6 +26,9 @@ public class SerialGeneratorBean implements SerialGenerator {
 
     @Inject
     protected SerialConfig config;
+
+    @Inject
+    MainConfig mainConfig;
 
     private static final Map<String, Sequence> pools = new HashMap<>();
 
@@ -99,6 +103,7 @@ public class SerialGeneratorBean implements SerialGenerator {
 
     private long generate(String name) throws SerialGeneratorException {
         try {
+            name = mainConfig.owner() + "/" + name;
             Sequence pool = pools.get(name);
             if (pool == null) {
                 pool = Sequence.findById(name, LockModeType.PESSIMISTIC_WRITE);
