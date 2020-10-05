@@ -48,7 +48,7 @@
 <div><span class="receipt-label"><@readBundle "privacy_policy"></@readBundle>: </span><#if data.privacyPolicyUrl??>${data.privacyPolicyUrl}<#else>?</#if></div>
 
 <script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js" crossorigin=""
-        integrity="sha256-EH+7IdRixWtW5tdBwMkTXL+HvW5tAqV4of/HbAZ7nEc="></script>
+        integrity="sha256-uqJEaigsh7a1ncOLCy3CLi7FboUzLC6zNE5u5dRNVmI="></script>
 
 <script type="text/javascript">
     window.iFrameResizer = {
