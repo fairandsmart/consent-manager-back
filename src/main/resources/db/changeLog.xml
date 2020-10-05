@@ -161,9 +161,6 @@
             <column name="CREATIONDATE" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="LASTACCESSDATE" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
     </changeSet>
     <changeSet author="jayblanc" id="2">
