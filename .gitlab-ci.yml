@@ -1,0 +1,5 @@
+clean_db:
+  script:
+    - echo "toto"
+  rules:
+    - when: manual
