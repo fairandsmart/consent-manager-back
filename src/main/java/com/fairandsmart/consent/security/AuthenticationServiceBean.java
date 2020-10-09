@@ -3,15 +3,18 @@ package com.fairandsmart.consent.security;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.security.entity.AccessLog;
 import com.fairandsmart.consent.security.entity.Key;
-import io.quarkus.runtime.Startup;
 import io.quarkus.security.identity.SecurityIdentity;
+import org.hibernate.exception.ConstraintViolationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,10 +85,37 @@ public class AuthenticationServiceBean implements AuthenticationService {
     }
 
     @Override
+    @Transactional
+    public void logAccess(String username) {
+        long now = System.currentTimeMillis();
+        Optional<AccessLog> optional = AccessLog.findByIdOptional(identity.getPrincipal().getName());
+        if ( optional.isEmpty() ) {
+            AccessLog log = new AccessLog();
+            log.username = identity.getPrincipal().getName();
+            log.timestamp = now;
+            try {
+                log.persistAndFlush();
+                LOGGER.log(Level.FINE, "AccessLog created: " + log);
+            } catch ( ConstraintViolationException e ) {
+                LOGGER.log(Level.FINE, "AccessLog already created concurrently, nothing to do");
+            }
+        } else {
+            AccessLog log = optional.get();
+            if ( log.timestamp < (now - 60000)) {
+                log.timestamp = now;
+                log.persist();
+                LOGGER.log(Level.FINE, "AccessLog updated: " + log);
+            }
+        }
+    }
+
+    @Override
     public List<Key> listKeys() throws AccessDeniedException {
-        LOGGER.log(Level.FINE, "Creating new API key");
+        LOGGER.log(Level.FINE, "Listing all api keys");
         ensureConnectedIdentifierIsAdmin();
-        return Key.list("owner = ?1", config.owner());
+        List<Key> keys = Key.list("owner = ?1", config.owner());
+        keys.stream().forEach(key -> AccessLog.findByIdOptional(key.username).ifPresent(log -> key.lastAccessDate = ((AccessLog)log).timestamp));
+        return keys;
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 
 import javax.ws.rs.core.MultivaluedMap;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 

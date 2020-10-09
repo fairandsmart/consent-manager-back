@@ -162,6 +162,14 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <createTable tableName="ACCESSLOG" schemaName="PUBLIC" >
+            <column name="USERNAME" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="TIMESTAMP" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
     <changeSet author="jayblanc" id="2">
         <loadData file="db/MODELENTRY.csv" separator="," tableName="MODELENTRY" schemaName="PUBLIC"/>
@@ -170,5 +178,7 @@
             <column name="DATA" type="string"/>
         </loadData>
         <loadData file="db/SEQUENCE.csv" separator="," tableName="SEQUENCE" schemaName="PUBLIC"/>
+        <loadData file="db/SUBJECT.csv" separator="," tableName="SUBJECT" schemaName="PUBLIC"/>
+        <loadData file="db/RECORD.csv" separator="," tableName="RECORD" schemaName="PUBLIC"/>
     </changeSet>
 </databaseChangeLog>

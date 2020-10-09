@@ -52,9 +52,9 @@ public class Key extends PanacheEntityBase {
         Key key = new Key();
         key.owner = owner;
         key.persist();
-        key.username = key.id.replaceAll("-", "");
+        key.username = "k" + key.id.replaceAll("-", "").toLowerCase();
         key.name = name;
-        key.secret = generate(32);
+        key.secret = generate(24);
         key.password = BcryptUtil.bcryptHash(key.secret);
         key.roles = roles;
         key.creationDate = System.currentTimeMillis();

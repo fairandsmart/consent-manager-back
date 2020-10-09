@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.api.filter;
 
+import com.fairandsmart.consent.security.AuthenticationService;
 import io.quarkus.security.identity.SecurityIdentity;
 
 import javax.inject.Inject;
@@ -14,8 +15,13 @@ public class AccessLogFilter implements ContainerRequestFilter {
     @Inject
     SecurityIdentity identity;
 
+    @Inject
+    AuthenticationService auth;
+
     @Override
     public void filter(ContainerRequestContext ctx) throws IOException {
-
+        if ( !identity.isAnonymous() ) {
+            auth.logAccess(identity.getPrincipal().getName());
+        }
     }
 }

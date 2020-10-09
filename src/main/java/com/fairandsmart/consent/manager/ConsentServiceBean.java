@@ -2,23 +2,25 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
-import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.manager.cache.PreviewCache;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
-import com.fairandsmart.consent.common.util.PageUtil;
-import com.fairandsmart.consent.manager.model.*;
+import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.util.PageUtil;
 import com.fairandsmart.consent.common.util.SortUtil;
+import com.fairandsmart.consent.manager.cache.PreviewCache;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.rule.*;
+import com.fairandsmart.consent.manager.model.Footer;
+import com.fairandsmart.consent.manager.model.Header;
+import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.manager.rule.RecordStatusFilterChain;
 import com.fairandsmart.consent.manager.store.LocalReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
-import com.fairandsmart.consent.manager.store.ReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
@@ -31,17 +33,23 @@ import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.runtime.StartupEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -775,6 +783,23 @@ public class ConsentServiceBean implements ConsentService {
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
+    }
+
+    private void onStart(@Observes StartupEvent ev) throws IOException, URISyntaxException {
+        LOGGER.log(Level.INFO, "Application is starting, importing receipts");
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        Path receipts = Paths.get(loader.getResource("receipts").toURI());
+        LOGGER.log(Level.FINE, "Import receipts folder: " + receipts);
+        Files.list(receipts).forEach(receipt ->  {
+            LOGGER.log(Level.FINE, "Importing receipt: " + receipt);
+            try {
+                if ( !store.exists(receipt.getFileName().toString()) ) {
+                    store.put(receipt.getFileName().toString(), Files.readAllBytes(receipt));
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Unable to import receipt: " + receipt);
+            }
+        });
     }
 
 }

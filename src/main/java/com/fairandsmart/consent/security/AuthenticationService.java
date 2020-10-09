@@ -24,6 +24,8 @@ public interface AuthenticationService {
 
     void ensureConnectedIdentifierIsApi() throws AccessDeniedException;
 
+    void logAccess(String username);
+
     List<Key> listKeys() throws AccessDeniedException;
 
     Key createKey(String name) throws AccessDeniedException;
