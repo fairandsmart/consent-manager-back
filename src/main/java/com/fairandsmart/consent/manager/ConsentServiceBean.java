@@ -31,6 +31,7 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
+import com.google.common.reflect.ClassPath;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
@@ -44,12 +45,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -785,19 +787,18 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
-    private void onStart(@Observes StartupEvent ev) throws IOException, URISyntaxException {
+    protected void onStart(@Observes StartupEvent ev) throws IOException, URISyntaxException {
         LOGGER.log(Level.INFO, "Application is starting, importing receipts");
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        Path receipts = Paths.get(loader.getResource("receipts").toURI());
-        LOGGER.log(Level.FINE, "Import receipts folder: " + receipts);
-        Files.list(receipts).forEach(receipt ->  {
-            LOGGER.log(Level.FINE, "Importing receipt: " + receipt);
-            try {
-                if ( !store.exists(receipt.getFileName().toString()) ) {
-                    store.put(receipt.getFileName().toString(), Files.readAllBytes(receipt));
+        ClassPath.from(loader).getResources().stream().filter(resource -> resource.getResourceName().startsWith("receipts")).forEach(receipt -> {
+            String rid = receipt.getResourceName().replaceFirst("receipts/", "");
+            LOGGER.log(Level.FINE, "Importing receipt: " + rid);
+            try (InputStream is = receipt.asByteSource().openStream()) {
+                if (!store.exists(rid)) {
+                    store.put(rid, is);
                 }
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Unable to import receipt: " + receipt);
+                LOGGER.log(Level.WARNING, "Unable to import receipt: " + rid, e);
             }
         });
     }
