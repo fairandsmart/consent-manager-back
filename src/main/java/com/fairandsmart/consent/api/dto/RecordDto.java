@@ -5,9 +5,8 @@ import com.fairandsmart.consent.manager.entity.Record;
 public class RecordDto {
 
     private String serial;
-    private String headerKey;
+    private String infoKey;
     private String bodyKey;
-    private String footerKey;
     private String subject;
     private long creationTimestamp;
     private long expirationTimestamp;
@@ -28,12 +27,12 @@ public class RecordDto {
         this.serial = serial;
     }
 
-    public String getHeaderKey() {
-        return headerKey;
+    public String getInfoKey() {
+        return infoKey;
     }
 
-    public void setHeaderKey(String headerKey) {
-        this.headerKey = headerKey;
+    public void setInfoKey(String infoKey) {
+        this.infoKey = infoKey;
     }
 
     public String getBodyKey() {
@@ -42,14 +41,6 @@ public class RecordDto {
 
     public void setBodyKey(String bodyKey) {
         this.bodyKey = bodyKey;
-    }
-
-    public String getFooterKey() {
-        return footerKey;
-    }
-
-    public void setFooterKey(String footerKey) {
-        this.footerKey = footerKey;
     }
 
     public String getSubject() {
@@ -120,9 +111,8 @@ public class RecordDto {
         RecordDto dto = new RecordDto();
         dto.setSubject(record.subject);
         dto.setSerial(record.serial);
-        dto.setHeaderKey(record.headKey);
+        dto.setInfoKey(record.infoKey);
         dto.setBodyKey(record.bodyKey);
-        dto.setFooterKey(record.footKey);
         dto.setCreationTimestamp(record.creationTimestamp);
         dto.setExpirationTimestamp(record.expirationTimestamp);
         dto.setCollectionMethod(record.collectionMethod.toString());

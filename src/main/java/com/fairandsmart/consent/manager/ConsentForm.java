@@ -10,9 +10,8 @@ import java.util.Map;
 public class ConsentForm {
 
     private String token;
-    private ModelVersion header;
+    private ModelVersion info;
     private List<ModelVersion> elements;
-    private ModelVersion footer;
     private String locale;
     private Orientation orientation;
     private Map<String, String> previousValues;
@@ -34,12 +33,12 @@ public class ConsentForm {
         this.token = token;
     }
 
-    public ModelVersion getHeader() {
-        return header;
+    public ModelVersion getInfo() {
+        return info;
     }
 
-    public void setHeader(ModelVersion header) {
-        this.header = header;
+    public void setInfo(ModelVersion info) {
+        this.info = info;
     }
 
     public List<ModelVersion> getElements() {
@@ -52,14 +51,6 @@ public class ConsentForm {
 
     public void addElement(ModelVersion element) {
         this.elements.add(element);
-    }
-
-    public ModelVersion getFooter() {
-        return footer;
-    }
-
-    public void setFooter(ModelVersion footer) {
-        this.footer = footer;
     }
 
     public String getLocale() {
@@ -126,9 +117,8 @@ public class ConsentForm {
     public String toString() {
         return "ConsentForm{" +
                 "token='" + token + '\'' +
-                ", header=" + header +
+                ", info=" + info +
                 ", elements=" + elements +
-                ", footer=" + footer +
                 ", locale='" + locale + '\'' +
                 ", orientation=" + orientation +
                 ", preview=" + preview +

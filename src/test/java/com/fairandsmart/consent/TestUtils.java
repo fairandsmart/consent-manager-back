@@ -33,11 +33,8 @@ public class TestUtils {
         dto.setDefaultLocale(locale);
 
         switch (type) {
-            case Header.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateHeader(key)));
-                break;
-            case Footer.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateFooter(key)));
+            case BasicInfo.TYPE:
+                dto.setData(Collections.singletonMap(locale, generateBasicInfo(key)));
                 break;
             case Treatment.TYPE:
                 dto.setData(Collections.singletonMap(locale, generateTreatment(key)));
@@ -60,11 +57,8 @@ public class TestUtils {
         ModelData modelData = null;
 
         switch (type) {
-            case Header.TYPE:
-                modelData = generateHeader(key);
-                break;
-            case Footer.TYPE:
-                modelData = generateFooter(key);
+            case BasicInfo.TYPE:
+                modelData = generateBasicInfo(key);
                 break;
             case Treatment.TYPE:
                 modelData = generateTreatment(key);
@@ -85,10 +79,11 @@ public class TestUtils {
         return map;
     }
 
-    public static Header generateHeader(String key) {
-        return new Header()
+    public static BasicInfo generateBasicInfo(String key) {
+        return new BasicInfo()
                 .withTitle("Title " + key)
-                .withBody("Body " + key)
+                .withHeader("Header " + key)
+                .withFooter("Footer " + key)
                 .withLogoPath("Logo path " + key)
                 .withLogoAltText("Logo alt text " + key)
                 .withPrivacyPolicyUrl("Privacy policy URL " + key)
@@ -102,14 +97,9 @@ public class TestUtils {
                 .withShowScope(true)
                 .withShortNoticeLink("Short notice " + key)
                 .withShowShortNoticeLink(true)
-                .withCustomPrivacyPolicyText("Privacy policy label " + key);
-    }
-
-    public static Footer generateFooter(String key) {
-        return new Footer()
-                .withBody("Body " + key)
-                .withCustomAcceptAllText("Accept all " + key)
-                .withShowAcceptAll(true);
+                .withCustomPrivacyPolicyText("Privacy policy label " + key)
+                .withShowAcceptAll(true)
+                .withCustomAcceptAllText("Accept all " + key);
     }
 
     public static Treatment generateTreatment(String key) {

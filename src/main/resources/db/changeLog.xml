@@ -85,10 +85,8 @@
             <column name="AUTHOR" type="VARCHAR(255)"/>
             <column name="BODYKEY" type="VARCHAR(255)"/>
             <column name="BODYSERIAL" type="VARCHAR(255)"/>
-            <column name="HEADKEY" type="VARCHAR(255)"/>
-            <column name="HEADSERIAL" type="VARCHAR(255)"/>
-            <column name="FOOTKEY" type="VARCHAR(255)"/>
-            <column name="FOOTSERIAL" type="VARCHAR(255)"/>
+            <column name="INFOKEY" type="VARCHAR(255)"/>
+            <column name="INFOSERIAL" type="VARCHAR(255)"/>
             <column name="OWNER" type="VARCHAR(255)"/>
             <column name="PARENT" type="VARCHAR(255)"/>
             <column name="SERIAL" type="VARCHAR(255)"/>

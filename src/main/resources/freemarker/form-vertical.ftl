@@ -25,17 +25,17 @@
         <button type="button" class="close-btn">×</button>
     </div>
 
-    <#include "header-logo.ftl">
+    <#include "info-logo.ftl">
 
     <div class="treatments">
-        <#include "header.ftl">
+        <#include "info-head.ftl">
 
         <#list data.elements as element>
             <#include element.entry.type + ".ftl">
         </#list>
     </div>
 
-    <#include "footer.ftl">
+    <#include "info-foot.ftl">
 </form>
 
 <script src="/assets/js/consent.js"></script>

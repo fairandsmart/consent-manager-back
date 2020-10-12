@@ -1,10 +1,11 @@
 MODELVERSION_ID,CONTENT_KEY,AUTHOR,DATA,DATACLASS
 6614821a-67f9-432f-9d8f-ea0c1f788ba8,fr,haribo@localhost,"{
-  ""type"" : ""header"",
+  ""type"" : ""basicinfo"",
   ""logoPath"" : ""https://assets.fairandsmart.tech/logo_fs_tagline.png"",
   ""logoAltText"" : ""Logo Fair&Smart"",
   ""title"" : ""Votre consentement"",
-  ""body"" : ""Pour nous permettre de vous satisfaire pleinement avec nos services, il nous faut récolter un certain nombre d'informations. "",
+  ""header"" : ""Pour nous permettre de vous satisfaire pleinement avec nos services, il nous faut récolter un certain nombre d'informations. "",
+  ""footer"" : ""Merci pour vos réponses !\\nVous pourrez consulter et modifier vos réponses à tout moment"",
   ""jurisdiction"" : ""France"",
   ""showJurisdiction"" : false,
   ""collectionMethod"" : ""Formulaire Web"",
@@ -24,13 +25,9 @@ MODELVERSION_ID,CONTENT_KEY,AUTHOR,DATA,DATACLASS
   ""showShortNoticeLink"" : false,
   ""privacyPolicyUrl"" : ""https://www.fairandsmart.com/politique-confidentialite/"",
   ""customPrivacyPolicyText"" : ""Politique de confidentialité""
-}",com.fairandsmart.consent.manager.model.Header
-a43361c8-85c6-4ecf-b281-ce811db0b5c2,fr,haribo@localhost,"{
-  ""type"" : ""footer"",
-  ""body"" : ""Merci pour vos réponses !\\nVous pourrez consulter et modifier vos réponses à tout moment"",
   ""showAcceptAll"" : true,
   ""customAcceptAllText"" : ""Accepter tout""
-}",com.fairandsmart.consent.manager.model.Footer
+}",com.fairandsmart.consent.manager.model.BasicInfo
 fc83c53c-c3ca-475f-83d9-945cc111034c,fr,haribo@localhost,"{
   ""type"" : ""treatment"",
   ""treatmentTitle"" : ""Marketing direct"",

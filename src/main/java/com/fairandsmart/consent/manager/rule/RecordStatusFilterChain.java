@@ -14,7 +14,7 @@ public class RecordStatusFilterChain extends RecordStatusFilterRule {
     ExpiredRecordInvalidationRule expiredRecordInvalidationRule;
 
     @Inject
-    InactiveHeadSerialInvalidationRule inactiveHeadSerialInvalidationRule;
+    InactiveBasicInfoSerialInvalidationRule inactiveHeadSerialInvalidationRule;
 
     @Inject
     InactiveBodySerialInvalidationRule inactiveBodySerialInvalidationRule;

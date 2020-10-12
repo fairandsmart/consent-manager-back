@@ -14,8 +14,7 @@ import java.io.IOException;
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @Type(value = Header.class, name = Header.TYPE),
-        @Type(value = Footer.class, name = Footer.TYPE),
+        @Type(value = BasicInfo.class, name = BasicInfo.TYPE),
         @Type(value = Treatment.class, name = Treatment.TYPE),
         @Type(value = Conditions.class, name = Conditions.TYPE),
         @Type(value = Email.class, name = Email.TYPE),

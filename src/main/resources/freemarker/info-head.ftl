@@ -1,12 +1,12 @@
-<#if data.header?has_content>
-    <input name="header" value="${data.header.identifier}" hidden/>
-    <@fetchMultiLangContent data.header></@fetchMultiLangContent>
+<#if data.info?has_content>
+    <input name="info" value="${data.info.identifier}" hidden/>
+    <@fetchMultiLangContent data.info></@fetchMultiLangContent>
 
     <#if langContent?is_hash>
         <div class="header">
             <h2 class="header-title"><@valueOrError langContent.title "missingValue"></@valueOrError></h2>
 
-            <p class="header-body"><@valueOrError langContent.body "missingValue"></@valueOrError></p>
+            <p class="header-body"><@valueOrError langContent.header "missingValue"></@valueOrError></p>
 
             <#-- Data controller -->
             <#if langContent.showDataController>
@@ -20,29 +20,29 @@
                     <h4><@readBundle "defaultAdditionalInfoTitle"></@readBundle></h4>
                     <ul>
                         <#if langContent.showJurisdiction>
-                            <li><span class="list-label"><@readBundle "headerJurisdictionLabel"></@readBundle></span>
+                            <li><span class="list-label"><@readBundle "jurisdictionLabel"></@readBundle></span>
                                 <span class="list-value"><@valueOrError langContent.jurisdiction "missingValue"></@valueOrError></span>
                             </li>
                         </#if>
                         <#if langContent.showCollectionMethod>
                             <li>
-                                <span class="list-label"><@readBundle "headerCollectionMethodLabel"></@readBundle></span>
+                                <span class="list-label"><@readBundle "collectionMethodLabel"></@readBundle></span>
                                 <span class="list-value"><@valueOrError langContent.collectionMethod "missingValue"></@valueOrError></span>
                             </li>
                         </#if>
                         <#if langContent.showScope>
-                            <li><span class="list-label"><@readBundle "headerScopeLabel"></@readBundle></span> <span
+                            <li><span class="list-label"><@readBundle "scopeLabel"></@readBundle></span> <span
                                         class="list-value"><@valueOrError langContent.scope "missingValue"></@valueOrError></span>
                             </li>
                         </#if>
                         <#if langContent.showShortNoticeLink>
                             <#if langContent.shortNoticeLink?has_content>
                                 <li><span class="list-label"><a href="${langContent.shortNoticeLink}"
-                                                                <#if data.preview>style="pointer-events: none;"</#if>><@readBundle "headerShortNoticeLinkLabel"></@readBundle></a></span>
+                                                                <#if data.preview>style="pointer-events: none;"</#if>><@readBundle "shortNoticeLinkLabel"></@readBundle></a></span>
                                 </li>
                             <#else>
                                 <li>
-                                    <span class="list-label"><@readBundle "headerShortNoticeLinkLabel"></@readBundle></span>
+                                    <span class="list-label"><@readBundle "shortNoticeLinkLabel"></@readBundle></span>
                                     <span class="list-value"><@writeError "missingValue"></@writeError></span></li>
                             </#if>
                         </#if>

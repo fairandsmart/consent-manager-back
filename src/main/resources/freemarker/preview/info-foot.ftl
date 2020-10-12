@@ -1,16 +1,16 @@
 <div class="footer">
-    <#if footer?is_hash>
-        <#if footer.body?has_content>
+    <#if info?is_hash>
+        <#if info.footer?has_content>
             <div class="footer-body">
-                ${footer.body}
+                ${info.footer}
             </div>
         </#if>
 
-        <#if footer.showAcceptAll>
+        <#if info.showAcceptAll>
             <div class="accept-all-container">
                 <div class="accept-all-text">
-                    <#if footer.customAcceptAllText?has_content>
-                        ${footer.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle>
+                    <#if info.customAcceptAllText?has_content>
+                        ${info.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle>
                     </#if>
                 </div>
 

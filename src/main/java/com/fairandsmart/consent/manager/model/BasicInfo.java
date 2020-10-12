@@ -4,16 +4,17 @@ import com.fairandsmart.consent.manager.entity.ModelData;
 
 import java.util.Objects;
 
-public class Header extends ModelData {
+public class BasicInfo extends ModelData {
 
-    public static final String TYPE = "header";
+    public static final String TYPE = "basicinfo";
 
     // Logo
     private String logoPath;
     private String logoAltText = "Logo";
     // Main text
     private String title;
-    private String body;
+    private String header;
+    private String footer;
     // Consent parameters
     private String jurisdiction;
     private boolean showJurisdiction = false;
@@ -28,8 +29,11 @@ public class Header extends ModelData {
     // Privacy policy
     private String privacyPolicyUrl;
     private String customPrivacyPolicyText;
+    // Validation options
+    private boolean showAcceptAll = false;
+    private String customAcceptAllText;
 
-    public Header() {
+    public BasicInfo() {
         this.setType(TYPE);
     }
 
@@ -41,7 +45,7 @@ public class Header extends ModelData {
         this.logoPath = logoPath;
     }
 
-    public Header withLogoPath(String logoPath) {
+    public BasicInfo withLogoPath(String logoPath) {
         this.logoPath = logoPath;
         return this;
     }
@@ -54,7 +58,7 @@ public class Header extends ModelData {
         this.logoAltText = logoAltText;
     }
 
-    public Header withLogoAltText(String logoAltText) {
+    public BasicInfo withLogoAltText(String logoAltText) {
         this.logoAltText = logoAltText;
         return this;
     }
@@ -67,21 +71,34 @@ public class Header extends ModelData {
         this.title = title;
     }
 
-    public Header withTitle(String title) {
+    public BasicInfo withTitle(String title) {
         this.title = title;
         return this;
     }
 
-    public String getBody() {
-        return body;
+    public String getHeader() {
+        return header;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setHeader(String header) {
+        this.header = header;
     }
 
-    public Header withBody(String body) {
-        this.body = body;
+    public BasicInfo withHeader(String header) {
+        this.header = header;
+        return this;
+    }
+
+    public String getFooter() {
+        return footer;
+    }
+
+    public void setFooter(String footer) {
+        this.footer = footer;
+    }
+
+    public BasicInfo withFooter(String footer) {
+        this.footer = footer;
         return this;
     }
 
@@ -93,7 +110,7 @@ public class Header extends ModelData {
         this.jurisdiction = jurisdiction;
     }
 
-    public Header withJurisdiction(String jurisdiction) {
+    public BasicInfo withJurisdiction(String jurisdiction) {
         this.jurisdiction = jurisdiction;
         return this;
     }
@@ -106,7 +123,7 @@ public class Header extends ModelData {
         this.showJurisdiction = showJurisdiction;
     }
 
-    public Header withShowJurisdiction(boolean showJurisdiction) {
+    public BasicInfo withShowJurisdiction(boolean showJurisdiction) {
         this.showJurisdiction = showJurisdiction;
         return this;
     }
@@ -119,7 +136,7 @@ public class Header extends ModelData {
         this.collectionMethod = collectionMethod;
     }
 
-    public Header withCollectionMethod(String collectionMethod) {
+    public BasicInfo withCollectionMethod(String collectionMethod) {
         this.collectionMethod = collectionMethod;
         return this;
     }
@@ -132,7 +149,7 @@ public class Header extends ModelData {
         this.showCollectionMethod = showCollectionMethod;
     }
 
-    public Header withShowCollectionMethod(boolean showCollectionMethod) {
+    public BasicInfo withShowCollectionMethod(boolean showCollectionMethod) {
         this.showCollectionMethod = showCollectionMethod;
         return this;
     }
@@ -145,7 +162,7 @@ public class Header extends ModelData {
         this.dataController = dataController;
     }
 
-    public Header withDataController(Controller dataController) {
+    public BasicInfo withDataController(Controller dataController) {
         this.dataController = dataController;
         return this;
     }
@@ -158,7 +175,7 @@ public class Header extends ModelData {
         this.showDataController = showDataController;
     }
 
-    public Header withShowDataController(boolean showDataController) {
+    public BasicInfo withShowDataController(boolean showDataController) {
         this.showDataController = showDataController;
         return this;
     }
@@ -171,7 +188,7 @@ public class Header extends ModelData {
         this.scope = scope;
     }
 
-    public Header withScope(String scope) {
+    public BasicInfo withScope(String scope) {
         this.scope = scope;
         return this;
     }
@@ -184,7 +201,7 @@ public class Header extends ModelData {
         this.showScope = showScope;
     }
 
-    public Header withShowScope(boolean showScope) {
+    public BasicInfo withShowScope(boolean showScope) {
         this.showScope = showScope;
         return this;
     }
@@ -197,7 +214,7 @@ public class Header extends ModelData {
         this.shortNoticeLink = shortNoticeLink;
     }
 
-    public Header withShortNoticeLink(String shortNoticeLink) {
+    public BasicInfo withShortNoticeLink(String shortNoticeLink) {
         this.shortNoticeLink = shortNoticeLink;
         return this;
     }
@@ -210,7 +227,7 @@ public class Header extends ModelData {
         this.showShortNoticeLink = showShortNoticeLink;
     }
 
-    public Header withShowShortNoticeLink(boolean showShortNoticeLink) {
+    public BasicInfo withShowShortNoticeLink(boolean showShortNoticeLink) {
         this.showShortNoticeLink = showShortNoticeLink;
         return this;
     }
@@ -223,7 +240,7 @@ public class Header extends ModelData {
         this.privacyPolicyUrl = privacyPolicyUrl;
     }
 
-    public Header withPrivacyPolicyUrl(String privacyPolicyUrl) {
+    public BasicInfo withPrivacyPolicyUrl(String privacyPolicyUrl) {
         this.privacyPolicyUrl = privacyPolicyUrl;
         return this;
     }
@@ -236,8 +253,34 @@ public class Header extends ModelData {
         this.customPrivacyPolicyText = customPrivacyPolicyText;
     }
 
-    public Header withCustomPrivacyPolicyText(String customPrivacyPolicyText) {
+    public BasicInfo withCustomPrivacyPolicyText(String customPrivacyPolicyText) {
         this.customPrivacyPolicyText = customPrivacyPolicyText;
+        return this;
+    }
+
+    public boolean isShowAcceptAll() {
+        return showAcceptAll;
+    }
+
+    public void setShowAcceptAll(boolean showAcceptAll) {
+        this.showAcceptAll = showAcceptAll;
+    }
+
+    public BasicInfo withShowAcceptAll(boolean showAcceptAll) {
+        this.showAcceptAll = showAcceptAll;
+        return this;
+    }
+
+    public String getCustomAcceptAllText() {
+        return customAcceptAllText;
+    }
+
+    public void setCustomAcceptAllText(String customAcceptAllText) {
+        this.customAcceptAllText = customAcceptAllText;
+    }
+
+    public BasicInfo withCustomAcceptAllText(String customAcceptAllText) {
+        this.customAcceptAllText = customAcceptAllText;
         return this;
     }
 
@@ -245,37 +288,41 @@ public class Header extends ModelData {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Header header = (Header) o;
-        return showJurisdiction == header.showJurisdiction &&
-                showCollectionMethod == header.showCollectionMethod &&
-                showDataController == header.showDataController &&
-                showScope == header.showScope &&
-                showShortNoticeLink == header.showShortNoticeLink &&
-                Objects.equals(logoPath, header.logoPath) &&
-                Objects.equals(logoAltText, header.logoAltText) &&
-                Objects.equals(title, header.title) &&
-                Objects.equals(body, header.body) &&
-                Objects.equals(jurisdiction, header.jurisdiction) &&
-                Objects.equals(collectionMethod, header.collectionMethod) &&
-                Objects.equals(dataController, header.dataController) &&
-                Objects.equals(scope, header.scope) &&
-                Objects.equals(shortNoticeLink, header.shortNoticeLink) &&
-                Objects.equals(privacyPolicyUrl, header.privacyPolicyUrl) &&
-                Objects.equals(customPrivacyPolicyText, header.customPrivacyPolicyText);
+        BasicInfo info = (BasicInfo) o;
+        return showJurisdiction == info.showJurisdiction &&
+                showCollectionMethod == info.showCollectionMethod &&
+                showDataController == info.showDataController &&
+                showScope == info.showScope &&
+                showShortNoticeLink == info.showShortNoticeLink &&
+                showAcceptAll == info.showAcceptAll &&
+                Objects.equals(logoPath, info.logoPath) &&
+                Objects.equals(logoAltText, info.logoAltText) &&
+                Objects.equals(title, info.title) &&
+                Objects.equals(header, info.header) &&
+                Objects.equals(footer, info.footer) &&
+                Objects.equals(jurisdiction, info.jurisdiction) &&
+                Objects.equals(collectionMethod, info.collectionMethod) &&
+                Objects.equals(dataController, info.dataController) &&
+                Objects.equals(scope, info.scope) &&
+                Objects.equals(shortNoticeLink, info.shortNoticeLink) &&
+                Objects.equals(privacyPolicyUrl, info.privacyPolicyUrl) &&
+                Objects.equals(customPrivacyPolicyText, info.customPrivacyPolicyText) &&
+                Objects.equals(customAcceptAllText, info.customAcceptAllText);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(logoPath, logoAltText, title, body, jurisdiction, showJurisdiction, collectionMethod, showCollectionMethod, dataController, showDataController, scope, showScope, shortNoticeLink, showShortNoticeLink, privacyPolicyUrl, customPrivacyPolicyText);
+        return Objects.hash(logoPath, logoAltText, title, header, footer, jurisdiction, showJurisdiction, collectionMethod, showCollectionMethod, dataController, showDataController, scope, showScope, shortNoticeLink, showShortNoticeLink, privacyPolicyUrl, customPrivacyPolicyText, showAcceptAll, customAcceptAllText);
     }
 
     @Override
     public String toString() {
-        return "Header{" +
+        return "BasicInfo{" +
                 "logoPath='" + logoPath + '\'' +
                 ", logoAltText='" + logoAltText + '\'' +
                 ", title='" + title + '\'' +
-                ", body='" + body + '\'' +
+                ", header='" + header + '\'' +
+                ", footer='" + footer + '\'' +
                 ", jurisdiction='" + jurisdiction + '\'' +
                 ", showJurisdiction=" + showJurisdiction +
                 ", collectionMethod='" + collectionMethod + '\'' +
@@ -288,6 +335,8 @@ public class Header extends ModelData {
                 ", showShortNoticeLink=" + showShortNoticeLink +
                 ", privacyPolicyUrl='" + privacyPolicyUrl + '\'' +
                 ", customPrivacyPolicyText='" + customPrivacyPolicyText + '\'' +
+                ", showAcceptAll=" + showAcceptAll +
+                ", customAcceptAllText='" + customAcceptAllText + '\'' +
                 '}';
     }
 }

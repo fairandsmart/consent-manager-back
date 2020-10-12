@@ -26,15 +26,15 @@
 <body>
 <div class="consent-form">
 
-    <#if data.header??>
-        <@fetchMultiLangContent data.header></@fetchMultiLangContent>
-        <#assign header=langContent>
-        <#include "header-logo.ftl">
+    <#if data.info??>
+        <@fetchMultiLangContent data.info></@fetchMultiLangContent>
+        <#assign info=langContent>
+        <#include "info-logo.ftl">
     </#if>
 
     <div class="treatments">
-        <#if data.header??>
-            <#include "header.ftl">
+        <#if data.info??>
+            <#include "info-head.ftl">
         </#if>
 
         <#list data.elements as element>
@@ -45,10 +45,10 @@
         </#list>
     </div>
 
-    <#if data.footer??>
-        <@fetchMultiLangContent data.footer></@fetchMultiLangContent>
-        <#assign footer=langContent>
-        <#include "footer.ftl">
+    <#if data.info??>
+        <@fetchMultiLangContent data.info></@fetchMultiLangContent>
+        <#assign info=langContent>
+        <#include "info-foot.ftl">
     </#if>
 </div>
 

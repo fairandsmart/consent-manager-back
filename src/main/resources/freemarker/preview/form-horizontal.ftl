@@ -27,13 +27,13 @@
 <div class="consent-form">
 
     <div class="left">
-        <#if data.header??>
-            <@fetchMultiLangContent data.header></@fetchMultiLangContent>
-            <#assign header=langContent>
-            <#include "header-logo.ftl">
+        <#if data.info??>
+            <@fetchMultiLangContent data.info></@fetchMultiLangContent>
+            <#assign info=langContent>
+            <#include "info-logo.ftl">
 
             <div class="left-content">
-                <#include "header.ftl">
+                <#include "info-head.ftl">
             </div>
         </#if>
 
@@ -52,10 +52,10 @@
             </#list>
         </div>
 
-        <#if data.footer??>
-            <@fetchMultiLangContent data.footer></@fetchMultiLangContent>
-            <#assign footer=langContent>
-            <#include "footer.ftl">
+        <#if data.info??>
+            <@fetchMultiLangContent data.info></@fetchMultiLangContent>
+            <#assign info=langContent>
+            <#include "info-foot.ftl">
         </#if>
     </div>
 </div>

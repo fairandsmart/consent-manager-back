@@ -27,12 +27,10 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public String parent;
     public String serial;
     public String type;
-    public String headSerial;
+    public String infoSerial;
     public String bodySerial;
-    public String footSerial;
-    public String headKey;
+    public String infoKey;
     public String bodyKey;
-    public String footKey;
     public String value;
     @Enumerated(EnumType.STRING)
     public Status status;
@@ -69,12 +67,10 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
                 ", parent='" + parent + '\'' +
                 ", serial='" + serial + '\'' +
                 ", type='" + type + '\'' +
-                ", headSerial='" + headSerial + '\'' +
+                ", infoSerial='" + infoSerial + '\'' +
                 ", bodySerial='" + bodySerial + '\'' +
-                ", footSerial='" + footSerial + '\'' +
-                ", headKey='" + headKey + '\'' +
+                ", infoKey='" + infoKey + '\'' +
                 ", bodyKey='" + bodyKey + '\'' +
-                ", footKey='" + footKey + '\'' +
                 ", value='" + value + '\'' +
                 ", status=" + status +
                 ", statusExplanation='" + statusExplanation + '\'' +

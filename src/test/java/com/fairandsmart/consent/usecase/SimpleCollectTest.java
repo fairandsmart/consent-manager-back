@@ -7,8 +7,7 @@ import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
-import com.fairandsmart.consent.manager.model.Footer;
-import com.fairandsmart.consent.manager.model.Header;
+import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.Treatment;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -39,10 +38,9 @@ public class SimpleCollectTest {
     private static final String SUBJECT = "mmichu";
 
     private static final String locale = "fr_FR";
-    private static final String hKey = "sct_h1";
+    private static final String biKey = "sct_bi1";
     private static final String t1Key = "sct_t1";
     private static final String t2Key = "sct_t2";
-    private static final String fKey = "sct_f1";
 
     /**
      * 1 : le user appel l'url de génération du formulaire de collecte en passant le token contenant le context en paramètre (header ou query)
@@ -66,8 +64,8 @@ public class SimpleCollectTest {
 
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
-        List<String> keys = List.of(hKey, t1Key, t2Key, fKey);
-        List<String> types = List.of(Header.TYPE, Treatment.TYPE, Treatment.TYPE, Footer.TYPE);
+        List<String> keys = List.of(biKey, t1Key, t2Key);
+        List<String> types = List.of(BasicInfo.TYPE, Treatment.TYPE, Treatment.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);
@@ -108,9 +106,8 @@ public class SimpleCollectTest {
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setHeader(hKey)
+                .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setFooter(fKey)
                 .setLocale(locale);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
@@ -128,10 +125,12 @@ public class SimpleCollectTest {
         LOGGER.log(Level.INFO, "Consent form page: " + page);
         //Orientation
         assertFalse(page.contains("class=\"right\"")); // Vertical
-        //Header
-        assertTrue(page.contains("Title " + hKey));
-        assertTrue(page.contains("Body " + hKey));
-        assertTrue(page.contains("href=\"Privacy policy URL " + hKey + "\""));
+        //BasicInfo
+        assertTrue(page.contains("Title " + biKey));
+        assertTrue(page.contains("Header " + biKey));
+        assertTrue(page.contains("href=\"Privacy policy URL " + biKey + "\""));
+        assertTrue(page.contains("Footer " + biKey));
+        assertTrue(page.contains("accept-all-switch"));
         //Treatment 1
         assertTrue(page.contains("Treatment title " + t1Key));
         assertTrue(page.contains("Data body " + t1Key));
@@ -144,9 +143,6 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Retention body " + t2Key));
         assertTrue(page.contains("Usage body " + t2Key));
         assertTrue(page.contains("consent_third_part_sharing.png"));
-        //Footer
-        assertTrue(page.contains("Body " + fKey));
-        assertTrue(page.contains("accept-all-switch"));
 
         Document html = Jsoup.parse(page);
         Map<String, String> values = TestUtils.readFormInputs(html);
@@ -175,7 +171,7 @@ public class SimpleCollectTest {
         assertTrue(postPage.contains("Accepté"));
         assertFalse(postPage.contains("Refusé"));
         assertTrue(postPage.contains(SUBJECT));
-        assertTrue(postPage.contains("Name " + hKey + "_dc"));
+        assertTrue(postPage.contains("Name " + biKey + "_dc"));
 
         //PART 3
         //Check previous values are loaded on new consent form

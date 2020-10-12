@@ -1,12 +1,11 @@
 <div class="footer">
-    <#if data.footer?has_content>
-        <input name="footer" value="${data.footer.identifier}" hidden/>
-        <@fetchMultiLangContent data.footer></@fetchMultiLangContent>
+    <#if data.info?has_content>
+        <@fetchMultiLangContent data.info></@fetchMultiLangContent>
 
         <#if langContent?is_hash>
-            <#if langContent.body?has_content>
+            <#if langContent.footer?has_content>
                 <div class="footer-body">
-                    ${langContent.body}
+                    ${langContent.footer}
                 </div>
             </#if>
 

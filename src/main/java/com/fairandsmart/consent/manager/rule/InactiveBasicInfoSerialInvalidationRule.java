@@ -13,9 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RequestScoped
-public class InactiveFootSerialInvalidationRule extends RecordStatusFilterRule {
+public class InactiveBasicInfoSerialInvalidationRule extends RecordStatusFilterRule {
 
-    private static final Logger LOGGER = Logger.getLogger(InactiveFootSerialInvalidationRule.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(InactiveBasicInfoSerialInvalidationRule.class.getName());
 
     private Map<String, List<String>> activeSerialsCache = new HashMap<>();
 
@@ -24,14 +24,14 @@ public class InactiveFootSerialInvalidationRule extends RecordStatusFilterRule {
 
     @Override
     public void apply(List<Record> records) {
-        LOGGER.log(Level.FINE, "searching records with invalid foot serial");
+        LOGGER.log(Level.FINE, "searching records with invalid basic info serial");
         records.stream().filter(record ->
-                record.status.equals(Record.Status.COMMITTED) && record.footKey != null
-                        && !record.footKey.isEmpty() && getActiveSerial(record.footKey).contains(record.footSerial)
+            record.status.equals(Record.Status.COMMITTED) && record.infoKey != null
+                && !record.infoKey.isEmpty() && getActiveSerial(record.infoKey).contains(record.infoSerial)
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
             record.status = Record.Status.IRRELEVANT;
-            record.statusExplanation = "foot serial no more active";
+            record.statusExplanation = "basic info serial no more active";
         });
         this.applyNext(records);
     }

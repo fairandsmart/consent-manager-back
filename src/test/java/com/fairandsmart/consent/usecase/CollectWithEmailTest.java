@@ -8,8 +8,7 @@ import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.Email;
-import com.fairandsmart.consent.manager.model.Footer;
-import com.fairandsmart.consent.manager.model.Header;
+import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.Treatment;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
@@ -41,10 +40,9 @@ public class CollectWithEmailTest {
     private static final String TEST_PASSWORD = "password";
 
     private static final String locale = "fr_FR";
-    private static final String hKey = "cwet_h1";
+    private static final String biKey = "cwet_bi1";
     private static final String t1Key = "cwet_t1";
     private static final String t2Key = "cwet_t2";
-    private static final String fKey = "cwet_f1";
     private static final String eKey = "cwet_e1";
     private static final String recipient = "mmichu@localhost";
 
@@ -73,8 +71,8 @@ public class CollectWithEmailTest {
 
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
-        List<String> keys = List.of(hKey, t1Key, t2Key, fKey, eKey);
-        List<String> types = List.of(Header.TYPE, Treatment.TYPE, Treatment.TYPE, Footer.TYPE, Email.TYPE);
+        List<String> keys = List.of(biKey, t1Key, t2Key, eKey);
+        List<String> types = List.of(BasicInfo.TYPE, Treatment.TYPE, Treatment.TYPE, Email.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);
@@ -117,9 +115,8 @@ public class CollectWithEmailTest {
                 .setSubject("mmichu")
                 .setValidity("P2Y")
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setHeader(hKey)
+                .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setFooter(fKey)
                 .setLocale(locale)
                 .setOptoutModel(eKey)
                 .setOptoutRecipient(recipient);

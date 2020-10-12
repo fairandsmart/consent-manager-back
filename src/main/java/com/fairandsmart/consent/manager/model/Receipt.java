@@ -223,7 +223,7 @@ public class Receipt {
         return (Receipt) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, Header header, Footer footer, Map<Treatment, Record> records) throws DatatypeConfigurationException {
+    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, Map<Treatment, Record> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
         receipt.setLocale(ctx.getLocale());
@@ -233,14 +233,12 @@ public class Receipt {
         receipt.setSubject(ctx.getSubject());
         receipt.setSubjectDetails(ctx.getUserinfos().entrySet().stream().map(entry -> new NameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList()));
         receipt.setAttributes(ctx.getAttributes().entrySet().stream().map(entry -> new NameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList()));
-        if (header != null) {
-            receipt.setJurisdiction(header.getJurisdiction());
-            receipt.setDataController(header.getDataController());
-            receipt.setPrivacyPolicyUrl(header.getPrivacyPolicyUrl());
-            receipt.setHeaderNotice(header.getTitle() + " " + header.getBody());
-        }
-        if (footer != null) {
-            receipt.setFooterNotice(footer.getBody());
+        if (info != null) {
+            receipt.setJurisdiction(info.getJurisdiction());
+            receipt.setDataController(info.getDataController());
+            receipt.setPrivacyPolicyUrl(info.getPrivacyPolicyUrl());
+            receipt.setHeaderNotice(info.getTitle() + " " + info.getHeader());
+            receipt.setFooterNotice(info.getFooter());
         }
         receipt.setCollectionMethod(ctx.getCollectionMethod());
         for ( Map.Entry<Treatment, Record> record : records.entrySet() ) {

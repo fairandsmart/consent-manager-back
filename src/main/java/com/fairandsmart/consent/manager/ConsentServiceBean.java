@@ -14,8 +14,7 @@ import com.fairandsmart.consent.manager.cache.PreviewCache;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.model.Footer;
-import com.fairandsmart.consent.manager.model.Header;
+import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.model.Treatment;
 import com.fairandsmart.consent.manager.rule.RecordStatusFilterChain;
@@ -45,13 +44,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -485,10 +481,10 @@ public class ConsentServiceBean implements ConsentService {
             form.setPreview(ctx.isPreview());
             form.setConditions(ctx.isConditions());
 
-            if (!StringUtils.isEmpty(ctx.getHeader())) {
-                ModelVersion header = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getHeader());
-                form.setHeader(header);
-                ctx.setHeader(header.getIdentifier().serialize());
+            if (!StringUtils.isEmpty(ctx.getInfo())) {
+                ModelVersion info = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getInfo());
+                form.setInfo(info);
+                ctx.setInfo(info.getIdentifier().serialize());
             }
 
             List<String> elementsIdentifiers = new ArrayList<>();
@@ -501,12 +497,6 @@ public class ConsentServiceBean implements ConsentService {
                 }
             }
             ctx.setElements(elementsIdentifiers);
-
-            if (!StringUtils.isEmpty(ctx.getFooter())) {
-                ModelVersion footer = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getFooter());
-                form.setFooter(footer);
-                ctx.setFooter(footer.getIdentifier().serialize());
-            }
 
             if (!StringUtils.isEmpty(ctx.getTheme())) {
                 ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getTheme());
@@ -563,11 +553,8 @@ public class ConsentServiceBean implements ConsentService {
                             optout.setTheme(theme);
                             ctx.setTheme(theme.entry.key);
                         }
-                        if (!StringUtils.isEmpty(ctx.getHeader())) {
-                            ctx.setHeader(ConsentElementIdentifier.deserialize(ctx.getHeader()).getKey());
-                        }
-                        if (!StringUtils.isEmpty(ctx.getFooter())) {
-                            ctx.setFooter(ConsentElementIdentifier.deserialize(ctx.getFooter()).getKey());
+                        if (!StringUtils.isEmpty(ctx.getInfo())) {
+                            ctx.setInfo(ConsentElementIdentifier.deserialize(ctx.getInfo()).getKey());
                         }
                         List<String> celements = new ArrayList<>();
                         for (String element : ctx.getElements()) {
@@ -651,13 +638,10 @@ public class ConsentServiceBean implements ConsentService {
         filter.setOwner(config.owner());
         filter.setSubject(ctx.getSubject());
         filter.setStatus(Collections.singletonList(Record.Status.COMMITTED));
-        if (ctx.getHeader() != null && !ctx.getHeader().isEmpty()) {
-            filter.setHeaders(ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), ctx.getHeader()));
+        if (ctx.getInfo() != null && !ctx.getInfo().isEmpty()) {
+            filter.setInfos(ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), ctx.getInfo()));
         }
 
-        if (ctx.getFooter() != null && !ctx.getFooter().isEmpty()) {
-            filter.setFooters(ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), ctx.getFooter()));
-        }
         filter.setElements(ctx.getElements().stream().flatMap(e -> ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), e).stream()).collect(Collectors.toList()));
         List<Record> records = Record.find(filter.getQueryString(), filter.getQueryParams()).list();
         List<Record> latest = new ArrayList<>();
@@ -670,17 +654,11 @@ public class ConsentServiceBean implements ConsentService {
     /* INTERNAL */
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
-        if (ctx.getHeader() == null && values.containsKey("header")) {
-            throw new InvalidConsentException("submitted header incoherency, expected: null got: " + values.get("header"));
+        if (ctx.getInfo() == null && values.containsKey("info")) {
+            throw new InvalidConsentException("submitted basic info incoherency, expected: null got: " + values.get("info"));
         }
-        if (!StringUtils.isEmpty(ctx.getHeader()) && (!values.containsKey("header") || !values.get("header").equals(ctx.getHeader()))) {
-            throw new InvalidConsentException("submitted header incoherency, expected: " + ctx.getHeader() + " got: " + values.get("header"));
-        }
-        if (ctx.getFooter() == null && values.containsKey("footer")) {
-            throw new InvalidConsentException("submitted footer incoherency, expected: null got: " + values.get("footer"));
-        }
-        if (!StringUtils.isEmpty(ctx.getFooter()) && (!values.containsKey("footer") || !values.get("footer").equals(ctx.getFooter()))) {
-            throw new InvalidConsentException("submitted footer incoherency, expected: " + ctx.getFooter() + " got: " + values.get("footer"));
+        if (!StringUtils.isEmpty(ctx.getInfo()) && (!values.containsKey("info") || !values.get("info").equals(ctx.getInfo()))) {
+            throw new InvalidConsentException("submitted basic info incoherency, expected: " + ctx.getInfo() + " got: " + values.get("info"));
         }
         Map<String, String> submittedElementValues = values.entrySet().stream()
                 .filter(e -> e.getKey().startsWith("element"))
@@ -696,13 +674,9 @@ public class ConsentServiceBean implements ConsentService {
             String transaction = java.util.UUID.randomUUID().toString();
             Instant now = Instant.now();
 
-            ConsentElementIdentifier headId = null;
-            if (!StringUtils.isEmpty(ctx.getHeader())) {
-                headId = ConsentElementIdentifier.deserialize(ctx.getHeader());
-            }
-            ConsentElementIdentifier footId = null;
-            if (!StringUtils.isEmpty(ctx.getFooter())) {
-                footId = ConsentElementIdentifier.deserialize(ctx.getFooter());
+            ConsentElementIdentifier infoId = null;
+            if (!StringUtils.isEmpty(ctx.getInfo())) {
+                infoId = ConsentElementIdentifier.deserialize(ctx.getInfo());
             }
 
             if (!Subject.existsForOwner(config.owner(), ctx.getSubject())) {
@@ -726,13 +700,11 @@ public class ConsentServiceBean implements ConsentService {
                     record.subject = ctx.getSubject();
                     record.owner = config.owner();
                     record.type = bodyId.getType();
-                    record.headSerial = headId != null ? headId.getSerial() : "";
+                    record.infoSerial = infoId != null ? infoId.getSerial() : "";
                     record.bodySerial = bodyId.getSerial();
-                    record.footSerial = footId != null ? footId.getSerial() : "";
-                    record.headKey = headId != null ? headId.getKey() : "";
+                    record.infoKey = infoId != null ? infoId.getKey() : "";
                     record.bodyKey = bodyId.getKey();
-                    record.footKey = footId != null ? footId.getKey() : "";
-                    record.serial = record.headSerial + "." + record.bodySerial + "." + record.footSerial;
+                    record.serial = (record.infoSerial.isEmpty()?"":record.infoSerial + ".") + record.bodySerial;
                     record.value = value.getValue();
                     record.creationTimestamp = now.toEpochMilli();
                     record.expirationTimestamp = ctx.isConditions() ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
@@ -753,13 +725,9 @@ public class ConsentServiceBean implements ConsentService {
                 receipt = new Receipt();
                 receipt.setLocale(ctx.getLocale());
             } else {
-                Header header = null;
-                if (headId != null) {
-                    header = (Header) ModelVersion.SystemHelper.findModelVersionForSerial(headId.getSerial(), false).getData(ctx.getLocale());
-                }
-                Footer footer = null;
-                if (footId != null) {
-                    footer = (Footer) ModelVersion.SystemHelper.findModelVersionForSerial(footId.getSerial(), false).getData(ctx.getLocale());
+                BasicInfo info = null;
+                if (infoId != null) {
+                    info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLocale());
                 }
                 Map<Treatment, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
@@ -770,7 +738,7 @@ public class ConsentServiceBean implements ConsentService {
                         //
                     }
                 });
-                receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, header, footer, trecords);
+                receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();

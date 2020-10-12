@@ -39,11 +39,11 @@
         <div class="block-wrapper">
             <h4><@readBundle "defaultAdditionalInfoTitle"></@readBundle></h4>
             <ul>
-                <li><span class="list-label"><@readBundle "headerJurisdictionLabel"></@readBundle></span> <span
+                <li><span class="list-label"><@readBundle "jurisdictionLabel"></@readBundle></span> <span
                             class="list-value">Aliquam vitae elit massa</span></li>
-                <li><span class="list-label"><@readBundle "headerCollectionMethodLabel"></@readBundle></span> <span
+                <li><span class="list-label"><@readBundle "collectionMethodLabel"></@readBundle></span> <span
                             class="list-value">Eturpis nec posuere vestibulum</span></li>
-                <li><span class="list-label"><@readBundle "headerScopeLabel"></@readBundle></span> <span
+                <li><span class="list-label"><@readBundle "scopeLabel"></@readBundle></span> <span
                             class="list-value">Pimentum, facilisis lorem a, elementum</span></li>
                 <li><span class="list-label"><a href="" style="pointer-events: none;">Cras dapibus turpis ac pulvinar mollis</a></span>
                 </li>

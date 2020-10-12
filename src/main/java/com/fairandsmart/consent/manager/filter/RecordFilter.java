@@ -14,9 +14,8 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
     private String owner;
     private String subject;
     private List<Record.Status> status;
-    private List<String> headers;
+    private List<String> infos;
     private List<String> elements;
-    private List<String> footers;
     private String collectionMethod;
     private long after = -1;
     private long before = -1;
@@ -67,12 +66,12 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.status = status;
     }
 
-    public List<String> getHeaders() {
-        return headers;
+    public List<String> getInfos() {
+        return infos;
     }
 
-    public void setHeaders(List<String> headers) {
-        this.headers = headers;
+    public void setInfos(List<String> infos) {
+        this.infos = infos;
     }
 
     public List<String> getElements() {
@@ -81,14 +80,6 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
 
     public void setElements(List<String> elements) {
         this.elements = elements;
-    }
-
-    public List<String> getFooters() {
-        return footers;
-    }
-
-    public void setFooters(List<String> footers) {
-        this.footers = footers;
     }
 
     public String getCollectionMethod() {
@@ -153,14 +144,11 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         if (status != null && !status.isEmpty()) {
             parts.add("status in :status");
         }
-        if (headers != null && !headers.isEmpty()) {
-            parts.add("headSerial in :headers");
+        if (infos != null && !infos.isEmpty()) {
+            parts.add("infoSerial in :infos");
         }
         if (elements != null && elements.size() > 0) {
             parts.add("bodySerial in :elements");
-        }
-        if (footers != null && !footers.isEmpty()) {
-            parts.add("footSerial in :footers");
         }
         if (collectionMethod != null && !collectionMethod.isEmpty()) {
             parts.add("collectionMethod = :collectionMethod");
@@ -189,14 +177,11 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         if (status != null && status.size() > 0) {
             params.put("status", status);
         }
-        if (headers != null && headers.size() > 0) {
-            params.put("headers", headers);
+        if (infos != null && infos.size() > 0) {
+            params.put("infos", infos);
         }
         if (elements != null && elements.size() > 0) {
             params.put("elements", elements);
-        }
-        if (footers != null && footers.size() > 0) {
-            params.put("footers", footers);
         }
         if (collectionMethod != null && !collectionMethod.isEmpty()) {
             params.put("collectionMethod", collectionMethod);
@@ -221,9 +206,8 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
                 ", owner='" + owner + '\'' +
                 ", subject='" + subject + '\'' +
                 ", status=" + status +
-                ", headers=" + headers +
+                ", infos=" + infos +
                 ", elements=" + elements +
-                ", footers=" + footers +
                 ", collectionMethod='" + collectionMethod + '\'' +
                 ", after=" + after +
                 ", before=" + before +

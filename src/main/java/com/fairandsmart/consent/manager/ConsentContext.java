@@ -23,11 +23,10 @@ public class ConsentContext implements Tokenizable {
     private String subject;
     @NotNull
     private ConsentForm.Orientation orientation;
-    private String header;
+    private String info;
     @NotNull
     @NotEmpty
     private List<String> elements;
-    private String footer;
     private String callback;
     private String locale;
     private String validity;
@@ -72,12 +71,12 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getHeader() {
-        return header;
+    public String getInfo() {
+        return info;
     }
 
-    public ConsentContext setHeader(String header) {
-        this.header = header;
+    public ConsentContext setInfo(String info) {
+        this.info = info;
         return this;
     }
 
@@ -100,15 +99,6 @@ public class ConsentContext implements Tokenizable {
 
     public ConsentContext addElement(String element) {
         this.elements.add(element);
-        return this;
-    }
-
-    public String getFooter() {
-        return footer;
-    }
-
-    public ConsentContext setFooter(String footer) {
-        this.footer = footer;
         return this;
     }
 
@@ -265,14 +255,11 @@ public class ConsentContext implements Tokenizable {
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
-        if (header != null) {
-            claims.put("header", this.getHeader());
+        if (info != null) {
+            claims.put("info", this.getInfo());
         }
         if (elements != null && !elements.isEmpty()) {
             claims.put("elements", this.getElementsString());
-        }
-        if (footer != null) {
-            claims.put("footer", this.getFooter());
         }
         if (locale != null) {
             claims.put("locale", this.getLocale());
@@ -322,14 +309,11 @@ public class ConsentContext implements Tokenizable {
 
     @Override
     public Tokenizable setClaims(Map<String, String> claims) {
-        if (claims.containsKey("header")) {
-            this.setHeader(claims.get("header"));
+        if (claims.containsKey("info")) {
+            this.setInfo(claims.get("info"));
         }
         if (claims.containsKey("elements")) {
             this.setElementsString(claims.get("elements"));
-        }
-        if (claims.containsKey("footer")) {
-            this.setFooter(claims.get("footer"));
         }
         if (claims.containsKey("locale")) {
             this.setLocale(claims.get("locale"));
@@ -417,9 +401,8 @@ public class ConsentContext implements Tokenizable {
         return "ConsentContext{" +
                 "subject='" + subject + '\'' +
                 ", orientation=" + orientation +
-                ", header='" + header + '\'' +
+                ", info='" + info + '\'' +
                 ", elements=" + elements +
-                ", footer='" + footer + '\'' +
                 ", callback='" + callback + '\'' +
                 ", validity='" + validity + '\'' +
                 ", locale='" + locale + '\'' +

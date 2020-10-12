@@ -22,10 +22,10 @@
     <input name="token" id="token" value="${data.token}" hidden/>
 
     <div class="left">
-        <#include "header-logo.ftl">
+        <#include "info-logo.ftl">
 
         <div class="left-content">
-            <#include "header.ftl">
+            <#include "info-head.ftl">
         </div>
 
         <div class="content-fade fade-inverted"></div>
@@ -44,7 +44,7 @@
             </#list>
         </div>
 
-        <#include "footer.ftl">
+        <#include "info-foot.ftl">
     </div>
 </form>
 
