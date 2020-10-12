@@ -24,7 +24,7 @@ MODELVERSION_ID,CONTENT_KEY,AUTHOR,DATA,DATACLASS
   ""shortNoticeLink"" : """",
   ""showShortNoticeLink"" : false,
   ""privacyPolicyUrl"" : ""https://www.fairandsmart.com/politique-confidentialite/"",
-  ""customPrivacyPolicyText"" : ""Politique de confidentialité""
+  ""customPrivacyPolicyText"" : ""Politique de confidentialité"",
   ""showAcceptAll"" : true,
   ""customAcceptAllText"" : ""Accepter tout""
 }",com.fairandsmart.consent.manager.model.BasicInfo
