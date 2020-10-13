@@ -34,7 +34,7 @@ public class ReceiptTemplateModelBuilder implements TemplateModelBuilder {
         } else {
             model.setTemplate("no-receipt.ftl");
         }
-        LOGGER.log(Level.INFO, model.toString());
+        LOGGER.log(Level.FINE, model.toString());
         return model;
     }
 }

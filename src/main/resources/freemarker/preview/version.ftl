@@ -11,7 +11,7 @@
     <meta name="author" content="Fair&Smart">
 
     <#include "../style/common-style.ftl">
-    <#if model.type=="header" || model.type=="treatment" || model.type=="preference" || model.type=="footer">
+    <#if model.type=="basicinfo" || model.type=="treatment" || model.type=="preference">
         <#include "../style/consent-style.ftl">
         <#include "../style/vertical-style.ftl">
     </#if>
@@ -47,12 +47,13 @@
     </div>
 <#else>
     <div class="consent-form">
-        <#if model.type=="header">
-            <#assign header=model>
-            <#include "header-logo.ftl">
+        <#if model.type=="basicinfo">
+            <#assign info=model>
+            <#include "info-logo.ftl">
             <div class="treatments">
-                <#include "header.ftl">
+                <#include "info-head.ftl">
             </div>
+            <#include "info-foot.ftl">
         </#if>
         <#if model.type=="treatment">
             <div class="treatments">
@@ -66,19 +67,6 @@
                 <#assign element_content=model>
                 <#assign identifier="preference">
                 <#include "preference.ftl">
-            </div>
-        </#if>
-        <#if model.type=="footer">
-            <style>
-                .footer-preview-wrapper {
-                    width: 100%;
-                    position: absolute;
-                    bottom: 0;
-                }
-            </style>
-            <div class="footer-preview-wrapper">
-                <#assign footer=model>
-                <#include "footer.ftl">
             </div>
         </#if>
         <#if model.type=="theme">
