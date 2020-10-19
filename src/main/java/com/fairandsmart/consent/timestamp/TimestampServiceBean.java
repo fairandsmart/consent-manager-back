@@ -33,8 +33,7 @@ public class TimestampServiceBean implements TimestampService {
     private static final Logger LOGGER = Logger.getLogger(TimestampServiceBean.class.getName());
 
     @ConfigProperty(name = "consent.keystore.path", defaultValue = "")
-    Optional<String> keystorePathConfig;
-    String keystorePathDefault = System.getProperty("user.home") + "/.consent-manager/keystore.jks";
+    String keystorePathConfig;
 
     @Inject
     TsaConfig config;
@@ -50,19 +49,22 @@ public class TimestampServiceBean implements TimestampService {
 //        - keystorePath defined => check it exists, or give up (prod mode)
 
         String keystorePath;
-        if (keystorePathConfig.isPresent()) {
-            keystorePath = String.valueOf(keystorePathConfig);
-        } else {
-            keystorePath = keystorePathDefault;
-            LOGGER.log(Level.WARNING, "consent.keystore.path undefined, copying our to {0}", keystorePath);
-            File keystoreFile = new File(keystorePath);
-            if (keystoreFile.exists()) {
-                LOGGER.log(Level.WARNING, "{0} already exists, overwriting", keystorePath);
-                if (!keystoreFile.delete()) throw new TimestampServiceException("could not delete {0}, please check");
-            }
+        keystorePath = String.valueOf(keystorePathConfig);
+
+        if ( keystorePath.startsWith("~") ) {
+            keystorePath = System.getProperty("user.home") + keystorePath.substring(1);
+            LOGGER.log(Level.INFO, "Setting keystore relative to user home directory : {0}", keystorePath);
+        }
+
+        File keystoreFile = new File(keystorePath);
+        if (! keystoreFile.exists()) {
+            LOGGER.log(Level.WARNING, "{0} do not exists, copying the default one", keystorePath);
             InputStream defaultKeystore = this.getClass().getClassLoader().getResourceAsStream("keystore.jks");
             assert defaultKeystore != null;
             try {
+                if (!keystoreFile.getAbsoluteFile().getParentFile().exists()) {
+                    Files.createDirectory(keystoreFile.getAbsoluteFile().getParentFile().toPath());
+                }
                 Files.copy(defaultKeystore, Paths.get(keystorePath));
             } catch (IOException e) {
                 throw new TimestampServiceException(String.format("could not copy default keystore to %s : %s", keystorePath, e.toString()));
