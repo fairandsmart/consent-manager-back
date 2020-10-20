@@ -47,7 +47,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -171,6 +170,12 @@ public class ConsentServiceBean implements ConsentService {
             //TODO Maybe allow this but ensure that all corresponding records are going to be deleted... and that receipt may be corrupted.
             throw new ConsentManagerException("unable to delete entry that have not only DRAFT versions");
         }
+    }
+
+    @Override
+    public List<ModelEntry> listEntriesByKeys(List<String> keys) {
+        LOGGER.log(Level.INFO, "Listing entries for keys: " + keys);
+        return ModelEntry.list("key in ?1", keys);
     }
 
     @Override
@@ -755,7 +760,7 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
-    protected void onStart(@Observes StartupEvent ev) throws IOException, URISyntaxException {
+    protected void onStart(@Observes StartupEvent ev) throws IOException {
         LOGGER.log(Level.INFO, "Application is starting, importing receipts");
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         ClassPath.from(loader).getResources().stream().filter(resource -> resource.getResourceName().startsWith("receipts")).forEach(receipt -> {
