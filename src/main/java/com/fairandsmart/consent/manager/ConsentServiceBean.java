@@ -18,7 +18,10 @@ import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.model.Treatment;
 import com.fairandsmart.consent.manager.rule.RecordStatusFilterChain;
-import com.fairandsmart.consent.manager.store.*;
+import com.fairandsmart.consent.manager.store.LocalReceiptStore;
+import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
+import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
+import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.security.AuthenticationService;
@@ -28,13 +31,11 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
-import com.google.common.reflect.ClassPath;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.util.Strings;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -47,7 +48,11 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -784,20 +789,25 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
-    protected void onStart(@Observes StartupEvent ev) throws IOException {
+    protected void onStart(@Observes StartupEvent ev) throws IOException, URISyntaxException {
         LOGGER.log(Level.INFO, "Application is starting, importing receipts");
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        ClassPath.from(loader).getResources().stream().filter(resource -> resource.getResourceName().startsWith("receipts")).forEach(receipt -> {
-            String rid = receipt.getResourceName().replaceFirst("receipts/", "");
-            LOGGER.log(Level.INFO, "Importing receipt: " + rid);
-            try (InputStream is = receipt.asByteSource().openStream()) {
-                if (!store.exists(rid)) {
-                    store.put(rid, is);
-                }
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Unable to import receipt: " + rid, e);
-            }
-        });
+        URL receipts = getClass().getClassLoader().getResource("receipts");
+        if (receipts != null) {
+            Files.walk(Paths.get(receipts.toURI()))
+                    .filter(Files::isRegularFile)
+                    .forEach(path -> {
+                        try {
+                            String fileName = path.getFileName().toString();
+                            LOGGER.log(Level.INFO, "Importing receipt " + fileName);
+                            InputStream inputStream = Files.newInputStream(path);
+                            this.store.put(fileName, inputStream);
+                        } catch (IOException | ReceiptStoreException e) {
+                            LOGGER.log(Level.SEVERE, "Unable to import receipt: " + e.getMessage(), e);
+                        } catch (ReceiptAlreadyExistsException e) {
+                            LOGGER.log(Level.INFO, "Receipt already imported");
+                        }
+                    });
+        }
     }
 
 }
