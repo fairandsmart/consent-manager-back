@@ -13,6 +13,8 @@ import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
+import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 
@@ -75,7 +77,7 @@ public interface ConsentService {
 
     ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
 
-    Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
+    String submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 
     /* Records */
 
@@ -86,5 +88,9 @@ public interface ConsentService {
     Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException;
 
     List<String> findSubjects(String subject) throws AccessDeniedException;
+
+    /* Receipts */
+
+    Receipt getReceipt(String id) throws ReceiptNotFoundException, ConsentManagerException;
 
 }

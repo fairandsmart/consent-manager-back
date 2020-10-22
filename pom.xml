@@ -57,6 +57,7 @@
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
         <version.xades4j>1.5.1</version.xades4j>
+        <version.apache-fop>2.5</version.apache-fop>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -216,6 +217,11 @@
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>${version.apache-fop}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

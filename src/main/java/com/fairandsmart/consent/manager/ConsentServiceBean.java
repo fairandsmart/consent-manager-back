@@ -18,9 +18,7 @@ import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.model.Treatment;
 import com.fairandsmart.consent.manager.rule.RecordStatusFilterChain;
-import com.fairandsmart.consent.manager.store.LocalReceiptStore;
-import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
-import com.fairandsmart.consent.manager.store.ReceiptStoreException;
+import com.fairandsmart.consent.manager.store.*;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.security.AuthenticationService;
@@ -34,7 +32,9 @@ import com.google.common.reflect.ClassPath;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.util.Strings;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -47,6 +47,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -523,7 +524,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Receipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
+    public String submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Submitting consent");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
@@ -540,7 +541,7 @@ public class ConsentServiceBean implements ConsentService {
             // (aka form is generated before a MAJOR RELEASE and submit after)
             // Maybe use a global referential hash that would be injected in token and which could be stored as a whole database integrity check
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
-            Receipt receipt = this.saveConsent(ctx, valuesMap);
+            String txid = this.saveConsent(ctx, valuesMap);
 
             if (!StringUtils.isEmpty(ctx.getOptoutRecipient())) {
                 Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
@@ -580,7 +581,7 @@ public class ConsentServiceBean implements ConsentService {
                     LOGGER.log(Level.SEVERE, "No optout model set but an optout recipient, Default MODEL NOT IMPLEMENTED YET");
                 }
             }
-            return receipt;
+            return txid;
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -656,6 +657,23 @@ public class ConsentServiceBean implements ConsentService {
         return latest;
     }
 
+    /* RECEIPTS */
+
+    @Override
+    public Receipt getReceipt(String id) throws ConsentManagerException, ReceiptNotFoundException {
+        LOGGER.log(Level.INFO, "Getting receipt for id: " + id);
+        try {
+            String xml = IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name());
+            Receipt receipt = Receipt.build(xml);
+            if (!authentication.getConnectedIdentifier().equals(receipt.getSubject()) && !authentication.isConnectedIdentifierOperator()) {
+                throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
+            }
+            return receipt;
+        } catch (IOException | ReceiptStoreException | JAXBException e) {
+            throw new ConsentManagerException("Unable to read receipt from store", e);
+        }
+    }
+
     /* INTERNAL */
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
@@ -673,7 +691,7 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
-    private Receipt saveConsent(ConsentContext ctx, Map<String, String> values) throws ConsentServiceException, InvalidConsentException {
+    private String saveConsent(ConsentContext ctx, Map<String, String> values) throws ConsentServiceException, InvalidConsentException {
         try {
             this.checkValuesCoherency(ctx, values);
             String transaction = java.util.UUID.randomUUID().toString();
@@ -754,7 +772,7 @@ public class ConsentServiceBean implements ConsentService {
                  */
                 store.put(receipt.getTransaction(), xml);
             }
-            return receipt;
+            return receipt.getTransaction();
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -765,7 +783,7 @@ public class ConsentServiceBean implements ConsentService {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         ClassPath.from(loader).getResources().stream().filter(resource -> resource.getResourceName().startsWith("receipts")).forEach(receipt -> {
             String rid = receipt.getResourceName().replaceFirst("receipts/", "");
-            LOGGER.log(Level.FINE, "Importing receipt: " + rid);
+            LOGGER.log(Level.INFO, "Importing receipt: " + rid);
             try (InputStream is = receipt.asByteSource().openStream()) {
                 if (!store.exists(rid)) {
                     store.put(rid, is);

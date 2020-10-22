@@ -33,13 +33,29 @@
         </xsl:attribute>
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <fo:layout-master-set>
-                <fo:simple-page-master master-name="receipt">
-                    <fo:region-body margin="1in"/>
+                <fo:simple-page-master master-name="receipt"
+                                       page-height="29.7cm"
+                                       page-width="21cm"
+                                       margin-top="2cm"
+                                       margin-bottom="1cm"
+                                       margin-left="2.5cm"
+                                       margin-right="2.5cm">
+                    <fo:region-body margin-top="1cm"/>
+                    <fo:region-before extent="3cm"/>
+                    <fo:region-after extent="1.5cm"/>
                 </fo:simple-page-master>
             </fo:layout-master-set>
 
             <fo:page-sequence master-reference="receipt">
                 <fo:flow flow-name="xsl-region-body">
+                    <fo:block-container position="absolute"
+                                        border-color="#880000" border-style="solid" border-width=".3mm"
+                                        top="-0.5cm" left="9cm" height="2cm" width="7.5cm" >
+                    </fo:block-container>
+                    <fo:block font-size="30pt"
+                              space-after.optimum="200pt"
+                              text-align="end">
+                    </fo:block>
                     <fo:block>
                         <xsl:call-template name="translate">
                             <xsl:with-param name="key">title</xsl:with-param>
@@ -47,7 +63,7 @@
                         </xsl:call-template>
                     </fo:block>
                     <fo:block>
-                       <xsl:call-template name="translate">
+                        <xsl:call-template name="translate">
                             <xsl:with-param name="key">date</xsl:with-param>
                             <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
                         </xsl:call-template>

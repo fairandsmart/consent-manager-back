@@ -52,8 +52,7 @@ public class Receipt {
     private String privacyPolicyUrl;
     private ConsentContext.CollectionMethod collectionMethod;
     private String token;
-
-    //TODO Add modification url
+    private String uri;
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
