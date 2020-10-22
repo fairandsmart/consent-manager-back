@@ -97,6 +97,11 @@
                 <value locale="en_EN">Privacy Policy</value>
                 <value locale="fr_FR">Politique de confidentialité</value>
             </key>
+            <key name="update_url">
+                <value locale="default">Update Consent</value>
+                <value locale="en_EN">Update Consent</value>
+                <value locale="fr_FR">Modifier le consentement</value>
+            </key>
             <key name="collection_method">
                 <value locale="default">Collection Method</value>
                 <value locale="en_EN">Collection Method</value>
@@ -133,13 +138,7 @@
     <xsl:template match="/receipt">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <fo:layout-master-set>
-                <fo:simple-page-master master-name="receipt"
-                                       page-height="29.7cm"
-                                       page-width="21cm"
-                                       margin-top="2cm"
-                                       margin-bottom="1cm"
-                                       margin-left="2.5cm"
-                                       margin-right="2.5cm">
+                <fo:simple-page-master master-name="receipt" page-height="29.7cm" page-width="21cm" margin-top="2cm" margin-bottom="1cm" margin-left="2.5cm" margin-right="2.5cm">
                     <fo:region-body margin-top="1cm"/>
                     <fo:region-before extent="3cm"/>
                     <fo:region-after extent="1.5cm"/>
@@ -148,30 +147,146 @@
 
             <fo:page-sequence master-reference="receipt">
                 <fo:flow flow-name="xsl-region-body">
-                    <fo:block-container position="absolute"
-                                        border-color="#880000" border-style="solid" border-width=".3mm"
-                                        top="-0.5cm" left="9cm" height="2cm" width="7.5cm" >
-                    </fo:block-container>
-                    <fo:block font-size="30pt"
-                              space-after.optimum="200pt"
-                              text-align="end">
-                    </fo:block>
-                    <fo:block>
+                    <fo:block font-size="20pt" font-weight="bold">
                         <xsl:call-template name="translate">
                             <xsl:with-param name="key">title</xsl:with-param>
                             <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
                         </xsl:call-template>
                     </fo:block>
-                    <fo:block>
+                    <fo:block font-size="10pt" margin-top="10pt">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">receipt_id</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                        <xsl:value-of select="transaction"/>
+                    </fo:block>
+                    <fo:block font-size="10pt">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">subject_id</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                        <xsl:value-of select="subject"/>
+                    </fo:block>
+                    <fo:block font-size="10pt">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">language</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">language_<xsl:value-of select="locale"/></xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                    </fo:block>
+                    <fo:block font-size="10pt">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">collection_method</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                        <xsl:value-of select="collectionMethod"/>
+                    </fo:block>
+                    <fo:block font-size="10pt" margin-top="10pt">
                         <xsl:call-template name="translate">
                             <xsl:with-param name="key">date</xsl:with-param>
                             <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
                         </xsl:call-template>
                         <xsl:text>: </xsl:text>
-                    </fo:block>
-                    <fo:block>
                         <xsl:value-of select="date"/>
                     </fo:block>
+                    <fo:block font-size="10pt">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">expires</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text><xsl:value-of select="expirationDate"/>
+                    </fo:block>
+                    <xsl:for-each select="consents/consent">
+                        <fo:block font-size="10pt" margin-top="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">data_collected</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:value-of select="current()/data"/>
+                        </fo:block>
+                        <fo:block font-size="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">data_retention</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:value-of select="current()/retention"/>
+                        </fo:block>
+                        <fo:block font-size="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">data_usage</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:value-of select="current()/usage"/>
+                        </fo:block>
+                        <fo:block font-size="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">data_purpose</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:for-each select="current()/purposes/purpose">
+                                <xsl:value-of select="current()"/>
+                                <xsl:text> </xsl:text>
+                            </xsl:for-each>
+                        </fo:block>
+                        <fo:block font-size="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">subject_consent</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:value-of select="current()/value"/>
+                        </fo:block>
+                    </xsl:for-each>
+                    <fo:block font-size="10pt">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">issuer_id</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                        <xsl:value-of select="processor"/>
+                    </fo:block>
+                    <xsl:if test="dataController and dataController/name and dataController/company">
+                        <fo:block font-size="10pt" margin-top="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">data_controller_name</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:value-of select="dataController/name"/>
+                        </fo:block>
+                        <fo:block font-size="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">data_controller_details</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:value-of select="dataController/company"/><xsl:text>: </xsl:text>
+                            <xsl:value-of select="dataController/address"/><xsl:text>: </xsl:text>
+                            <xsl:value-of select="dataController/email"/><xsl:text>: </xsl:text>
+                            <xsl:value-of select="dataController/phoneNumber"/>
+                        </fo:block>
+                    </xsl:if>
+                    <xsl:if test="privacyPolicyUrl">
+                        <fo:block font-size="10pt" margin-top="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">privacy_policy</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:value-of select="privacyPolicyUrl"/>
+                        </fo:block>
+                    </xsl:if>
                 </fo:flow>
             </fo:page-sequence>
         </fo:root>

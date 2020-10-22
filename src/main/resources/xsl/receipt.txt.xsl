@@ -98,6 +98,11 @@
                 <value locale="en_EN">Privacy Policy</value>
                 <value locale="fr_FR">Politique de confidentialité</value>
             </key>
+            <key name="update_url">
+                <value locale="default">Update Consent Link (copy to web navigator)</value>
+                <value locale="en_EN">Update Consent Link (copy to web navigator)</value>
+                <value locale="fr_FR">Lien de modification (copier dans le navigateur web)</value>
+            </key>
             <key name="collection_method">
                 <value locale="default">Collection Method</value>
                 <value locale="en_EN">Collection Method</value>
@@ -258,6 +263,16 @@
             </xsl:call-template>
             <xsl:text>: </xsl:text>
             <xsl:value-of select="privacyPolicyUrl"/>
+        </xsl:if>
+        <xsl:if test="updateUrl">
+            <xsl:text>&#10;</xsl:text>
+            <xsl:text>&#10;</xsl:text>
+            <xsl:call-template name="translate">
+                <xsl:with-param name="key">update_url</xsl:with-param>
+                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+            </xsl:call-template>
+            <xsl:text>&#10;</xsl:text>
+            <xsl:value-of select="updateUrl"/>
         </xsl:if>
     </xsl:template>
 

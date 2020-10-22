@@ -715,9 +715,11 @@ public class ConsentServiceBean implements ConsentService {
             }
 
             List<Record> records = new ArrayList<>();
+            List<String> recordsKeys = new ArrayList<>();
             for (Map.Entry<String, String> value : values.entrySet()) {
                 try {
                     ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(value.getKey());
+                    recordsKeys.add(bodyId.getKey());
                     Record record = new Record();
                     record.transaction = transaction;
                     record.subject = ctx.getSubject();
@@ -741,7 +743,8 @@ public class ConsentServiceBean implements ConsentService {
                     //
                 }
             }
-            LOGGER.log(Level.INFO, "records: " + records);
+            ctx.setElements(recordsKeys);
+            LOGGER.log(Level.FINE, "records: " + records);
 
             Receipt receipt;
             if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
@@ -751,6 +754,7 @@ public class ConsentServiceBean implements ConsentService {
                 BasicInfo info = null;
                 if (infoId != null) {
                     info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLocale());
+                    ctx.setInfo(infoId.getKey());
                 }
                 Map<Treatment, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
@@ -763,7 +767,7 @@ public class ConsentServiceBean implements ConsentService {
                 });
                 receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
                 String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
-                receipt.setUpdateUrl(config.publicUrl() + "/api/consents?t=" + token);
+                receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();
