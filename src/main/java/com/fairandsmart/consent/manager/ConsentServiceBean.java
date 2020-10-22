@@ -71,7 +71,7 @@ public class ConsentServiceBean implements ConsentService {
     SerialGenerator generator;
 
     @Inject
-    TokenService token;
+    TokenService tokenService;
 
     @Inject
     //Instance<ReceiptStore> stores;
@@ -466,7 +466,7 @@ public class ConsentServiceBean implements ConsentService {
         } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierApi()) {
             throw new AccessDeniedException("Only admin, operator or api can generate token for other identifier than connected one");
         }
-        return token.generateToken(ctx);
+        return tokenService.generateToken(ctx);
     }
 
     @Override
@@ -474,7 +474,7 @@ public class ConsentServiceBean implements ConsentService {
         //TODO Handle case of an optout token (models are already ids and not keys...)
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
-            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
 
             List<Record> previousConsents = new ArrayList<>();
             if (!ctx.isConditions() && !ctx.isPreview()) {
@@ -515,7 +515,7 @@ public class ConsentServiceBean implements ConsentService {
                 ctx.setOptoutModel(optout.getIdentifier().serialize());
             }
 
-            form.setToken(this.token.generateToken(ctx));
+            form.setToken(this.tokenService.generateToken(ctx));
             return form;
         } catch (TokenServiceException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
@@ -528,7 +528,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Submitting consent");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
-            ConsentContext ctx = (ConsentContext) this.token.readToken(token);
+            ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
             if (StringUtils.isEmpty(ctx.getSubject())) {
                 throw new ConsentServiceException("Subject is empty");
             }
@@ -569,7 +569,7 @@ public class ConsentServiceBean implements ConsentService {
                         ctx.setElements(celements);
                         ctx.setOptoutRecipient("");
                         ctx.setOptoutModel("");
-                        optout.setToken(this.token.generateToken(ctx));
+                        optout.setToken(this.tokenService.generateToken(ctx));
                         URI optoutUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", optout.getToken()).build();
                         optout.setUrl(optoutUri.toString());
                         notification.notify(event.withData(optout));
@@ -762,6 +762,8 @@ public class ConsentServiceBean implements ConsentService {
                     }
                 });
                 receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
+                String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
+                receipt.setUpdateUrl(config.publicUrl() + "/api/consents?t=" + token);
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();
