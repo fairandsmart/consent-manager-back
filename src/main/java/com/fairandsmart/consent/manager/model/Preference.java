@@ -9,81 +9,55 @@ public class Preference extends ModelData {
 
     public static final String TYPE = "preference";
 
-    private String title;
-    private String body;
-    private List<String> contentTypeOptions;
-    private List<String> contentThemeOptions;
-    private List<String> channelOptions;
-    private List<String> formatOptions;
-    private List<String> frequencyOptions;
-    private List<String> localeOptions;
+    private String label;
+    private String description;
+    private List<String> options;
+    private ValueType valueType;
 
     public Preference() {
         this.setType(TYPE);
     }
 
-    public String getTitle() {
-        return title;
+    public String getLabel() {
+        return label;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    public String getBody() {
-        return body;
+    public String getDescription() {
+        return description;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public List<String> getContentTypeOptions() {
-        return contentTypeOptions;
+    public List<String> getOptions() {
+        return options;
     }
 
-    public void setContentTypeOptions(List<String> contentTypeOptions) {
-        this.contentTypeOptions = contentTypeOptions;
+    public void setOptions(List<String> options) {
+        this.options = options;
     }
 
-    public List<String> getContentThemeOptions() {
-        return contentThemeOptions;
+    public ValueType getValueType() {
+        return valueType;
     }
 
-    public void setContentThemeOptions(List<String> contentThemeOptions) {
-        this.contentThemeOptions = contentThemeOptions;
+    public void setValueType(ValueType valueType) {
+        this.valueType = valueType;
     }
 
-    public List<String> getChannelOptions() {
-        return channelOptions;
-    }
-
-    public void setChannelOptions(List<String> channelOptions) {
-        this.channelOptions = channelOptions;
-    }
-
-    public List<String> getFormatOptions() {
-        return formatOptions;
-    }
-
-    public void setFormatOptions(List<String> formatOptions) {
-        this.formatOptions = formatOptions;
-    }
-
-    public List<String> getFrequencyOptions() {
-        return frequencyOptions;
-    }
-
-    public void setFrequencyOptions(List<String> frequencyOptions) {
-        this.frequencyOptions = frequencyOptions;
-    }
-
-    public List<String> getLocaleOptions() {
-        return localeOptions;
-    }
-
-    public void setLocaleOptions(List<String> localeOptions) {
-        this.localeOptions = localeOptions;
+    public enum ValueType {
+        NONE,
+        TOGGLE,
+        CHECKBOXES,
+        RADIO_BUTTONS,
+        LIST_SINGLE,
+        LIST_MULTI,
+        FREE_TEXT
     }
 
     @Override
@@ -91,32 +65,24 @@ public class Preference extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Preference that = (Preference) o;
-        return Objects.equals(title, that.title) &&
-                Objects.equals(body, that.body) &&
-                Objects.equals(contentTypeOptions, that.contentTypeOptions) &&
-                Objects.equals(contentThemeOptions, that.contentThemeOptions) &&
-                Objects.equals(channelOptions, that.channelOptions) &&
-                Objects.equals(formatOptions, that.formatOptions) &&
-                Objects.equals(frequencyOptions, that.frequencyOptions) &&
-                Objects.equals(localeOptions, that.localeOptions);
+        return Objects.equals(label, that.label) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(options, that.options) &&
+                valueType == that.valueType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, body, contentTypeOptions, contentThemeOptions, channelOptions, formatOptions, frequencyOptions, localeOptions);
+        return Objects.hash(label, description, options, valueType);
     }
 
     @Override
     public String toString() {
         return "Preference{" +
-                "title='" + title + '\'' +
-                ", body='" + body + '\'' +
-                ", contentTypeOptions=" + contentTypeOptions +
-                ", contentThemeOptions=" + contentThemeOptions +
-                ", channelOptions=" + channelOptions +
-                ", formatOptions=" + formatOptions +
-                ", frequencyOptions=" + frequencyOptions +
-                ", localeOptions=" + localeOptions +
+                "label='" + label + '\'' +
+                ", description='" + description + '\'' +
+                ", options=" + options +
+                ", valueType=" + valueType +
                 '}';
     }
 }
