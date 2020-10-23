@@ -52,11 +52,12 @@
         <version.maven-resources-plugin>3.1.0</version.maven-resources-plugin>
         <version.maven-site-plugin>3.9.0</version.maven-site-plugin>
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
-        <version.quarkus>1.8.0.Final</version.quarkus>
+        <version.quarkus>1.9.0.Final</version.quarkus>
         <version.resteasy-client>4.5.3.Final</version.resteasy-client>
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
         <version.xades4j>1.5.1</version.xades4j>
+        <version.apache-fop>2.5</version.apache-fop>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -216,6 +217,11 @@
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>${version.apache-fop}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

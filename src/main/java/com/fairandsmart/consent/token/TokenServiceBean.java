@@ -39,18 +39,24 @@ public class TokenServiceBean implements TokenService {
     }
 
     @Override
-    public String generateToken(Tokenizable tokenizable, int calendarField, int calendarAmount) {
+    public String generateToken(Tokenizable tokenizable, Date expirationDate) {
         LOGGER.log(Level.INFO, "Generating token");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.add(calendarField, calendarAmount);
         JWTCreator.Builder builder = JWT.create().withIssuer(config.owner());
-        builder.withExpiresAt(calendar.getTime());
+        builder.withExpiresAt(expirationDate);
         builder.withSubject(tokenizable.getSubject());
         builder.withClaim("payloadClass", tokenizable.getClass().getName());
         builder.withIssuer(config.owner());
         tokenizable.getClaims().forEach(builder::withClaim);
         return builder.sign(algorithm);
+    }
+
+    @Override
+    public String generateToken(Tokenizable tokenizable, int calendarField, int calendarAmount) {
+        LOGGER.log(Level.INFO, "Generating token");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.add(calendarField, calendarAmount);
+        return generateToken(tokenizable, calendar.getTime());
     }
 
     @Override

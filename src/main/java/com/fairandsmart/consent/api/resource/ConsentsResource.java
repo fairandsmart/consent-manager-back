@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.*;
+import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,15 +56,16 @@ public class ConsentsResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<Receipt> postConsent(MultivaluedMap<String, String> values) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TemplateServiceException {
+    public Response postConsent(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TemplateServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
         }
-        Receipt receipt = consentService.submitConsent(values.get("token").get(0), values);
-
-        return templateService.buildModel(receipt);
+        String txid = consentService.submitConsent(values.get("token").get(0), values);
+        URI uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(txid).build();
+        //TODO Handle different types of response maybe including values or JSON BASED results
+        // for now we just send a redirect to the receipt resource
+        return Response.seeOther(uri).build();
     }
 
 }
