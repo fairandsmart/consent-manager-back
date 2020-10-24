@@ -51,8 +51,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -793,13 +792,17 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Application is starting, importing receipts");
         URL receipts = getClass().getClassLoader().getResource("receipts");
         if (receipts != null) {
-            Files.walk(Paths.get(receipts.toURI()))
+            FileSystem fs = null;
+            if (receipts.toURI().getScheme().equals("jar")) {
+                // FileSystem creation is needed to access files inside a JAR
+                fs = FileSystems.newFileSystem(receipts.toURI(), Collections.emptyMap());
+            }
+            Files.walk(Path.of(receipts.toURI()))
                     .filter(Files::isRegularFile)
                     .forEach(path -> {
-                        try {
+                        try (InputStream inputStream = Files.newInputStream(path)) {
                             String fileName = path.getFileName().toString();
                             LOGGER.log(Level.INFO, "Importing receipt " + fileName);
-                            InputStream inputStream = Files.newInputStream(path);
                             this.store.put(fileName, inputStream);
                         } catch (IOException | ReceiptStoreException e) {
                             LOGGER.log(Level.SEVERE, "Unable to import receipt: " + e.getMessage(), e);
@@ -807,6 +810,9 @@ public class ConsentServiceBean implements ConsentService {
                             LOGGER.log(Level.INFO, "Receipt already imported");
                         }
                     });
+            if (fs != null) {
+                fs.close();
+            }
         }
     }
 

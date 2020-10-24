@@ -51,3 +51,47 @@ fc83c53c-c3ca-475f-83d9-945cc111034c,fr,haribo@localhost,"{
   ""showDataController"" : false,
   ""thirdParties"" : [ ]
 }",com.fairandsmart.consent.manager.model.Treatment
+bfadbad3-4a82-4943-8929-5ff595114687,fr,haribo@localhost,"{
+  ""type"" : ""treatment"",
+  ""treatmentTitle"" : ""Service principal"",
+  ""dataTitle"" : ""Nous souhaiterions utiliser"",
+  ""dataBody"" : ""Vos données personnelles (nom, prénom, date de naissance) suivant votre préférence."",
+  ""retentionTitle"" : ""Nous les conserverons"",
+  ""retentionBody"" : ""Pendant toute la durée du service et jusqu'à 2 mois après votre désinscription pour des raisons techniques."",
+  ""usageTitle"" : ""Ceci afin de"",
+  ""usageBody"" : ""Pouvoir répondre à vos besoin au travers de notre service."",
+  ""purposes"" : [ ""CONSENT_CORE_SERVICE"" ],
+  ""containsSensitiveData"" : false,
+  ""containsMedicalData"" : false,
+  ""dataController"" : {},
+  ""showDataController"" : false,
+  ""thirdParties"" : [ ]
+}",com.fairandsmart.consent.manager.model.Treatment
+1264bb53-ede7-4db1-a675-0c6bc0514cec,fr,haribo@localhost,"{
+  ""type"" : ""preference"",
+  ""label"" : ""Mode d'affichage"",
+  ""description"" : ""Vous pouvez choisir un thème d'affichage lumineux ou sombre suivant votre usage."",
+  ""options"" : [ ""Jour"", ""Nuit"" ],
+  ""valueType"" : ""TOGGLE""
+}",com.fairandsmart.consent.manager.model.Preference
+7da0ca6b-50a5-4128-8f2b-f874ed8d214d,fr,haribo@localhost,"{
+  ""type"" : ""preference"",
+  ""label"" : ""Canaux de communication"",
+  ""description"" : ""Vous pouvez choisir vos canaux de communication préférés."",
+  ""options"" : [ ""Email"", ""SMS"", ""Téléphone"", ""Courrier postal"", ""Porte-à-porte"" ],
+  ""valueType"" : ""CHECKBOXES""
+}",com.fairandsmart.consent.manager.model.Preference
+873fd0f0-6123-49e8-9414-5c36c98bb021,fr,haribo@localhost,"{
+  ""type"" : ""preference"",
+  ""label"" : ""Fréquence de contact"",
+  ""description"" : ""Vous pouvez choisir la fréquence à laquel vous souhaitez être contacté."",
+  ""options"" : [ ""Quotidien"", ""Hebdomadaire"", ""Mensuel"", ""Annuel"" ],
+  ""valueType"" : ""RADIO_BUTTONS""
+}",com.fairandsmart.consent.manager.model.Preference
+6afd6983-6ead-4ed6-8a11-32a1d2acf32a,fr,haribo@localhost,"{
+  ""type"" : ""preference"",
+  ""label"" : ""Nom d'utilisateur"",
+  ""description"" : ""Vous pouvez définir le pseudo sous lequel vous souhaitez apparaître sur notre site."",
+  ""options"" : [ ],
+  ""valueType"" : ""FREE_TEXT""
+}",com.fairandsmart.consent.manager.model.Preference
