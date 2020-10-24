@@ -41,8 +41,12 @@ public class SerialGeneratorTest {
             for (Thread worker : workers) {
                 worker.start();
             }
-            for (Thread worker : workers) {
-                worker.join();
+            boolean finished = false;
+            while (!finished) {
+                Thread.sleep(500);
+                if (workers.stream().noneMatch(w -> w.isAlive())) {
+                    finished = true;
+                }
             }
             List<Long> generated = new ArrayList<>();
             for (String serial : serials) {
