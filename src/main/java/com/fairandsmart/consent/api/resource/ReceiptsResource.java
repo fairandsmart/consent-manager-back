@@ -7,16 +7,17 @@ import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.template.TemplateServiceException;
+import com.fairandsmart.consent.token.InvalidTokenException;
+import com.fairandsmart.consent.token.TokenExpiredException;
+import com.fairandsmart.consent.token.TokenServiceException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -46,27 +47,27 @@ public class ReceiptsResource {
     @GET
     @Path("{tid}")
     @Produces(MediaType.TEXT_HTML)
-    public TemplateModel<Receipt> getHtmlReceipt(@PathParam("tid") String transaction) throws ConsentManagerException, ReceiptNotFoundException, TemplateServiceException {
+    public TemplateModel<Receipt> getHtmlReceipt(@PathParam("tid") String transaction, @HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws ConsentManagerException, ReceiptNotFoundException, TemplateServiceException, TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        Receipt receipt = consentService.getReceipt(transaction);
+        Receipt receipt = internalGetReceipt(htoken, qtoken, transaction);
         return templateService.buildModel(receipt);
     }
 
     @GET
     @Path("{tid}")
     @Produces(MediaType.APPLICATION_XML)
-    public Response getXmlReceipt(@PathParam("tid") String transaction) throws ConsentManagerException, ReceiptNotFoundException, JAXBException {
+    public Response getXmlReceipt(@PathParam("tid") String transaction, @HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws ConsentManagerException, ReceiptNotFoundException, JAXBException, TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        Receipt receipt = consentService.getReceipt(transaction);
+        Receipt receipt = internalGetReceipt(htoken, qtoken, transaction);
         return Response.ok(receipt.toXml(), MediaType.APPLICATION_XML_TYPE).build();
     }
 
     @GET
     @Path("{tid}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getTxtReceipt(@PathParam("tid") String transaction) throws ConsentManagerException, ReceiptNotFoundException {
+    public Response getTxtReceipt(@PathParam("tid") String transaction, @HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        Receipt receipt = consentService.getReceipt(transaction);
+        Receipt receipt = internalGetReceipt(htoken, qtoken, transaction);
         StreamingOutput stream = out -> {
             try {
                 TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -92,9 +93,9 @@ public class ReceiptsResource {
     @GET
     @Path("{tid}")
     @Produces({"application/pdf"})
-    public Response getPdfReceipt(@PathParam("tid") String transaction) throws ConsentManagerException, ReceiptNotFoundException {
+    public Response getPdfReceipt(@PathParam("tid") String transaction, @HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        Receipt receipt = consentService.getReceipt(transaction);
+        Receipt receipt = internalGetReceipt(htoken, qtoken, transaction);
         FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         StreamingOutput stream = out -> {
@@ -113,6 +114,16 @@ public class ReceiptsResource {
             }
         };
         return Response.ok(stream, "application/pdf").build();
+    }
+
+    private Receipt internalGetReceipt(String htoken, String qtoken, String transaction) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
+        String token = null;
+        if (StringUtils.isNotEmpty(htoken)) {
+            token = htoken;
+        } else if (StringUtils.isNotEmpty(qtoken)) {
+            token = qtoken;
+        }
+        return consentService.getReceipt(token, transaction);
     }
 
 }

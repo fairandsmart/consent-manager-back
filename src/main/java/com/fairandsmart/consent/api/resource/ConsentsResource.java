@@ -9,6 +9,7 @@ import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.template.TemplateServiceException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
+import com.fairandsmart.consent.token.TokenService;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
@@ -27,6 +28,9 @@ public class ConsentsResource {
     ConsentService consentService;
 
     @Inject
+    TokenService tokenService;
+
+    @Inject
     TemplateService templateService;
 
     @POST
@@ -43,9 +47,9 @@ public class ConsentsResource {
     public TemplateModel<ConsentForm> getForm(@HeaderParam("TOKEN") String htoken, @QueryParam("t") String qtoken) throws AccessDeniedException, TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException, TemplateServiceException {
         LOGGER.log(Level.INFO, "GET /consents");
         String token;
-        if (!StringUtils.isEmpty(htoken)) {
+        if (StringUtils.isNotEmpty(htoken)) {
             token = htoken;
-        } else if (!StringUtils.isEmpty(qtoken)) {
+        } else if (StringUtils.isNotEmpty(qtoken)) {
             token = qtoken;
         } else {
             throw new AccessDeniedException("Unable to find token neither in header nor as query param");
@@ -61,8 +65,8 @@ public class ConsentsResource {
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
         }
-        String txid = consentService.submitConsent(values.get("token").get(0), values);
-        URI uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(txid).build();
+        ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
+        URI uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction()).queryParam("t", tokenService.generateToken(tx)).build();
         //TODO Handle different types of response maybe including values or JSON BASED results
         // for now we just send a redirect to the receipt resource
         return Response.seeOther(uri).build();

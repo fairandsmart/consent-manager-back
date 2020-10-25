@@ -531,7 +531,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public String submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
+    public ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
         LOGGER.log(Level.INFO, "Submitting consent");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
@@ -577,7 +577,7 @@ public class ConsentServiceBean implements ConsentService {
                     LOGGER.log(Level.SEVERE, "No optout model set but an optout recipient, Default MODEL NOT IMPLEMENTED YET");
                 }
             }
-            return txid;
+            return new ConsentTransaction(txid);
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -656,13 +656,20 @@ public class ConsentServiceBean implements ConsentService {
     /* RECEIPTS */
 
     @Override
-    public Receipt getReceipt(String id) throws ConsentManagerException, ReceiptNotFoundException {
+    public Receipt getReceipt(String token, String id) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "Getting receipt for id: " + id);
         try {
             String xml = IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name());
             Receipt receipt = Receipt.build(xml);
             if (!authentication.getConnectedIdentifier().equals(receipt.getSubject()) && !authentication.isConnectedIdentifierOperator()) {
-                throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
+                if (StringUtils.isNotEmpty(token)) {
+                    ConsentTransaction tx = (ConsentTransaction) tokenService.readToken(token);
+                    if (!tx.getTransaction().equals(receipt.getTransaction())) {
+                        throw new AccessDeniedException("Token transaction is not the same than receipt");
+                    }
+                } else {
+                    throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
+                }
             }
             return receipt;
         } catch (IOException | ReceiptStoreException | JAXBException e) {

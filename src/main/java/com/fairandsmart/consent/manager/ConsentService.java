@@ -17,6 +17,7 @@ import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
+import com.fairandsmart.consent.token.TokenServiceException;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.InputStream;
@@ -77,7 +78,7 @@ public interface ConsentService {
 
     ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
 
-    String submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
+    ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 
     /* Records */
 
@@ -91,6 +92,5 @@ public interface ConsentService {
 
     /* Receipts */
 
-    Receipt getReceipt(String id) throws ReceiptNotFoundException, ConsentManagerException;
-
+    Receipt getReceipt(String token, String id) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException;
 }
