@@ -51,6 +51,14 @@ public class ConsentElementIdentifier {
         return prefix + separator + type + separator + key + separator + serial;
     }
 
+    public static boolean isValid(String serializedIdentifier) {
+        String[] parts = serializedIdentifier.split(String.valueOf(separator));
+        if (parts.length != 4 || !parts[0].equals(prefix) ) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public String toString() {
         return serialize();

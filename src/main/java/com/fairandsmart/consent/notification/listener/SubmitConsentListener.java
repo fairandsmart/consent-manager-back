@@ -47,7 +47,7 @@ public class SubmitConsentListener {
                 String sender = ((Email) optout.getModel().getData(optout.getLocale())).getSender();
                 mailer.send(Mail.withHtml(optout.getRecipient(), subject, body).setFrom(sender)).subscribeAsCompletionStage();
             } else {
-                LOGGER.log(Level.FINE, "token is missing in event, nothing to notify...");
+                LOGGER.log(Level.FINE, "no data found in event, nothing to notify...");
             }
         } catch (ClassCastException e) {
             LOGGER.log(Level.SEVERE, "event data cannot be read as a ConsentOptOut", e);

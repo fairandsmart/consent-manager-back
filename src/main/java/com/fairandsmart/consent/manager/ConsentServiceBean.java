@@ -475,7 +475,6 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
-        //TODO Handle case of an optout token (models are already ids and not keys...)
         LOGGER.log(Level.INFO, "Generating consent form");
         try {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
@@ -492,36 +491,40 @@ public class ConsentServiceBean implements ConsentService {
             form.setConditions(ctx.isConditions());
 
             if (!StringUtils.isEmpty(ctx.getInfo())) {
-                ModelVersion info = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getInfo());
+                String key = (ConsentElementIdentifier.isValid(ctx.getInfo()))?ConsentElementIdentifier.deserialize(ctx.getInfo()).getKey():ctx.getInfo();
+                ModelVersion info = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 form.setInfo(info);
                 ctx.setInfo(info.getIdentifier().serialize());
             }
 
             List<String> elementsIdentifiers = new ArrayList<>();
-            for (String key : ctx.getElements()) {
-                ModelVersion element = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
-                previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(element.serial, r.value));
-                if (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(element.serial)) {
-                    form.addElement(element);
-                    elementsIdentifiers.add(element.getIdentifier().serialize());
+            for (String element : ctx.getElements()) {
+                String key = (ConsentElementIdentifier.isValid(element))?ConsentElementIdentifier.deserialize(element).getKey():element;
+                ModelVersion version = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
+                previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(version.serial, r.value));
+                if (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(version.serial)) {
+                    form.addElement(version);
+                    elementsIdentifiers.add(version.getIdentifier().serialize());
                 }
             }
             ctx.setElements(elementsIdentifiers);
 
             if (!StringUtils.isEmpty(ctx.getTheme())) {
-                ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getTheme());
+                String key = (ConsentElementIdentifier.isValid(ctx.getTheme()))?ConsentElementIdentifier.deserialize(ctx.getTheme()).getKey():ctx.getTheme();
+                ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 form.setTheme(theme);
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
             if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
-                ModelVersion optout = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), ctx.getOptoutModel());
+                String key = (ConsentElementIdentifier.isValid(ctx.getOptoutModel()))?ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getKey():ctx.getOptoutModel();
+                ModelVersion optout = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 ctx.setOptoutModel(optout.getIdentifier().serialize());
             }
 
             form.setToken(this.tokenService.generateToken(ctx));
             return form;
-        } catch (TokenServiceException e) {
+        } catch (TokenServiceException | IllegalIdentifierException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
         }
     }
@@ -554,23 +557,12 @@ public class ConsentServiceBean implements ConsentService {
                         ConsentOptOut optout = new ConsentOptOut();
                         optout.setLocale(ctx.getLocale());
                         optout.setRecipient(ctx.getOptoutRecipient());
-                        //TODO avoid converting element identifier back to key but modify the getForm method to allow both types
                         ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial(), true);
                         optout.setModel(optoutModel);
-                        ctx.setOptoutModel(optoutModel.entry.key);
                         if (!StringUtils.isEmpty(ctx.getTheme())) {
                             ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
                             optout.setTheme(theme);
-                            ctx.setTheme(theme.entry.key);
                         }
-                        if (!StringUtils.isEmpty(ctx.getInfo())) {
-                            ctx.setInfo(ConsentElementIdentifier.deserialize(ctx.getInfo()).getKey());
-                        }
-                        List<String> celements = new ArrayList<>();
-                        for (String element : ctx.getElements()) {
-                            celements.add(ConsentElementIdentifier.deserialize(element).getKey());
-                        }
-                        ctx.setElements(celements);
                         ctx.setOptoutRecipient("");
                         ctx.setOptoutModel("");
                         optout.setToken(this.tokenService.generateToken(ctx));
