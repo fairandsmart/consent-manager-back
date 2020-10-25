@@ -193,7 +193,7 @@ public class SimpleCollectTest {
         //PART 4
         //Post user new answer
         LOGGER.log(Level.INFO, "Posting new user answer");
-        postResponse = given().contentType(ContentType.URLENC).
+        postResponse = given().contentType(ContentType.URLENC).accept(ContentType.HTML).
                 formParams(values).when().post("/consents");
         postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
