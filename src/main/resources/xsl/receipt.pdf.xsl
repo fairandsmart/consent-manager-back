@@ -107,6 +107,16 @@
                 <value locale="en_EN">Collection Method</value>
                 <value locale="fr_FR">Méthode de collecte</value>
             </key>
+            <key name="update_url">
+                <value locale="default">Update Consent Link</value>
+                <value locale="en_EN">Update Consent Link</value>
+                <value locale="fr_FR">Lien de modification</value>
+            </key>
+            <key name="update_url_link">
+                <value locale="default">Open update form link</value>
+                <value locale="en_EN">Open update form link</value>
+                <value locale="fr_FR">Ouvrir le lien de modification</value>
+            </key>
         </labels>
     </xsl:variable>
     <xsl:template name="translate">
@@ -285,6 +295,24 @@
                             </xsl:call-template>
                             <xsl:text>: </xsl:text>
                             <xsl:value-of select="privacyPolicyUrl"/>
+                        </fo:block>
+                    </xsl:if>
+                    <xsl:if test="updateUrl">
+                        <fo:block font-size="10pt" margin-top="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">update_url</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:element name="a">
+                                <xsl:attribute name="href">
+                                    <xsl:value-of select="updateUrl"/>
+                                </xsl:attribute>
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">update_url_link</xsl:with-param>
+                                    <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                                </xsl:call-template>
+                            </xsl:element>
                         </fo:block>
                     </xsl:if>
                 </fo:flow>

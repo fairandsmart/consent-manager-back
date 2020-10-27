@@ -648,7 +648,7 @@ public class ConsentServiceBean implements ConsentService {
         List<Record> records = Record.find(filter.getQueryString(), filter.getQueryParams()).list();
         List<Record> latest = new ArrayList<>();
         for (String element : ctx.getElements()) {
-            records.stream().filter(record -> record.bodyKey.equals(element)).sorted().findFirst().ifPresent(latest::add);
+            records.stream().filter(record -> record.bodyKey.equals(element)).sorted(Collections.reverseOrder()).findFirst().ifPresent(latest::add);
         }
         return latest;
     }

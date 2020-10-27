@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exslt="http://exslt.org/common" >
     <xsl:output method="html" encoding="UTF-8" doctype-public="-//W3C//DTD HTML 4.01//EN" doctype-system="http://www.w3.org/TR/html4/strict.dtd" indent="yes" />
     <xsl:variable name="bundle">
         <labels>
@@ -103,6 +103,16 @@
                 <value locale="en_EN">Collection Method</value>
                 <value locale="fr_FR">Méthode de collecte</value>
             </key>
+            <key name="update_url">
+                <value locale="default">Update Consent Link</value>
+                <value locale="en_EN">Update Consent Link</value>
+                <value locale="fr_FR">Lien de modification</value>
+            </key>
+            <key name="update_url_link">
+                <value locale="default">click here</value>
+                <value locale="en_EN">click here</value>
+                <value locale="fr_FR">Cliquer ici</value>
+            </key>
         </labels>
     </xsl:variable>
     <xsl:template name="translate">
@@ -135,7 +145,12 @@
     <xsl:template match="/receipt" name="receipt" >
         <html>
             <head>
-                <title><xsl:value-of select="headerNotice"/></title>
+                <title>
+                    <xsl:call-template name="translate">
+                        <xsl:with-param name="key">title</xsl:with-param>
+                        <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                    </xsl:call-template>
+                </title>
                 <meta charset="UTF-8"/>
                 <style>
                     body { font-family: Monaco, "DejaVu Sans Mono", "Lucida Console", "Andale Mono", monospace; font-size: medium; text-transform: uppercase; }
@@ -150,6 +165,49 @@
                         <xsl:with-param name="key">title</xsl:with-param>
                         <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
                     </xsl:call-template>
+                </div>
+                <div class="spaced">
+                    <span class="receipt-label">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">receipt_id</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                    </span>
+                    <xsl:value-of select="transaction"/>
+                </div>
+                <div>
+                    <span class="receipt-label">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">subject_id</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                    </span>
+                    <xsl:value-of select="subject"/>
+                </div>
+                <div>
+                    <span class="receipt-label">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">language</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                    </span>
+                    <xsl:call-template name="translate">
+                        <xsl:with-param name="key">language_<xsl:value-of select="locale"/></xsl:with-param>
+                        <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                    </xsl:call-template>
+                </div>
+                <div class="spaced">
+                    <span class="receipt-label">
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key">collection_method</xsl:with-param>
+                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:text>: </xsl:text>
+                    </span>
+                    <xsl:value-of select="collectionMethod"/>
                 </div>
                 <div class="receipt-date">
                     <span class="receipt-label">
@@ -170,39 +228,6 @@
                         <xsl:text>: </xsl:text>
                     </span>
                     <xsl:value-of select="expirationDate"/>
-                </div>
-                <div>
-                    <span class="receipt-label">
-                        <xsl:call-template name="translate">
-                            <xsl:with-param name="key">language</xsl:with-param>
-                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
-                        </xsl:call-template>
-                        <xsl:text>: </xsl:text>
-                    </span>
-                    <xsl:call-template name="translate">
-                        <xsl:with-param name="key">language_<xsl:value-of select="locale"/></xsl:with-param>
-                        <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
-                    </xsl:call-template>
-                </div>
-                <div class="spaced">
-                    <span class="receipt-label">
-                        <xsl:call-template name="translate">
-                            <xsl:with-param name="key">receipt_id</xsl:with-param>
-                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
-                        </xsl:call-template>
-                        <xsl:text>: </xsl:text>
-                    </span>
-                    <xsl:value-of select="transaction"/>
-                </div>
-                <div class="spaced">
-                    <span class="receipt-label">
-                        <xsl:call-template name="translate">
-                            <xsl:with-param name="key">collection_method</xsl:with-param>
-                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
-                        </xsl:call-template>
-                        <xsl:text>: </xsl:text>
-                    </span>
-                    <xsl:value-of select="collectionMethod"/>
                 </div>
 
                 <xsl:for-each select="consents/consent">
@@ -261,17 +286,6 @@
                     </div>
                 </xsl:for-each>
 
-                <div class="spaced">
-                    <span class="receipt-label">
-                        <xsl:call-template name="translate">
-                            <xsl:with-param name="key">subject_id</xsl:with-param>
-                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
-                        </xsl:call-template>
-                        <xsl:text>: </xsl:text>
-                    </span>
-                    <xsl:value-of select="subject"/>
-                </div>
-
                 <div>
                     <span class="receipt-label">
                         <xsl:call-template name="translate">
@@ -317,6 +331,26 @@
                     </span>
                     <xsl:value-of select="privacyPolicyUrl"/>
                 </div>
+                <xsl:if test="updateUrl">
+                    <div class="spaced">
+                        <span class="receipt-label">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">update_url</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                        </span>
+                        <xsl:element name="a">
+                            <xsl:attribute name="href">
+                                <xsl:value-of select="updateUrl"/>
+                            </xsl:attribute>
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">update_url_link</xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            </xsl:call-template>
+                        </xsl:element>
+                    </div>
+                </xsl:if>
             </body>
         </html>
     </xsl:template>

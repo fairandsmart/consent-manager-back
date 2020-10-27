@@ -3,10 +3,12 @@ package com.fairandsmart.consent.manager.rule;
 import com.fairandsmart.consent.manager.entity.Record;
 
 import javax.enterprise.context.RequestScoped;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class LatestRecordInvalidationRule extends RecordStatusFilterRule {
@@ -22,7 +24,7 @@ public class LatestRecordInvalidationRule extends RecordStatusFilterRule {
         LOGGER.log(Level.FINE, "searching latest record");
         Optional<Record> optional = records.stream().filter(record ->
             record.status.equals(Record.Status.COMMITTED)
-        ).sorted().findFirst();
+        ).sorted(Collections.reverseOrder()).findFirst();
         if ( optional.isPresent() ) {
             Record valid = optional.get();
             LOGGER.log(Level.FINE, "marking record as valid, " + valid.id);

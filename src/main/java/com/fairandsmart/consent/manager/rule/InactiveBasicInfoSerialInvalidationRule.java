@@ -27,7 +27,7 @@ public class InactiveBasicInfoSerialInvalidationRule extends RecordStatusFilterR
         LOGGER.log(Level.FINE, "searching records with invalid basic info serial");
         records.stream().filter(record ->
             record.status.equals(Record.Status.COMMITTED) && record.infoKey != null
-                && !record.infoKey.isEmpty() && getActiveSerial(record.infoKey).contains(record.infoSerial)
+                && !record.infoKey.isEmpty() && !getActiveSerial(record.infoKey).contains(record.infoSerial)
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
             record.status = Record.Status.IRRELEVANT;

@@ -27,7 +27,7 @@ public class InactiveBodySerialInvalidationRule extends RecordStatusFilterRule {
         LOGGER.log(Level.FINE, "searching records with invalid body serial");
         records.stream().filter(record ->
                 record.status.equals(Record.Status.COMMITTED) && record.bodyKey != null
-                        && !record.bodyKey.isEmpty() && getActiveSerial(record.bodyKey).contains(record.bodySerial)
+                        && !record.bodyKey.isEmpty() && !getActiveSerial(record.bodyKey).contains(record.bodySerial)
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
             record.status = Record.Status.IRRELEVANT;
