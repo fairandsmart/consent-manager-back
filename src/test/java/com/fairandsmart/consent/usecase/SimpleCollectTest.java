@@ -163,13 +163,13 @@ public class SimpleCollectTest {
         postResponse.then().assertThat().statusCode(200);
 
         LOGGER.log(Level.INFO, "Receipt page: " + postPage);
-        assertTrue(postPage.contains("Reçu"));
-        assertTrue(postPage.contains("Français"));
+        assertTrue(postPage.contains("RE&Ccedil;U"));
+        assertTrue(postPage.contains("Fran&ccedil;ais (France)"));
         assertTrue(postPage.contains(ConsentContext.CollectionMethod.WEBFORM.name()));
         assertTrue(postPage.contains("Data body " + t1Key));
         assertTrue(postPage.contains("Data body " + t2Key));
-        assertTrue(postPage.contains("Accepté"));
-        assertFalse(postPage.contains("Refusé"));
+        assertTrue(postPage.contains("Accept&eacute;"));
+        assertFalse(postPage.contains("Refus&eacute;"));
         assertTrue(postPage.contains(SUBJECT));
         assertTrue(postPage.contains("Name " + biKey + "_dc"));
 
@@ -201,8 +201,10 @@ public class SimpleCollectTest {
         LOGGER.log(Level.INFO, "Receipt page: " + postPage);
         assertTrue(postPage.contains("Data body " + t1Key));
         assertTrue(postPage.contains("Data body " + t2Key));
-        assertFalse(postPage.contains("Accepté"));
-        assertTrue(postPage.contains("Refusé"));
+        assertFalse(postPage.contains("Accept&eacute;"));
+        assertTrue(postPage.contains("Refus&eacute;"));
+
+        //TODO Test receipt link and change from the receipt link
     }
 
 }

@@ -17,6 +17,16 @@
                 <value locale="en_EN">Accept</value>
                 <value locale="fr_FR">Accepter</value>
             </key>
+            <key name="accepted">
+                <value locale="default">Accepted</value>
+                <value locale="en_EN">Accepted</value>
+                <value locale="fr_FR">Accepté</value>
+            </key>
+            <key name="refused">
+                <value locale="default">Refused</value>
+                <value locale="en_EN">Refused</value>
+                <value locale="fr_FR">Refusé</value>
+            </key>
             <key name="date">
                 <value locale="default">Date</value>
                 <value locale="en_EN">Date</value>
@@ -145,7 +155,8 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    <xsl:template match="/receipt">
+    <xsl:template match="/receipt" name="receipt">
+        <xsl:variable name="lang" select="locale"/>
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <fo:layout-master-set>
                 <fo:simple-page-master master-name="receipt" page-height="29.7cm" page-width="21cm" margin-top="2cm" margin-bottom="1cm" margin-left="2.5cm" margin-right="2.5cm">
@@ -255,7 +266,10 @@
                                 <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
                             </xsl:call-template>
                             <xsl:text>: </xsl:text>
-                            <xsl:value-of select="current()/value"/>
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key"><xsl:value-of select="current()/value"/></xsl:with-param>
+                                <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                            </xsl:call-template>
                         </fo:block>
                     </xsl:for-each>
                     <fo:block font-size="10pt">
