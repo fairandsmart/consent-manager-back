@@ -184,6 +184,12 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
+    public List<ModelEntry> listEntriesByType(String type) {
+        LOGGER.log(Level.INFO, "Listing entries for type: " + type);
+        return ModelEntry.list("type = ?1", Sort.by("name", Sort.Direction.Ascending), type);
+    }
+
+    @Override
     @Transactional
     public ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Creating new version for entry with id: " + entryId);

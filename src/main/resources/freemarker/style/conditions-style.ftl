@@ -49,7 +49,7 @@
 
     .submit {
         padding: 4px 8px;
-        width: 200px;
+        min-width: 100px;
         height: 32px;
         font-size: large;
         cursor: pointer;

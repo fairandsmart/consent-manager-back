@@ -10,6 +10,8 @@ public class Preference extends ModelData {
     public static final String TYPE = "preference";
 
     private String label;
+    private boolean associatedWithTreatments;
+    private List<String> associatedTreatments;
     private String description;
     private List<String> options;
     private ValueType valueType;
@@ -24,6 +26,22 @@ public class Preference extends ModelData {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public boolean isAssociatedWithTreatments() {
+        return associatedWithTreatments;
+    }
+
+    public void setAssociatedWithTreatments(boolean associatedWithTreatments) {
+        this.associatedWithTreatments = associatedWithTreatments;
+    }
+
+    public List<String> getAssociatedTreatments() {
+        return associatedTreatments;
+    }
+
+    public void setAssociatedTreatments(List<String> associatedTreatments) {
+        this.associatedTreatments = associatedTreatments;
     }
 
     public String getDescription() {
@@ -65,7 +83,9 @@ public class Preference extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Preference that = (Preference) o;
-        return Objects.equals(label, that.label) &&
+        return associatedWithTreatments == that.associatedWithTreatments &&
+                Objects.equals(label, that.label) &&
+                Objects.equals(associatedTreatments, that.associatedTreatments) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(options, that.options) &&
                 valueType == that.valueType;
@@ -73,16 +93,19 @@ public class Preference extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, description, options, valueType);
+        return Objects.hash(label, associatedWithTreatments, associatedTreatments, description, options, valueType);
     }
 
     @Override
     public String toString() {
         return "Preference{" +
                 "label='" + label + '\'' +
+                ", associatedWithTreatments=" + associatedWithTreatments +
+                ", associatedTreatments=" + associatedTreatments +
                 ", description='" + description + '\'' +
                 ", options=" + options +
                 ", valueType=" + valueType +
                 '}';
     }
+
 }
