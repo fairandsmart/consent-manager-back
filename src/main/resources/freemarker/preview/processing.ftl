@@ -1,8 +1,8 @@
-<div class="treatment">
+<div class="processing">
     <#if element_content?is_hash>
     <#-- Header -->
-        <div class="treatment-header">
-            <h3><@valueOrError element_content.treatmentTitle "missingValue"></@valueOrError></h3>
+        <div class="processing-header">
+            <h3><@valueOrError element_content.processingTitle "missingValue"></@valueOrError></h3>
 
             <@toggleSwitch "${identifier}"></@toggleSwitch>
         </div>
@@ -12,7 +12,7 @@
             <#if element_content.dataTitle?has_content>
                 <h4>${element_content.dataTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError element_content.dataBody "missingValue"></@valueOrError></p>
+            <p class="processing-body"><@valueOrError element_content.dataBody "missingValue"></@valueOrError></p>
         </div>
 
     <#-- Retention -->
@@ -20,7 +20,7 @@
             <#if element_content.retentionTitle?has_content>
                 <h4>${element_content.retentionTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError element_content.retentionBody "missingValue"></@valueOrError></p>
+            <p class="processing-body"><@valueOrError element_content.retentionBody "missingValue"></@valueOrError></p>
         </div>
 
     <#-- Usage & purposes -->
@@ -28,8 +28,8 @@
             <#if element_content.usageTitle?has_content>
                 <h4>${element_content.usageTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError element_content.usageBody "missingValue"></@valueOrError></p>
-            <p class="treatment-body purpose-container">
+            <p class="processing-body"><@valueOrError element_content.usageBody "missingValue"></@valueOrError></p>
+            <p class="processing-body purpose-container">
                 <#list element_content.purposes as purpose>
                     <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png"
                          alt="${purpose?lower_case}"/>
@@ -48,7 +48,7 @@
             <div class="block-wrapper">
                 <h4><@readBundle "defaultSensitiveDataTitle"></@readBundle></h4>
 
-                <ul class="treatment-body">
+                <ul class="processing-body">
                     <#if element_content.containsSensitiveData>
                         <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
                     </#if>
@@ -64,7 +64,7 @@
             <div class="block-wrapper">
                 <h4><@readBundle "defaultThirdPartiesTitle"></@readBundle></h4>
 
-                <ul class="treatment-body">
+                <ul class="processing-body">
                     <#list element_content.thirdParties as thirdParty>
                         <li><span class="list-label">${thirdParty.name} :</span> <span
                                     class="list-value">${thirdParty.value}</span></li>

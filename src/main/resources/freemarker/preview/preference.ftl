@@ -1,7 +1,7 @@
-<div class="treatment">
+<div class="processing">
     <#if element_content?is_hash>
     <#-- Header -->
-        <div class="treatment-header">
+        <div class="processing-header">
             <h3><@valueOrError element_content.label "missingValue"></@valueOrError></h3>
 
             <#if element_content.valueType=="TOGGLE">
@@ -12,7 +12,7 @@
     <#-- Data -->
         <#if element_content.description?has_content>
             <div class="item-wrapper">
-                <p class="treatment-body"><@valueOrError element_content.description "missingValue"></@valueOrError></p>
+                <p class="processing-body"><@valueOrError element_content.description "missingValue"></@valueOrError></p>
             </div>
         </#if>
 

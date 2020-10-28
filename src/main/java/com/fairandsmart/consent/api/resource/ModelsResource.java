@@ -114,6 +114,19 @@ public class ModelsResource {
     }
 
     @GET
+    @Path("/type")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ModelEntryDto> listEntriesByType(@QueryParam("type") String type) {
+        LOGGER.log(Level.INFO, "GET /models/type");
+        List<ModelEntry> entries = consentService.listEntriesByType(type);
+        List<ModelEntryDto> dtos = new ArrayList<>();
+        for (ModelEntry entry : entries) {
+            dtos.add(ModelEntryDto.fromModelEntryWithoutVersions(entry));
+        }
+        return dtos;
+    }
+
+    @GET
     @Path("/{id}/versions")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ModelVersionDtoLight> listVersions(@PathParam("id") @Valid @UUID String id) throws ConsentManagerException, ModelDataSerializationException {

@@ -1,7 +1,7 @@
 ID,OWNER,AUTHOR,KEY,NAME,TYPE,BRANCHES,DESCRIPTION,VERSION
 64f90695-2f62-4f3a-8422-40265ce079a9,demo,haribo@localhost,I1,BasicInfo,basicinfo,master,Info de démonstration,0
-cbcfd77d-89fb-42d7-b030-221ca600271e,demo,haribo@localhost,Market.1,Marketing direct,treatment,master,Traitement 'marketing direct' de démonstration,0
-c9eefa7b-0a0d-4668-bff7-5db2175320a3,demo,haribo@localhost,Core.1,Service principal,treatment,master,Traitement 'service principal' de démonstration,0
+cbcfd77d-89fb-42d7-b030-221ca600271e,demo,haribo@localhost,Market.1,Marketing direct,processing,master,Traitement 'marketing direct' de démonstration,0
+c9eefa7b-0a0d-4668-bff7-5db2175320a3,demo,haribo@localhost,Core.1,Service principal,processing,master,Traitement 'service principal' de démonstration,0
 389d8fa4-ae5d-4c47-8fbc-cce29a1088f3,demo,haribo@localhost,Mode.1,Mode d'affichage,preference,master,Préférence 'mode d'affichage' de démonstration,0
 b802b44a-be17-4948-934a-20eea0578ccf,demo,haribo@localhost,Channel.1,Canaux de communication,preference,master,Préférence 'canaux de communication' de démonstration,0
 273cdd5c-556f-4213-aaae-8a6089acf2e9,demo,haribo@localhost,Frequency.1,Fréquence de contact,preference,master,Préférence 'fréquence de contact' de démonstration,0

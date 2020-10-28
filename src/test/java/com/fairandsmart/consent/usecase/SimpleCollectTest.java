@@ -8,7 +8,7 @@ import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.BasicInfo;
-import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.manager.model.Processing;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
@@ -65,7 +65,7 @@ public class SimpleCollectTest {
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
         List<String> keys = List.of(biKey, t1Key, t2Key);
-        List<String> types = List.of(BasicInfo.TYPE, Treatment.TYPE, Treatment.TYPE);
+        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);
@@ -131,14 +131,14 @@ public class SimpleCollectTest {
         assertTrue(page.contains("href=\"Privacy policy URL " + biKey + "\""));
         assertTrue(page.contains("Footer " + biKey));
         assertTrue(page.contains("accept-all-switch"));
-        //Treatment 1
-        assertTrue(page.contains("Treatment title " + t1Key));
+        //Processing 1
+        assertTrue(page.contains("Processing title " + t1Key));
         assertTrue(page.contains("Data body " + t1Key));
         assertTrue(page.contains("Retention body " + t1Key));
         assertTrue(page.contains("Usage body " + t1Key));
         assertTrue(page.contains("consent_core_service.png"));
-        //Treatment 2
-        assertTrue(page.contains("Treatment title " + t2Key));
+        //Processing 2
+        assertTrue(page.contains("Processing title " + t2Key));
         assertTrue(page.contains("Data body " + t2Key));
         assertTrue(page.contains("Retention body " + t2Key));
         assertTrue(page.contains("Usage body " + t2Key));
@@ -151,7 +151,7 @@ public class SimpleCollectTest {
         assertEquals(2, elementsKeys.size());
         for (String key : elementsKeys) {
             assertEquals("refused", values.get(key));
-            values.replace(key, "accepted"); //User accepts every treatment
+            values.replace(key, "accepted"); //User accepts every processing
         }
 
         //PART 2
@@ -187,7 +187,7 @@ public class SimpleCollectTest {
         assertEquals(2, elementsKeys.size());
         for (String key : elementsKeys) {
             assertEquals("accepted", values.get(key));
-            values.replace(key, "refused"); //User refuses every treatment
+            values.replace(key, "refused"); //User refuses every processing
         }
 
         //PART 4

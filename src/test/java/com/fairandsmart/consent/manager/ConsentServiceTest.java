@@ -251,7 +251,7 @@ public class ConsentServiceTest {
         LOGGER.info("Listing Create and Read records");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
-        types.add(Treatment.TYPE);
+        types.add(Processing.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
         String locale = "fr_FR";
@@ -261,14 +261,14 @@ public class ConsentServiceTest {
         ModelVersion v1bi1 = service.createVersion(ebi1.id, locale, Collections.singletonMap(locale, TestUtils.generateBasicInfo(biKey)));
         service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
         String t1Key = UUID.randomUUID().toString();
-        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Treatment.TYPE);
+        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
         assertNotNull(et1);
-        ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t1Key)));
+        ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing(t1Key)));
         service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
         String t2Key = UUID.randomUUID().toString();
-        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Treatment.TYPE);
+        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
         assertNotNull(et2);
-        ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t2Key)));
+        ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
         String fKey = UUID.randomUUID().toString();
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
@@ -298,8 +298,8 @@ public class ConsentServiceTest {
         LOGGER.log(Level.INFO, "Submitting first consent (creating record)");
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
         values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/treatment/" + t1Key + "/" + v1t1.serial, "accepted");
-        values.putSingle("element/treatment/" + t2Key + "/" + v1t2.serial, "refused");
+        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
+        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
         service.submitConsent(form.getToken(), values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
@@ -314,7 +314,7 @@ public class ConsentServiceTest {
         assertEquals(2, form.getPreviousValues().size());
 
         LOGGER.log(Level.INFO, "Create new version of T2 (minor version)");
-        ModelVersion v2t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment("t2.2")));
+        ModelVersion v2t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing("t2.2")));
         service.updateVersionType(v2t2.id, ModelVersion.Type.MINOR);
         service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
 
@@ -325,7 +325,7 @@ public class ConsentServiceTest {
         assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
 
         LOGGER.log(Level.INFO, "Create new version of T2 (major version)");
-        ModelVersion v3t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment("t2.3")));
+        ModelVersion v3t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing("t2.3")));
         service.updateVersionType(v3t2.id, ModelVersion.Type.MAJOR);
         service.updateVersionStatus(v3t2.id, ModelVersion.Status.ACTIVE);
 
@@ -343,7 +343,7 @@ public class ConsentServiceTest {
         LOGGER.info("Testing find subjects");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
-        types.add(Treatment.TYPE);
+        types.add(Processing.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
         String locale = "fr_FR";
@@ -353,14 +353,14 @@ public class ConsentServiceTest {
         ModelVersion v1bi1 = service.createVersion(ebi1.id, locale, Collections.singletonMap(locale, TestUtils.generateBasicInfo(biKey)));
         service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
         String t1Key = UUID.randomUUID().toString();
-        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Treatment.TYPE);
+        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
         assertNotNull(et1);
-        ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t1Key)));
+        ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing(t1Key)));
         service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
         String t2Key = UUID.randomUUID().toString();
-        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Treatment.TYPE);
+        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
         assertNotNull(et2);
-        ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateTreatment(t2Key)));
+        ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
         String fKey = UUID.randomUUID().toString();
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
@@ -378,8 +378,8 @@ public class ConsentServiceTest {
         ConsentForm form = service.generateForm(token);
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
         values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/treatment/" + t1Key + "/" + v1t1.serial, "accepted");
-        values.putSingle("element/treatment/" + t2Key + "/" + v1t2.serial, "refused");
+        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
+        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
         service.submitConsent(form.getToken(), values);
 
         LOGGER.log(Level.INFO, "Submitting a consent for penny");
@@ -394,8 +394,8 @@ public class ConsentServiceTest {
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/treatment/" + t1Key + "/" + v1t1.serial, "refused");
-        values.putSingle("element/treatment/" + t2Key + "/" + v1t2.serial, "refused");
+        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "refused");
+        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
         service.submitConsent(form.getToken(), values);
 
         LOGGER.log(Level.INFO, "Submitting a consent for leonard");
@@ -410,8 +410,8 @@ public class ConsentServiceTest {
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/treatment/" + t1Key + "/" + v1t1.serial, "accepted");
-        values.putSingle("element/treatment/" + t2Key + "/" + v1t2.serial, "accepted");
+        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
+        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "accepted");
         service.submitConsent(form.getToken(), values);
 
         List<String> subjects = service.findSubjects("e");

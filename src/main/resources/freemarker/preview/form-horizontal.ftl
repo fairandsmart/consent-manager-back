@@ -43,7 +43,7 @@
     <div class="right">
         <div class="content-fade"></div>
 
-        <div class="treatments">
+        <div class="processing-list">
             <#list data.elements as element>
                 <@fetchMultiLangContent element></@fetchMultiLangContent>
                 <#assign element_content=langContent>

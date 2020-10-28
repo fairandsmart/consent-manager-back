@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Treatment extends ModelData {
+public class Processing extends ModelData {
 
-    public static final String TYPE = "treatment";
+    public static final String TYPE = "processing";
 
     // Main text
-    private String treatmentTitle;
+    private String processingTitle;
     private String dataTitle;
     private String dataBody;
     private String retentionTitle;
@@ -28,22 +28,22 @@ public class Treatment extends ModelData {
     // Third parties
     private List<NameValuePair> thirdParties;
 
-    public Treatment() {
+    public Processing() {
         this.setType(TYPE);
         this.setPurposes(new ArrayList<>());
         this.setThirdParties(new ArrayList<>());
     }
 
-    public String getTreatmentTitle() {
-        return treatmentTitle;
+    public String getProcessingTitle() {
+        return processingTitle;
     }
 
-    public void setTreatmentTitle(String treatmentTitle) {
-        this.treatmentTitle = treatmentTitle;
+    public void setProcessingTitle(String processingTitle) {
+        this.processingTitle = processingTitle;
     }
 
-    public Treatment withTreatmentTitle(String treatmentTitle) {
-        this.treatmentTitle = treatmentTitle;
+    public Processing withProcessingTitle(String processingTitle) {
+        this.processingTitle = processingTitle;
         return this;
     }
 
@@ -55,7 +55,7 @@ public class Treatment extends ModelData {
         this.dataTitle = dataTitle;
     }
 
-    public Treatment withDataTitle(String dataTitle) {
+    public Processing withDataTitle(String dataTitle) {
         this.dataTitle = dataTitle;
         return this;
     }
@@ -68,7 +68,7 @@ public class Treatment extends ModelData {
         this.dataBody = dataBody;
     }
 
-    public Treatment withDataBody(String dataBody) {
+    public Processing withDataBody(String dataBody) {
         this.dataBody = dataBody;
         return this;
     }
@@ -81,7 +81,7 @@ public class Treatment extends ModelData {
         this.retentionTitle = retentionTitle;
     }
 
-    public Treatment withRetentionTitle(String retentionTitle) {
+    public Processing withRetentionTitle(String retentionTitle) {
         this.retentionTitle = retentionTitle;
         return this;
     }
@@ -94,7 +94,7 @@ public class Treatment extends ModelData {
         this.retentionBody = retentionBody;
     }
 
-    public Treatment withRetentionBody(String retentionBody) {
+    public Processing withRetentionBody(String retentionBody) {
         this.retentionBody = retentionBody;
         return this;
     }
@@ -107,7 +107,7 @@ public class Treatment extends ModelData {
         this.usageTitle = usageTitle;
     }
 
-    public Treatment withUsageTitle(String usageTitle) {
+    public Processing withUsageTitle(String usageTitle) {
         this.usageTitle = usageTitle;
         return this;
     }
@@ -120,7 +120,7 @@ public class Treatment extends ModelData {
         this.usageBody = usageBody;
     }
 
-    public Treatment withUsageBody(String usageBody) {
+    public Processing withUsageBody(String usageBody) {
         this.usageBody = usageBody;
         return this;
     }
@@ -137,12 +137,12 @@ public class Treatment extends ModelData {
         this.purposes.add(purpose);
     }
 
-    public Treatment withPurposes(List<Purpose> purposes) {
+    public Processing withPurposes(List<Purpose> purposes) {
         this.purposes = purposes;
         return this;
     }
 
-    public Treatment withPurpose(Purpose purpose) {
+    public Processing withPurpose(Purpose purpose) {
         this.purposes.add(purpose);
         return this;
     }
@@ -155,7 +155,7 @@ public class Treatment extends ModelData {
         this.containsSensitiveData = containsSensitiveData;
     }
 
-    public Treatment withContainsSensitiveData(boolean containsSensitiveData) {
+    public Processing withContainsSensitiveData(boolean containsSensitiveData) {
         this.containsSensitiveData = containsSensitiveData;
         return this;
     }
@@ -168,7 +168,7 @@ public class Treatment extends ModelData {
         this.containsMedicalData = containsMedicalData;
     }
 
-    public Treatment withContainsMedicalData(boolean containsMedicalData) {
+    public Processing withContainsMedicalData(boolean containsMedicalData) {
         this.containsMedicalData = containsMedicalData;
         return this;
     }
@@ -181,7 +181,7 @@ public class Treatment extends ModelData {
         this.dataController = dataController;
     }
 
-    public Treatment withDataController(Controller dataController) {
+    public Processing withDataController(Controller dataController) {
         this.dataController = dataController;
         return this;
     }
@@ -194,7 +194,7 @@ public class Treatment extends ModelData {
         this.showDataController = showDataController;
     }
 
-    public Treatment withShowDataController(boolean showDataController) {
+    public Processing withShowDataController(boolean showDataController) {
         this.showDataController = showDataController;
         return this;
     }
@@ -207,7 +207,7 @@ public class Treatment extends ModelData {
         this.thirdParties = thirdParties;
     }
 
-    public Treatment withThirdParties(List<NameValuePair> thirdParties) {
+    public Processing withThirdParties(List<NameValuePair> thirdParties) {
         this.thirdParties = thirdParties;
         return this;
     }
@@ -216,7 +216,7 @@ public class Treatment extends ModelData {
         this.thirdParties.add(thirdParty);
     }
 
-    public Treatment withThirdParty(NameValuePair thirdParty) {
+    public Processing withThirdParty(NameValuePair thirdParty) {
         this.thirdParties.add(thirdParty);
         return this;
     }
@@ -233,31 +233,31 @@ public class Treatment extends ModelData {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Treatment treatment = (Treatment) o;
-        return containsSensitiveData == treatment.containsSensitiveData &&
-                containsMedicalData == treatment.containsMedicalData &&
-                showDataController == treatment.showDataController &&
-                Objects.equals(treatmentTitle, treatment.treatmentTitle) &&
-                Objects.equals(dataTitle, treatment.dataTitle) &&
-                Objects.equals(dataBody, treatment.dataBody) &&
-                Objects.equals(retentionTitle, treatment.retentionTitle) &&
-                Objects.equals(retentionBody, treatment.retentionBody) &&
-                Objects.equals(usageTitle, treatment.usageTitle) &&
-                Objects.equals(usageBody, treatment.usageBody) &&
-                Objects.equals(purposes, treatment.purposes) &&
-                Objects.equals(dataController, treatment.dataController) &&
-                Objects.equals(thirdParties, treatment.thirdParties);
+        Processing processing = (Processing) o;
+        return containsSensitiveData == processing.containsSensitiveData &&
+                containsMedicalData == processing.containsMedicalData &&
+                showDataController == processing.showDataController &&
+                Objects.equals(processingTitle, processing.processingTitle) &&
+                Objects.equals(dataTitle, processing.dataTitle) &&
+                Objects.equals(dataBody, processing.dataBody) &&
+                Objects.equals(retentionTitle, processing.retentionTitle) &&
+                Objects.equals(retentionBody, processing.retentionBody) &&
+                Objects.equals(usageTitle, processing.usageTitle) &&
+                Objects.equals(usageBody, processing.usageBody) &&
+                Objects.equals(purposes, processing.purposes) &&
+                Objects.equals(dataController, processing.dataController) &&
+                Objects.equals(thirdParties, processing.thirdParties);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(treatmentTitle, dataTitle, dataBody, retentionTitle, retentionBody, usageTitle, usageBody, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties);
+        return Objects.hash(processingTitle, dataTitle, dataBody, retentionTitle, retentionBody, usageTitle, usageBody, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties);
     }
 
     @Override
     public String toString() {
-        return "Treatment{" +
-                "treatmentTitle='" + treatmentTitle + '\'' +
+        return "Processing{" +
+                "processingTitle='" + processingTitle + '\'' +
                 ", dataTitle='" + dataTitle + '\'' +
                 ", dataBody='" + dataBody + '\'' +
                 ", retentionTitle='" + retentionTitle + '\'' +

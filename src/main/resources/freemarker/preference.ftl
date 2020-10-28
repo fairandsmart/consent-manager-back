@@ -1,9 +1,9 @@
-<div class="treatment">
+<div class="processing">
     <@fetchMultiLangContent element></@fetchMultiLangContent>
 
     <#if langContent?is_hash && langContent?has_content>
     <#-- Header -->
-        <div class="treatment-header">
+        <div class="processing-header">
             <h3><@valueOrError langContent.label "missingValue"></@valueOrError></h3>
 
             <#if langContent.valueType=="TOGGLE">
@@ -16,7 +16,7 @@
     <#-- Data -->
         <#if langContent.description?has_content>
             <div class="item-wrapper">
-                <p class="treatment-body">${langContent.description}</p>
+                <p class="processing-body">${langContent.description}</p>
             </div>
         </#if>
 

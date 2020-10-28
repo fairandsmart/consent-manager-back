@@ -9,7 +9,7 @@ import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.manager.model.BasicInfo;
-import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.manager.model.Processing;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
@@ -72,7 +72,7 @@ public class CollectWithEmailTest {
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
         List<String> keys = List.of(biKey, t1Key, t2Key, eKey);
-        List<String> types = List.of(BasicInfo.TYPE, Treatment.TYPE, Treatment.TYPE, Email.TYPE);
+        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE, Email.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);

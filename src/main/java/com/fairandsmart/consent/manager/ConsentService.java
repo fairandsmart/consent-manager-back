@@ -42,6 +42,8 @@ public interface ConsentService {
 
     List<ModelEntry> listEntriesByKeys(List<String> keys);
 
+    List<ModelEntry> listEntriesByType(String type);
+
     /* Versions */
 
     ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
