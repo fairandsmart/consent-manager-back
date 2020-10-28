@@ -318,15 +318,13 @@
                                 <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
                             </xsl:call-template>
                             <xsl:text>: </xsl:text>
-                            <xsl:element name="a">
-                                <xsl:attribute name="href">
-                                    <xsl:value-of select="updateUrl"/>
-                                </xsl:attribute>
+                            <fo:basic-link color="grey" text-decoration="underline">
+                                <xsl:attribute name="external-destination"><xsl:value-of select="updateUrl"/></xsl:attribute>
                                 <xsl:call-template name="translate">
                                     <xsl:with-param name="key">update_url_link</xsl:with-param>
                                     <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
                                 </xsl:call-template>
-                            </xsl:element>
+                            </fo:basic-link>
                         </fo:block>
                     </xsl:if>
                 </fo:flow>

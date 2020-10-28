@@ -18,7 +18,7 @@ public class ConsentForm {
     private boolean preview = false;
     private boolean conditions = false;
     private ModelVersion theme;
-    private ModelVersion optoutEmail;
+    private ModelVersion notificationEmail;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -105,12 +105,12 @@ public class ConsentForm {
         this.theme = theme;
     }
 
-    public ModelVersion getOptoutEmail() {
-        return optoutEmail;
+    public ModelVersion getNotificationEmail() {
+        return notificationEmail;
     }
 
-    public void setOptoutEmail(ModelVersion optoutEmail) {
-        this.optoutEmail = optoutEmail;
+    public void setNotificationEmail(ModelVersion notificationEmail) {
+        this.notificationEmail = notificationEmail;
     }
 
     @Override
@@ -124,7 +124,7 @@ public class ConsentForm {
                 ", preview=" + preview +
                 ", conditions=" + conditions +
                 ", theme=" + theme +
-                ", optoutEmail=" + optoutEmail +
+                ", notificationEmail=" + notificationEmail +
                 '}';
     }
 

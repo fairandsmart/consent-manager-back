@@ -53,7 +53,7 @@ public class CollectWithEmailTest {
     String publicUrl;
 
     /**
-     * 1 : l'orga génère un context de collecte qui contient entre autres un email d'optout
+     * 1 : l'orga génère un context de collecte qui contient entre autres un email de notification
      * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
      * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
      * 4 : le user (anonyme) reçoit un email de confirmation
@@ -118,8 +118,8 @@ public class CollectWithEmailTest {
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
                 .setLocale(locale)
-                .setOptoutModel(eKey)
-                .setOptoutRecipient(recipient);
+                .setNotificationModel(eKey)
+                .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
@@ -159,12 +159,12 @@ public class CollectWithEmailTest {
 
         //PART 5
         html = Jsoup.parse(received);
-        Optional<Element> optOutLink = html.select("a[href]").stream().filter(l -> l.id().equals("form-url")).findFirst();
-        if (optOutLink.isPresent()) {
-            response = given().when().get(optOutLink.get().attr("abs:href"));
+        Optional<Element> notificationLink = html.select("a[href]").stream().filter(l -> l.id().equals("form-url")).findFirst();
+        if (notificationLink.isPresent()) {
+            response = given().when().get(notificationLink.get().attr("abs:href"));
             response.then().contentType("text/html").assertThat().statusCode(200);
         } else {
-            fail("Optout link not found");
+            fail("notificationLink link not found");
         }
     }
 

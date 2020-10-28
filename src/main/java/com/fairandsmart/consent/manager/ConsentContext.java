@@ -34,8 +34,8 @@ public class ConsentContext implements Tokenizable {
     private ReceiptDeliveryType receiptDeliveryType;
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
-    private String optoutModel;
-    private String optoutRecipient;
+    private String notificationModel;
+    private String notificationRecipient;
     private CollectionMethod collectionMethod;
     private String author;
     private boolean preview = false;
@@ -182,21 +182,21 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getOptoutModel() {
-        return optoutModel;
+    public String getNotificationModel() {
+        return notificationModel;
     }
 
-    public ConsentContext setOptoutModel(String optoutModel) {
-        this.optoutModel = optoutModel;
+    public ConsentContext setNotificationModel(String notificationModel) {
+        this.notificationModel = notificationModel;
         return this;
     }
 
-    public String getOptoutRecipient() {
-        return optoutRecipient;
+    public String getNotificationRecipient() {
+        return notificationRecipient;
     }
 
-    public ConsentContext setOptoutRecipient(String optoutRecipient) {
-        this.optoutRecipient = optoutRecipient;
+    public ConsentContext setNotificationRecipient(String notificationRecipient) {
+        this.notificationRecipient = notificationRecipient;
         return this;
     }
 
@@ -279,11 +279,11 @@ public class ConsentContext implements Tokenizable {
         if (receiptDeliveryType != null) {
             claims.put("receiptDeliveryType", this.getReceiptDeliveryType().name());
         }
-        if (optoutModel != null) {
-            claims.put("optoutModel", this.getOptoutModel());
+        if (notificationModel != null) {
+            claims.put("notificationModel", this.getNotificationModel());
         }
-        if (optoutRecipient != null) {
-            claims.put("optoutRecipient", this.getOptoutRecipient());
+        if (notificationRecipient != null) {
+            claims.put("notificationRecipient", this.getNotificationRecipient());
         }
         if (collectionMethod != null) {
             claims.put("collectionMethod", this.getCollectionMethod().name());
@@ -333,11 +333,11 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("receiptDeliveryType")) {
             this.setReceiptDeliveryType(ReceiptDeliveryType.valueOf(claims.get("receiptDeliveryType")));
         }
-        if (claims.containsKey("optoutModel")) {
-            this.setOptoutModel(claims.get("optoutModel"));
+        if (claims.containsKey("notificationModel")) {
+            this.setNotificationModel(claims.get("notificationModel"));
         }
-        if (claims.containsKey("optoutRecipient")) {
-            this.setOptoutRecipient(claims.get("optoutRecipient"));
+        if (claims.containsKey("notificationRecipient")) {
+            this.setNotificationRecipient(claims.get("notificationRecipient"));
         }
         if (claims.containsKey("collectionMethod")) {
             this.setCollectionMethod(CollectionMethod.valueOf(claims.get("collectionMethod")));
@@ -410,8 +410,8 @@ public class ConsentContext implements Tokenizable {
                 ", receiptDeliveryType=" + receiptDeliveryType +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
-                ", optoutEmailModel='" + optoutModel + '\'' +
-                ", optoutEmailRecipient='" + optoutRecipient + '\'' +
+                ", notificationEmailModel='" + notificationModel + '\'' +
+                ", notificationEmailRecipient='" + notificationRecipient + '\'' +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", preview=" + preview +

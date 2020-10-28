@@ -13,14 +13,14 @@ import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
+import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
-import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenServiceException;
 
 import javax.ws.rs.core.MultivaluedMap;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -93,4 +93,6 @@ public interface ConsentService {
     /* Receipts */
 
     Receipt getReceipt(String token, String id) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException;
+
+    byte[] renderReceipt(String token, String id, String format) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException;
 }
