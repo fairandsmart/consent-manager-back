@@ -36,8 +36,8 @@ public class TestUtils {
             case BasicInfo.TYPE:
                 dto.setData(Collections.singletonMap(locale, generateBasicInfo(key)));
                 break;
-            case Treatment.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateTreatment(key)));
+            case Processing.TYPE:
+                dto.setData(Collections.singletonMap(locale, generateProcessing(key)));
                 break;
             case Conditions.TYPE:
                 dto.setData(Collections.singletonMap(locale, generateConditions(key)));
@@ -60,8 +60,8 @@ public class TestUtils {
             case BasicInfo.TYPE:
                 modelData = generateBasicInfo(key);
                 break;
-            case Treatment.TYPE:
-                modelData = generateTreatment(key);
+            case Processing.TYPE:
+                modelData = generateProcessing(key);
                 break;
             case Conditions.TYPE:
                 modelData = generateConditions(key);
@@ -102,17 +102,17 @@ public class TestUtils {
                 .withCustomAcceptAllText("Accept all " + key);
     }
 
-    public static Treatment generateTreatment(String key) {
-        return new Treatment()
-                .withTreatmentTitle("Treatment title " + key)
+    public static Processing generateProcessing(String key) {
+        return new Processing()
+                .withProcessingTitle("Processing title " + key)
                 .withDataTitle("Data title " + key)
                 .withDataBody("Data body " + key)
                 .withRetentionTitle("Retention title " + key)
                 .withRetentionBody("Retention body " + key)
                 .withUsageTitle("Usage title " + key)
                 .withUsageBody("Usage body " + key)
-                .withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE)
-                .withPurpose(Treatment.Purpose.CONSENT_THIRD_PART_SHARING)
+                .withPurpose(Processing.Purpose.CONSENT_CORE_SERVICE)
+                .withPurpose(Processing.Purpose.CONSENT_THIRD_PART_SHARING)
                 .withDataController(generateDataController(key + "_dc"))
                 .withShowDataController(true)
                 .withContainsMedicalData(true)

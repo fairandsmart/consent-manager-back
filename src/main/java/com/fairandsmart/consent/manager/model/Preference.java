@@ -10,8 +10,8 @@ public class Preference extends ModelData {
     public static final String TYPE = "preference";
 
     private String label;
-    private boolean associatedWithTreatments;
-    private List<String> associatedTreatments;
+    private boolean associatedWithProcessing;
+    private List<String> associatedProcessing;
     private String description;
     private List<String> options;
     private ValueType valueType;
@@ -28,20 +28,20 @@ public class Preference extends ModelData {
         this.label = label;
     }
 
-    public boolean isAssociatedWithTreatments() {
-        return associatedWithTreatments;
+    public boolean isAssociatedWithProcessing() {
+        return associatedWithProcessing;
     }
 
-    public void setAssociatedWithTreatments(boolean associatedWithTreatments) {
-        this.associatedWithTreatments = associatedWithTreatments;
+    public void setAssociatedWithProcessing(boolean associatedWithProcessing) {
+        this.associatedWithProcessing = associatedWithProcessing;
     }
 
-    public List<String> getAssociatedTreatments() {
-        return associatedTreatments;
+    public List<String> getAssociatedProcessing() {
+        return associatedProcessing;
     }
 
-    public void setAssociatedTreatments(List<String> associatedTreatments) {
-        this.associatedTreatments = associatedTreatments;
+    public void setAssociatedProcessing(List<String> associatedProcessing) {
+        this.associatedProcessing = associatedProcessing;
     }
 
     public String getDescription() {
@@ -83,9 +83,9 @@ public class Preference extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Preference that = (Preference) o;
-        return associatedWithTreatments == that.associatedWithTreatments &&
+        return associatedWithProcessing == that.associatedWithProcessing &&
                 Objects.equals(label, that.label) &&
-                Objects.equals(associatedTreatments, that.associatedTreatments) &&
+                Objects.equals(associatedProcessing, that.associatedProcessing) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(options, that.options) &&
                 valueType == that.valueType;
@@ -93,19 +93,18 @@ public class Preference extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, associatedWithTreatments, associatedTreatments, description, options, valueType);
+        return Objects.hash(label, associatedWithProcessing, associatedProcessing, description, options, valueType);
     }
 
     @Override
     public String toString() {
         return "Preference{" +
                 "label='" + label + '\'' +
-                ", associatedWithTreatments=" + associatedWithTreatments +
-                ", associatedTreatments=" + associatedTreatments +
+                ", associatedWithProcessing=" + associatedWithProcessing +
+                ", associatedProcessing=" + associatedProcessing +
                 ", description='" + description + '\'' +
                 ", options=" + options +
                 ", valueType=" + valueType +
                 '}';
     }
-
 }

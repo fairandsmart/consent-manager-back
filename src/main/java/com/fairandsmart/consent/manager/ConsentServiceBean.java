@@ -16,10 +16,10 @@ import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.Treatment;
 import com.fairandsmart.consent.manager.render.ReceiptRenderer;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
+import com.fairandsmart.consent.manager.model.Processing;
 import com.fairandsmart.consent.manager.rule.RecordStatusFilterChain;
 import com.fairandsmart.consent.manager.store.LocalReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
@@ -785,10 +785,10 @@ public class ConsentServiceBean implements ConsentService {
                     info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLocale());
                     ctx.setInfo(infoId.getKey());
                 }
-                Map<Treatment, Record> trecords = new HashMap<>();
-                records.stream().filter(r -> r.type.equals(Treatment.TYPE)).forEach(r -> {
+                Map<Processing, Record> trecords = new HashMap<>();
+                records.stream().filter(r -> r.type.equals(Processing.TYPE)).forEach(r -> {
                     try {
-                        Treatment t = (Treatment) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLocale());
+                        Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLocale());
                         trecords.put(t, r);
                     } catch (EntityNotFoundException | ModelDataSerializationException e) {
                         //

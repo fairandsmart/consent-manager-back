@@ -67,7 +67,7 @@
         background: linear-gradient(#eeeeee, rgba(238, 238, 238, 0));
     }
 
-    .treatments {
+    .processing-list {
         padding-top: 12px;
     }
 

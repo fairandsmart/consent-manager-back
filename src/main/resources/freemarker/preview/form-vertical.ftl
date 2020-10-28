@@ -32,7 +32,7 @@
         <#include "info-logo.ftl">
     </#if>
 
-    <div class="treatments">
+    <div class="processing-list">
         <#if data.info??>
             <#include "info-head.ftl">
         </#if>

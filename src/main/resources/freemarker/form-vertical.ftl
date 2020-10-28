@@ -27,7 +27,7 @@
 
     <#include "info-logo.ftl">
 
-    <div class="treatments">
+    <div class="processing-list">
         <#include "info-head.ftl">
 
         <#list data.elements as element>

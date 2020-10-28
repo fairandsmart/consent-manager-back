@@ -4,8 +4,8 @@ MODELVERSION_ID,CONTENT_KEY,AUTHOR,DATA,DATACLASS
   ""logoPath"" : ""https://assets.fairandsmart.tech/logo_fs_tagline.png"",
   ""logoAltText"" : ""Logo Fair&Smart"",
   ""title"" : ""Votre consentement"",
-  ""header"" : ""Pour nous permettre de vous satisfaire pleinement avec nos services, il nous faut récolter un certain nombre d'informations. "",
-  ""footer"" : ""Merci pour vos réponses !\\nVous pourrez consulter et modifier vos réponses à tout moment"",
+  ""header"" : ""Pour nous permettre de vous satisfaire pleinement avec nos services, il nous faut récolter un certain nombre d'informations."",
+  ""footer"" : ""Merci pour vos réponses !\\nVous pourrez consulter et modifier vos réponses à tout moment."",
   ""jurisdiction"" : ""France"",
   ""showJurisdiction"" : false,
   ""collectionMethod"" : ""Formulaire Web"",
@@ -29,8 +29,8 @@ MODELVERSION_ID,CONTENT_KEY,AUTHOR,DATA,DATACLASS
   ""customAcceptAllText"" : ""Accepter tout""
 }",com.fairandsmart.consent.manager.model.BasicInfo
 fc83c53c-c3ca-475f-83d9-945cc111034c,fr,haribo@localhost,"{
-  ""type"" : ""treatment"",
-  ""treatmentTitle"" : ""Marketing direct"",
+  ""type"" : ""processing"",
+  ""processingTitle"" : ""Marketing direct"",
   ""dataTitle"" : ""Nous souhaiterions utiliser"",
   ""dataBody"" : ""Vos données de contact (email, téléphone, adresse postale) suivant votre préférence."",
   ""retentionTitle"" : ""Nous les conserverons"",
@@ -50,10 +50,10 @@ fc83c53c-c3ca-475f-83d9-945cc111034c,fr,haribo@localhost,"{
   },
   ""showDataController"" : false,
   ""thirdParties"" : [ ]
-}",com.fairandsmart.consent.manager.model.Treatment
+}",com.fairandsmart.consent.manager.model.Processing
 bfadbad3-4a82-4943-8929-5ff595114687,fr,haribo@localhost,"{
-  ""type"" : ""treatment"",
-  ""treatmentTitle"" : ""Service principal"",
+  ""type"" : ""processing"",
+  ""processingTitle"" : ""Service principal"",
   ""dataTitle"" : ""Nous souhaiterions utiliser"",
   ""dataBody"" : ""Vos données personnelles (nom, prénom, date de naissance) suivant votre préférence."",
   ""retentionTitle"" : ""Nous les conserverons"",
@@ -66,7 +66,7 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,haribo@localhost,"{
   ""dataController"" : {},
   ""showDataController"" : false,
   ""thirdParties"" : [ ]
-}",com.fairandsmart.consent.manager.model.Treatment
+}",com.fairandsmart.consent.manager.model.Processing
 1264bb53-ede7-4db1-a675-0c6bc0514cec,fr,haribo@localhost,"{
   ""type"" : ""preference"",
   ""label"" : ""Mode d'affichage"",

@@ -11,7 +11,7 @@
     <meta name="author" content="Fair&Smart">
 
     <#include "../style/common-style.ftl">
-    <#if model.type=="basicinfo" || model.type=="treatment" || model.type=="preference">
+    <#if model.type=="basicinfo" || model.type=="processing" || model.type=="preference">
         <#include "../style/consent-style.ftl">
         <#include "../style/vertical-style.ftl">
     </#if>
@@ -50,20 +50,20 @@
         <#if model.type=="basicinfo">
             <#assign info=model>
             <#include "info-logo.ftl">
-            <div class="treatments">
+            <div class="processing-list">
                 <#include "info-head.ftl">
             </div>
             <#include "info-foot.ftl">
         </#if>
-        <#if model.type=="treatment">
-            <div class="treatments">
+        <#if model.type=="processing">
+            <div class="processing-list">
                 <#assign element_content=model>
-                <#assign identifier="treatment">
-                <#include "treatment.ftl">
+                <#assign identifier="processing">
+                <#include "processing.ftl">
             </div>
         </#if>
         <#if model.type=="preference">
-            <div class="treatments">
+            <div class="processing-list">
                 <#assign element_content=model>
                 <#assign identifier="preference">
                 <#include "preference.ftl">

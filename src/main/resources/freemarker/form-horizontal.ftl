@@ -38,7 +38,7 @@
 
         <div class="content-fade"></div>
 
-        <div class="treatments">
+        <div class="processing-list">
             <#list data.elements as element>
                 <#include element.entry.type + ".ftl">
             </#list>

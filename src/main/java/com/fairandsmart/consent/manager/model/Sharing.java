@@ -4,7 +4,7 @@ public class Sharing {
 
     private String data;
     private Controller to;
-    private Treatment.Purpose purpose;
+    private Processing.Purpose purpose;
 
     public Sharing() {
     }
@@ -25,11 +25,11 @@ public class Sharing {
         this.to = to;
     }
 
-    public Treatment.Purpose getPurpose() {
+    public Processing.Purpose getPurpose() {
         return purpose;
     }
 
-    public void setPurpose(Treatment.Purpose purpose) {
+    public void setPurpose(Processing.Purpose purpose) {
         this.purpose = purpose;
     }
 }

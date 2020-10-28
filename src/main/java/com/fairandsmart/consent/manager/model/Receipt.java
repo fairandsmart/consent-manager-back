@@ -221,7 +221,7 @@ public class Receipt {
         return (Receipt) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, Map<Treatment, Record> records) throws DatatypeConfigurationException {
+    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, Map<Processing, Record> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
         receipt.setLocale(ctx.getLocale());
@@ -239,7 +239,7 @@ public class Receipt {
             receipt.setFooterNotice(info.getFooter());
         }
         receipt.setCollectionMethod(ctx.getCollectionMethod());
-        for ( Map.Entry<Treatment, Record> record : records.entrySet() ) {
+        for ( Map.Entry<Processing, Record> record : records.entrySet() ) {
             Consent trecord = new Consent();
             trecord.setSerial(record.getValue().serial);
             trecord.setData(record.getKey().getDataBody());
@@ -248,7 +248,7 @@ public class Receipt {
             trecord.setPurposes(record.getKey().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
             trecord.setController(record.getKey().getDataController());
             trecord.setValue(record.getValue().value);
-            //TODO include specific treatment sharing information
+            //TODO include specific processing sharing information
             receipt.getConsents().add(trecord);
         }
         return receipt;

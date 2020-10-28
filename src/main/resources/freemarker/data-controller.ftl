@@ -1,7 +1,7 @@
 <div class="block-wrapper">
     <h4><@readBundle "defaultDataControllerTitle"></@readBundle></h4>
 
-    <ul class="treatment-body">
+    <ul class="processing-body">
         <#if dataController.name?has_content>
             <li><span class="list-label"><@readBundle "controllerNameLabel"></@readBundle></span> <span
                         class="list-value">${dataController.name}</span></li>

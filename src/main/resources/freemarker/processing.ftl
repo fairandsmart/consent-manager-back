@@ -1,10 +1,10 @@
-<div class="treatment">
+<div class="processing">
     <@fetchMultiLangContent element></@fetchMultiLangContent>
 
     <#if langContent?is_hash && langContent?has_content>
     <#-- Header -->
-        <div class="treatment-header">
-            <h3><@valueOrError langContent.treatmentTitle "missingValue"></@valueOrError></h3>
+        <div class="processing-header">
+            <h3><@valueOrError langContent.processingTitle "missingValue"></@valueOrError></h3>
 
             <#assign isChecked=(!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted")>
             <@toggleSwitch "${element.identifier}" isChecked></@toggleSwitch>
@@ -15,7 +15,7 @@
             <#if langContent.dataTitle?has_content>
                 <h4>${langContent.dataTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError langContent.dataBody "missingValue"></@valueOrError></p>
+            <p class="processing-body"><@valueOrError langContent.dataBody "missingValue"></@valueOrError></p>
         </div>
 
     <#-- Retention -->
@@ -23,7 +23,7 @@
             <#if langContent.retentionTitle?has_content>
                 <h4>${langContent.retentionTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError langContent.retentionBody "missingValue"></@valueOrError></p>
+            <p class="processing-body"><@valueOrError langContent.retentionBody "missingValue"></@valueOrError></p>
         </div>
 
     <#-- Usage & purposes -->
@@ -31,8 +31,8 @@
             <#if langContent.usageTitle?has_content>
                 <h4>${langContent.usageTitle}</h4>
             </#if>
-            <p class="treatment-body"><@valueOrError langContent.usageBody "missingValue"></@valueOrError></p>
-            <p class="treatment-body purpose-container">
+            <p class="processing-body"><@valueOrError langContent.usageBody "missingValue"></@valueOrError></p>
+            <p class="processing-body purpose-container">
                 <#list langContent.purposes as purpose>
                     <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png"
                          alt="${purpose?lower_case}"/>
@@ -51,7 +51,7 @@
             <div class="block-wrapper">
                 <h4><@readBundle "defaultSensitiveDataTitle"></@readBundle></h4>
 
-                <ul class="treatment-body">
+                <ul class="processing-body">
                     <#if langContent.containsSensitiveData>
                         <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
                     </#if>
@@ -67,7 +67,7 @@
             <div class="block-wrapper">
                 <h4><@readBundle "defaultThirdPartiesTitle"></@readBundle></h4>
 
-                <ul class="treatment-body">
+                <ul class="processing-body">
                     <#list langContent.thirdParties as thirdParty>
                         <li><span class="list-label">${thirdParty.name} :</span> <span
                                     class="list-value">${thirdParty.value}</span></li>

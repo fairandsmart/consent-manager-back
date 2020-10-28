@@ -71,22 +71,22 @@
 
     /* Content */
 
-    .treatments {
+    .processing-list {
         overflow-y: auto;
         padding: 24px;
         height: 100%;
     }
 
-    .treatment {
+    .processing {
         padding: 6px 0 6px 12px;
     }
 
-    .treatment-header {
+    .processing-header {
         display: flex;
         justify-content: space-between;
     }
 
-    .treatment-body {
+    .processing-body {
         color: rgba(0, 0, 0, 0.54);
     }
 
