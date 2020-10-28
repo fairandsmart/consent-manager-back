@@ -364,6 +364,15 @@
                         </xsl:element>
                     </div>
                 </xsl:if>
+                <xsl:if test="updateUrlQrCode">
+                    <div class="spaced">
+                        <img>
+                            <xsl:attribute name="src">
+                                <xsl:value-of select="updateUrlQrCode"/>
+                            </xsl:attribute>
+                        </img>
+                    </div>
+                </xsl:if>
             </body>
         </html>
     </xsl:template>
