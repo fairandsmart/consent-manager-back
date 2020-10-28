@@ -2,7 +2,9 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 
-public class ConsentOptOut {
+import java.util.Arrays;
+
+public class ConsentNotification {
 
     private String locale;
     private String token;
@@ -11,8 +13,11 @@ public class ConsentOptOut {
     private ModelVersion model;
     private boolean preview = false;
     private ModelVersion theme;
+    private String receiptType;
+    private String receiptName;
+    private byte[] receipt;
 
-    public ConsentOptOut() {
+    public ConsentNotification() {
     }
 
     public String getLocale() {
@@ -71,9 +76,33 @@ public class ConsentOptOut {
         this.theme = theme;
     }
 
+    public String getReceiptType() {
+        return receiptType;
+    }
+
+    public void setReceiptType(String receiptType) {
+        this.receiptType = receiptType;
+    }
+
+    public String getReceiptName() {
+        return receiptName;
+    }
+
+    public void setReceiptName(String receiptName) {
+        this.receiptName = receiptName;
+    }
+
+    public byte[] getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(byte[] receipt) {
+        this.receipt = receipt;
+    }
+
     @Override
     public String toString() {
-        return "ConsentEmail{" +
+        return "ConsentNotification{" +
                 "locale='" + locale + '\'' +
                 ", token='" + token + '\'' +
                 ", recipient='" + recipient + '\'' +
@@ -81,6 +110,9 @@ public class ConsentOptOut {
                 ", model=" + model +
                 ", preview=" + preview +
                 ", theme=" + theme +
+                ", receiptType='" + receiptType + '\'' +
+                ", receiptName='" + receiptName + '\'' +
+                ", receipt=" + Arrays.toString(receipt) +
                 '}';
     }
 }

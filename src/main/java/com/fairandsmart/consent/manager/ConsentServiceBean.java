@@ -17,6 +17,9 @@ import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.manager.render.ReceiptRenderer;
+import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
+import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.rule.RecordStatusFilterChain;
 import com.fairandsmart.consent.manager.store.LocalReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
@@ -39,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
@@ -51,7 +55,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -78,7 +85,6 @@ public class ConsentServiceBean implements ConsentService {
     TokenService tokenService;
 
     @Inject
-    //Instance<ReceiptStore> stores;
     LocalReceiptStore store;
 
     @Inject
@@ -93,6 +99,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @Inject
     RecordStatusFilterChain statusFilterChain;
+
+    @Inject
+    Instance<ReceiptRenderer> renderers;
 
     /* MODELS MANAGEMENT */
 
@@ -522,10 +531,10 @@ public class ConsentServiceBean implements ConsentService {
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
-            if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
-                String key = (ConsentElementIdentifier.isValid(ctx.getOptoutModel()))?ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getKey():ctx.getOptoutModel();
-                ModelVersion optout = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
-                ctx.setOptoutModel(optout.getIdentifier().serialize());
+            if (!StringUtils.isEmpty(ctx.getNotificationModel())) {
+                String key = (ConsentElementIdentifier.isValid(ctx.getNotificationModel()))?ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getKey():ctx.getNotificationModel();
+                ModelVersion notification = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
+                ctx.setNotificationModel(notification.getIdentifier().serialize());
             }
 
             form.setToken(this.tokenService.generateToken(ctx));
@@ -556,31 +565,31 @@ public class ConsentServiceBean implements ConsentService {
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
             String txid = this.saveConsent(ctx, valuesMap);
 
-            if (!StringUtils.isEmpty(ctx.getOptoutRecipient())) {
-                Event<ConsentOptOut> event = new Event().withType(Event.CONSENT_OPTOUT).withAuthor(connectedIdentifier);
-                if (!StringUtils.isEmpty(ctx.getOptoutModel())) {
+            if (!StringUtils.isEmpty(ctx.getNotificationRecipient())) {
+                Event<ConsentNotification> event = new Event().withType(Event.CONSENT_NOTIFICATION).withAuthor(connectedIdentifier);
+                if (!StringUtils.isEmpty(ctx.getNotificationModel())) {
                     try {
-                        ConsentOptOut optout = new ConsentOptOut();
-                        optout.setLocale(ctx.getLocale());
-                        optout.setRecipient(ctx.getOptoutRecipient());
-                        ModelVersion optoutModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getOptoutModel()).getSerial(), true);
-                        optout.setModel(optoutModel);
+                        ConsentNotification notification = new ConsentNotification();
+                        notification.setLocale(ctx.getLocale());
+                        notification.setRecipient(ctx.getNotificationRecipient());
+                        ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getSerial(), true);
+                        notification.setModel(notificationModel);
                         if (!StringUtils.isEmpty(ctx.getTheme())) {
                             ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
-                            optout.setTheme(theme);
+                            notification.setTheme(theme);
                         }
-                        ctx.setOptoutRecipient("");
-                        ctx.setOptoutModel("");
-                        optout.setToken(this.tokenService.generateToken(ctx));
-                        URI optoutUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", optout.getToken()).build();
-                        optout.setUrl(optoutUri.toString());
-                        notification.notify(event.withData(optout));
+                        ctx.setNotificationRecipient("");
+                        ctx.setNotificationModel("");
+                        notification.setToken(this.tokenService.generateToken(ctx));
+                        URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
+                        notification.setUrl(notificationUri.toString());
+                        this.notification.notify(event.withData(notification));
                     } catch (EntityNotFoundException | IllegalIdentifierException e) {
-                        LOGGER.log(Level.SEVERE, "Unable to load optout model", e);
+                        LOGGER.log(Level.SEVERE, "Unable to load notification model", e);
                     }
                 } else {
                     //TODO use a default model
-                    LOGGER.log(Level.SEVERE, "No optout model set but an optout recipient, Default MODEL NOT IMPLEMENTED YET");
+                    LOGGER.log(Level.SEVERE, "No notification model set but an notification recipient, Default MODEL NOT IMPLEMENTED YET");
                 }
             }
             return new ConsentTransaction(txid);
@@ -683,6 +692,17 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
+    @Override
+    public byte[] renderReceipt(String token, String id, String format) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
+        LOGGER.log(Level.INFO, "Rendering receipt for id: " + id + " and format: " + format);
+        Receipt receipt = getReceipt(token, id);
+        Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
+        if (renderer.isPresent()) {
+            return renderer.get().render(receipt);
+        }
+        throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
+    }
+
     /* INTERNAL */
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
@@ -780,11 +800,6 @@ public class ConsentServiceBean implements ConsentService {
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();
-                /*
-                for (ReceiptStore store : stores) {
-                    store.put(receipt.getTransaction(), xml);
-                }
-                 */
                 store.put(receipt.getTransaction(), xml);
             }
             return receipt.getTransaction();

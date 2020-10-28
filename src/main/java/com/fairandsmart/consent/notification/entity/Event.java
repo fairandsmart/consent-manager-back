@@ -7,7 +7,7 @@ public class Event<T> {
     
     public static final String AUDIT = "audit";
     public static final String SYSTEM= "system";
-    public static final String CONSENT_OPTOUT = "consent.optout";
+    public static final String CONSENT_NOTIFICATION = "consent.notification";
 
     private long timestamp;
     private String author;
