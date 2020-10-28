@@ -327,6 +327,19 @@
                             </fo:basic-link>
                         </fo:block>
                     </xsl:if>
+                    <!--
+                    <xsl:if test="updateUrlQrCode">
+                        <fo:block margin-top="10pt">
+                            <fo:external-graphic>
+                                <xsl:attribute name="src">
+                                    <xsl:text>url('</xsl:text>
+                                    <xsl:value-of select="updateUrlQrCode"/>
+                                    <xsl:text>')</xsl:text>
+                                </xsl:attribute>
+                            </fo:external-graphic>
+                        </fo:block>
+                    </xsl:if>
+                    -->
                 </fo:flow>
             </fo:page-sequence>
         </fo:root>

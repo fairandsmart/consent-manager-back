@@ -58,6 +58,7 @@
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
         <version.xades4j>1.5.1</version.xades4j>
         <version.apache-fop>2.5</version.apache-fop>
+        <version.zxing>3.4.1</version.zxing>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -195,6 +196,7 @@
             <artifactId>jackson-core</artifactId>
             <version>${version.jackson}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.exist-db</groupId>
             <artifactId>exist-core</artifactId>
@@ -218,11 +220,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        -->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
             <version>${version.apache-fop}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>${version.zxing}</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.0</version>
+        </dependency>
+
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>

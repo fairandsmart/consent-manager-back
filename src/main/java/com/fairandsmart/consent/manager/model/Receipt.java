@@ -52,6 +52,7 @@ public class Receipt {
     private String privacyPolicyUrl;
     private ConsentContext.CollectionMethod collectionMethod;
     private String updateUrl;
+    private String updateUrlQrCode;
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
@@ -194,6 +195,14 @@ public class Receipt {
 
     public void setUpdateUrl(String updateUrl) {
         this.updateUrl = updateUrl;
+    }
+
+    public String getUpdateUrlQrCode() {
+        return updateUrlQrCode;
+    }
+
+    public void setUpdateUrlQrCode(String updateUrlQrCode) {
+        this.updateUrlQrCode = updateUrlQrCode;
     }
 
     public String toXml() throws JAXBException {

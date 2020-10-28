@@ -155,6 +155,7 @@ public class CollectWithEmailTest {
         assertTrue(received.contains("Footer " + eKey));
         assertTrue(received.contains("Signature " + eKey));
         assertTrue(received.contains(publicUrl + "/consents?t="));
+        assertFalse(sent.get(0).getAttachments().isEmpty());
         assertEquals("Sender " + eKey, sent.get(0).getFrom());
 
         //PART 5
