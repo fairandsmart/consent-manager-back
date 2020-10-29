@@ -45,7 +45,8 @@ public class ModelsResource {
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("order") @DefaultValue("key") String order,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
-            @QueryParam("types") List<String> types) throws ConsentManagerException, ModelDataSerializationException {
+            @QueryParam("types") List<String> types,
+            @QueryParam("keys") List<String> keys) throws ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models");
         ModelFilter filter = new ModelFilter();
         filter.setPage(page);
@@ -53,6 +54,7 @@ public class ModelsResource {
         filter.setOrder(order);
         filter.setDirection(direction);
         filter.setTypes(types);
+        filter.setKeys(keys);
         CollectionPage<ModelEntry> entries = consentService.listEntries(filter);
         CollectionPage<ModelEntryDto> dto = new CollectionPage<>(entries);
         List<ModelEntryDto> values = new ArrayList<>();
@@ -98,32 +100,6 @@ public class ModelsResource {
     public void deleteEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id);
         consentService.deleteEntry(id);
-    }
-
-    @GET
-    @Path("/keys")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<ModelEntryDto> listEntriesByKeys(@QueryParam("keys") List<String> keys) throws ModelDataSerializationException, ConsentManagerException {
-        LOGGER.log(Level.INFO, "GET /models/keys");
-        List<ModelEntry> entries = consentService.listEntriesByKeys(keys);
-        List<ModelEntryDto> dtos = new ArrayList<>();
-        for (ModelEntry entry : entries) {
-            dtos.add(transformEntryToDto(entry));
-        }
-        return dtos;
-    }
-
-    @GET
-    @Path("/type")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<ModelEntryDto> listEntriesByType(@QueryParam("type") String type) {
-        LOGGER.log(Level.INFO, "GET /models/type");
-        List<ModelEntry> entries = consentService.listEntriesByType(type);
-        List<ModelEntryDto> dtos = new ArrayList<>();
-        for (ModelEntry entry : entries) {
-            dtos.add(ModelEntryDto.fromModelEntryWithoutVersions(entry));
-        }
-        return dtos;
     }
 
     @GET
@@ -226,15 +202,6 @@ public class ModelsResource {
     public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid + "/preview");
         return templateService.buildModel(consentService.previewVersion(id, vid, dto));
-    }
-
-    @POST
-    @Path("/{id}/versions/new/preview")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_HTML)
-    public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
-        LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/new/preview");
-        return templateService.buildModel(consentService.previewVersion(id, "new", dto));
     }
 
     @DELETE

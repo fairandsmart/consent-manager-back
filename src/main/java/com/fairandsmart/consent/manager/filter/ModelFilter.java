@@ -9,6 +9,7 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
 
     private String owner;
     private List<String> types;
+    private List<String> keys;
     private int page;
     private int size;
     private String order;
@@ -35,6 +36,19 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
 
     public ModelFilter withTypes(List<String> types) {
         this.types = types;
+        return this;
+    }
+
+    public List<String> getKeys() {
+        return keys;
+    }
+
+    public void setKeys(List<String> keys) {
+        this.keys = keys;
+    }
+
+    public ModelFilter withKeys(List<String> keys) {
+        this.keys = keys;
         return this;
     }
 
@@ -101,6 +115,9 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (types != null && !types.isEmpty()) {
             parts.add("type in :types");
         }
+        if (keys != null && !keys.isEmpty()) {
+            parts.add("key in :keys");
+        }
         return String.join(" and ", parts);
     }
 
@@ -112,6 +129,9 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         }
         if (types != null && !types.isEmpty()) {
             params.put("types", types);
+        }
+        if (keys != null && !keys.isEmpty()) {
+            params.put("keys", keys);
         }
         return params;
     }

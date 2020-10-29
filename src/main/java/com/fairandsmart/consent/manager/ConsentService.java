@@ -40,10 +40,6 @@ public interface ConsentService {
 
     void deleteEntry(String entryId) throws ConsentManagerException, EntityNotFoundException;
 
-    List<ModelEntry> listEntriesByKeys(List<String> keys);
-
-    List<ModelEntry> listEntriesByType(String type);
-
     /* Versions */
 
     ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
