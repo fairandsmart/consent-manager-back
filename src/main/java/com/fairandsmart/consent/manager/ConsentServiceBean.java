@@ -79,6 +79,7 @@ import static com.fairandsmart.consent.manager.entity.ModelEntry.DEFAULT_BRANCHE
 public class ConsentServiceBean implements ConsentService {
 
     private static final Logger LOGGER = Logger.getLogger(ConsentService.class.getName());
+    private static final String NEW_VERSION_UUID = "11111111-9999-1111-9999-111111111111";
 
     @Inject
     AuthenticationService authentication;
@@ -189,18 +190,6 @@ public class ConsentServiceBean implements ConsentService {
             //TODO Maybe allow this but ensure that all corresponding records are going to be deleted... and that receipt may be corrupted.
             throw new ConsentManagerException("unable to delete entry that have not only DRAFT versions");
         }
-    }
-
-    @Override
-    public List<ModelEntry> listEntriesByKeys(List<String> keys) {
-        LOGGER.log(Level.INFO, "Listing entries for keys: " + keys);
-        return ModelEntry.list("key in ?1", keys);
-    }
-
-    @Override
-    public List<ModelEntry> listEntriesByType(String type) {
-        LOGGER.log(Level.INFO, "Listing entries for type: " + type);
-        return ModelEntry.list("type = ?1", Sort.by("name", Sort.Direction.Ascending), type);
     }
 
     @Override
@@ -441,7 +430,7 @@ public class ConsentServiceBean implements ConsentService {
     public PreviewDto previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
         ModelVersion version = previewCache.lookup(entryId);
         if (version == null) {
-            if (versionId != null && !versionId.equals("new")) {
+            if (versionId != null && !versionId.equals(NEW_VERSION_UUID)) {
                 version = this.getVersion(versionId);
                 if (!version.entry.id.equals(entryId)) {
                     throw new EntityNotFoundException("Unable to find a version with id: " + versionId + " in entry with id: " + entryId);
