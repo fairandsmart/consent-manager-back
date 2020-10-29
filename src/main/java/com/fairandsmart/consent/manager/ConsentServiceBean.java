@@ -588,6 +588,7 @@ public class ConsentServiceBean implements ConsentService {
                         notification.setToken(this.tokenService.generateToken(ctx));
                         URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
                         notification.setUrl(notificationUri.toString());
+                        notification.setRecipient(ctx.getNotificationRecipient());
                         this.notification.notify(event.withData(notification));
                     } catch (EntityNotFoundException | IllegalIdentifierException e) {
                         LOGGER.log(Level.SEVERE, "Unable to load notification model", e);
