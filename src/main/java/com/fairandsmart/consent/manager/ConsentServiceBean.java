@@ -588,10 +588,14 @@ public class ConsentServiceBean implements ConsentService {
                         notification.setToken(this.tokenService.generateToken(ctx));
                         URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
                         notification.setUrl(notificationUri.toString());
-                        notification.setRecipient(ctx.getNotificationRecipient());
+                        if ( ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD) ) {
+                            notification.setReceiptName("receipt.pdf");
+                            notification.setReceiptType("application/pdf");
+                            notification.setReceipt(this.systemRenderReceipt(txid, "application/pdf"));
+                        }
                         this.notification.notify(event.withData(notification));
-                    } catch (EntityNotFoundException | IllegalIdentifierException e) {
-                        LOGGER.log(Level.SEVERE, "Unable to load notification model", e);
+                    } catch (EntityNotFoundException | IllegalIdentifierException | ReceiptRendererNotFoundException | ReceiptStoreException | ReceiptNotFoundException | IOException | JAXBException | RenderingException e) {
+                        LOGGER.log(Level.SEVERE, "Unable to notify", e);
                     }
                 } else {
                     //TODO use a default model
@@ -710,6 +714,16 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     /* INTERNAL */
+
+    public byte[] systemRenderReceipt(String id, String format) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, IOException, JAXBException, RenderingException {
+        LOGGER.log(Level.INFO, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format);
+        Receipt receipt = Receipt.build(IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name()));
+        Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
+        if (renderer.isPresent()) {
+            return renderer.get().render(receipt);
+        }
+        throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
+    }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
         if (ctx.getInfo() == null && values.containsKey("info")) {

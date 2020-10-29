@@ -47,6 +47,7 @@ public class SubmitConsentListener {
                 String sender = ((Email) notification.getModel().getData(notification.getLocale())).getSender();
                 Mail mail = Mail.withHtml(notification.getRecipient(), subject, body).setFrom(sender);
                 if (notification.getReceiptName() != null) {
+                    LOGGER.log(Level.FINE, "Adding receipt attachment to message");
                     mail.addAttachment(notification.getReceiptName(), notification.getReceipt(), notification.getReceiptType());
                 }
                 mailer.send(mail).subscribeAsCompletionStage();

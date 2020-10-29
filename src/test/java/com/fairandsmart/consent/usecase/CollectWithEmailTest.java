@@ -118,6 +118,7 @@ public class CollectWithEmailTest {
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
                 .setLocale(locale)
+                .setReceiptDeliveryType(ConsentContext.ReceiptDeliveryType.DOWNLOAD)
                 .setNotificationModel(eKey)
                 .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
@@ -143,7 +144,7 @@ public class CollectWithEmailTest {
         postResponse.then().assertThat().statusCode(200);
 
         //PART 4
-        Thread.sleep(500);
+        Thread.sleep(1000);
         LOGGER.log(Level.INFO, "Checking email");
         assertTrue(mailbox.getTotalMessagesSent() > 0);
         List<Mail> sent = mailbox.getMessagesSentTo(recipient);

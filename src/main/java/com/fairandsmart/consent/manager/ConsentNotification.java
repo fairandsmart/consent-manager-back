@@ -13,8 +13,8 @@ public class ConsentNotification {
     private ModelVersion model;
     private boolean preview = false;
     private ModelVersion theme;
-    private String receiptType;
     private String receiptName;
+    private String receiptType;
     private byte[] receipt;
 
     public ConsentNotification() {
@@ -112,7 +112,6 @@ public class ConsentNotification {
                 ", theme=" + theme +
                 ", receiptType='" + receiptType + '\'' +
                 ", receiptName='" + receiptName + '\'' +
-                ", receipt=" + Arrays.toString(receipt) +
                 '}';
     }
 }
