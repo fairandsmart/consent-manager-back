@@ -11,7 +11,7 @@ public class PageUtil {
 
     public static <T> CollectionPage<T> paginateQuery(PanacheQuery<T> query, PaginableFilter filter) {
         CollectionPage<T> collection = new CollectionPage<>();
-        int size = filter.getSize() >= 0 ? filter.getSize() : (int) query.count();
+        int size = filter.getSize() >= 0 ? filter.getSize() : Math.max(1, (int) query.count());
         collection.setValues(query.page(Page.of(filter.getPage(), size)).list());
         collection.setPageSize(size);
         collection.setPage(filter.getPage());
