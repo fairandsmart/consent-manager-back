@@ -20,7 +20,7 @@ public class UsersResource {
     AuthenticationService authenticationService;
 
     @GET
-    @Path("/me")
+    @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
     public UserDto me() {
         LOGGER.log(Level.INFO, "GET /users/me");

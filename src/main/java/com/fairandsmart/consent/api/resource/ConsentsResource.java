@@ -34,7 +34,7 @@ public class ConsentsResource {
     TemplateService templateService;
 
     @POST
-    @Path("/token")
+    @Path("token")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public String generateToken(ConsentContext ctx) throws AccessDeniedException {

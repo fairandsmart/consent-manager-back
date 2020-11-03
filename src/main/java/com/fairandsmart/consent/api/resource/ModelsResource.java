@@ -76,7 +76,7 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ModelEntryDto getEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id);
@@ -85,7 +85,7 @@ public class ModelsResource {
     }
 
     @PUT
-    @Path("/{id}")
+    @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelEntryDto updateEntry(@PathParam("id") @Valid @UUID String id, ModelEntryDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
@@ -95,7 +95,7 @@ public class ModelsResource {
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id);
@@ -103,7 +103,7 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}/versions")
+    @Path("{id}/versions")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ModelVersionDtoLight> listVersions(@PathParam("id") @Valid @UUID String id) throws ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions");
@@ -115,7 +115,7 @@ public class ModelsResource {
     }
 
     @POST
-    @Path("/{id}/versions")
+    @Path("{id}/versions")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto createVersion(@PathParam("id") @Valid @UUID String id, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
@@ -125,7 +125,7 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}/versions/latest")
+    @Path("{id}/versions/latest")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLatestVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info, @Context HttpHeaders headers) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/latest");
@@ -135,7 +135,7 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}/versions/active")
+    @Path("{id}/versions/active")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getActiveVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info, @Context HttpHeaders headers) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/active");
@@ -145,7 +145,7 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}/versions/{vid}")
+    @Path("{id}/versions/{vid}")
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto getVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, AccessDeniedException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid);
@@ -158,7 +158,7 @@ public class ModelsResource {
 
     @PUT
     @Transactional
-    @Path("/{id}/versions/{vid}")
+    @Path("{id}/versions/{vid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto updateVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
@@ -172,7 +172,7 @@ public class ModelsResource {
 
     @PUT
     @Transactional
-    @Path("/{id}/versions/{vid}/status")
+    @Path("{id}/versions/{vid}/status")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionStatusDto dto) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException, ModelDataSerializationException {
@@ -186,7 +186,7 @@ public class ModelsResource {
 
     @PUT
     @Transactional
-    @Path("/{id}/versions/{vid}/type")
+    @Path("{id}/versions/{vid}/type")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionTypeDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
@@ -196,7 +196,7 @@ public class ModelsResource {
     }
 
     @POST
-    @Path("/{id}/versions/{vid}/preview")
+    @Path("{id}/versions/{vid}/preview")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
@@ -205,7 +205,7 @@ public class ModelsResource {
     }
 
     @DELETE
-    @Path("/{id}/versions/{vid}")
+    @Path("{id}/versions/{vid}")
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id + "/versions/" + vid);

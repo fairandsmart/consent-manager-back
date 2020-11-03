@@ -37,7 +37,7 @@ public class KeysResource {
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("{id}")
     public Response dropKey(@PathParam("id") String id) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "DELETE /users/key/" + id);
         authenticationService.dropKey(id);
