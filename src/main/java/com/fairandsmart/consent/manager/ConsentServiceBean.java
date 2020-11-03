@@ -15,6 +15,7 @@ import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.BasicInfo;
+import com.fairandsmart.consent.manager.model.Conditions;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.render.ReceiptRenderer;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
@@ -489,7 +490,7 @@ public class ConsentServiceBean implements ConsentService {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
 
             List<Record> previousConsents = new ArrayList<>();
-            if (!ctx.isConditions() && !ctx.isPreview()) {
+            if (!ctx.isPreview()) {
                 previousConsents = systemFindRecordsForContext(ctx);
             }
 
@@ -497,10 +498,9 @@ public class ConsentServiceBean implements ConsentService {
             form.setLocale(ctx.getLocale());
             form.setOrientation(ctx.getOrientation());
             form.setPreview(ctx.isPreview());
-            form.setConditions(ctx.isConditions());
 
             if (!StringUtils.isEmpty(ctx.getInfo())) {
-                String key = (ConsentElementIdentifier.isValid(ctx.getInfo()))?ConsentElementIdentifier.deserialize(ctx.getInfo()).getKey():ctx.getInfo();
+                String key = (ConsentElementIdentifier.isValid(ctx.getInfo())) ? ConsentElementIdentifier.deserialize(ctx.getInfo()).getKey() : ctx.getInfo();
                 ModelVersion info = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 form.setInfo(info);
                 ctx.setInfo(info.getIdentifier().serialize());
@@ -508,7 +508,7 @@ public class ConsentServiceBean implements ConsentService {
 
             List<String> elementsIdentifiers = new ArrayList<>();
             for (String element : ctx.getElements()) {
-                String key = (ConsentElementIdentifier.isValid(element))?ConsentElementIdentifier.deserialize(element).getKey():element;
+                String key = (ConsentElementIdentifier.isValid(element)) ? ConsentElementIdentifier.deserialize(element).getKey() : element;
                 ModelVersion version = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(version.serial, r.value));
                 if (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(version.serial)) {
@@ -519,14 +519,14 @@ public class ConsentServiceBean implements ConsentService {
             ctx.setElements(elementsIdentifiers);
 
             if (!StringUtils.isEmpty(ctx.getTheme())) {
-                String key = (ConsentElementIdentifier.isValid(ctx.getTheme()))?ConsentElementIdentifier.deserialize(ctx.getTheme()).getKey():ctx.getTheme();
+                String key = (ConsentElementIdentifier.isValid(ctx.getTheme())) ? ConsentElementIdentifier.deserialize(ctx.getTheme()).getKey() : ctx.getTheme();
                 ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 form.setTheme(theme);
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
             if (!StringUtils.isEmpty(ctx.getNotificationModel())) {
-                String key = (ConsentElementIdentifier.isValid(ctx.getNotificationModel()))?ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getKey():ctx.getNotificationModel();
+                String key = (ConsentElementIdentifier.isValid(ctx.getNotificationModel())) ? ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getKey() : ctx.getNotificationModel();
                 ModelVersion notification = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 ctx.setNotificationModel(notification.getIdentifier().serialize());
             }
@@ -577,7 +577,7 @@ public class ConsentServiceBean implements ConsentService {
                         notification.setToken(this.tokenService.generateToken(ctx));
                         URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
                         notification.setUrl(notificationUri.toString());
-                        if ( ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD) ) {
+                        if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD)) {
                             notification.setReceiptName("receipt.pdf");
                             notification.setReceiptType("application/pdf");
                             notification.setReceipt(this.systemRenderReceipt(txid, "application/pdf"));
@@ -595,23 +595,6 @@ public class ConsentServiceBean implements ConsentService {
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
-    }
-
-    @Override
-    public CollectionPage<Record> listRecords(RecordFilter filter) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "Listing records");
-        if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform records search");
-        }
-        filter.setOwner(config.owner());
-        PanacheQuery<Record> query;
-        Sort sort = SortUtil.fromFilter(filter);
-        if (sort != null) {
-            query = Record.find(filter.getQueryString(), sort, filter.getQueryParams());
-        } else {
-            query = Record.find(filter.getQueryString(), filter.getQueryParams());
-        }
-        return PageUtil.paginateQuery(query, filter);
     }
 
     @Override
@@ -767,10 +750,10 @@ public class ConsentServiceBean implements ConsentService {
                     record.bodySerial = bodyId.getSerial();
                     record.infoKey = infoId != null ? infoId.getKey() : "";
                     record.bodyKey = bodyId.getKey();
-                    record.serial = (record.infoSerial.isEmpty()?"":record.infoSerial + ".") + record.bodySerial;
+                    record.serial = (record.infoSerial.isEmpty() ? "" : record.infoSerial + ".") + record.bodySerial;
                     record.value = value.getValue();
                     record.creationTimestamp = now.toEpochMilli();
-                    record.expirationTimestamp = ctx.isConditions() ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
+                    record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
                     record.status = Record.Status.COMMITTED;
                     record.collectionMethod = ctx.getCollectionMethod();
                     record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : config.owner();
@@ -811,7 +794,7 @@ public class ConsentServiceBean implements ConsentService {
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     MatrixToImageWriter.writeToStream(bitMatrix, "png", out);
                     receipt.setUpdateUrlQrCode("data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray()));
-                } catch ( Exception e ) {
+                } catch (Exception e) {
                     LOGGER.log(Level.SEVERE, "Unable to generate QRCode for receipt", e);
                 }
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());

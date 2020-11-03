@@ -11,7 +11,6 @@ import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
-import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
@@ -79,8 +78,6 @@ public interface ConsentService {
     ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
 
     /* Records */
-
-    CollectionPage<Record> listRecords(RecordFilter filter) throws AccessDeniedException;
 
     List<Record> systemFindRecordsForContext(ConsentContext ctx) throws AccessDeniedException;
 
