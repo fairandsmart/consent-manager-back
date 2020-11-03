@@ -3,13 +3,14 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.*;
-import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.template.TemplateServiceException;
+import com.fairandsmart.consent.template.builder.ConsentResponseTemplateModelBuilder;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
+import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
@@ -60,16 +61,27 @@ public class ConsentsResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response postConsent(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TemplateServiceException {
+    public TemplateModel<ConsentResponseTemplateModelBuilder.ConsentResponseData> postConsent(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TokenServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
         }
         ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
-        URI uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction()).queryParam("t", tokenService.generateToken(tx)).build();
-        //TODO Handle different types of response maybe including values or JSON BASED results
-        // for now we just send a redirect to the receipt resource
-        return Response.seeOther(uri).build();
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction())
+                .queryParam("t", tokenService.generateToken(tx));
+
+        ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
+        ConsentResponseTemplateModelBuilder templateModelBuilder = new ConsentResponseTemplateModelBuilder();
+        ConsentResponseTemplateModelBuilder.ConsentResponseData templateData = new ConsentResponseTemplateModelBuilder.ConsentResponseData();
+        templateData.setContext(ctx);
+        if (ctx.getReceiptDisplayType() != null && ctx.getReceiptDisplayType() != ConsentContext.ReceiptDisplayType.NONE) {
+                uri.queryParam("format", ctx.getReceiptDisplayType());
+        }
+        templateData.setReceiptURI(uri.build());
+        if (templateModelBuilder.canBuild(templateData)) {
+            return templateModelBuilder.build(templateData);
+        }
+        throw new NotFoundException();
     }
 
 }

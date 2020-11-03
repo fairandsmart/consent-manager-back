@@ -26,38 +26,11 @@ public class ReceiptsResource {
 
     @GET
     @Path("{tid}")
-    @Produces(MediaType.APPLICATION_XML)
-    public Response getXmlReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
+    public Response getXmlReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token, @QueryParam("format") String format) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        byte[] receipt = consentService.renderReceipt(token, transaction, MediaType.APPLICATION_XML);
-        return Response.ok(receipt, MediaType.APPLICATION_XML).build();
-    }
-
-    @GET
-    @Path("{tid}")
-    @Produces(MediaType.TEXT_HTML)
-    public Response getHtmlReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
-        LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        byte[] receipt = consentService.renderReceipt(token, transaction, MediaType.TEXT_HTML);
-        return Response.ok(receipt, MediaType.TEXT_HTML).build();
-    }
-
-    @GET
-    @Path("{tid}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response getTxtReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
-        LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        byte[] receipt = consentService.renderReceipt(token, transaction, MediaType.TEXT_PLAIN);
-        return Response.ok(receipt, MediaType.APPLICATION_XML).build();
-    }
-
-    @GET
-    @Path("{tid}")
-    @Produces("application/pdf")
-    public Response getPdfReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
-        LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        byte[] receipt = consentService.renderReceipt(token, transaction, "application/pdf");
-        return Response.ok(receipt, "application/pdf").build();
+        String mimeType = format != null ? format : "text/plain";
+        byte[] receipt = consentService.renderReceipt(token, transaction, mimeType);
+        return Response.ok(receipt, mimeType).build();
     }
 
 }
