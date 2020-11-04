@@ -15,6 +15,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
@@ -108,6 +109,7 @@ public class SimpleCollectTest {
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
+                .setReceiptDisplayType(ConsentContext.ReceiptDisplayType.HTML)
                 .setLocale(locale);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
@@ -157,21 +159,38 @@ public class SimpleCollectTest {
         //PART 2
         //Post user answer
         LOGGER.log(Level.INFO, "Posting user answer");
-        Response postResponse = given().contentType(ContentType.URLENC).accept(ContentType.HTML).
-                formParams(values).when().post("/consents");
+        Response postResponse = given().contentType(ContentType.URLENC)
+                .formParams(values).when().post("/consents");
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
 
-        LOGGER.log(Level.INFO, "Receipt page: " + postPage);
-        assertTrue(postPage.contains("RE&Ccedil;U"));
-        assertTrue(postPage.contains("Fran&ccedil;ais (France)"));
-        assertTrue(postPage.contains(ConsentContext.CollectionMethod.WEBFORM.name()));
-        assertTrue(postPage.contains("Data body " + t1Key));
-        assertTrue(postPage.contains("Data body " + t2Key));
-        assertTrue(postPage.contains("Accept&eacute;"));
-        assertFalse(postPage.contains("Refus&eacute;"));
-        assertTrue(postPage.contains(SUBJECT));
-        assertTrue(postPage.contains("Name " + biKey + "_dc"));
+        LOGGER.log(Level.INFO, "Consent Response page: " + postPage);
+        assertTrue(postPage.contains("Merci"));
+        assertTrue(postPage.contains("Cliquez ici"));
+        assertTrue(postPage.contains("&format=text%2Fhtml"));
+
+        html = Jsoup.parse(postPage);
+        Elements links = html.getElementsByTag("a");
+        String link = links.get(0).attr("href");
+
+        LOGGER.log(Level.INFO, "Receipt page link: " + link);
+
+        // Check that embed link redirect to the correct receipt mime type (html)
+        Response receiptResponse = given().contentType(ContentType.URLENC).when().get(link.replace("%2F", "/"));
+        String receiptPage = receiptResponse.asString();
+        receiptResponse.then().contentType("text/html").assertThat().statusCode(200);
+        LOGGER.log(Level.INFO, "Receipt page HTML: " + receiptPage);
+        assertTrue(receiptPage.contains("<html"));
+        assertTrue(receiptPage.contains("RE&Ccedil;U"));
+        assertTrue(receiptPage.contains("<title>RE&Ccedil;U DE CONSENTEMENT</title>"));
+        assertTrue(receiptPage.contains("Fran&ccedil;ais (France)"));
+        assertTrue(receiptPage.contains(ConsentContext.CollectionMethod.WEBFORM.name()));
+        assertTrue(receiptPage.contains("Data body " + t1Key));
+        assertTrue(receiptPage.contains("Data body " + t2Key));
+        assertTrue(receiptPage.contains("Accept&eacute;"));
+        assertFalse(receiptPage.contains("Refus&eacute;"));
+        assertTrue(receiptPage.contains(SUBJECT));
+        assertTrue(receiptPage.contains("Name " + biKey + "_dc"));
 
         //PART 3
         //Check previous values are loaded on new consent form
@@ -191,20 +210,92 @@ public class SimpleCollectTest {
         }
 
         //PART 4
-        //Post user new answer
-        LOGGER.log(Level.INFO, "Posting new user answer");
-        postResponse = given().contentType(ContentType.URLENC).accept(ContentType.HTML).
-                formParams(values).when().post("/consents");
+        //Post user new answer in new context with different receipt mime type
+        LOGGER.log(Level.INFO, "Posting new user answer in new context");
+        ctx = new ConsentContext()
+                .setSubject(SUBJECT)
+                .setValidity("P2Y")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setInfo(biKey)
+                .setElements(Arrays.asList(t1Key, t2Key))
+                .setReceiptDisplayType(ConsentContext.ReceiptDisplayType.XML)
+                .setLocale(locale);
+        LOGGER.log(Level.INFO, "New context" + ctx.toString());
+        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
+
+        token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
+                .when().post("/consents/token").asString();
+        assertNotNull(token);
+        LOGGER.log(Level.INFO, "Token: " + token);
+
+        //PART 1
+        //Check consent form
+        response = given().header("TOKEN", token).when().get("/consents");
+        page = response.asString();
+        response.then().contentType("text/html").assertThat().statusCode(200);
+
+        LOGGER.log(Level.INFO, "Consent form page: " + page);
+        //Orientation
+        assertFalse(page.contains("class=\"right\"")); // Vertical
+        //BasicInfo
+        assertTrue(page.contains("Title " + biKey));
+        assertTrue(page.contains("Header " + biKey));
+        assertTrue(page.contains("href=\"Privacy policy URL " + biKey + "\""));
+        assertTrue(page.contains("Footer " + biKey));
+        assertTrue(page.contains("accept-all-switch"));
+        //Processing 1
+        assertTrue(page.contains("Processing title " + t1Key));
+        assertTrue(page.contains("Data body " + t1Key));
+        assertTrue(page.contains("Retention body " + t1Key));
+        assertTrue(page.contains("Usage body " + t1Key));
+        assertTrue(page.contains("consent_core_service.png"));
+        //Processing 2
+        assertTrue(page.contains("Processing title " + t2Key));
+        assertTrue(page.contains("Data body " + t2Key));
+        assertTrue(page.contains("Retention body " + t2Key));
+        assertTrue(page.contains("Usage body " + t2Key));
+        assertTrue(page.contains("consent_third_part_sharing.png"));
+
+        html = Jsoup.parse(page);
+        values = TestUtils.readFormInputs(html);
+        LOGGER.log(Level.INFO, "Form Values: " + values);
+        elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
+        assertEquals(2, elementsKeys.size());
+        for (String key : elementsKeys) {
+            assertEquals("accepted", values.get(key));
+            values.replace(key, "refused"); //User refuse every processing
+        }
+
+        postResponse = given().contentType(ContentType.URLENC)
+                .formParams(values).when().post("/consents");
         postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
 
-        LOGGER.log(Level.INFO, "Receipt page: " + postPage);
-        assertTrue(postPage.contains("Data body " + t1Key));
-        assertTrue(postPage.contains("Data body " + t2Key));
-        assertFalse(postPage.contains("Accept&eacute;"));
-        assertTrue(postPage.contains("Refus&eacute;"));
+        LOGGER.log(Level.INFO, "Consent Response page: " + postPage);
+        assertTrue(postPage.contains("Merci"));
+        assertTrue(postPage.contains("Cliquez ici"));
+        assertTrue(postPage.contains("&format=application%2Fxml"));
 
-        //TODO Test receipt link and change from the receipt link
+
+        html = Jsoup.parse(postPage);
+        links = html.getElementsByTag("a");
+        link = links.get(0).attr("href");
+
+        // Check that embed link redirect to the correct receipt display type (html)
+        receiptResponse = given().contentType(ContentType.URLENC).when().get(link.replace("%2F", "/"));
+        receiptPage = receiptResponse.asString();
+        receiptResponse.then().contentType("application/xml").assertThat().statusCode(200);
+        LOGGER.log(Level.INFO, "Receipt page XML: " + receiptPage);
+        assertTrue(receiptPage.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
+        assertTrue(receiptPage.contains("<receipt>"));
+        assertTrue(receiptPage.contains("<locale>fr_FR</locale>"));
+        assertTrue(receiptPage.contains("<collectionMethod>" + ConsentContext.CollectionMethod.WEBFORM.name() + "</collectionMethod>"));
+        assertTrue(receiptPage.contains("<data>Data body " + t1Key + "</data>"));
+        assertTrue(receiptPage.contains("<data>Data body " + t2Key + "</data>"));
+        assertTrue(receiptPage.contains("<value>refused</value>"));
+        assertFalse(receiptPage.contains("<value>accepted</value>"));
+        assertTrue(receiptPage.contains("<subject>" + SUBJECT + "</subject>"));
+        assertTrue(receiptPage.contains("<name>Name " + biKey + "_dc</name>"));
     }
 
 }

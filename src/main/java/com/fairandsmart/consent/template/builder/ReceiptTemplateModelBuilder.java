@@ -22,7 +22,7 @@ public class ReceiptTemplateModelBuilder implements TemplateModelBuilder {
     }
 
     @Override
-    public TemplateModel build(Object data) {
+    public TemplateModel<Receipt> build(Object data) {
         Receipt receipt = (Receipt) data;
         TemplateModel<Receipt> model = new TemplateModel<>();
         model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));

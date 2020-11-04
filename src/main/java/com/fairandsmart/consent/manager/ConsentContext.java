@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
@@ -32,6 +33,7 @@ public class ConsentContext implements Tokenizable {
     private String validity;
     private FormType formType;
     private ReceiptDeliveryType receiptDeliveryType;
+    private ReceiptDisplayType receiptDisplayType;
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
     private String notificationModel;
@@ -243,6 +245,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public ReceiptDisplayType getReceiptDisplayType() {
+        return receiptDisplayType;
+    }
+
+    public ConsentContext setReceiptDisplayType(ReceiptDisplayType receiptDisplayType) {
+        this.receiptDisplayType = receiptDisplayType;
+        return this;
+    }
+
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
@@ -269,6 +280,9 @@ public class ConsentContext implements Tokenizable {
         }
         if (receiptDeliveryType != null) {
             claims.put("receiptDeliveryType", this.getReceiptDeliveryType().name());
+        }
+        if (receiptDisplayType != null) {
+            claims.put("receiptDisplayType", this.getReceiptDisplayType().toString());
         }
         if (notificationModel != null) {
             claims.put("notificationModel", this.getNotificationModel());
@@ -323,6 +337,9 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("receiptDeliveryType")) {
             this.setReceiptDeliveryType(ReceiptDeliveryType.valueOf(claims.get("receiptDeliveryType")));
         }
+        if (claims.containsKey("receiptDisplayType")) {
+            this.setReceiptDisplayType(ReceiptDisplayType.valueOfName(claims.get("receiptDisplayType")));
+        }
         if (claims.containsKey("notificationModel")) {
             this.setNotificationModel(claims.get("notificationModel"));
         }
@@ -374,6 +391,38 @@ public class ConsentContext implements Tokenizable {
         DOWNLOAD
     }
 
+    public enum ReceiptDisplayType {
+        NONE("none"),
+        HTML("text/html"),
+        PDF("application/pdf"),
+        XML("application/xml"),
+        TEXT("text/plain");
+
+        private final String name;
+
+        ReceiptDisplayType(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
+        public static ReceiptDisplayType valueOfName(String name) {
+            for (ReceiptDisplayType e : values()) {
+                if (e.name.equals(name)) {
+                    return e;
+                }
+            }
+            throw new IllegalArgumentException("Unknown format : " + name);
+        }
+    }
+
     /**
      * WEBFORM the user filled in a form
      * OPERATOR an operator created the record based on an interaction with the user
@@ -395,6 +444,7 @@ public class ConsentContext implements Tokenizable {
                 ", locale='" + locale + '\'' +
                 ", formType=" + formType +
                 ", receiptDeliveryType=" + receiptDeliveryType +
+                ", receiptDisplayType=" + receiptDisplayType +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
                 ", notificationEmailModel='" + notificationModel + '\'' +
