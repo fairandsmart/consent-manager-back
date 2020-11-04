@@ -122,4 +122,21 @@ public class RecordDto {
         dto.setValue(record.value);
         return dto;
     }
+
+    @Override
+    public String toString() {
+        return "RecordDto{" +
+                "serial='" + serial + '\'' +
+                ", infoKey='" + infoKey + '\'' +
+                ", bodyKey='" + bodyKey + '\'' +
+                ", subject='" + subject + '\'' +
+                ", creationTimestamp=" + creationTimestamp +
+                ", expirationTimestamp=" + expirationTimestamp +
+                ", type='" + type + '\'' +
+                ", value='" + value + '\'' +
+                ", status='" + status + '\'' +
+                ", collectionMethod='" + collectionMethod + '\'' +
+                ", comment='" + comment + '\'' +
+                '}';
+    }
 }

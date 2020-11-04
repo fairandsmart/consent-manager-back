@@ -18,8 +18,7 @@ public class ConsentServiceExceptionMapper implements ExceptionMapper<ConsentSer
 
     @Override
     public Response toResponse(ConsentServiceException exception) {
-        ApiError error = new ApiError(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Consent Exception").withInstance(instance.get())
-                .withException(exception);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build();
+        ApiError error = new ApiError(ApiError.Type.UNEXPECTED_ERROR).withInstance(instance.get()).withException(exception);
+        return Response.status(error.getStatus()).entity(error).build();
     }
 }

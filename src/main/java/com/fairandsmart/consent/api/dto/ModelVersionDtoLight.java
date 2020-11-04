@@ -136,4 +136,22 @@ public class ModelVersionDtoLight {
         dto.setIdentifier(version.getIdentifier().toString());
         return dto;
     }
+
+    @Override
+    public String toString() {
+        return "ModelVersionDtoLight{" +
+                "id='" + id + '\'' +
+                ", serial='" + serial + '\'' +
+                ", parent='" + parent + '\'' +
+                ", child='" + child + '\'' +
+                ", author='" + author + '\'' +
+                ", defaultLocale='" + defaultLocale + '\'' +
+                ", availableLocales=" + availableLocales +
+                ", status=" + status +
+                ", type=" + type +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
+                ", identifier='" + identifier + '\'' +
+                '}';
+    }
 }

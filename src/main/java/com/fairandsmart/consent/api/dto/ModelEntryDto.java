@@ -99,4 +99,16 @@ public class ModelEntryDto {
         dto.setDescription(entry.description);
         return dto;
     }
+
+    @Override
+    public String toString() {
+        return "ModelEntryDto{" +
+                "id='" + id + '\'' +
+                ", key='" + key + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", type='" + type + '\'' +
+                ", versions=" + versions +
+                '}';
+    }
 }

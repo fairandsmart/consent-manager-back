@@ -67,6 +67,7 @@ public class ModelsResource {
     }
 
     @POST
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelEntryDto createEntry(@Valid ModelEntryDto dto) throws EntityAlreadyExistsException, ConsentManagerException, ModelDataSerializationException {
@@ -86,6 +87,7 @@ public class ModelsResource {
 
     @PUT
     @Path("{id}")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelEntryDto updateEntry(@PathParam("id") @Valid @UUID String id, ModelEntryDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
@@ -96,6 +98,7 @@ public class ModelsResource {
 
     @DELETE
     @Path("{id}")
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id);
@@ -116,6 +119,7 @@ public class ModelsResource {
 
     @POST
     @Path("{id}/versions")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto createVersion(@PathParam("id") @Valid @UUID String id, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
@@ -197,6 +201,7 @@ public class ModelsResource {
 
     @POST
     @Path("{id}/versions/{vid}/preview")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
@@ -206,6 +211,7 @@ public class ModelsResource {
 
     @DELETE
     @Path("{id}/versions/{vid}")
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id + "/versions/" + vid);

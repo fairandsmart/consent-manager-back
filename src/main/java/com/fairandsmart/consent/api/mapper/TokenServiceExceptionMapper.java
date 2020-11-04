@@ -2,7 +2,6 @@ package com.fairandsmart.consent.api.mapper;
 
 import com.fairandsmart.consent.api.error.ApiError;
 import com.fairandsmart.consent.token.TokenServiceException;
-import org.apache.http.HttpStatus;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.inject.Instance;
@@ -18,8 +17,7 @@ public class TokenServiceExceptionMapper implements ExceptionMapper<TokenService
 
     @Override
     public Response toResponse(TokenServiceException exception) {
-        ApiError error = new ApiError(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Token Exception").withInstance(instance.get())
-                .withException(exception);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build();
+        ApiError error = new ApiError(ApiError.Type.TOKEN_SERVICE_ERROR).withInstance(instance.get()).withException(exception);
+        return Response.status(error.getStatus()).entity(error).build();
     }
 }

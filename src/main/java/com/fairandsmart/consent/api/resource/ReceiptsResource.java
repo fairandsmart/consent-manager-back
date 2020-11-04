@@ -10,8 +10,10 @@ import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenServiceException;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +28,7 @@ public class ReceiptsResource {
 
     @GET
     @Path("{tid}")
-    public Response getXmlReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token, @QueryParam("format") String format) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
+    public Response getReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token, @QueryParam("format") String format) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
         String mimeType = format != null ? format : "text/plain";
         byte[] receipt = consentService.renderReceipt(token, transaction, mimeType);

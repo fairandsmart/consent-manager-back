@@ -46,4 +46,22 @@ public class ModelVersionDto extends ModelVersionDtoLight {
         return dto;
     }
 
+    @Override
+    public String toString() {
+        return "ModelVersionDto{" +
+                "id='" + super.getId() + '\'' +
+                ", serial='" + super.getSerial() + '\'' +
+                ", parent='" + super.getParent() + '\'' +
+                ", child='" + super.getChild() + '\'' +
+                ", author='" + super.getAuthor() + '\'' +
+                ", defaultLocale='" + super.getDefaultLocale() + '\'' +
+                ", availableLocales=" + super.getAvailableLocales() +
+                ", status=" + super.getStatus() +
+                ", type=" + super.getType() +
+                ", creationDate=" + super.getCreationDate() +
+                ", modificationDate=" + super.getModificationDate() +
+                ", identifier='" + super.getIdentifier() + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

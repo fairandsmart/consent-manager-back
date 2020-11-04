@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
 
 @Provider
 public class AccessLogFilter implements ContainerRequestFilter {
@@ -19,7 +18,7 @@ public class AccessLogFilter implements ContainerRequestFilter {
     AuthenticationService auth;
 
     @Override
-    public void filter(ContainerRequestContext ctx) throws IOException {
+    public void filter(ContainerRequestContext ctx) {
         if ( !identity.isAnonymous() ) {
             auth.logAccess(identity.getPrincipal().getName());
         }
