@@ -25,8 +25,8 @@
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="BRANCHES" type="VARCHAR(5000)"/>
-            <column name="AVAILABLELOCALES" type="VARCHAR(255)"/>
-            <column name="DEFAULTLOCALE" type="VARCHAR(255)"/>
+            <column name="AVAILABLELANGUAGES" type="VARCHAR(255)"/>
+            <column name="DEFAULTLANGUAGE" type="VARCHAR(255)"/>
             <column name="COUNTERPARTS" type="VARCHAR(5000)"/>
             <column name="OWNER" type="VARCHAR(255)"/>
             <column name="AUTHOR" type="VARCHAR(255)"/>

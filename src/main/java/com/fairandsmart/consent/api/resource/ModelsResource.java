@@ -120,7 +120,7 @@ public class ModelsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto createVersion(@PathParam("id") @Valid @UUID String id, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "POST /models/" + id + "/versions");
-        ModelVersion version = consentService.createVersion(id, dto.getDefaultLocale(), dto.getData());
+        ModelVersion version = consentService.createVersion(id, dto.getDefaultLanguage(), dto.getData());
         return ModelVersionDto.fromModelVersion(version);
     }
 
@@ -163,7 +163,7 @@ public class ModelsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto updateVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid);
-        ModelVersion version = consentService.updateVersion(vid, dto.getDefaultLocale(), dto.getData());
+        ModelVersion version = consentService.updateVersion(vid, dto.getDefaultLanguage(), dto.getData());
         if (!version.entry.id.equals(id)) {
             throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
         }

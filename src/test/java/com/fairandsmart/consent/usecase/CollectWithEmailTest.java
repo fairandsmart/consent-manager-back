@@ -39,7 +39,7 @@ public class CollectWithEmailTest {
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
 
-    private static final String locale = "fr_FR";
+    private static final String language = "fr";
     private static final String biKey = "cwet_bi1";
     private static final String t1Key = "cwet_t1";
     private static final String t2Key = "cwet_t2";
@@ -88,7 +88,7 @@ public class CollectWithEmailTest {
 
             //Create model version
             LOGGER.log(Level.INFO, "Creating " + type + " version");
-            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(key, type, locale);
+            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(key, type, language);
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(versionDto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(versionDto).
@@ -117,7 +117,7 @@ public class CollectWithEmailTest {
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setLocale(locale)
+                .setLanguage(language)
                 .setReceiptDeliveryType(ConsentContext.ReceiptDeliveryType.DOWNLOAD)
                 .setNotificationModel(eKey)
                 .setNotificationRecipient(recipient);

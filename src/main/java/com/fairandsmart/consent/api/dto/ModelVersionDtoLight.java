@@ -13,8 +13,8 @@ public class ModelVersionDtoLight {
     private String parent;
     private String child;
     private String author;
-    private String defaultLocale;
-    private List<String> availableLocales;
+    private String defaultLanguage;
+    private List<String> availableLanguages;
     private ModelVersion.Status status;
     private ModelVersion.Type type;
     private long creationDate;
@@ -64,20 +64,20 @@ public class ModelVersionDtoLight {
         this.author = author;
     }
 
-    public String getDefaultLocale() {
-        return defaultLocale;
+    public String getDefaultLanguage() {
+        return defaultLanguage;
     }
 
-    public void setDefaultLocale(String defaultLocale) {
-        this.defaultLocale = defaultLocale;
+    public void setDefaultLanguage(String defaultLanguage) {
+        this.defaultLanguage = defaultLanguage;
     }
 
-    public List<String> getAvailableLocales() {
-        return availableLocales;
+    public List<String> getAvailableLanguages() {
+        return availableLanguages;
     }
 
-    public void setAvailableLocales(List<String> availableLocales) {
-        this.availableLocales = availableLocales;
+    public void setAvailableLanguages(List<String> availableLanguages) {
+        this.availableLanguages = availableLanguages;
     }
 
     public ModelVersion.Status getStatus() {
@@ -127,8 +127,8 @@ public class ModelVersionDtoLight {
         dto.setParent(version.parent);
         dto.setChild(version.child);
         dto.setSerial(version.serial);
-        dto.setDefaultLocale(version.defaultLocale);
-        dto.setAvailableLocales(Arrays.asList(version.availableLocales.split(",")));
+        dto.setDefaultLanguage(version.defaultLanguage);
+        dto.setAvailableLanguages(Arrays.asList(version.availableLanguages.split(",")));
         dto.setStatus(version.status);
         dto.setType(version.type);
         dto.setCreationDate(version.creationDate);

@@ -24,7 +24,7 @@ public class ModelPreviewTemplateModelBuilder implements TemplateModelBuilder {
     public TemplateModel build(Object data) {
         PreviewDto dto = (PreviewDto) data;
         TemplateModel<PreviewDto> template = new TemplateModel<>();
-        template.setLocale(LocaleUtils.toLocale(dto.getLocale()));
+        template.setLocale(LocaleUtils.toLocale(dto.getLanguage()));
         ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", template.getLocale());
         template.setBundle(bundle);
         template.setData(dto);

@@ -195,7 +195,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Creating new version for entry with id: " + entryId);
         authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
@@ -245,11 +245,11 @@ public class ConsentServiceBean implements ConsentService {
             for (Map.Entry<String, ModelData> e : data.entrySet()) {
                 latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
             }
-            latest.availableLocales = String.join(",", data.keySet());
-            if (latest.content.containsKey(defaultLocale)) {
-                latest.defaultLocale = defaultLocale;
+            latest.availableLanguages = String.join(",", data.keySet());
+            if (latest.content.containsKey(defaultLanguage)) {
+                latest.defaultLanguage = defaultLanguage;
             } else {
-                throw new ConsentManagerException("Default Locale does not exists in content locales");
+                throw new ConsentManagerException("Default language does not exist in content languages");
             }
             latest.modificationDate = now;
             latest.persist();
@@ -330,7 +330,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion updateVersion(String id, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion updateVersion(String id, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating content for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
@@ -347,11 +347,11 @@ public class ConsentServiceBean implements ConsentService {
             for (Map.Entry<String, ModelData> entry : data.entrySet()) {
                 version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
             }
-            version.availableLocales = String.join(",", data.keySet());
-            if (version.content.containsKey(defaultLocale)) {
-                version.defaultLocale = defaultLocale;
+            version.availableLanguages = String.join(",", data.keySet());
+            if (version.content.containsKey(defaultLanguage)) {
+                version.defaultLanguage = defaultLanguage;
             } else {
-                throw new ConsentManagerException("Default Locale does not exists in content locales");
+                throw new ConsentManagerException("Default language does not exist in content languages");
             }
             version.modificationDate = System.currentTimeMillis();
             version.persist();
@@ -443,10 +443,10 @@ public class ConsentServiceBean implements ConsentService {
         }
 
         if (dto.getData() != null) {
-            version.content.put(dto.getLocale(), new ModelContent().withDataObject(dto.getData()));
+            version.content.put(dto.getLanguage(), new ModelContent().withDataObject(dto.getData()));
             previewCache.put(entryId, version);
         } else {
-            dto.setData(version.content.get(dto.getLocale()).getDataObject());
+            dto.setData(version.content.get(dto.getLanguage()).getDataObject());
         }
         return dto;
     }
@@ -495,7 +495,7 @@ public class ConsentServiceBean implements ConsentService {
             }
 
             ConsentForm form = new ConsentForm();
-            form.setLocale(ctx.getLocale());
+            form.setLanguage(ctx.getLanguage());
             form.setOrientation(ctx.getOrientation());
             form.setPreview(ctx.isPreview());
 
@@ -564,7 +564,7 @@ public class ConsentServiceBean implements ConsentService {
                 if (!StringUtils.isEmpty(ctx.getNotificationModel())) {
                     try {
                         ConsentNotification notification = new ConsentNotification();
-                        notification.setLocale(ctx.getLocale());
+                        notification.setLanguage(ctx.getLanguage());
                         notification.setRecipient(ctx.getNotificationRecipient());
                         ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getSerial(), true);
                         notification.setModel(notificationModel);
@@ -770,17 +770,17 @@ public class ConsentServiceBean implements ConsentService {
             Receipt receipt;
             if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
                 receipt = new Receipt();
-                receipt.setLocale(ctx.getLocale());
+                receipt.setLanguage(ctx.getLanguage());
             } else {
                 BasicInfo info = null;
                 if (infoId != null) {
-                    info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLocale());
+                    info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLanguage());
                     ctx.setInfo(infoId.getKey());
                 }
                 Map<Processing, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Processing.TYPE)).forEach(r -> {
                     try {
-                        Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLocale());
+                        Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLanguage());
                         trecords.put(t, r);
                     } catch (EntityNotFoundException | ModelDataSerializationException e) {
                         //

@@ -33,8 +33,8 @@ public class ModelVersionDto extends ModelVersionDtoLight {
         dto.setParent(version.parent);
         dto.setChild(version.child);
         dto.setSerial(version.serial);
-        dto.setDefaultLocale(version.defaultLocale);
-        dto.setAvailableLocales(Arrays.asList(version.availableLocales.split(",")));
+        dto.setDefaultLanguage(version.defaultLanguage);
+        dto.setAvailableLanguages(Arrays.asList(version.availableLanguages.split(",")));
         dto.setStatus(version.status);
         dto.setType(version.type);
         dto.setCreationDate(version.creationDate);

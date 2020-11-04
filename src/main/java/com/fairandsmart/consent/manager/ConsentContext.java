@@ -28,7 +28,7 @@ public class ConsentContext implements Tokenizable {
     @NotEmpty
     private List<String> elements;
     private String callback;
-    private String locale;
+    private String language;
     private String validity;
     private FormType formType;
     private ReceiptDeliveryType receiptDeliveryType;
@@ -110,15 +110,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getLocale() {
-        if (StringUtils.isEmpty(locale)) {
+    public String getLanguage() {
+        if (StringUtils.isEmpty(language)) {
             return Locale.getDefault().toLanguageTag();
         }
-        return locale;
+        return language;
     }
 
-    public ConsentContext setLocale(String locale) {
-        this.locale = locale;
+    public ConsentContext setLanguage(String language) {
+        this.language = language;
         return this;
     }
 
@@ -252,8 +252,8 @@ public class ConsentContext implements Tokenizable {
         if (elements != null && !elements.isEmpty()) {
             claims.put("elements", this.getElementsString());
         }
-        if (locale != null) {
-            claims.put("locale", this.getLocale());
+        if (language != null) {
+            claims.put("language", this.getLanguage());
         }
         if (validity != null) {
             claims.put("validity", this.getValidity());
@@ -305,8 +305,8 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("elements")) {
             this.setElementsString(claims.get("elements"));
         }
-        if (claims.containsKey("locale")) {
-            this.setLocale(claims.get("locale"));
+        if (claims.containsKey("language")) {
+            this.setLanguage(claims.get("language"));
         }
         if (claims.containsKey("validity")) {
             this.setValidity(claims.get("validity"));
@@ -392,7 +392,7 @@ public class ConsentContext implements Tokenizable {
                 ", elements=" + elements +
                 ", callback='" + callback + '\'' +
                 ", validity='" + validity + '\'' +
-                ", locale='" + locale + '\'' +
+                ", language='" + language + '\'' +
                 ", formType=" + formType +
                 ", receiptDeliveryType=" + receiptDeliveryType +
                 ", userinfos=" + userinfos +

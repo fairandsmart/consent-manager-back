@@ -37,7 +37,7 @@ public class SimpleCollectTest {
     private static final String TEST_PASSWORD = "password";
     private static final String SUBJECT = "mmichu";
 
-    private static final String locale = "fr_FR";
+    private static final String language = "fr";
     private static final String biKey = "sct_bi1";
     private static final String t1Key = "sct_t1";
     private static final String t2Key = "sct_t2";
@@ -81,7 +81,7 @@ public class SimpleCollectTest {
 
             //Create model version
             LOGGER.log(Level.INFO, "Creating " + type + " version");
-            ModelVersionDto dto = TestUtils.generateModelVersionDto(key, type, locale);
+            ModelVersionDto dto = TestUtils.generateModelVersionDto(key, type, language);
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(dto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(dto).
@@ -108,7 +108,7 @@ public class SimpleCollectTest {
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setLocale(locale);
+                .setLanguage(language);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
