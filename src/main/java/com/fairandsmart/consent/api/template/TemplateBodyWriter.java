@@ -2,7 +2,7 @@ package com.fairandsmart.consent.api.template;
 
 /*-
  * #%L
- * Right Consent / A Consent Manager Plateform
+ * Right Consent / A Consent Manager Platform
  * 
  * Authors:
  * 

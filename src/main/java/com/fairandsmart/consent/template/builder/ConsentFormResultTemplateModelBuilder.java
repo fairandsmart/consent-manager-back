@@ -2,7 +2,7 @@ package com.fairandsmart.consent.template.builder;
 
 /*-
  * #%L
- * Right Consent / A Consent Manager Plateform
+ * Right Consent / A Consent Manager Platform
  * 
  * Authors:
  * 
