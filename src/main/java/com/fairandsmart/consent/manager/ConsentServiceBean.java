@@ -550,7 +550,7 @@ public class ConsentServiceBean implements ConsentService {
 
             Map<String, String> valuesMap = new HashMap<>();
             for (MultivaluedMap.Entry<String, List<String>> value : values.entrySet()) {
-                valuesMap.put(value.getKey(), value.getValue().get(0));
+                valuesMap.put(value.getKey(), String.join(",", value.getValue()));
             }
             //TODO Check that identifiers refers to the latest elements versions to avoid committing a consent on a staled version of an entry
             // (aka form is generated before a MAJOR RELEASE and submit after)
