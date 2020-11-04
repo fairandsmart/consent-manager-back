@@ -13,9 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RequestScoped
-public class InactiveBodySerialInvalidationRule extends RecordStatusFilterRule {
+public class IrrelevantBodyRule extends RecordStatusRule {
 
-    private static final Logger LOGGER = Logger.getLogger(InactiveBodySerialInvalidationRule.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(IrrelevantBodyRule.class.getName());
 
     private Map<String, List<String>> activeSerialsCache = new HashMap<>();
 
@@ -26,8 +26,8 @@ public class InactiveBodySerialInvalidationRule extends RecordStatusFilterRule {
     public void apply(List<Record> records) {
         LOGGER.log(Level.FINE, "searching records with invalid body serial");
         records.stream().filter(record ->
-                record.status.equals(Record.Status.COMMITTED) && record.bodyKey != null
-                        && !record.bodyKey.isEmpty() && !getActiveSerial(record.bodyKey).contains(record.bodySerial)
+            record.status.equals(Record.Status.UNKNOWN) && record.bodyKey != null
+                && !record.bodyKey.isEmpty() && !getActiveSerial(record.bodyKey).contains(record.bodySerial)
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
             record.status = Record.Status.IRRELEVANT;

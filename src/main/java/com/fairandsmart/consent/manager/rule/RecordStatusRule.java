@@ -4,9 +4,9 @@ import com.fairandsmart.consent.manager.entity.Record;
 
 import java.util.List;
 
-public abstract class RecordStatusFilterRule {
+public abstract class RecordStatusRule {
 
-    private RecordStatusFilterRule next;
+    private RecordStatusRule next;
 
     public abstract void apply(List<Record> records);
 
@@ -16,7 +16,7 @@ public abstract class RecordStatusFilterRule {
         }
     }
 
-    public RecordStatusFilterRule setNext(RecordStatusFilterRule next) {
+    public RecordStatusRule setNext(RecordStatusRule next) {
         this.next = next;
         return this;
     }

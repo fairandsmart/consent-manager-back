@@ -33,9 +33,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public String bodyKey;
     public String value;
     @Enumerated(EnumType.STRING)
-    public Status status;
-    @Transient
-    public String statusExplanation;
+    public State state;
     @Enumerated(EnumType.STRING)
     public ConsentContext.CollectionMethod collectionMethod;
     public String author;
@@ -43,15 +41,23 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public String comment;
     @ElementCollection(fetch = FetchType.EAGER)
     public Map<String, String> attributes;
+    @Transient
+    public Status status;
+    @Transient
+    public String statusExplanation;
 
-    public enum Status {
+    public enum State {
         PENDING,
         COMMITTED,
-        DELETED,
+        DELETED
+    }
+
+    public enum Status {
         VALID,
         OBSOLETE,
         EXPIRED,
-        IRRELEVANT
+        IRRELEVANT,
+        UNKNOWN
     }
 
     @Override
@@ -72,6 +78,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
                 ", infoKey='" + infoKey + '\'' +
                 ", bodyKey='" + bodyKey + '\'' +
                 ", value='" + value + '\'' +
+                ", state=" + state +
                 ", status=" + status +
                 ", statusExplanation='" + statusExplanation + '\'' +
                 ", collectionMethod=" + collectionMethod +

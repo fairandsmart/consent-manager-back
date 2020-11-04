@@ -13,7 +13,7 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
     private int size;
     private String owner;
     private String subject;
-    private List<Record.Status> status;
+    private Record.State state;
     private List<String> infos;
     private List<String> elements;
     private String collectionMethod;
@@ -58,12 +58,12 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.subject = subject;
     }
 
-    public List<Record.Status> getStatus() {
-        return status;
+    public Record.State getState() {
+        return state;
     }
 
-    public void setStatus(List<Record.Status> status) {
-        this.status = status;
+    public void setState(Record.State state) {
+        this.state = state;
     }
 
     public List<String> getInfos() {
@@ -141,8 +141,8 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         if (subject != null && !subject.isEmpty()) {
             parts.add("subject = :subject");
         }
-        if (status != null && !status.isEmpty()) {
-            parts.add("status in :status");
+        if (state != null) {
+            parts.add("state = :state");
         }
         if (infos != null && !infos.isEmpty()) {
             parts.add("infoSerial in :infos");
@@ -174,8 +174,8 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         if (subject != null && !subject.isEmpty()) {
             params.put("subject", subject);
         }
-        if (status != null && status.size() > 0) {
-            params.put("status", status);
+        if (state != null) {
+            params.put("state", state);
         }
         if (infos != null && infos.size() > 0) {
             params.put("infos", infos);
@@ -205,7 +205,7 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
                 ", size=" + size +
                 ", owner='" + owner + '\'' +
                 ", subject='" + subject + '\'' +
-                ", status=" + status +
+                ", state=" + state +
                 ", infos=" + infos +
                 ", elements=" + elements +
                 ", collectionMethod='" + collectionMethod + '\'' +

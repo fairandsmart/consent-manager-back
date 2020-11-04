@@ -11,12 +11,13 @@ public class PageUtil {
 
     public static <T> CollectionPage<T> paginateQuery(PanacheQuery<T> query, PaginableFilter filter) {
         CollectionPage<T> collection = new CollectionPage<>();
-        int size = filter.getSize() >= 0 ? filter.getSize() : Math.max(1, (int) query.count());
+        long total = query.count();
+        int size = Math.max(1, filter.getSize() >= 0 ? filter.getSize() : (int) total);
         collection.setValues(query.page(Page.of(filter.getPage(), size)).list());
         collection.setPageSize(size);
         collection.setPage(filter.getPage());
         collection.setTotalPages(query.pageCount());
-        collection.setTotalCount(query.count());
+        collection.setTotalCount(total);
         return collection;
     }
 

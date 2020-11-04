@@ -21,7 +21,7 @@ import com.fairandsmart.consent.manager.render.ReceiptRenderer;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.model.Processing;
-import com.fairandsmart.consent.manager.rule.RecordStatusFilterChain;
+import com.fairandsmart.consent.manager.rule.BasicRecordStatusRuleChain;
 import com.fairandsmart.consent.manager.store.LocalReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
@@ -39,6 +39,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.sun.xml.bind.v2.schemagen.xmlschema.AttributeType;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
@@ -105,7 +106,7 @@ public class ConsentServiceBean implements ConsentService {
     PreviewCache previewCache;
 
     @Inject
-    RecordStatusFilterChain statusFilterChain;
+    BasicRecordStatusRuleChain recordStatusChain;
 
     @Inject
     Instance<ReceiptRenderer> renderers;
@@ -188,7 +189,6 @@ public class ConsentServiceBean implements ConsentService {
             ModelEntry.deleteById(id);
             previewCache.remove(id);
         } else {
-            //TODO Maybe allow this but ensure that all corresponding records are going to be deleted... and that receipt may be corrupted.
             throw new ConsentManagerException("unable to delete entry that have not only DRAFT versions");
         }
     }
@@ -257,10 +257,8 @@ public class ConsentServiceBean implements ConsentService {
                 previewCache.put(latest.entry.id, latest);
             }
             return latest;
-        } catch (SerialGeneratorException ex) {
-            throw new ConsentManagerException("unable to generate serial number for new version", ex);
-        } catch (ModelDataSerializationException ex) {
-            throw new ConsentManagerException("unable to serialise data", ex);
+        } catch (SerialGeneratorException | ModelDataSerializationException ex) {
+            throw new ConsentManagerException("unable to create new version", ex);
         }
     }
 
@@ -441,7 +439,6 @@ public class ConsentServiceBean implements ConsentService {
                 version.entry = this.getEntry(entryId);
             }
         }
-
         if (dto.getData() != null) {
             version.content.put(dto.getLocale(), new ModelContent().withDataObject(dto.getData()));
             previewCache.put(entryId, version);
@@ -489,9 +486,9 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
 
-            List<Record> previousConsents = new ArrayList<>();
+            Map<String, Record> previousRecords = new HashMap<>();
             if (!ctx.isPreview()) {
-                previousConsents = systemFindRecordsForContext(ctx);
+                previousRecords = systemListContextValidRecords(ctx);
             }
 
             ConsentForm form = new ConsentForm();
@@ -510,7 +507,9 @@ public class ConsentServiceBean implements ConsentService {
             for (String element : ctx.getElements()) {
                 String key = (ConsentElementIdentifier.isValid(element)) ? ConsentElementIdentifier.deserialize(element).getKey() : element;
                 ModelVersion version = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
-                previousConsents.stream().filter(r -> r.bodyKey.equals(key)).findFirst().ifPresent(r -> form.addPreviousValue(version.serial, r.value));
+                if (previousRecords.containsKey(key)) {
+                    form.addPreviousValue(version.serial, previousRecords.get(key).value);
+                }
                 if (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(version.serial)) {
                     form.addElement(version);
                     elementsIdentifiers.add(version.getIdentifier().serialize());
@@ -587,7 +586,6 @@ public class ConsentServiceBean implements ConsentService {
                         LOGGER.log(Level.SEVERE, "Unable to notify", e);
                     }
                 } else {
-                    //TODO use a default model
                     LOGGER.log(Level.SEVERE, "No notification model set but an notification recipient, Default MODEL NOT IMPLEMENTED YET");
                 }
             }
@@ -597,28 +595,7 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
-    @Override
-    public Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "Listing records for subject");
-        if (!authentication.isConnectedIdentifierOperator() && !subject.equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform records search");
-        }
-        RecordFilter filter = new RecordFilter();
-        filter.setOwner(config.owner());
-        filter.setStatus(Collections.singletonList(Record.Status.COMMITTED));
-        filter.setSubject(subject);
-        Stream<Record> records = Record.stream(filter.getQueryString(), filter.getQueryParams());
-        Map<String, List<Record>> result = records.collect(Collectors.groupingBy(record -> record.bodyKey));
-        result.forEach((key, value) -> {
-            Collections.sort(value);
-            statusFilterChain.apply(value);
-        });
-        return result;
-        //TODO We could create a subject based record cache avoiding checking all of that each request
-        //  cache will be invalidated :
-        //  - when a consent is submitted for the subject
-        //  - when a model is modified
-    }
+    /* SUBJECTS */
 
     @Override
     public List<String> findSubjects(String name) throws AccessDeniedException {
@@ -630,24 +607,45 @@ public class ConsentServiceBean implements ConsentService {
         return result.stream().map(s -> s.name).collect(Collectors.toList());
     }
 
+    /* RECORDS */
+
     @Override
-    public List<Record> systemFindRecordsForContext(ConsentContext ctx) {
+    public Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "Listing records for subject");
+        if (!authentication.isConnectedIdentifierOperator() && !subject.equals(authentication.getConnectedIdentifier())) {
+            throw new AccessDeniedException("You must be operator to perform records search");
+        }
+        RecordFilter filter = new RecordFilter();
+        filter.setOwner(config.owner());
+        filter.setState(Record.State.COMMITTED);
+        filter.setSubject(subject);
+        Stream<Record> records = Record.stream(filter.getQueryString(), filter.getQueryParams());
+        Map<String, List<Record>> result = records.collect(Collectors.groupingBy(record -> record.bodyKey));
+        result.forEach((key, value) -> recordStatusChain.apply(value));
+        return result;
+        //TODO We could create a subject based record cache avoiding checking all of that each request
+        //  cache will be invalidated :
+        //  - when a consent is submitted for the subject
+        //  - when a model is modified
+        //  Maybe it should be included in a PRO version
+    }
+
+    @Override
+    public Map<String, Record> systemListContextValidRecords(ConsentContext ctx) {
         LOGGER.log(Level.INFO, "Listing records");
         RecordFilter filter = new RecordFilter();
         filter.setOwner(config.owner());
         filter.setSubject(ctx.getSubject());
-        filter.setStatus(Collections.singletonList(Record.Status.COMMITTED));
+        filter.setState(Record.State.COMMITTED);
         if (ctx.getInfo() != null && !ctx.getInfo().isEmpty()) {
             filter.setInfos(ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), ctx.getInfo()));
         }
-
         filter.setElements(ctx.getElements().stream().flatMap(e -> ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), e).stream()).collect(Collectors.toList()));
-        List<Record> records = Record.find(filter.getQueryString(), filter.getQueryParams()).list();
-        List<Record> latest = new ArrayList<>();
-        for (String element : ctx.getElements()) {
-            records.stream().filter(record -> record.bodyKey.equals(element)).sorted(Collections.reverseOrder()).findFirst().ifPresent(latest::add);
-        }
-        return latest;
+        Stream<Record> allRecords = Record.stream(filter.getQueryString(), filter.getQueryParams());
+        Map<String, List<Record>> result = allRecords.collect(Collectors.groupingBy(record -> record.bodyKey));
+        result.forEach((key, value) -> recordStatusChain.apply(value));
+        return result.entrySet().stream().filter(entry -> entry.getValue().stream().anyMatch(record -> record.status.equals(Record.Status.VALID)))
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().stream().filter(record -> record.status.equals(Record.Status.VALID)).findFirst().get()));
     }
 
     /* RECEIPTS */
@@ -754,7 +752,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.value = value.getValue();
                     record.creationTimestamp = now.toEpochMilli();
                     record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
-                    record.status = Record.Status.COMMITTED;
+                    record.state = Record.State.COMMITTED;
                     record.collectionMethod = ctx.getCollectionMethod();
                     record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : config.owner();
                     record.comment = comment;

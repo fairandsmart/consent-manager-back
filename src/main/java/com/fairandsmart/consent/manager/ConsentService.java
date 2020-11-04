@@ -79,9 +79,11 @@ public interface ConsentService {
 
     /* Records */
 
-    List<Record> systemFindRecordsForContext(ConsentContext ctx) throws AccessDeniedException;
-
     Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException;
+
+    Map<String, Record> systemListContextValidRecords(ConsentContext ctx) throws AccessDeniedException;
+
+    /* Subjects */
 
     List<String> findSubjects(String subject) throws AccessDeniedException;
 

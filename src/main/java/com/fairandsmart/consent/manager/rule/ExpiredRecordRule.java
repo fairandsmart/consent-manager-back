@@ -8,11 +8,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RequestScoped
-public class ExpiredRecordInvalidationRule extends RecordStatusFilterRule {
+public class ExpiredRecordRule extends RecordStatusRule {
 
-    private static final Logger LOGGER = Logger.getLogger(ExpiredRecordInvalidationRule.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ExpiredRecordRule.class.getName());
 
-    public ExpiredRecordInvalidationRule() {
+    public ExpiredRecordRule() {
         LOGGER.log(Level.FINE, "Building new ExpiredRecordInvalidationRule");
     }
 
@@ -21,6 +21,7 @@ public class ExpiredRecordInvalidationRule extends RecordStatusFilterRule {
         LOGGER.log(Level.FINE, "searching records with expirationTimestamp before now");
         long now = System.currentTimeMillis();
         records.stream().filter(record ->
+            record.status.equals(Record.Status.UNKNOWN) &&
             record.expirationTimestamp < now
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as expired, " + record.id);

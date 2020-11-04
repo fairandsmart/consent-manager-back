@@ -2,8 +2,6 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 
-import java.util.Arrays;
-
 public class ConsentNotification {
 
     private String locale;

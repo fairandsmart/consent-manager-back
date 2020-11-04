@@ -287,7 +287,7 @@ public class ConsentServiceTest {
         String readToken = service.buildToken(readCtx);
 
         LOGGER.log(Level.INFO, "Reading consent records before submit");
-        List<Record> records = service.systemFindRecordsForContext(readCtx);
+        Map<String, Record> records = service.systemListContextValidRecords(readCtx);
         assertEquals(0, records.size());
 
         LOGGER.log(Level.INFO, "First consent form");
@@ -303,10 +303,12 @@ public class ConsentServiceTest {
         service.submitConsent(form.getToken(), values);
 
         LOGGER.log(Level.INFO, "Reading consent records after submit");
-        records = service.systemFindRecordsForContext(readCtx);
+        records = service.systemListContextValidRecords(readCtx);
         assertEquals(2, records.size());
-        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
-        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
+        assertTrue(records.containsKey(et1.key));
+        assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
+        assertTrue(records.containsKey(et2.key));
+        assertEquals(v1t2.serial, records.get(et2.key).bodySerial);
 
         LOGGER.log(Level.INFO, "Second consent form");
         form = service.generateForm(readToken);
@@ -319,10 +321,12 @@ public class ConsentServiceTest {
         service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.log(Level.INFO, "Reading consent records after new version MINOR (no effect)");
-        records = service.systemFindRecordsForContext(readCtx);
+        records = service.systemListContextValidRecords(readCtx);
         assertEquals(2, records.size());
-        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
-        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
+        assertTrue(records.containsKey(et1.key));
+        assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
+        assertTrue(records.containsKey(et2.key));
+        assertEquals(v1t2.serial, records.get(et2.key).bodySerial);
 
         LOGGER.log(Level.INFO, "Create new version of T2 (major version)");
         ModelVersion v3t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing("t2.3")));
@@ -330,10 +334,11 @@ public class ConsentServiceTest {
         service.updateVersionStatus(v3t2.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.log(Level.INFO, "Reading consent records after new version MAJOR (no more value for t2)");
-        records = service.systemFindRecordsForContext(readCtx);
+        records = service.systemListContextValidRecords(readCtx);
         assertEquals(1, records.size());
-        assertEquals(1, records.stream().filter(r -> r.bodySerial.equals(v1t1.serial)).count());
-        assertEquals(0, records.stream().filter(r -> r.bodySerial.equals(v1t2.serial)).count());
+        assertTrue(records.containsKey(et1.key));
+        assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
+        assertFalse(records.containsKey(et2.key));
     }
 
     @Test

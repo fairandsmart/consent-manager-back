@@ -13,9 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RequestScoped
-public class InactiveBasicInfoSerialInvalidationRule extends RecordStatusFilterRule {
+public class IrrelevantBasicInfoRule extends RecordStatusRule {
 
-    private static final Logger LOGGER = Logger.getLogger(InactiveBasicInfoSerialInvalidationRule.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(IrrelevantBasicInfoRule.class.getName());
 
     private Map<String, List<String>> activeSerialsCache = new HashMap<>();
 
@@ -26,7 +26,7 @@ public class InactiveBasicInfoSerialInvalidationRule extends RecordStatusFilterR
     public void apply(List<Record> records) {
         LOGGER.log(Level.FINE, "searching records with invalid basic info serial");
         records.stream().filter(record ->
-            record.status.equals(Record.Status.COMMITTED) && record.infoKey != null
+            record.status.equals(Record.Status.UNKNOWN) && record.infoKey != null
                 && !record.infoKey.isEmpty() && !getActiveSerial(record.infoKey).contains(record.infoSerial)
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);

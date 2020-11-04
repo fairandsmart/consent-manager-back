@@ -323,13 +323,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{apihost}}/keys/{{keyid}}",
+							"raw": "{{apihost}}/keys/cd55f05c-19a9-4a94-bd96-83c1482dc899",
 							"host": [
 								"{{apihost}}"
 							],
 							"path": [
 								"keys",
-								"{{keyid}}"
+								"cd55f05c-19a9-4a94-bd96-83c1482dc899"
 							],
 							"query": [
 								{
@@ -916,6 +916,128 @@
 									"value": null,
 									"disabled": true
 								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Receipt",
+			"item": [
+				{
+					"name": "[Receipt] get (xml)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/xml",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/receipts/{{receipt_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"receipts",
+								"{{receipt_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Receipt] get (html)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "text/html",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/receipts/{{receipt_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"receipts",
+								"{{receipt_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Receipt] get (txt)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/receipts/{{receipt_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"receipts",
+								"{{receipt_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Receipt] get (pdf)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/pdf",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/receipts/{{receipt_id}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"receipts",
+								"{{receipt_id}}"
 							]
 						}
 					},
