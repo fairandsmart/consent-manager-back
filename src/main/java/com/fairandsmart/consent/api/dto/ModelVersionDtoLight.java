@@ -33,6 +33,7 @@ package com.fairandsmart.consent.api.dto;
  * #L%
  */
 
+import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 
 import java.util.Arrays;
@@ -152,7 +153,7 @@ public class ModelVersionDtoLight {
         this.identifier = identifier;
     }
 
-    public static ModelVersionDtoLight fromModelVersion(ModelVersion version) {
+    public static ModelVersionDtoLight fromModelVersion(ModelVersion version) throws ModelDataSerializationException {
         ModelVersionDtoLight dto = new ModelVersionDtoLight();
         dto.setId(version.id);
         dto.setAuthor(version.author);
