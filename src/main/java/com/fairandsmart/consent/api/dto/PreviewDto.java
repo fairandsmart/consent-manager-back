@@ -38,19 +38,19 @@ import com.fairandsmart.consent.manager.entity.ModelData;
 
 public class PreviewDto {
 
-    private String locale;
+    private String language;
     private ConsentForm.Orientation orientation;
     private ModelData data;
 
     public PreviewDto() {
     }
 
-    public String getLocale() {
-        return locale;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public ConsentForm.Orientation getOrientation() {
@@ -72,7 +72,7 @@ public class PreviewDto {
     @Override
     public String toString() {
         return "PreviewDto{" +
-                "locale='" + locale + '\'' +
+                "language='" + language + '\'' +
                 ", orientation=" + orientation +
                 ", data=" + data +
                 '}';

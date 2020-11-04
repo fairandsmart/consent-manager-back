@@ -68,7 +68,7 @@ public class SubmitConsentListener {
         try {
             if (event.getData() != null) {
                 ConsentNotification notification = (ConsentNotification) event.getData();
-                TemplateModel<ConsentNotification> model = new TemplateModel<>("email.ftl", notification, LocaleUtils.toLocale(notification.getLocale()));
+                TemplateModel<ConsentNotification> model = new TemplateModel<>("email.ftl", notification, LocaleUtils.toLocale(notification.getLanguage()));
                 ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
                 model.setBundle(bundle);
 
@@ -76,8 +76,8 @@ public class SubmitConsentListener {
                 String body = template.render(model);
 
                 LOGGER.log(Level.FINE, "Sending message to: " + notification.getRecipient());
-                String subject = ((Email) notification.getModel().getData(notification.getLocale())).getSubject();
-                String sender = ((Email) notification.getModel().getData(notification.getLocale())).getSender();
+                String subject = ((Email) notification.getModel().getData(notification.getLanguage())).getSubject();
+                String sender = ((Email) notification.getModel().getData(notification.getLanguage())).getSender();
                 Mail mail = Mail.withHtml(notification.getRecipient(), subject, body).setFrom(sender);
                 if (notification.getReceiptName() != null) {
                     LOGGER.log(Level.FINE, "Adding receipt attachment to message");

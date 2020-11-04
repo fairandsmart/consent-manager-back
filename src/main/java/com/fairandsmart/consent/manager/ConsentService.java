@@ -74,7 +74,7 @@ public interface ConsentService {
 
     /* Versions */
 
-    ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
 
     ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException;
 
@@ -92,7 +92,7 @@ public interface ConsentService {
 
     List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException;
 
-    ModelVersion updateVersion(String versionId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion updateVersion(String versionId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
 
     ModelVersion updateVersionType(String versionId, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException;
 

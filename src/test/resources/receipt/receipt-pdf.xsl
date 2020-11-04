@@ -3,25 +3,25 @@
     <xsl:param name="bundle"  select="document('./bundle.xml')"/>
     <xsl:template name="translate">
         <xsl:param name="key"></xsl:param>
-        <xsl:param name="locale"></xsl:param>
+        <xsl:param name="language"></xsl:param>
         <xsl:choose>
             <xsl:when test="$bundle/labels/key[@name = $key]">
                 <xsl:choose>
-                    <xsl:when test="$bundle/labels/key[@name = $key]/value[@locale = $locale]">
-                        <xsl:value-of select="$bundle/labels/key[@name = $key]/value[@locale = $locale]"/>
+                    <xsl:when test="$bundle/labels/key[@name = $key]/value[@language = $language]">
+                        <xsl:value-of select="$bundle/labels/key[@name = $key]/value[@language = $language]"/>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:value-of select="$bundle/labels/key[@name = $key]/value[@locale = 'default']"/>
+                        <xsl:value-of select="$bundle/labels/key[@name = $key]/value[@language = 'default']"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:choose>
-                    <xsl:when test="$bundle/labels/key[@name = 'not-found']/value[@locale = $locale]">
-                        <xsl:value-of select="$bundle/labels/key[@name = 'not-found']/value[@locale = $locale]"/>
+                    <xsl:when test="$bundle/labels/key[@name = 'not-found']/value[@language = $language]">
+                        <xsl:value-of select="$bundle/labels/key[@name = 'not-found']/value[@language = $language]"/>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:value-of select="$bundle/labels/key[@name = 'not-found']/value[@locale = 'default']"/>
+                        <xsl:value-of select="$bundle/labels/key[@name = 'not-found']/value[@language = 'default']"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:otherwise>
@@ -29,7 +29,7 @@
     </xsl:template>
     <xsl:template match="/receipt">
         <xsl:attribute name="lang">
-            <xsl:value-of select="locale/language"/>
+            <xsl:value-of select="language"/>
         </xsl:attribute>
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <fo:layout-master-set>
@@ -43,13 +43,13 @@
                     <fo:block>
                         <xsl:call-template name="translate">
                             <xsl:with-param name="key">title</xsl:with-param>
-                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            <xsl:with-param name="language"><xsl:value-of select="language"/></xsl:with-param>
                         </xsl:call-template>
                     </fo:block>
                     <fo:block>
                        <xsl:call-template name="translate">
                             <xsl:with-param name="key">date</xsl:with-param>
-                            <xsl:with-param name="locale"><xsl:value-of select="locale"/></xsl:with-param>
+                            <xsl:with-param name="language"><xsl:value-of select="language"/></xsl:with-param>
                         </xsl:call-template>
                         <xsl:text>: </xsl:text>
                     </fo:block>

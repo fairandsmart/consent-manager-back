@@ -58,7 +58,7 @@ public class ReceiptTemplateModelBuilder implements TemplateModelBuilder {
     public TemplateModel<Receipt> build(Object data) {
         Receipt receipt = (Receipt) data;
         TemplateModel<Receipt> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(receipt.getLocale()));
+        model.setLocale(LocaleUtils.toLocale(receipt.getLanguage()));
         ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
         model.setBundle(bundle);
         if (!StringUtils.isEmpty(receipt.getTransaction())) {

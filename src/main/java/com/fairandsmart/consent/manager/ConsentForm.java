@@ -45,7 +45,7 @@ public class ConsentForm {
     private String token;
     private ModelVersion info;
     private List<ModelVersion> elements;
-    private String locale;
+    private String language;
     private Orientation orientation;
     private Map<String, String> previousValues;
     private boolean preview = false;
@@ -85,12 +85,12 @@ public class ConsentForm {
         this.elements.add(element);
     }
 
-    public String getLocale() {
-        return locale;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public Orientation getOrientation() {
@@ -143,7 +143,7 @@ public class ConsentForm {
                 "token='" + token + '\'' +
                 ", info=" + info +
                 ", elements=" + elements +
-                ", locale='" + locale + '\'' +
+                ", language='" + language + '\'' +
                 ", orientation=" + orientation +
                 ", preview=" + preview +
                 ", theme=" + theme +
