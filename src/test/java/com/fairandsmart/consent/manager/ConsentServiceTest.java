@@ -149,21 +149,21 @@ public class ConsentServiceTest {
         List<ModelVersion> versions = service.getVersionHistoryForEntry(entryId);
         assertEquals(0, versions.size());
 
-        String locale = "fr_FR";
+        String language = "fr";
         LOGGER.info("Create Header " + key);
         BasicInfo header = TestUtils.generateBasicInfo(key);
-        String versionId = service.createVersion(entryId, locale, Collections.singletonMap(locale, header)).id;
+        String versionId = service.createVersion(entryId, language, Collections.singletonMap(language, header)).id;
 
         LOGGER.info("List versions");
         versions = service.getVersionHistoryForEntry(entryId);
         assertEquals(1, versions.size());
-        assertEquals(locale, versions.get(0).availableLocales);
-        assertEquals(locale, versions.get(0).defaultLocale);
+        assertEquals(language, versions.get(0).availableLanguages);
+        assertEquals(language, versions.get(0).defaultLanguage);
         assertEquals(ModelVersion.Status.DRAFT, versions.get(0).status);
         assertEquals("sheldon", versions.get(0).author);
         assertNotNull(versions.get(0).serial);
-        assertEquals("sheldon", versions.get(0).content.get(locale).author);
-        BasicInfo data = (BasicInfo) versions.get(0).getData(locale);
+        assertEquals("sheldon", versions.get(0).content.get(language).author);
+        BasicInfo data = (BasicInfo) versions.get(0).getData(language);
         assertEquals(header, data);
 
         ModelVersion version = service.findVersionForSerial(versions.get(0).serial);
@@ -197,10 +197,10 @@ public class ConsentServiceTest {
         List<ModelVersion> versions = service.getVersionHistoryForEntry(entryId);
         assertEquals(0, versions.size());
 
-        String locale = "fr_FR";
+        String language = "fr";
         LOGGER.info("Create Header " + key + " version 1");
         BasicInfo header = TestUtils.generateBasicInfo(key);
-        String versionId = service.createVersion(entryId, locale, Collections.singletonMap(locale, header)).id;
+        String versionId = service.createVersion(entryId, language, Collections.singletonMap(language, header)).id;
 
         LOGGER.info("List versions");
         versions = service.getVersionHistoryForEntry(entryId);
@@ -221,7 +221,7 @@ public class ConsentServiceTest {
 
         LOGGER.info("Create Header " + key + " version 2");
         BasicInfo header2 = TestUtils.generateBasicInfo(key);
-        String version2Id = service.createVersion(entryId, locale, Collections.singletonMap(locale, header2)).id;
+        String version2Id = service.createVersion(entryId, language, Collections.singletonMap(language, header2)).id;
 
         LOGGER.info("List versions");
         versions = service.getVersionHistoryForEntry(entryId);
@@ -256,7 +256,7 @@ public class ConsentServiceTest {
         assertEquals(versions.get(1), version);
         assertEquals(ModelVersion.Status.ACTIVE, version.status);
 
-        String version3Id = service.createVersion(entryId, locale, Collections.singletonMap(locale, header)).id;
+        String version3Id = service.createVersion(entryId, language, Collections.singletonMap(language, header)).id;
 
         LOGGER.info("List versions");
         versions = service.getVersionHistoryForEntry(entryId);
@@ -287,27 +287,25 @@ public class ConsentServiceTest {
         types.add(Processing.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
-        String locale = "fr_FR";
+        String language = "fr";
         String biKey = UUID.randomUUID().toString();
         ModelEntry ebi1 = service.createEntry(biKey, "Name " + biKey, "Description " + biKey, BasicInfo.TYPE);
         assertNotNull(ebi1);
-        ModelVersion v1bi1 = service.createVersion(ebi1.id, locale, Collections.singletonMap(locale, TestUtils.generateBasicInfo(biKey)));
+        ModelVersion v1bi1 = service.createVersion(ebi1.id, language, Collections.singletonMap(language, TestUtils.generateBasicInfo(biKey)));
         service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
         String t1Key = UUID.randomUUID().toString();
         ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
         assertNotNull(et1);
-        ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing(t1Key)));
+        ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key)));
         service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
         String t2Key = UUID.randomUUID().toString();
         ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
         assertNotNull(et2);
-        ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing(t2Key)));
+        ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
         String fKey = UUID.randomUUID().toString();
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         assertEquals(entriesCount + 3, entries.getTotalCount());
-
-
 
         LOGGER.log(Level.INFO, "Creating READ context and token");
         ConsentContext readCtx = new ConsentContext()
@@ -315,7 +313,7 @@ public class ConsentServiceTest {
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setLocale(locale)
+                .setLanguage(language)
                 .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
         String readToken = service.buildToken(readCtx);
 
@@ -349,7 +347,7 @@ public class ConsentServiceTest {
         assertEquals(2, form.getPreviousValues().size());
 
         LOGGER.log(Level.INFO, "Create new version of T2 (minor version)");
-        ModelVersion v2t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing("t2.2")));
+        ModelVersion v2t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing("t2.2")));
         service.updateVersionType(v2t2.id, ModelVersion.Type.MINOR);
         service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
 
@@ -362,7 +360,7 @@ public class ConsentServiceTest {
         assertEquals(v1t2.serial, records.get(et2.key).bodySerial);
 
         LOGGER.log(Level.INFO, "Create new version of T2 (major version)");
-        ModelVersion v3t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing("t2.3")));
+        ModelVersion v3t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing("t2.3")));
         service.updateVersionType(v3t2.id, ModelVersion.Type.MAJOR);
         service.updateVersionStatus(v3t2.id, ModelVersion.Status.ACTIVE);
 
@@ -384,21 +382,21 @@ public class ConsentServiceTest {
         types.add(Processing.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
-        String locale = "fr_FR";
+        String language = "fr";
         String biKey = UUID.randomUUID().toString();
         ModelEntry ebi1 = service.createEntry(biKey, "Name " + biKey, "Description " + biKey, BasicInfo.TYPE);
         assertNotNull(ebi1);
-        ModelVersion v1bi1 = service.createVersion(ebi1.id, locale, Collections.singletonMap(locale, TestUtils.generateBasicInfo(biKey)));
+        ModelVersion v1bi1 = service.createVersion(ebi1.id, language, Collections.singletonMap(language, TestUtils.generateBasicInfo(biKey)));
         service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
         String t1Key = UUID.randomUUID().toString();
         ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
         assertNotNull(et1);
-        ModelVersion v1t1 = service.createVersion(et1.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing(t1Key)));
+        ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key)));
         service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
         String t2Key = UUID.randomUUID().toString();
         ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
         assertNotNull(et2);
-        ModelVersion v1t2 = service.createVersion(et2.id, locale, Collections.singletonMap(locale, TestUtils.generateProcessing(t2Key)));
+        ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
         String fKey = UUID.randomUUID().toString();
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
@@ -410,7 +408,7 @@ public class ConsentServiceTest {
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setLocale(locale)
+                .setLanguage(language)
                 .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
         String token = service.buildToken(ctx);
         ConsentForm form = service.generateForm(token);
@@ -426,7 +424,7 @@ public class ConsentServiceTest {
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setLocale(locale)
+                .setLanguage(language)
                 .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
         token = service.buildToken(ctx);
         form = service.generateForm(token);
@@ -442,7 +440,7 @@ public class ConsentServiceTest {
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setLocale(locale)
+                .setLanguage(language)
                 .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
         token = service.buildToken(ctx);
         form = service.generateForm(token);

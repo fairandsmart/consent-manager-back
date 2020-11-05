@@ -61,32 +61,32 @@ public class TestUtils {
         return dto;
     }
 
-    public static ModelVersionDto generateModelVersionDto(String key, String type, String locale) {
+    public static ModelVersionDto generateModelVersionDto(String key, String type, String language) {
         ModelVersionDto dto = new ModelVersionDto();
-        dto.setDefaultLocale(locale);
+        dto.setDefaultLanguage(language);
 
         switch (type) {
             case BasicInfo.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateBasicInfo(key)));
+                dto.setData(Collections.singletonMap(language, generateBasicInfo(key)));
                 break;
             case Processing.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateProcessing(key)));
+                dto.setData(Collections.singletonMap(language, generateProcessing(key)));
                 break;
             case Conditions.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateConditions(key)));
+                dto.setData(Collections.singletonMap(language, generateConditions(key)));
                 break;
             case Email.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateEmail(key)));
+                dto.setData(Collections.singletonMap(language, generateEmail(key)));
                 break;
             case Theme.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateTheme(key)));
+                dto.setData(Collections.singletonMap(language, generateTheme(key)));
                 break;
         }
 
         return dto;
     }
 
-    public static Map<String, ModelData> generateModelData(String key, String type, String locale) {
+    public static Map<String, ModelData> generateModelData(String key, String type, String language) {
         ModelData modelData = null;
 
         switch (type) {
@@ -108,7 +108,7 @@ public class TestUtils {
         }
 
         Map<String, ModelData> map = new HashMap<>();
-        map.put(locale, modelData);
+        map.put(language, modelData);
         return map;
     }
 

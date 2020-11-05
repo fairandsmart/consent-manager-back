@@ -48,8 +48,9 @@
             </div>
 
             <div class="privacy-policy-link-wrapper">
-                <a class="privacy-policy-link" href=""
-                   style="pointer-events: none;"><@readBundle "privacyPolicyButton" "missingValue"></@readBundle></a>
+                <a class="privacy-policy-link" href="" style="pointer-events: none;">
+                    <@readBundle "privacyPolicyButton" "missingValue"></@readBundle>
+                </a>
             </div>
         </div>
     </div>

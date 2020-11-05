@@ -19,7 +19,7 @@
         </#if>
     <#else>
         <div class="footer-body">
-            <p><@writeError "missingLocale"></@writeError></p>
+            <p><@writeError "missingLanguage"></@writeError></p>
         </div>
     </#if>
 

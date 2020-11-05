@@ -19,6 +19,6 @@
     </div>
 <#else>
     <div>
-        <p><@writeError "missingLocale"></@writeError></p>
+        <p><@writeError "missingLanguage"></@writeError></p>
     </div>
 </#if>

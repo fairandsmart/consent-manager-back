@@ -58,6 +58,6 @@
     </div>
 <#else>
     <div class="header">
-        <p><@writeError "missingLocale"></@writeError></p>
+        <p><@writeError "missingLanguage"></@writeError></p>
     </div>
 </#if>

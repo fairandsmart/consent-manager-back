@@ -57,7 +57,7 @@ public class ConsentFormTemplateModelBuilder implements TemplateModelBuilder {
     public TemplateModel build(Object data) {
         ConsentForm form = (ConsentForm) data;
         TemplateModel<ConsentForm> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(form.getLocale()));
+        model.setLocale(LocaleUtils.toLocale(form.getLanguage()));
         ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
         model.setBundle(bundle);
         model.setData(form);

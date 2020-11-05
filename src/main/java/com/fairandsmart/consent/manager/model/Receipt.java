@@ -60,7 +60,7 @@ public class Receipt {
 
     private String transaction;
     private String jurisdiction;
-    private String locale;
+    private String language;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
     private ZonedDateTime date;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
@@ -206,12 +206,12 @@ public class Receipt {
         this.attachments = attachments;
     }
 
-    public String getLocale() {
-        return locale;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public ConsentContext.CollectionMethod getCollectionMethod() {
@@ -266,7 +266,7 @@ public class Receipt {
     public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, Map<Processing, Record> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
-        receipt.setLocale(ctx.getLocale());
+        receipt.setLanguage(ctx.getLanguage());
         receipt.setDate(date);
         receipt.setExpirationDate(date.plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS));
         receipt.setProcessor(processor);

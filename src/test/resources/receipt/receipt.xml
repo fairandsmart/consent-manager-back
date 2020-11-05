@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="receipt-html.xsl" ?>
 <receipt>
     <transaction>9c770bb1-3d5a-4d96-83ed-d358fd0a2a4c</transaction>
-    <locale>fr_FR</locale>
+    <language>fr</language>
     <date>2020-08-20T13:11:00.005929Z[UTC]</date>
     <expirationDate>2022-08-20T13:11:00.005929Z[UTC]</expirationDate>
     <processor>https://www.fairandsmart.com</processor>
