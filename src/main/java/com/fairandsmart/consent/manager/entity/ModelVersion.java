@@ -64,8 +64,8 @@ public class ModelVersion extends PanacheEntityBase {
     public String branches;
     public String author;
     public String owner;
-    public String defaultLocale;
-    public String availableLocales = "";
+    public String defaultLanguage;
+    public String availableLanguages = "";
     @Enumerated(EnumType.STRING)
     public Status status;
     @Enumerated(EnumType.STRING)
@@ -77,11 +77,11 @@ public class ModelVersion extends PanacheEntityBase {
     @ElementCollection(fetch = FetchType.LAZY)
     public Map<String, ModelContent> content = new HashMap<>();
 
-    public ModelData getData(String locale) throws ModelDataSerializationException {
-        if (content.containsKey(locale)) {
-            return content.get(locale).getDataObject();
+    public ModelData getData(String language) throws ModelDataSerializationException {
+        if (content.containsKey(language)) {
+            return content.get(language).getDataObject();
         } else {
-            return content.get(defaultLocale).getDataObject();
+            return content.get(defaultLanguage).getDataObject();
         }
     }
 
@@ -119,8 +119,8 @@ public class ModelVersion extends PanacheEntityBase {
         return serials;
     }
 
-    public boolean hasLocale(String locale) {
-        return content.containsKey(locale);
+    public boolean hasLanguage(String language) {
+        return content.containsKey(language);
     }
 
     public enum Type {
@@ -146,8 +146,8 @@ public class ModelVersion extends PanacheEntityBase {
                 ", branches='" + branches + '\'' +
                 ", author='" + author + '\'' +
                 ", owner='" + owner + '\'' +
-                ", defaultLocale='" + defaultLocale + '\'' +
-                ", availableLocales='" + availableLocales + '\'' +
+                ", defaultLanguage='" + defaultLanguage + '\'' +
+                ", availableLanguages='" + availableLanguages + '\'' +
                 ", status=" + status +
                 ", type=" + type +
                 ", counterparts='" + counterparts + '\'' +

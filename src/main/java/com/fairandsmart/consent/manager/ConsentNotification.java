@@ -37,7 +37,7 @@ import com.fairandsmart.consent.manager.entity.ModelVersion;
 
 public class ConsentNotification {
 
-    private String locale;
+    private String language;
     private String token;
     private String recipient;
     private String url;
@@ -51,12 +51,12 @@ public class ConsentNotification {
     public ConsentNotification() {
     }
 
-    public String getLocale() {
-        return locale;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getToken() {
@@ -134,7 +134,7 @@ public class ConsentNotification {
     @Override
     public String toString() {
         return "ConsentNotification{" +
-                "locale='" + locale + '\'' +
+                "language='" + language + '\'' +
                 ", token='" + token + '\'' +
                 ", recipient='" + recipient + '\'' +
                 ", url='" + url + '\'' +

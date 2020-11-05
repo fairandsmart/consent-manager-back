@@ -39,12 +39,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
 
-public class ConsentContext implements Tokenizable {
+public class ConsentContext implements Tokenizable, Cloneable {
 
     private static final String DEFAULT_VALIDITY = "P6M";
     private static final FormType DEFAULT_FORM_TYPE = FormType.FULL;
@@ -62,7 +61,7 @@ public class ConsentContext implements Tokenizable {
     @NotEmpty
     private List<String> elements;
     private String callback;
-    private String locale;
+    private String language;
     private String validity;
     private FormType formType;
     private ReceiptDeliveryType receiptDeliveryType;
@@ -76,6 +75,7 @@ public class ConsentContext implements Tokenizable {
     private boolean preview = false;
     private boolean iframe = false;
     private String theme;
+    private String receiptId;
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
@@ -145,15 +145,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getLocale() {
-        if (StringUtils.isEmpty(locale)) {
+    public String getLanguage() {
+        if (StringUtils.isEmpty(language)) {
             return Locale.getDefault().toLanguageTag();
         }
-        return locale;
+        return language;
     }
 
-    public ConsentContext setLocale(String locale) {
-        this.locale = locale;
+    public ConsentContext setLanguage(String language) {
+        this.language = language;
         return this;
     }
 
@@ -287,6 +287,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public String getReceiptId() {
+        return receiptId;
+    }
+
+    public ConsentContext setReceiptId(String receiptId) {
+        this.receiptId = receiptId;
+        return this;
+    }
+
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
@@ -296,8 +305,8 @@ public class ConsentContext implements Tokenizable {
         if (elements != null && !elements.isEmpty()) {
             claims.put("elements", this.getElementsString());
         }
-        if (locale != null) {
-            claims.put("locale", this.getLocale());
+        if (language != null) {
+            claims.put("language", this.getLanguage());
         }
         if (validity != null) {
             claims.put("validity", this.getValidity());
@@ -352,8 +361,8 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("elements")) {
             this.setElementsString(claims.get("elements"));
         }
-        if (claims.containsKey("locale")) {
-            this.setLocale(claims.get("locale"));
+        if (claims.containsKey("language")) {
+            this.setLanguage(claims.get("language"));
         }
         if (claims.containsKey("validity")) {
             this.setValidity(claims.get("validity"));
@@ -462,7 +471,8 @@ public class ConsentContext implements Tokenizable {
      */
     public enum CollectionMethod {
         WEBFORM,
-        OPERATOR
+        OPERATOR,
+        EMAIL
     }
 
     @Override
@@ -474,7 +484,7 @@ public class ConsentContext implements Tokenizable {
                 ", elements=" + elements +
                 ", callback='" + callback + '\'' +
                 ", validity='" + validity + '\'' +
-                ", locale='" + locale + '\'' +
+                ", language='" + language + '\'' +
                 ", formType=" + formType +
                 ", receiptDeliveryType=" + receiptDeliveryType +
                 ", receiptDisplayType=" + receiptDisplayType +
@@ -488,5 +498,10 @@ public class ConsentContext implements Tokenizable {
                 ", iframe=" + iframe +
                 ", theme='" + theme + '\'' +
                 '}';
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

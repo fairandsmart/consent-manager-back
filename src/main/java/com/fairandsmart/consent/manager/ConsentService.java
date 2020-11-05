@@ -48,11 +48,14 @@ import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
+import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenServiceException;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +77,7 @@ public interface ConsentService {
 
     /* Versions */
 
-    ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
 
     ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException;
 
@@ -92,7 +95,7 @@ public interface ConsentService {
 
     List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException;
 
-    ModelVersion updateVersion(String versionId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion updateVersion(String versionId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
 
     ModelVersion updateVersionType(String versionId, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException;
 
@@ -125,4 +128,6 @@ public interface ConsentService {
     Receipt getReceipt(String token, String id) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException;
 
     byte[] renderReceipt(String token, String id, String format) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException;
+
+    byte[] systemRenderReceipt(String id, String format) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, IOException, JAXBException, RenderingException;
 }

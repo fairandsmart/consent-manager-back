@@ -47,13 +47,10 @@ import com.fairandsmart.consent.manager.cache.PreviewCache;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.model.BasicInfo;
-import com.fairandsmart.consent.manager.model.Conditions;
-import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.manager.render.ReceiptRenderer;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
-import com.fairandsmart.consent.manager.model.Processing;
 import com.fairandsmart.consent.manager.rule.BasicRecordStatusRuleChain;
 import com.fairandsmart.consent.manager.store.LocalReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
@@ -227,7 +224,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion createVersion(String entryId, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Creating new version for entry with id: " + entryId);
         authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
@@ -277,11 +274,11 @@ public class ConsentServiceBean implements ConsentService {
             for (Map.Entry<String, ModelData> e : data.entrySet()) {
                 latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
             }
-            latest.availableLocales = String.join(",", data.keySet());
-            if (latest.content.containsKey(defaultLocale)) {
-                latest.defaultLocale = defaultLocale;
+            latest.availableLanguages = String.join(",", data.keySet());
+            if (latest.content.containsKey(defaultLanguage)) {
+                latest.defaultLanguage = defaultLanguage;
             } else {
-                throw new ConsentManagerException("Default Locale does not exists in content locales");
+                throw new ConsentManagerException("Default language does not exist in content languages");
             }
             latest.modificationDate = now;
             latest.persist();
@@ -360,7 +357,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion updateVersion(String id, String defaultLocale, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion updateVersion(String id, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating content for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
@@ -377,11 +374,11 @@ public class ConsentServiceBean implements ConsentService {
             for (Map.Entry<String, ModelData> entry : data.entrySet()) {
                 version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
             }
-            version.availableLocales = String.join(",", data.keySet());
-            if (version.content.containsKey(defaultLocale)) {
-                version.defaultLocale = defaultLocale;
+            version.availableLanguages = String.join(",", data.keySet());
+            if (version.content.containsKey(defaultLanguage)) {
+                version.defaultLanguage = defaultLanguage;
             } else {
-                throw new ConsentManagerException("Default Locale does not exists in content locales");
+                throw new ConsentManagerException("Default language does not exist in content languages");
             }
             version.modificationDate = System.currentTimeMillis();
             version.persist();
@@ -472,10 +469,10 @@ public class ConsentServiceBean implements ConsentService {
             }
         }
         if (dto.getData() != null) {
-            version.content.put(dto.getLocale(), new ModelContent().withDataObject(dto.getData()));
+            version.content.put(dto.getLanguage(), new ModelContent().withDataObject(dto.getData()));
             previewCache.put(entryId, version);
         } else {
-            dto.setData(version.content.get(dto.getLocale()).getDataObject());
+            dto.setData(version.content.get(dto.getLanguage()).getDataObject());
         }
         return dto;
     }
@@ -524,7 +521,7 @@ public class ConsentServiceBean implements ConsentService {
             }
 
             ConsentForm form = new ConsentForm();
-            form.setLocale(ctx.getLocale());
+            form.setLanguage(ctx.getLanguage());
             form.setOrientation(ctx.getOrientation());
             form.setPreview(ctx.isPreview());
 
@@ -588,40 +585,23 @@ public class ConsentServiceBean implements ConsentService {
             // (aka form is generated before a MAJOR RELEASE and submit after)
             // Maybe use a global referential hash that would be injected in token and which could be stored as a whole database integrity check
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
-            String txid = this.saveConsent(ctx, valuesMap);
+            String receiptId = this.saveConsent(ctx, valuesMap);
+            ctx.setReceiptId(receiptId);
 
-            if (!StringUtils.isEmpty(ctx.getNotificationRecipient())) {
-                Event<ConsentNotification> event = new Event().withType(Event.CONSENT_NOTIFICATION).withAuthor(connectedIdentifier);
-                if (!StringUtils.isEmpty(ctx.getNotificationModel())) {
-                    try {
-                        ConsentNotification notification = new ConsentNotification();
-                        notification.setLocale(ctx.getLocale());
-                        notification.setRecipient(ctx.getNotificationRecipient());
-                        ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getSerial(), true);
-                        notification.setModel(notificationModel);
-                        if (!StringUtils.isEmpty(ctx.getTheme())) {
-                            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
-                            notification.setTheme(theme);
-                        }
-                        ctx.setNotificationRecipient("");
-                        ctx.setNotificationModel("");
-                        notification.setToken(this.tokenService.generateToken(ctx));
-                        URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
-                        notification.setUrl(notificationUri.toString());
-                        if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD)) {
-                            notification.setReceiptName("receipt.pdf");
-                            notification.setReceiptType("application/pdf");
-                            notification.setReceipt(this.systemRenderReceipt(txid, "application/pdf"));
-                        }
-                        this.notification.notify(event.withData(notification));
-                    } catch (EntityNotFoundException | IllegalIdentifierException | ReceiptRendererNotFoundException | ReceiptStoreException | ReceiptNotFoundException | IOException | JAXBException | RenderingException e) {
-                        LOGGER.log(Level.SEVERE, "Unable to notify", e);
-                    }
-                } else {
-                    LOGGER.log(Level.SEVERE, "No notification model set but an notification recipient, Default MODEL NOT IMPLEMENTED YET");
+            Event event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx).withArg("receipt", receiptId);
+            this.notification.notify(event);
+
+            if (!StringUtils.isEmpty(ctx.getNotificationRecipient()) && !StringUtils.isEmpty(ctx.getNotificationModel())) {
+                try {
+                    ConsentNotification notification = this.buildConsentNotification(ctx);
+                    Event notifyEvent = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_NOTIFY).withData(notification);
+                    this.notification.notify(notifyEvent);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Error while notifying consent submission", e);
                 }
             }
-            return new ConsentTransaction(txid);
+
+            return new ConsentTransaction(receiptId);
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -715,16 +695,45 @@ public class ConsentServiceBean implements ConsentService {
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
     }
 
-    /* INTERNAL */
-
-    public byte[] systemRenderReceipt(String id, String format) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, IOException, JAXBException, RenderingException {
+    @Override
+    public byte[] systemRenderReceipt(String id, String format) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, RenderingException {
         LOGGER.log(Level.INFO, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format);
-        Receipt receipt = Receipt.build(IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name()));
-        Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
-        if (renderer.isPresent()) {
-            return renderer.get().render(receipt);
+        try {
+            Receipt receipt = Receipt.build(IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name()));
+            Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
+            if (renderer.isPresent()) {
+                return renderer.get().render(receipt);
+
+            }
+        } catch (IOException | JAXBException e ) {
+            throw new RenderingException("unable to render receipt", e);
         }
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
+    }
+
+    /* INTERNAL */
+
+    private ConsentNotification buildConsentNotification(ConsentContext ctx) throws ReceiptStoreException, RenderingException, ReceiptNotFoundException, ReceiptRendererNotFoundException, IllegalIdentifierException, EntityNotFoundException {
+        ConsentNotification notification = new ConsentNotification();
+        notification.setLanguage(ctx.getLanguage());
+        notification.setRecipient(ctx.getNotificationRecipient());
+        ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getSerial(), true);
+        notification.setModel(notificationModel);
+        if (!StringUtils.isEmpty(ctx.getTheme())) {
+            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
+            notification.setTheme(theme);
+        }
+        ctx.setCollectionMethod(ConsentContext.CollectionMethod.EMAIL);
+        notification.setToken(this.tokenService.generateToken(ctx));
+        URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
+        notification.setUrl(notificationUri.toString());
+        if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD) && StringUtils.isNotEmpty(ctx.getReceiptId())) {
+            notification.setReceiptName("receipt.pdf");
+            notification.setReceiptType("application/pdf");
+            notification.setReceipt(this.systemRenderReceipt(ctx.getReceiptId(), "application/pdf"));
+        }
+
+        return notification;
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
@@ -800,24 +809,23 @@ public class ConsentServiceBean implements ConsentService {
             Receipt receipt;
             if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
                 receipt = new Receipt();
-                receipt.setLocale(ctx.getLocale());
+                receipt.setLanguage(ctx.getLanguage());
             } else {
                 BasicInfo info = null;
                 if (infoId != null) {
-                    info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLocale());
+                    info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLanguage());
                     ctx.setInfo(infoId.getKey());
                 }
                 Map<Processing, Record> trecords = new HashMap<>();
                 records.stream().filter(r -> r.type.equals(Processing.TYPE)).forEach(r -> {
                     try {
-                        Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLocale());
+                        Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLanguage());
                         trecords.put(t, r);
                     } catch (EntityNotFoundException | ModelDataSerializationException e) {
                         //
                     }
                 });
                 receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
-                ctx.setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
                 String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
                 try {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="${locale}">
+<html lang="${language}">
 <head>
     <#include "macros/lang-macros.ftl">
     <title><@readBundle "receiptPageTitle" "missingValue"></@readBundle></title>
@@ -12,9 +12,9 @@
 <div class="receipt-date spaced"><@readBundle "created"></@readBundle>: ${data.date}</div>
 <div class="receipt-date spaced"><@readBundle "expires"></@readBundle>: ${data.expirationDate}</div>
 
-<#assign localeLanguageBundleKey="language_" + data.locale>
+<#assign languageBundleKey="language_" + locale>
 <div>
-    <span class="receipt-label"><@readBundle "language"></@readBundle>: </span><@readBundle localeLanguageBundleKey "unknown language key"></@readBundle>
+    <span class="receipt-label"><@readBundle "language"></@readBundle>: </span><@readBundle languageBundleKey "unknown language key"></@readBundle>
 </div>
 <div class="spaced"><span class="receipt-label"><@readBundle "receipt_id"></@readBundle>: </span>#${data.transaction}
 </div>

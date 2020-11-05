@@ -39,6 +39,7 @@ import com.fairandsmart.consent.template.TemplateModelBuilder;
 import org.apache.commons.lang3.LocaleUtils;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,8 +58,8 @@ public class ModelPreviewTemplateModelBuilder implements TemplateModelBuilder {
     public TemplateModel build(Object data) {
         PreviewDto dto = (PreviewDto) data;
         TemplateModel<PreviewDto> template = new TemplateModel<>();
-        template.setLocale(LocaleUtils.toLocale(dto.getLocale()));
-        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", template.getLocale());
+        template.setLanguage(dto.getLanguage());
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(template.getLanguage()));
         template.setBundle(bundle);
         template.setData(dto);
         template.setTemplate("preview/version.ftl");

@@ -393,7 +393,7 @@
                     <licenseName>gpl_v3</licenseName>
                     <encoding>UTF-8</encoding>
                     <includes>
-                        <include>**/*.java</include>
+                        <include>com/fairandsmart/consent/**/*.java</include>
                     </includes>
                     <descriptionTemplate>${basedir}/src/etc/header.ftl</descriptionTemplate>
                     <offline>true</offline>

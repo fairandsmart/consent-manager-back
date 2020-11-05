@@ -1,3 +1,4 @@
+
 <#if info?is_hash>
     <div class="header">
         <h2 class="header-title"><@valueOrError info.title "missingValue"></@valueOrError></h2>
@@ -58,6 +59,6 @@
     </div>
 <#else>
     <div class="header">
-        <p><@writeError "missingLocale"></@writeError></p>
+        <p><@writeError "missingLanguage"></@writeError></p>
     </div>
 </#if>
