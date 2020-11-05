@@ -196,7 +196,7 @@ public class CollectWithEmailTest {
         html = Jsoup.parse(received);
         Optional<Element> notificationLink = html.select("a[href]").stream().filter(l -> l.id().equals("form-url")).findFirst();
         if (notificationLink.isPresent()) {
-            response = given().when().get(notificationLink.get().attr("abs:href"));
+            response = given().accept(ContentType.HTML).when().get(notificationLink.get().attr("abs:href"));
             response.then().contentType("text/html").assertThat().statusCode(200);
         } else {
             fail("notificationLink link not found");
