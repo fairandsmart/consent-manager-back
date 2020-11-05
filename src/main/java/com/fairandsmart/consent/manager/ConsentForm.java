@@ -145,6 +145,7 @@ public class ConsentForm {
                 ", elements=" + elements +
                 ", language='" + language + '\'' +
                 ", orientation=" + orientation +
+                ", previousValues=" + previousValues +
                 ", preview=" + preview +
                 ", theme=" + theme +
                 ", notificationEmail=" + notificationEmail +

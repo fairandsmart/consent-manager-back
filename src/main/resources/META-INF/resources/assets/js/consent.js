@@ -1,18 +1,18 @@
-/* Gestion du bouton "Tout accepter" */
+/* Handling button "Accept all" */
 const acceptAll = document.getElementById("accept-all-switch");
 const hasAcceptAll = acceptAll != null;
 if (hasAcceptAll) {
     acceptAll.addEventListener("change", (e) => {
         const switches = document.getElementsByClassName("switch");
-        if (e.target.checked) { /* Tout sélectionner */
-            for (let i = 0; i < switches.length - 1; i++) { // Le dernier élément est forcément le bouton "Tout accepter"
+        if (e.target.checked) { /* Check all */
+            for (let i = 0; i < switches.length - 1; i++) { // Last element is button "Accept all"
                 const key = switches[i].children[0].id; // Checkbox input id
                 document.getElementById(key).checked = true; // Check input
                 document.getElementById(key + "-accepted").selected = true; // Select option "accepted"
                 document.getElementById(key + "-refused").selected = false; // Deselect option "refused"
             }
-        } else { /* Tout désélectionner */
-            for (let j = 0; j < switches.length - 1; j++) { // Le dernier élément est forcément le bouton "Tout accepter"
+        } else { /* Uncheck all */
+            for (let j = 0; j < switches.length - 1; j++) { // Last element is button "Accept all"
                 const key = switches[j].children[0].id; // Checkbox input id
                 document.getElementById(key).checked = false; // Uncheck input
                 document.getElementById(key + "-accepted").selected = false; // Deselect option "accepted"
@@ -22,13 +22,32 @@ if (hasAcceptAll) {
     });
 }
 
-/* Gestion des select cachés au niveau des toggle switches
-/!\ Ne fonctionne que pour les clics de la souris, PAS pour les changements d'état en pur JS /!\ */
+/* Checking "Accept all" if all the toggle switches are checked */
+function checkAcceptAll() {
+    const switches = document.getElementsByClassName("switch");
+    let allChecked = true;
+    let i = 0;
+    let key;
+    while (allChecked && i < switches.length) {
+        key = switches[i].children[0].id; // Checkbox input id
+        if (key !== "accept-all") {
+            allChecked = document.getElementById(key + "-accepted").selected;
+        }
+        i++;
+    }
+    if (allChecked) {
+        document.getElementById("accept-all").checked = true; // Check input
+        document.getElementById("accept-all-accepted").selected = true; // Select option "accepted"
+        document.getElementById("accept-all-refused").selected = false; // Deselect option "refused"
+    }
+}
+
+/* Handling hidden values when a user clicks on a toggle switch */
 const switches = document.getElementsByClassName("switch");
 for (let i = 0; i < switches.length; i++) {
     const key = switches[i].children[0].id; // Checkbox input id
 
-    if (key !== "accept-all") {
+    if (key !== "accept-all") { // Regular toggle switch
         document.getElementById(key).addEventListener("change", (e) => {
             const accepted = document.getElementById(key + "-accepted");
             const refused = document.getElementById(key + "-refused");
@@ -42,31 +61,19 @@ for (let i = 0; i < switches.length; i++) {
 
             if (hasAcceptAll) {
                 const acceptAllButton = document.getElementById("accept-all");
-                /* Désélection du bouton "Tout accepter" si la checkbox courante est décochée alors "Tout accepter" était coché */
+                /* Uncheck "Accept all" if current toggle switch is unchecked */
                 if (acceptAllButton.checked && !e.target.checked) {
                     acceptAllButton.checked = false; // Uncheck input
                     document.getElementById("accept-all-accepted").selected = false; // Deselect option "accepted"
                     document.getElementById("accept-all-refused").selected = true; // Select option "refused"
-                } /* Sélection du bouton "Tout accepter" si la checkbox courante est cochée alors que toutes les autres le sont aussi et que "Tout accepter" était décoché */
+                } /* Check "Accept all" if current toggle switch is checked and all the other switches are checked */
                 else if (!acceptAllButton.checked && e.target.checked) {
-                    const switches = document.getElementsByClassName("switch");
-                    let allChecked = true;
-                    let i = 0;
-                    let key;
-                    while (allChecked && i < switches.length) {
-                        key = switches[i].children[0].id; // Checkbox input id
-                        if (key !== "accept-all") {
-                            allChecked = document.getElementById(key + "-accepted").selected;
-                        }
-                        i++;
-                    }
-                    if (allChecked) {
-                        acceptAllButton.checked = true; // Check input
-                        document.getElementById("accept-all-accepted").selected = true; // Select option "accepted"
-                        document.getElementById("accept-all-refused").selected = false; // Deselect option "refused"
-                    }
+                    checkAcceptAll();
                 }
             }
         });
     }
 }
+
+/* If all the previous values are "accepted", "Accept all" must be already checked */
+checkAcceptAll();
