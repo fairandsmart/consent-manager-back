@@ -39,6 +39,7 @@ import com.fairandsmart.consent.template.TemplateModelBuilder;
 import org.apache.commons.lang3.LocaleUtils;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,8 +59,8 @@ public class ConsentFormResultTemplateModelBuilder implements TemplateModelBuild
         ConsentFormResult consentSubmissionData = (ConsentFormResult) data;
 
         TemplateModel<ConsentFormResult> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(consentSubmissionData.getContext().getLanguage()));
-        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
+        model.setLanguage(consentSubmissionData.getContext().getLanguage());
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
         model.setBundle(bundle);
 
         model.setData(consentSubmissionData);

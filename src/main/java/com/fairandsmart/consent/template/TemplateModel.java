@@ -39,22 +39,22 @@ import java.util.ResourceBundle;
 public class TemplateModel<T> {
 
     private String template;
-    private Locale locale;
+    private String language;
     private ResourceBundle bundle;
     private T data;
 
     public TemplateModel() {
     }
 
-    public TemplateModel(String templateName, T data, Locale locale) {
+    public TemplateModel(String templateName, T data, String language) {
         this.template = templateName;
-        this.locale = locale;
+        this.language = language;
         this.data = data;
     }
 
-    public TemplateModel(String templateName, T data, Locale locale, ResourceBundle bundle) {
+    public TemplateModel(String templateName, T data, String language, ResourceBundle bundle) {
         this.template = templateName;
-        this.locale = locale;
+        this.language = language;
         this.data = data;
         this.bundle = bundle;
     }
@@ -67,12 +67,12 @@ public class TemplateModel<T> {
         this.template = template;
     }
 
-    public Locale getLocale() {
-        return locale;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLocale(Locale locale) {
-        this.locale = locale;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public T getData() {
@@ -95,7 +95,7 @@ public class TemplateModel<T> {
     public String toString() {
         return "TemplateModel{" +
                 "template='" + template + '\'' +
-                ", locale=" + locale +
+                ", language=" + language +
                 ", bundle=" + bundle +
                 ", data=" + data +
                 '}';

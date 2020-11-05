@@ -38,13 +38,11 @@ import java.util.Map;
 
 public class Event<T> {
     
-    public static final String AUDIT = "audit";
-    public static final String SYSTEM= "system";
-    public static final String CONSENT_NOTIFICATION = "consent.notification";
+    public static final String CONSENT_SUBMIT = "consent.submit";
+    public static final String CONSENT_NOTIFY = "consent.notify";
 
     private long timestamp;
     private String author;
-    private String channel;
     private String type;
     private T data;
     private Map<String, String> args;
@@ -72,19 +70,6 @@ public class Event<T> {
 
     public Event withAuthor(String author) {
         this.author = author;
-        return this;
-    }
-
-    public String getChannel() {
-        return channel;
-    }
-
-    public void setChannel(String channel) {
-        this.channel = channel;
-    }
-
-    public Event withChannel(String channel) {
-        this.channel = channel;
         return this;
     }
 

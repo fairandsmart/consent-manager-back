@@ -47,13 +47,10 @@ import com.fairandsmart.consent.manager.cache.PreviewCache;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.model.BasicInfo;
-import com.fairandsmart.consent.manager.model.Conditions;
-import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.manager.render.ReceiptRenderer;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
-import com.fairandsmart.consent.manager.model.Processing;
 import com.fairandsmart.consent.manager.rule.BasicRecordStatusRuleChain;
 import com.fairandsmart.consent.manager.store.LocalReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
@@ -588,40 +585,23 @@ public class ConsentServiceBean implements ConsentService {
             // (aka form is generated before a MAJOR RELEASE and submit after)
             // Maybe use a global referential hash that would be injected in token and which could be stored as a whole database integrity check
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
-            String txid = this.saveConsent(ctx, valuesMap);
+            String receiptId = this.saveConsent(ctx, valuesMap);
+            ctx.setReceiptId(receiptId);
 
-            if (!StringUtils.isEmpty(ctx.getNotificationRecipient())) {
-                Event<ConsentNotification> event = new Event().withType(Event.CONSENT_NOTIFICATION).withAuthor(connectedIdentifier);
-                if (!StringUtils.isEmpty(ctx.getNotificationModel())) {
-                    try {
-                        ConsentNotification notification = new ConsentNotification();
-                        notification.setLanguage(ctx.getLanguage());
-                        notification.setRecipient(ctx.getNotificationRecipient());
-                        ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getSerial(), true);
-                        notification.setModel(notificationModel);
-                        if (!StringUtils.isEmpty(ctx.getTheme())) {
-                            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
-                            notification.setTheme(theme);
-                        }
-                        ctx.setNotificationRecipient("");
-                        ctx.setNotificationModel("");
-                        notification.setToken(this.tokenService.generateToken(ctx));
-                        URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
-                        notification.setUrl(notificationUri.toString());
-                        if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD)) {
-                            notification.setReceiptName("receipt.pdf");
-                            notification.setReceiptType("application/pdf");
-                            notification.setReceipt(this.systemRenderReceipt(txid, "application/pdf"));
-                        }
-                        this.notification.notify(event.withData(notification));
-                    } catch (EntityNotFoundException | IllegalIdentifierException | ReceiptRendererNotFoundException | ReceiptStoreException | ReceiptNotFoundException | IOException | JAXBException | RenderingException e) {
-                        LOGGER.log(Level.SEVERE, "Unable to notify", e);
-                    }
-                } else {
-                    LOGGER.log(Level.SEVERE, "No notification model set but an notification recipient, Default MODEL NOT IMPLEMENTED YET");
+            Event event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx).withArg("receipt", receiptId);
+            this.notification.notify(event);
+
+            if (!StringUtils.isEmpty(ctx.getNotificationRecipient()) && !StringUtils.isEmpty(ctx.getNotificationModel())) {
+                try {
+                    ConsentNotification notification = this.buildConsentNotification(ctx);
+                    Event notifyEvent = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_NOTIFY).withData(notification);
+                    this.notification.notify(notifyEvent);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Error while notifying consent submission", e);
                 }
             }
-            return new ConsentTransaction(txid);
+
+            return new ConsentTransaction(receiptId);
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -715,16 +695,45 @@ public class ConsentServiceBean implements ConsentService {
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
     }
 
-    /* INTERNAL */
-
-    public byte[] systemRenderReceipt(String id, String format) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, IOException, JAXBException, RenderingException {
+    @Override
+    public byte[] systemRenderReceipt(String id, String format) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, RenderingException {
         LOGGER.log(Level.INFO, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format);
-        Receipt receipt = Receipt.build(IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name()));
-        Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
-        if (renderer.isPresent()) {
-            return renderer.get().render(receipt);
+        try {
+            Receipt receipt = Receipt.build(IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name()));
+            Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
+            if (renderer.isPresent()) {
+                return renderer.get().render(receipt);
+
+            }
+        } catch (IOException | JAXBException e ) {
+            throw new RenderingException("unable to render receipt", e);
         }
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
+    }
+
+    /* INTERNAL */
+
+    private ConsentNotification buildConsentNotification(ConsentContext ctx) throws ReceiptStoreException, RenderingException, ReceiptNotFoundException, ReceiptRendererNotFoundException, IllegalIdentifierException, EntityNotFoundException {
+        ConsentNotification notification = new ConsentNotification();
+        notification.setLanguage(ctx.getLanguage());
+        notification.setRecipient(ctx.getNotificationRecipient());
+        ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getSerial(), true);
+        notification.setModel(notificationModel);
+        if (!StringUtils.isEmpty(ctx.getTheme())) {
+            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
+            notification.setTheme(theme);
+        }
+        ctx.setCollectionMethod(ConsentContext.CollectionMethod.EMAIL);
+        notification.setToken(this.tokenService.generateToken(ctx));
+        URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
+        notification.setUrl(notificationUri.toString());
+        if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD) && StringUtils.isNotEmpty(ctx.getReceiptId())) {
+            notification.setReceiptName("receipt.pdf");
+            notification.setReceiptType("application/pdf");
+            notification.setReceipt(this.systemRenderReceipt(ctx.getReceiptId(), "application/pdf"));
+        }
+
+        return notification;
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
@@ -817,7 +826,6 @@ public class ConsentServiceBean implements ConsentService {
                     }
                 });
                 receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
-                ctx.setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
                 String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
                 try {

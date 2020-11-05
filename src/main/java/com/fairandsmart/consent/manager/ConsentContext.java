@@ -39,12 +39,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
 
-public class ConsentContext implements Tokenizable {
+public class ConsentContext implements Tokenizable, Cloneable {
 
     private static final String DEFAULT_VALIDITY = "P6M";
     private static final FormType DEFAULT_FORM_TYPE = FormType.FULL;
@@ -76,6 +75,7 @@ public class ConsentContext implements Tokenizable {
     private boolean preview = false;
     private boolean iframe = false;
     private String theme;
+    private String receiptId;
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
@@ -287,6 +287,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public String getReceiptId() {
+        return receiptId;
+    }
+
+    public ConsentContext setReceiptId(String receiptId) {
+        this.receiptId = receiptId;
+        return this;
+    }
+
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
@@ -462,7 +471,8 @@ public class ConsentContext implements Tokenizable {
      */
     public enum CollectionMethod {
         WEBFORM,
-        OPERATOR
+        OPERATOR,
+        EMAIL
     }
 
     @Override
@@ -488,5 +498,10 @@ public class ConsentContext implements Tokenizable {
                 ", iframe=" + iframe +
                 ", theme='" + theme + '\'' +
                 '}';
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

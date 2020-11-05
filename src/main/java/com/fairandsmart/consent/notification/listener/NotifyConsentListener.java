@@ -47,50 +47,45 @@ import org.apache.commons.lang3.LocaleUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
-public class SubmitConsentListener {
+public class NotifyConsentListener {
 
-    private static final Logger LOGGER = Logger.getLogger(SubmitConsentListener.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(NotifyConsentListener.class.getName());
 
     @Inject
     ReactiveMailer mailer;
 
     @Inject
-    TemplateService template;
+    TemplateService templateService;
 
-    @ConsumeEvent(value = Event.CONSENT_NOTIFICATION)
+    @ConsumeEvent(value = Event.CONSENT_NOTIFY)
     public void consume(Event event) {
-        LOGGER.log(Level.FINE, "Submit Consent event received: " + event.toString());
+        LOGGER.log(Level.FINE, "Consent Notify event received: " + event.toString());
         try {
-            if (event.getData() != null) {
-                ConsentNotification notification = (ConsentNotification) event.getData();
-                TemplateModel<ConsentNotification> model = new TemplateModel<>("email.ftl", notification, LocaleUtils.toLocale(notification.getLanguage()));
-                ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
-                model.setBundle(bundle);
+            ConsentNotification notification = (ConsentNotification) event.getData();
+            TemplateModel<ConsentNotification> model = new TemplateModel("email.ftl", notification, notification.getLanguage());
+            ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
+            model.setBundle(bundle);
 
-                LOGGER.log(Level.FINE, "Rendering body");
-                String body = template.render(model);
+            LOGGER.log(Level.FINE, "Rendering body");
+            String body = templateService.render(model);
 
-                LOGGER.log(Level.FINE, "Sending message to: " + notification.getRecipient());
-                String subject = ((Email) notification.getModel().getData(notification.getLanguage())).getSubject();
-                String sender = ((Email) notification.getModel().getData(notification.getLanguage())).getSender();
-                Mail mail = Mail.withHtml(notification.getRecipient(), subject, body).setFrom(sender);
-                if (notification.getReceiptName() != null) {
-                    LOGGER.log(Level.FINE, "Adding receipt attachment to message");
-                    mail.addAttachment(notification.getReceiptName(), notification.getReceipt(), notification.getReceiptType());
-                }
-                mailer.send(mail).subscribeAsCompletionStage();
-            } else {
-                LOGGER.log(Level.FINE, "no data found in event, nothing to notify...");
+            LOGGER.log(Level.FINE, "Sending message to: " + notification.getRecipient());
+            String subject = ((Email) notification.getModel().getData(notification.getLanguage())).getSubject();
+            String sender = ((Email) notification.getModel().getData(notification.getLanguage())).getSender();
+            Mail mail = Mail.withHtml(notification.getRecipient(), subject, body).setFrom(sender);
+            if (notification.getReceiptName() != null) {
+                LOGGER.log(Level.FINE, "Adding receipt attachment to message");
+                mail.addAttachment(notification.getReceiptName(), notification.getReceipt(), notification.getReceiptType());
             }
-        } catch (ClassCastException e) {
-            LOGGER.log(Level.SEVERE, "event data cannot be read as a ConsentNotification", e);
+            mailer.send(mail).subscribeAsCompletionStage();
         } catch (ModelDataSerializationException e) {
-            LOGGER.log(Level.SEVERE, "unable to read model data", e);
+            LOGGER.log(Level.SEVERE, "unable to read email model data", e);
         } catch (TemplateServiceException e) {
             LOGGER.log(Level.SEVERE, "error while calculating template for email", e);
         } catch (RuntimeException e) {

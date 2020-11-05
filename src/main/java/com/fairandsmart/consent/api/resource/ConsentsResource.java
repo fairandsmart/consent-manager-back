@@ -78,7 +78,7 @@ public class ConsentsResource {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel<ConsentForm> getFormHtml(@QueryParam("t") @NotNull String token) throws TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException, TemplateServiceException {
-        LOGGER.log(Level.INFO, "GET /consents");
+        LOGGER.log(Level.INFO, "GET /consents (html)");
         ConsentForm form = consentService.generateForm(token);
         return templateService.buildModel(form);
     }
@@ -86,7 +86,7 @@ public class ConsentsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ConsentForm getFormJson(@HeaderParam("TOKEN") @NotNull String token) throws TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
-        LOGGER.log(Level.INFO, "GET /consents");
+        LOGGER.log(Level.INFO, "GET /consents (json)");
         return consentService.generateForm(token);
     }
 

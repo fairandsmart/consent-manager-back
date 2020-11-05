@@ -55,6 +55,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,8 +102,8 @@ public class ApiErrorBodyWriter implements MessageBodyWriter<ApiError> {
             Writer writer = new OutputStreamWriter(entityStream);
             TemplateModel<ApiError> model = new TemplateModel<>();
             model.setData(error);
-            model.setLocale(LocaleUtils.toLocale("en"));
-            ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
+            model.setLanguage("en");
+            ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
             model.setBundle(bundle);
             template.process(model, writer);
         } catch ( TemplateException e ) {

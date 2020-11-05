@@ -1,5 +1,5 @@
 <#-- Langue du modèle -->
-<#assign lang=locale>
+<#assign lang=language>
 
 <#-- Crée une balise span contenant le message d'erreur récupéré dans le bundle avec la clé error_key -->
 <#macro writeError error_key><span class="fsc-content-error">${bundle.getString("errorPrefix")} ${bundle.containsKey(error_key)?then(bundle.getString(error_key), error_key)}</span></#macro>

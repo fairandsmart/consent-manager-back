@@ -40,6 +40,7 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,8 +59,8 @@ public class ReceiptTemplateModelBuilder implements TemplateModelBuilder {
     public TemplateModel<Receipt> build(Object data) {
         Receipt receipt = (Receipt) data;
         TemplateModel<Receipt> model = new TemplateModel<>();
-        model.setLocale(LocaleUtils.toLocale(receipt.getLanguage()));
-        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", model.getLocale());
+        model.setLanguage(receipt.getLanguage());
+        ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(receipt.getLanguage()));
         model.setBundle(bundle);
         if (!StringUtils.isEmpty(receipt.getTransaction())) {
             model.setData(receipt);
