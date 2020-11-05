@@ -72,7 +72,6 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.sun.xml.bind.v2.schemagen.xmlschema.AttributeType;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
@@ -818,6 +817,7 @@ public class ConsentServiceBean implements ConsentService {
                     }
                 });
                 receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
+                ctx.setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
                 String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
                 try {
