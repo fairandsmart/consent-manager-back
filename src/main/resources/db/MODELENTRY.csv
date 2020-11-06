@@ -1,8 +1,12 @@
 ID,OWNER,AUTHOR,KEY,NAME,TYPE,BRANCHES,DESCRIPTION,VERSION
-64f90695-2f62-4f3a-8422-40265ce079a9,demo,haribo@localhost,I1,BasicInfo,basicinfo,master,Info de démonstration,0
-cbcfd77d-89fb-42d7-b030-221ca600271e,demo,haribo@localhost,Market.1,Marketing direct,processing,master,Traitement 'marketing direct' de démonstration,0
-c9eefa7b-0a0d-4668-bff7-5db2175320a3,demo,haribo@localhost,Core.1,Service principal,processing,master,Traitement 'service principal' de démonstration,0
-389d8fa4-ae5d-4c47-8fbc-cce29a1088f3,demo,haribo@localhost,Mode.1,Mode d'affichage,preference,master,Préférence 'mode d'affichage' de démonstration,0
-b802b44a-be17-4948-934a-20eea0578ccf,demo,haribo@localhost,Channel.1,Canaux de communication,preference,master,Préférence 'canaux de communication' de démonstration,0
-273cdd5c-556f-4213-aaae-8a6089acf2e9,demo,haribo@localhost,Frequency.1,Fréquence de contact,preference,master,Préférence 'fréquence de contact' de démonstration,0
-8eafdbe1-123e-4f68-8630-eaed2efe6aca,demo,haribo@localhost,Username.1,Nom d'utilisateur,preference,master,Préférence 'nom d'utilisateur' de démonstration,0
+64f90695-2f62-4f3a-8422-40265ce079a9,demo,demo@localhost,I1,Informations Générales,basicinfo,master,Informations générales de démonstration,0
+cbcfd77d-89fb-42d7-b030-221ca600271e,demo,demo@localhost,Market.1,Marketing direct,processing,master,Traitement 'marketing direct' de démonstration,0
+c9eefa7b-0a0d-4668-bff7-5db2175320a3,demo,demo@localhost,Core.1,Service principal,processing,master,Traitement 'service principal' de démonstration,0
+389d8fa4-ae5d-4c47-8fbc-cce29a1088f3,demo,demo@localhost,Mode.1,Mode d'affichage,preference,master,Préférence 'mode d'affichage' de démonstration,0
+b802b44a-be17-4948-934a-20eea0578ccf,demo,demo@localhost,Channel.1,Canaux de communication,preference,master,Préférence 'canaux de communication' de démonstration,0
+273cdd5c-556f-4213-aaae-8a6089acf2e9,demo,demo@localhost,Frequency.1,Fréquence de contact,preference,master,Préférence 'fréquence de contact' de démonstration,0
+8eafdbe1-123e-4f68-8630-eaed2efe6aca,demo,demo@localhost,Username.1,Nom d'utilisateur,preference,master,Préférence 'nom d'utilisateur' de démonstration,0
+121f4e63-de63-45a7-a050-e6fa1a2fc562,demo,demo@localhost,email.1,Marketing Direct,email,master,"",0
+28860933-15e8-4350-96d7-d76efe7f84d6,demo,demo@localhost,processing.4,Service de réutilisation des données énergétiques,processing,master,Service amélioré de démonstration,2
+396abd6f-47ea-4a22-b8dc-339a1311ea0b,demo,demo@localhost,processing.1,Transfert de données énergétiques,processing,master,Données de démonstration,2
+74294cd9-0fff-42ee-8aaf-e3bb66c8927d,demo,demo@localhost,email.2,Service de réutilisation des données énergétiques,email,master,"",0

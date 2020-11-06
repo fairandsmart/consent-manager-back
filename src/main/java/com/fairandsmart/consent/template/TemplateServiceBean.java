@@ -98,10 +98,10 @@ public class TemplateServiceBean implements TemplateService {
     @Override
     public <T> TemplateModel<T> buildModel(T data) throws TemplateServiceException {
         Optional<TemplateModel<T>> model = builders.stream().filter(b -> b.canBuild(data)).findFirst().map(b -> b.build(data));
-        if (model.isEmpty()) {
-            throw new TemplateServiceException("Unable to find a builder for data of class " + data.getClass().getName());
+        if (model.isPresent()) {
+            return model.get();
         }
-        return model.get();
+        throw new TemplateServiceException("Unable to find a builder for data of class " + data.getClass().getName());
     }
 
 }
