@@ -42,6 +42,7 @@ import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.entity.Record;
+import com.fairandsmart.consent.manager.entity.Subject;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.token.InvalidTokenException;
@@ -450,20 +451,20 @@ public class ConsentServiceTest {
         values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "accepted");
         service.submitConsent(form.getToken(), values);
 
-        List<String> subjects = service.findSubjects("e");
+        List<Subject> subjects = service.findSubjects("e");
         assertEquals(3, subjects.size());
-        assertTrue(subjects.contains("sheldon"));
-        assertTrue(subjects.contains("penny"));
-        assertTrue(subjects.contains("leonard"));
+        assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s.name)));
+        assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s.name)));
+        assertTrue(subjects.stream().anyMatch(s -> "leonard".equals(s.name)));
 
         subjects = service.findSubjects("on");
         assertEquals(2, subjects.size());
-        assertTrue(subjects.contains("sheldon"));
-        assertTrue(subjects.contains("leonard"));
+        assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s.name)));
+        assertTrue(subjects.stream().anyMatch(s -> "leonard".equals(s.name)));
 
         subjects = service.findSubjects("penny");
         assertEquals(1, subjects.size());
-        assertTrue(subjects.contains("penny"));
+        assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s.name)));
 
         subjects = service.findSubjects("rajesh");
         assertEquals(0, subjects.size());

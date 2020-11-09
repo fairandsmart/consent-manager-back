@@ -77,7 +77,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     @Transient
     public Status status;
     @Transient
-    public String statusExplanation;
+    public StatusExplanation statusExplanation;
 
     public enum State {
         PENDING,
@@ -91,6 +91,15 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         EXPIRED,
         IRRELEVANT,
         UNKNOWN
+    }
+
+    public enum StatusExplanation {
+        LATEST_VALID,
+        OBSOLETE,
+        EXPIRED,
+        INFO_SERIAL_ARCHIVED,
+        BODY_SERIAL_ARCHIVED,
+        NOT_COMMITTED
     }
 
     @Override
@@ -113,7 +122,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
                 ", value='" + value + '\'' +
                 ", state=" + state +
                 ", status=" + status +
-                ", statusExplanation='" + statusExplanation + '\'' +
+                ", statusExplanation=" + statusExplanation +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", comment='" + comment + '\'' +

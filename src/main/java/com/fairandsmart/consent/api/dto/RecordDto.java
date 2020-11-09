@@ -46,6 +46,7 @@ public class RecordDto {
     private String type;
     private String value;
     private String status;
+    private String statusExplanation;
     private String collectionMethod;
     private String comment;
 
@@ -124,6 +125,14 @@ public class RecordDto {
         this.status = status;
     }
 
+    public String getStatusExplanation() {
+        return statusExplanation;
+    }
+
+    public void setStatusExplanation(String statusExplanation) {
+        this.statusExplanation = statusExplanation;
+    }
+
     public String getCollectionMethod() {
         return collectionMethod;
     }
@@ -152,6 +161,7 @@ public class RecordDto {
         dto.setType(record.type);
         dto.setComment(record.comment);
         dto.setStatus(record.status.toString());
+        dto.setStatusExplanation(record.statusExplanation.toString());
         dto.setValue(record.value);
         return dto;
     }
@@ -168,6 +178,7 @@ public class RecordDto {
                 ", type='" + type + '\'' +
                 ", value='" + value + '\'' +
                 ", status='" + status + '\'' +
+                ", statusExplanation='" + statusExplanation + '\'' +
                 ", collectionMethod='" + collectionMethod + '\'' +
                 ", comment='" + comment + '\'' +
                 '}';

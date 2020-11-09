@@ -64,7 +64,7 @@ public class IrrelevantBodyRule extends RecordStatusRule {
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
             record.status = Record.Status.IRRELEVANT;
-            record.statusExplanation = "body serial no more active";
+            record.statusExplanation = Record.StatusExplanation.BODY_SERIAL_ARCHIVED;
         });
         this.applyNext(records);
     }
