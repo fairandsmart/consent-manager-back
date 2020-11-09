@@ -34,11 +34,15 @@ package com.fairandsmart.consent.api.resource;
  */
 
 import com.fairandsmart.consent.api.dto.RecordDto;
+import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.Record;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -58,9 +62,32 @@ public class SubjectsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> list(@QueryParam("name") @NotNull String name) throws AccessDeniedException {
+    public List<SubjectDto> listSubjects(@QueryParam("name") @NotNull String name) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /subjects");
-        return consentService.findSubjects(name);
+        return consentService.findSubjects(name).stream().map(SubjectDto::fromSubject).collect(Collectors.toList());
+    }
+
+    @GET
+    @Path("{name}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public SubjectDto getSubject(@PathParam("name") @NotNull String name) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "GET /subjects/" + name);
+        return SubjectDto.fromSubject(consentService.getSubject(name));
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public SubjectDto createSubject(SubjectDto subjectDto) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "POST /subjects/");
+        return SubjectDto.fromSubject(consentService.createSubject(subjectDto));
+    }
+
+    @PUT
+    @Path("{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public SubjectDto updateSubject(@PathParam("id") @Valid @UUID String id, SubjectDto subjectDto) throws AccessDeniedException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "PUT /subjects/" + id);
+        return SubjectDto.fromSubject(consentService.updateSubject(id, subjectDto));
     }
 
     @GET

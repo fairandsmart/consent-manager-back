@@ -140,7 +140,7 @@ public class RecordDto {
         this.comment = comment;
     }
 
-    public static final RecordDto fromRecord(Record record) {
+    public static RecordDto fromRecord(Record record) {
         RecordDto dto = new RecordDto();
         dto.setSubject(record.subject);
         dto.setSerial(record.serial);
