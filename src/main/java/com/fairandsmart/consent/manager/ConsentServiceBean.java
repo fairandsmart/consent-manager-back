@@ -215,6 +215,7 @@ public class ConsentServiceBean implements ConsentService {
         authentication.ensureConnectedIdentifierIsAdmin();
         List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", config.owner(), id).list();
         if (versions.isEmpty() || versions.stream().allMatch(v -> v.status.equals(ModelVersion.Status.DRAFT))) {
+            versions.forEach(v -> ModelVersion.deleteById(v.id));
             ModelEntry.deleteById(id);
             previewCache.remove(id);
         } else {
@@ -370,15 +371,15 @@ public class ConsentServiceBean implements ConsentService {
             throw new ConsentManagerException("Unable to update content for version that is not last one");
         }
         try {
-            version.content.clear();
-            for (Map.Entry<String, ModelData> entry : data.entrySet()) {
-                version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
-            }
-            version.availableLanguages = String.join(",", data.keySet());
-            if (version.content.containsKey(defaultLanguage)) {
+            if (data.containsKey(defaultLanguage)) {
                 version.defaultLanguage = defaultLanguage;
             } else {
                 throw new ConsentManagerException("Default language does not exist in content languages");
+            }
+            version.availableLanguages = String.join(",", data.keySet());
+            version.content.clear();
+            for (Map.Entry<String, ModelData> entry : data.entrySet()) {
+                version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
             }
             version.modificationDate = System.currentTimeMillis();
             version.persist();

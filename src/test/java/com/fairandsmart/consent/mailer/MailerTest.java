@@ -65,12 +65,13 @@ public class MailerTest {
 
     @Test
     public void testSendMail() {
-        LOGGER.log(Level.INFO, "Sending email throught mailer");
-        mailer.send(Mail.withText("jerome@localhost", "Test Subject", "Test Body"));
-        LOGGER.log(Level.INFO, "Mail sent, checking mocked mailbox");
-        List<Mail> sent = mailbox.getMessagesSentTo("jerome@localhost");
+        String address = "test@localhost";
+        LOGGER.log(Level.INFO, "Sending email through mailer");
+        mailer.send(Mail.withText(address, "Test Subject", "Test Body"));
+        LOGGER.log(Level.INFO, "Checking mocked mailbox");
+        List<Mail> sent = mailbox.getMessagesSentTo(address);
         assertEquals(1, sent.size());
-        LOGGER.log(Level.INFO, "Mail received !");
+        LOGGER.log(Level.INFO, "Mail sent !");
     }
 
 }
