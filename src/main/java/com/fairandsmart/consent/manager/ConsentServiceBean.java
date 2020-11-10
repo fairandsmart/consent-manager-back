@@ -3,9 +3,9 @@ package com.fairandsmart.consent.manager;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.manager;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -35,6 +35,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
+import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
@@ -387,7 +388,7 @@ public class ConsentServiceBean implements ConsentService {
             }
             return version;
         } catch (ModelDataSerializationException ex) {
-            throw new ConsentManagerException("unable to serialise data", ex);
+            throw new ConsentManagerException("Unable to serialise data", ex);
         }
 
     }
@@ -610,13 +611,59 @@ public class ConsentServiceBean implements ConsentService {
     /* SUBJECTS */
 
     @Override
-    public List<String> findSubjects(String name) throws AccessDeniedException {
+    public List<Subject> findSubjects(String name) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Searching subjects");
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to search for subjects");
         }
-        List<Subject> result = Subject.list("owner = ?1 and name like ?2", config.owner(), "%" + name + "%");
-        return result.stream().map(s -> s.name).collect(Collectors.toList());
+        return Subject.list("owner = ?1 and name like ?2", Sort.by("name", Sort.Direction.Descending), config.owner(), "%" + name + "%");
+    }
+
+    @Override
+    public Subject getSubject(String name) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "Getting subject for name: " + name);
+        if (!authentication.isConnectedIdentifierOperator()) {
+            throw new AccessDeniedException("You must be operator to search for subjects");
+        }
+        Optional<Subject> optional = Subject.find("owner = ?1 and name = ?2", config.owner(), name).singleResultOptional();
+        if (optional.isPresent()) {
+            return optional.get();
+        } else {
+            Subject subject = new Subject();
+            subject.name = name;
+            return subject;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Subject createSubject(SubjectDto subjectDto) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "Creating subject with name: " + subjectDto.getName());
+        if (!authentication.isConnectedIdentifierOperator()) {
+            throw new AccessDeniedException("You must be operator to create subjects");
+        }
+        Instant now = Instant.now();
+        Subject subject = new Subject();
+        subject.name = subjectDto.getName();
+        subject.creationTimestamp = now.toEpochMilli();
+        subject.emailAddress = subjectDto.getEmailAddress();
+        subject.owner = config.owner();
+        subject.persist();
+        return subject;
+    }
+
+    @Override
+    @Transactional
+    public Subject updateSubject(String subjectId, SubjectDto subjectDto) throws AccessDeniedException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "Updating subject with id: " + subjectId);
+        if (!authentication.isConnectedIdentifierOperator()) {
+            throw new AccessDeniedException("You must be operator to update subjects");
+        }
+        Optional<Subject> optional = Subject.findByIdOptional(subjectId);
+        Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("unable to find a subject for id: " + subjectId));
+        subject.emailAddress = subjectDto.getEmailAddress();
+        subject.persist();
+        return subject;
     }
 
     /* RECORDS */
@@ -657,7 +704,7 @@ public class ConsentServiceBean implements ConsentService {
         Map<String, List<Record>> result = allRecords.collect(Collectors.groupingBy(record -> record.bodyKey));
         result.forEach((key, value) -> recordStatusChain.apply(value));
         return result.entrySet().stream().filter(entry -> entry.getValue().stream().anyMatch(record -> record.status.equals(Record.Status.VALID)))
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().stream().filter(record -> record.status.equals(Record.Status.VALID)).findFirst().get()));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(record -> record.status.equals(Record.Status.VALID)).findFirst().get()));
     }
 
     /* RECEIPTS */
@@ -705,7 +752,7 @@ public class ConsentServiceBean implements ConsentService {
                 return renderer.get().render(receipt);
 
             }
-        } catch (IOException | JAXBException e ) {
+        } catch (IOException | JAXBException e) {
             throw new RenderingException("unable to render receipt", e);
         }
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
@@ -766,6 +813,7 @@ public class ConsentServiceBean implements ConsentService {
                 Subject subject = new Subject();
                 subject.owner = config.owner();
                 subject.name = ctx.getSubject();
+                subject.creationTimestamp = now.toEpochMilli();
                 Subject.persist(subject);
             }
 
@@ -797,6 +845,9 @@ public class ConsentServiceBean implements ConsentService {
                     record.collectionMethod = ctx.getCollectionMethod();
                     record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : config.owner();
                     record.comment = comment;
+                    if (!StringUtils.isEmpty(ctx.getNotificationRecipient()) && !StringUtils.isEmpty(ctx.getNotificationModel())) {
+                        record.mailRecipient = ctx.getNotificationRecipient();
+                    }
                     record.persist();
                     records.add(record);
                 } catch (IllegalIdentifierException e) {

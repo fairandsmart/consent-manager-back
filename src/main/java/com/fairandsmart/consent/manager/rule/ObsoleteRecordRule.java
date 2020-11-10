@@ -61,14 +61,14 @@ public class ObsoleteRecordRule extends RecordStatusRule {
             Record valid = optional.get();
             LOGGER.log(Level.FINE, "marking record as valid, " + valid.id);
             valid.status = Record.Status.VALID;
-            valid.statusExplanation = "most recent valid record";
+            valid.statusExplanation = Record.StatusExplanation.LATEST_VALID;
         }
         records.stream().filter(record ->
             record.status.equals(Record.Status.UNKNOWN)
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as obsolete, " + record.id);
             record.status = Record.Status.OBSOLETE;
-            record.statusExplanation = "a more recent valid record exists";
+            record.statusExplanation = Record.StatusExplanation.OBSOLETE;
         });
         this.applyNext(records);
     }
