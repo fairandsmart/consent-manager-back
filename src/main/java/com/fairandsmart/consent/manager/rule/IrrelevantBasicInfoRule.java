@@ -64,7 +64,7 @@ public class IrrelevantBasicInfoRule extends RecordStatusRule {
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
             record.status = Record.Status.IRRELEVANT;
-            record.statusExplanation = "basic info serial no more active";
+            record.statusExplanation = Record.StatusExplanation.INFO_SERIAL_ARCHIVED;
         });
         this.applyNext(records);
     }

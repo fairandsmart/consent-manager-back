@@ -35,14 +35,12 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
+import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.manager.entity.ModelData;
-import com.fairandsmart.consent.manager.entity.ModelEntry;
-import com.fairandsmart.consent.manager.entity.ModelVersion;
-import com.fairandsmart.consent.manager.entity.Record;
+import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
@@ -121,7 +119,13 @@ public interface ConsentService {
 
     /* Subjects */
 
-    List<String> findSubjects(String subject) throws AccessDeniedException;
+    List<Subject> findSubjects(String subject) throws AccessDeniedException;
+
+    Subject getSubject(String name) throws AccessDeniedException;
+
+    Subject createSubject(SubjectDto subjectDto) throws AccessDeniedException;
+
+    Subject updateSubject(String subjectId, SubjectDto subjectDto) throws AccessDeniedException, EntityNotFoundException;
 
     /* Receipts */
 
