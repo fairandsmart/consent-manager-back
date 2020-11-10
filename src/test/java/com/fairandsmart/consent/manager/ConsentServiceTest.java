@@ -444,7 +444,7 @@ public class ConsentServiceTest {
         assertEquals(entriesCount + 3, entries.getTotalCount());
 
         LOGGER.info("Creating READ context and token");
-        String subject = "mmichu";
+        String subject = "lmichu";
         ConsentContext readCtx = new ConsentContext()
                 .setSubject(subject)
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
