@@ -45,10 +45,6 @@ public class IrrelevantStateRule extends RecordStatusRule {
 
     private static final Logger LOGGER = Logger.getLogger(IrrelevantStateRule.class.getName());
 
-    public IrrelevantStateRule() {
-        LOGGER.log(Level.FINE, "Building new StateRecordInvalidationRule");
-    }
-
     @Override
     public void apply(List<Record> records) {
         LOGGER.log(Level.FINE, "searching committed records");
