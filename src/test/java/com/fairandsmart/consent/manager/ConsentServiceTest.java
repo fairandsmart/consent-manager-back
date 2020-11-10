@@ -588,20 +588,21 @@ public class ConsentServiceTest {
         values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "accepted");
         service.submitConsent(form.getToken(), values);
 
-        List<String> subjects = service.findSubjects("e");
+        List<Subject> subjects = service.findSubjects("e");
         assertEquals(3, subjects.size());
-        assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s)));
-        assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s)));
-        assertTrue(subjects.stream().anyMatch(s -> "leonard".equals(s)));
+
+        assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s.name)));
+        assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s.name)));
+        assertTrue(subjects.stream().anyMatch(s -> "leonard".equals(s.name)));
 
         subjects = service.findSubjects("on");
         assertEquals(2, subjects.size());
-        assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s)));
-        assertTrue(subjects.stream().anyMatch(s -> "leonard".equals(s)));
+        assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s.name)));
+        assertTrue(subjects.stream().anyMatch(s -> "leonard".equals(s.name)));
 
         subjects = service.findSubjects("penny");
         assertEquals(1, subjects.size());
-        assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s)));
+        assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s.name)));
 
         subjects = service.findSubjects("rajesh");
         assertEquals(0, subjects.size());

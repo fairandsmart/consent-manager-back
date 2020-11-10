@@ -59,7 +59,7 @@ public class IrrelevantStateRule extends RecordStatusRule {
             } else {
                 LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
                 record.status = Record.Status.IRRELEVANT;
-                record.statusExplanation = "non committed records are irrelevant";
+                record.statusExplanation = Record.StatusExplanation.NOT_COMMITTED;
             }
         });
         this.applyNext(records);

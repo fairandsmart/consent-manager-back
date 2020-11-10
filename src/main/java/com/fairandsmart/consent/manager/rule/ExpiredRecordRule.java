@@ -59,7 +59,7 @@ public class ExpiredRecordRule extends RecordStatusRule {
         ).forEach(record -> {
             LOGGER.log(Level.FINE, "marking record as expired, " + record.id);
             record.status = Record.Status.EXPIRED;
-            record.statusExplanation = "expiration date reached";
+            record.statusExplanation = Record.StatusExplanation.EXPIRED;
         });
         this.applyNext(records);
     }
