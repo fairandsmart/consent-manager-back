@@ -95,6 +95,7 @@
             <column name="TYPE" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="COMMENT" type="VARCHAR(5000)"/>
+            <column name="MAILRECIPIENT" type="VARCHAR(255)"/>
             <column name="STATE" type="VARCHAR(255)"/>
             <column name="COLLECTIONMETHOD" type="VARCHAR(255)"/>
             <column name="CREATIONTIMESTAMP" type="BIGINT">

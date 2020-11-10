@@ -704,7 +704,7 @@ public class ConsentServiceBean implements ConsentService {
         Map<String, List<Record>> result = allRecords.collect(Collectors.groupingBy(record -> record.bodyKey));
         result.forEach((key, value) -> recordStatusChain.apply(value));
         return result.entrySet().stream().filter(entry -> entry.getValue().stream().anyMatch(record -> record.status.equals(Record.Status.VALID)))
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().stream().filter(record -> record.status.equals(Record.Status.VALID)).findFirst().get()));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(record -> record.status.equals(Record.Status.VALID)).findFirst().get()));
     }
 
     /* RECEIPTS */
@@ -845,6 +845,9 @@ public class ConsentServiceBean implements ConsentService {
                     record.collectionMethod = ctx.getCollectionMethod();
                     record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : config.owner();
                     record.comment = comment;
+                    if (!StringUtils.isEmpty(ctx.getNotificationRecipient()) && !StringUtils.isEmpty(ctx.getNotificationModel())) {
+                        record.mailRecipient = ctx.getNotificationRecipient();
+                    }
                     record.persist();
                     records.add(record);
                 } catch (IllegalIdentifierException e) {

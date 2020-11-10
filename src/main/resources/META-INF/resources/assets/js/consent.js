@@ -76,4 +76,6 @@ for (let i = 0; i < switches.length; i++) {
 }
 
 /* If all the previous values are "accepted", "Accept all" must be already checked */
-checkAcceptAll();
+if (hasAcceptAll) {
+    checkAcceptAll();
+}
