@@ -33,10 +33,12 @@ package com.fairandsmart.consent.notification.listener;
  * #L%
  */
 
+import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentNotification;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.notification.entity.Event;
+import com.fairandsmart.consent.notification.worker.NotifyConsentWorker;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.template.TemplateServiceException;
@@ -44,52 +46,32 @@ import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.reactive.ReactiveMailer;
 import io.quarkus.vertx.ConsumeEvent;
 import org.apache.commons.lang3.LocaleUtils;
+import org.eclipse.microprofile.context.ManagedExecutor;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@ApplicationScoped
+@RequestScoped
 public class NotifyConsentListener {
 
     private static final Logger LOGGER = Logger.getLogger(NotifyConsentListener.class.getName());
 
     @Inject
-    ReactiveMailer mailer;
+    ManagedExecutor executor;
 
     @Inject
-    TemplateService templateService;
+    NotifyConsentWorker worker;
 
-    @ConsumeEvent(value = Event.CONSENT_NOTIFY)
+    @ConsumeEvent(value = Event.CONSENT_SUBMIT)
     public void consume(Event event) {
-        LOGGER.log(Level.FINE, "Consent Notify event received: " + event.toString());
-        try {
-            ConsentNotification notification = (ConsentNotification) event.getData();
-            TemplateModel<ConsentNotification> model = new TemplateModel("email.ftl", notification, notification.getLanguage());
-            ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
-            model.setBundle(bundle);
-
-            LOGGER.log(Level.FINE, "Rendering body");
-            String body = templateService.render(model);
-
-            LOGGER.log(Level.FINE, "Sending message to: " + notification.getRecipient());
-            String subject = ((Email) notification.getModel().getData(notification.getLanguage())).getSubject();
-            String sender = ((Email) notification.getModel().getData(notification.getLanguage())).getSender();
-            Mail mail = Mail.withHtml(notification.getRecipient(), subject, body).setFrom(sender);
-            if (notification.getReceiptName() != null) {
-                LOGGER.log(Level.FINE, "Adding receipt attachment to message");
-                mail.addAttachment(notification.getReceiptName(), notification.getReceipt(), notification.getReceiptType());
-            }
-            mailer.send(mail).subscribeAsCompletionStage();
-        } catch (ModelDataSerializationException e) {
-            LOGGER.log(Level.SEVERE, "unable to read email model data", e);
-        } catch (TemplateServiceException e) {
-            LOGGER.log(Level.SEVERE, "error while calculating template for email", e);
-        } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, "unexpected error", e);
-        }
+        LOGGER.log(Level.FINE, "Consent Submit event received: " + event.toString());
+        ConsentContext ctx = (ConsentContext)event.getData();
+        worker.setCtx(ctx);
+        executor.submit(worker);
     }
 }
