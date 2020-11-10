@@ -6,7 +6,7 @@
             </div>
         </#if>
 
-        <#if info.showAcceptAll>
+        <#if displayAcceptAll>
             <div class="accept-all-container">
                 <div class="accept-all-text">
                     <#if info.customAcceptAllText?has_content>

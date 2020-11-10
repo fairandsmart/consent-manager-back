@@ -9,6 +9,11 @@
         height: 100vh;
     }
 
+    .consent-form {
+        background-color: white;
+    }
+
+
     /* Logo */
 
     .logo-wrapper {

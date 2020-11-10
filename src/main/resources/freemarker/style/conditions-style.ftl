@@ -12,6 +12,7 @@
         display: flex;
         flex-direction: column;
         width: 100%;
+        background-color: white;
     }
 
     @media screen and (max-width: 800px) {
