@@ -272,15 +272,15 @@ public class ConsentServiceBean implements ConsentService {
                 latest.persist();
                 latest = newversion;
             }
-            latest.content.clear();
-            for (Map.Entry<String, ModelData> e : data.entrySet()) {
-                latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
-            }
-            latest.availableLanguages = String.join(",", data.keySet());
-            if (latest.content.containsKey(defaultLanguage)) {
+            if (data.containsKey(defaultLanguage)) {
                 latest.defaultLanguage = defaultLanguage;
             } else {
                 throw new ConsentManagerException("Default language does not exist in content languages");
+            }
+            latest.availableLanguages = String.join(",", data.keySet());
+            latest.content.clear();
+            for (Map.Entry<String, ModelData> e : data.entrySet()) {
+                latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
             }
             latest.modificationDate = now;
             latest.persist();

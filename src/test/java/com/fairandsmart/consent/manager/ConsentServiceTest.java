@@ -408,8 +408,8 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testCreateAndReadRecord() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
-        LOGGER.info("Listing Create and Read records");
+    public void testRecordLifecycle() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
+        LOGGER.info("#### Test record lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
         types.add(Processing.TYPE);
@@ -443,8 +443,9 @@ public class ConsentServiceTest {
         assertEquals(entriesCount + 3, entries.getTotalCount());
 
         LOGGER.info("Creating READ context and token");
+        String subject = "mmichu";
         ConsentContext readCtx = new ConsentContext()
-                .setSubject("mmichu")
+                .setSubject(subject)
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
@@ -473,13 +474,19 @@ public class ConsentServiceTest {
         assertEquals(2, records.size());
         assertTrue(records.containsKey(et1.key));
         assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
+        assertEquals(Record.Status.VALID, records.get(et1.key).status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et1.key).statusExplanation);
         assertTrue(records.containsKey(et2.key));
         assertEquals(v1t2.serial, records.get(et2.key).bodySerial);
+        assertEquals(Record.Status.VALID, records.get(et2.key).status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et2.key).statusExplanation);
 
         LOGGER.info("Second consent form");
         form = service.generateForm(readToken);
         assertEquals(2, form.getElements().size());
         assertEquals(2, form.getPreviousValues().size());
+        assertEquals("accepted", form.getPreviousValues().get(v1t1.serial));
+        assertEquals("refused", form.getPreviousValues().get(v1t2.serial));
 
         LOGGER.info("Create new version of T2 (minor version)");
         ModelVersion v2t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing("t2.2")));
@@ -491,8 +498,12 @@ public class ConsentServiceTest {
         assertEquals(2, records.size());
         assertTrue(records.containsKey(et1.key));
         assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
+        assertEquals(Record.Status.VALID, records.get(et1.key).status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et1.key).statusExplanation);
         assertTrue(records.containsKey(et2.key));
         assertEquals(v1t2.serial, records.get(et2.key).bodySerial);
+        assertEquals(Record.Status.VALID, records.get(et2.key).status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et2.key).statusExplanation);
 
         LOGGER.info("Create new version of T2 (major version)");
         ModelVersion v3t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing("t2.3")));
@@ -504,7 +515,22 @@ public class ConsentServiceTest {
         assertEquals(1, records.size());
         assertTrue(records.containsKey(et1.key));
         assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
+        assertEquals(Record.Status.VALID, records.get(et1.key).status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et1.key).statusExplanation);
         assertFalse(records.containsKey(et2.key));
+
+        LOGGER.info("Reading consent records history for subject");
+        Map<String, List<Record>> subjectRecords = service.listSubjectRecords(subject);
+        LOGGER.info(subjectRecords.toString());
+        assertEquals(2, subjectRecords.size());
+        assertTrue(subjectRecords.containsKey(et1.key));
+        assertEquals(1, subjectRecords.get(et1.key).size());
+        assertTrue(subjectRecords.containsKey(et2.key));
+        assertEquals(1, subjectRecords.get(et2.key).size());
+        assertEquals(Record.Status.VALID, subjectRecords.get(et1.key).get(0).status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, subjectRecords.get(et1.key).get(0).statusExplanation);
+        assertEquals(Record.Status.IRRELEVANT, subjectRecords.get(et2.key).get(0).status);
+        assertEquals(Record.StatusExplanation.BODY_SERIAL_ARCHIVED, subjectRecords.get(et2.key).get(0).statusExplanation);
     }
 
     @Test
