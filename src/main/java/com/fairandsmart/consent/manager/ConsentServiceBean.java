@@ -640,10 +640,17 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Subject createSubject(SubjectDto subjectDto) throws AccessDeniedException {
+    public Subject createSubject(SubjectDto subjectDto) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "Creating subject with name: " + subjectDto.getName());
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to create subjects");
+        }
+        if (StringUtils.isEmpty(subjectDto.getName())) {
+            throw new ConsentManagerException("Subject name cannot be empty");
+        }
+        Optional<Subject> optional = Subject.find("owner = ?1 and name = ?2", config.owner(), subjectDto.getName()).singleResultOptional();
+        if (optional.isPresent()) {
+            throw new ConsentManagerException("This subject name already exists");
         }
         Instant now = Instant.now();
         Subject subject = new Subject();
@@ -657,13 +664,16 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Subject updateSubject(String subjectId, SubjectDto subjectDto) throws AccessDeniedException, EntityNotFoundException {
+    public Subject updateSubject(String subjectId, SubjectDto subjectDto) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating subject with id: " + subjectId);
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to update subjects");
         }
         Optional<Subject> optional = Subject.findByIdOptional(subjectId);
-        Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("unable to find a subject for id: " + subjectId));
+        Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("Unable to find a subject for id: " + subjectId));
+        if (!subject.name.equals(subjectDto.getName())) {
+            throw new ConsentManagerException("Subject name cannot be changed");
+        }
         subject.emailAddress = subjectDto.getEmailAddress();
         subject.persist();
         return subject;

@@ -35,6 +35,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.CollectionPage;
+import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
@@ -314,7 +315,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testEntryVersionHistory() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException {
+    public void testEntryVersionsHistory() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException {
         LOGGER.info("#### Test BasicInfo versions history");
         LOGGER.info("Create entry");
         String key = UUID.randomUUID().toString();
@@ -473,13 +474,17 @@ public class ConsentServiceTest {
         records = service.systemListContextValidRecords(readCtx);
         assertEquals(2, records.size());
         assertTrue(records.containsKey(et1.key));
-        assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
-        assertEquals(Record.Status.VALID, records.get(et1.key).status);
-        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et1.key).statusExplanation);
+        Record record = records.get(et1.key);
+        assertEquals(v1t1.serial, record.bodySerial);
+        assertEquals(Record.Status.VALID, record.status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, record.statusExplanation);
+        assertEquals("accepted", record.value);
         assertTrue(records.containsKey(et2.key));
-        assertEquals(v1t2.serial, records.get(et2.key).bodySerial);
-        assertEquals(Record.Status.VALID, records.get(et2.key).status);
-        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et2.key).statusExplanation);
+        record = records.get(et2.key);
+        assertEquals(v1t2.serial, record.bodySerial);
+        assertEquals(Record.Status.VALID, record.status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, record.statusExplanation);
+        assertEquals("refused", record.value);
 
         LOGGER.info("Second consent form");
         form = service.generateForm(readToken);
@@ -497,13 +502,17 @@ public class ConsentServiceTest {
         records = service.systemListContextValidRecords(readCtx);
         assertEquals(2, records.size());
         assertTrue(records.containsKey(et1.key));
-        assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
-        assertEquals(Record.Status.VALID, records.get(et1.key).status);
-        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et1.key).statusExplanation);
+        record = records.get(et1.key);
+        assertEquals(v1t1.serial, record.bodySerial);
+        assertEquals(Record.Status.VALID, record.status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, record.statusExplanation);
+        assertEquals("accepted", record.value);
         assertTrue(records.containsKey(et2.key));
-        assertEquals(v1t2.serial, records.get(et2.key).bodySerial);
-        assertEquals(Record.Status.VALID, records.get(et2.key).status);
-        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et2.key).statusExplanation);
+        record = records.get(et2.key);
+        assertEquals(v1t2.serial, record.bodySerial);
+        assertEquals(Record.Status.VALID, record.status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, record.statusExplanation);
+        assertEquals("refused", record.value);
 
         LOGGER.info("Create new version of T2 (major version)");
         ModelVersion v3t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing("t2.3")));
@@ -514,57 +523,99 @@ public class ConsentServiceTest {
         records = service.systemListContextValidRecords(readCtx);
         assertEquals(1, records.size());
         assertTrue(records.containsKey(et1.key));
-        assertEquals(v1t1.serial, records.get(et1.key).bodySerial);
-        assertEquals(Record.Status.VALID, records.get(et1.key).status);
-        assertEquals(Record.StatusExplanation.LATEST_VALID, records.get(et1.key).statusExplanation);
+        record = records.get(et1.key);
+        assertEquals(v1t1.serial, record.bodySerial);
+        assertEquals(Record.Status.VALID, record.status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, record.statusExplanation);
+        assertEquals("accepted", record.value);
         assertFalse(records.containsKey(et2.key));
+
+        LOGGER.info("Third consent form");
+        form = service.generateForm(readToken);
+        assertEquals(2, form.getElements().size());
+        assertEquals(1, form.getPreviousValues().size());
+        assertEquals("accepted", form.getPreviousValues().get(v1t1.serial));
+
+        LOGGER.info("New consent form");
+        readCtx = new ConsentContext()
+                .setSubject(subject)
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setInfo(biKey)
+                .setElements(Collections.singletonList(t1Key))
+                .setLanguage(language)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+        readToken = service.buildToken(readCtx);
+        form = service.generateForm(readToken);
+        assertEquals(1, form.getElements().size());
+        assertEquals(1, form.getPreviousValues().size());
+        assertEquals("accepted", form.getPreviousValues().get(v1t1.serial));
+
+        LOGGER.info("Submitting new consent (creating record)");
+        values = new MultivaluedHashMap<>();
+        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
+        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "refused");
+        service.submitConsent(form.getToken(), values);
 
         LOGGER.info("Reading consent records history for subject");
         Map<String, List<Record>> subjectRecords = service.listSubjectRecords(subject);
-        LOGGER.info(subjectRecords.toString());
-        assertEquals(2, subjectRecords.size());
+        assertEquals(2, subjectRecords.keySet().size());
         assertTrue(subjectRecords.containsKey(et1.key));
-        assertEquals(1, subjectRecords.get(et1.key).size());
+        assertEquals(2, subjectRecords.get(et1.key).size());
         assertTrue(subjectRecords.containsKey(et2.key));
         assertEquals(1, subjectRecords.get(et2.key).size());
-        assertEquals(Record.Status.VALID, subjectRecords.get(et1.key).get(0).status);
-        assertEquals(Record.StatusExplanation.LATEST_VALID, subjectRecords.get(et1.key).get(0).statusExplanation);
-        assertEquals(Record.Status.IRRELEVANT, subjectRecords.get(et2.key).get(0).status);
-        assertEquals(Record.StatusExplanation.BODY_SERIAL_ARCHIVED, subjectRecords.get(et2.key).get(0).statusExplanation);
+        record = subjectRecords.get(et1.key).get(0);
+        assertEquals(Record.Status.OBSOLETE, record.status);
+        assertEquals(Record.StatusExplanation.OBSOLETE, record.statusExplanation);
+        assertEquals("accepted", record.value);
+        record = subjectRecords.get(et1.key).get(1);
+        assertEquals(Record.Status.VALID, record.status);
+        assertEquals(Record.StatusExplanation.LATEST_VALID, record.statusExplanation);
+        assertEquals("refused", record.value);
+        record = subjectRecords.get(et2.key).get(0);
+        assertEquals(Record.Status.IRRELEVANT, record.status);
+        assertEquals(Record.StatusExplanation.BODY_SERIAL_ARCHIVED, record.statusExplanation);
+        assertEquals("refused", record.value);
     }
 
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testFindSubjects() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
-        LOGGER.info("Testing find subjects");
+    public void testSubjectLifecycle() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
+        LOGGER.info("#### Test subject lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
         types.add(Processing.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
         String language = "fr";
+
         // Creating a BasicInfo entry
         String biKey = UUID.randomUUID().toString();
         ModelEntry ebi1 = service.createEntry(biKey, "Name " + biKey, "Description " + biKey, BasicInfo.TYPE);
         assertNotNull(ebi1);
         ModelVersion v1bi1 = service.createVersion(ebi1.id, language, Collections.singletonMap(language, TestUtils.generateBasicInfo(biKey)));
         service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
+
         // Creating a Processing entry
         String t1Key = UUID.randomUUID().toString();
         ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
         assertNotNull(et1);
         ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key)));
         service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
+
         // Creating a Processing entry
         String t2Key = UUID.randomUUID().toString();
         ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
         assertNotNull(et2);
         ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
+
         // Checking that the entries have been created
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         assertEquals(entriesCount + 3, entries.getTotalCount());
+        String biIdentifier = "element/basicinfo/" + biKey + "/" + v1bi1.serial;
+        String t1Identifier = "element/processing/" + t1Key + "/" + v1t1.serial;
+        String t2Identifier = "element/processing/" + t2Key + "/" + v1t2.serial;
 
         LOGGER.info("Submitting a consent for sheldon");
         ConsentContext ctx = new ConsentContext()
@@ -577,9 +628,9 @@ public class ConsentServiceTest {
         String token = service.buildToken(ctx);
         ConsentForm form = service.generateForm(token);
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
-        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
-        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
+        values.putSingle("info", biIdentifier);
+        values.putSingle(t1Identifier, "accepted");
+        values.putSingle(t2Identifier, "refused");
         service.submitConsent(form.getToken(), values);
 
         LOGGER.info("Submitting a consent for penny");
@@ -593,9 +644,9 @@ public class ConsentServiceTest {
         token = service.buildToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
-        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "refused");
-        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
+        values.putSingle("info", biIdentifier);
+        values.putSingle(t1Identifier, "refused");
+        values.putSingle(t2Identifier, "refused");
         service.submitConsent(form.getToken(), values);
 
         LOGGER.info("Submitting a consent for leonard");
@@ -609,14 +660,14 @@ public class ConsentServiceTest {
         token = service.buildToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
-        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
-        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "accepted");
+        values.putSingle("info", biIdentifier);
+        values.putSingle(t1Identifier, "accepted");
+        values.putSingle(t2Identifier, "accepted");
         service.submitConsent(form.getToken(), values);
 
+        LOGGER.info("Testing find subjects");
         List<Subject> subjects = service.findSubjects("e");
         assertEquals(3, subjects.size());
-
         assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s.name)));
         assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s.name)));
         assertTrue(subjects.stream().anyMatch(s -> "leonard".equals(s.name)));
@@ -632,6 +683,54 @@ public class ConsentServiceTest {
 
         subjects = service.findSubjects("rajesh");
         assertEquals(0, subjects.size());
+
+        LOGGER.info("Testing Create subject");
+        SubjectDto subjectDto = new SubjectDto();
+        subjectDto.setName("rajesh");
+        subjectDto.setEmailAddress("rajesh@localhost");
+        Subject subject = service.createSubject(subjectDto);
+        assertNotNull(subject.id);
+        assertNotNull(subject.owner);
+        assertEquals("rajesh", subject.name);
+        assertEquals("rajesh@localhost", subject.emailAddress);
+        assertTrue(subject.creationTimestamp > 0);
+
+        LOGGER.info("Testing Create subject with name already taken");
+        subjectDto.setEmailAddress("duplicate@localhost");
+        assertThrows(ConsentManagerException.class, () -> service.createSubject(subjectDto));
+
+        LOGGER.info("Testing Get new subject");
+        subject = service.getSubject("stuart");
+        assertNull(subject.id);
+        assertNull(subject.owner);
+        assertEquals("stuart", subject.name);
+        assertNull(subject.emailAddress);
+        assertEquals(0, subject.creationTimestamp);
+
+        LOGGER.info("Testing Get known subject");
+        subject = service.getSubject("rajesh");
+        assertNotNull(subject.id);
+        assertNotNull(subject.owner);
+        assertEquals("rajesh", subject.name);
+        assertEquals("rajesh@localhost", subject.emailAddress);
+        assertTrue(subject.creationTimestamp > 0);
+        String subjectId = subject.id;
+
+        LOGGER.info("Testing Update subject");
+        subjectDto.setEmailAddress("new.rajesh@localhost");
+        subject = service.updateSubject(subjectId, subjectDto);
+        assertNotNull(subject.id);
+        assertNotNull(subject.owner);
+        assertEquals("rajesh", subject.name);
+        assertEquals("new.rajesh@localhost", subject.emailAddress);
+        assertTrue(subject.creationTimestamp > 0);
+
+        LOGGER.info("Testing Update subject with name changed");
+        subjectDto.setName("stuart");
+        assertThrows(ConsentManagerException.class, () -> service.updateSubject(subjectId, subjectDto));
+
+        LOGGER.info("Testing Update subject with unknown id");
+        assertThrows(EntityNotFoundException.class, () -> service.updateSubject(UUID.randomUUID().toString(), subjectDto));
     }
 
 }

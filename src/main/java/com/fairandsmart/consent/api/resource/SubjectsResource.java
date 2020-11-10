@@ -36,6 +36,7 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.api.dto.RecordDto;
 import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
@@ -77,7 +78,7 @@ public class SubjectsResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public SubjectDto createSubject(SubjectDto subjectDto) throws AccessDeniedException {
+    public SubjectDto createSubject(SubjectDto subjectDto) throws ConsentManagerException {
         LOGGER.log(Level.INFO, "POST /subjects/");
         return SubjectDto.fromSubject(consentService.createSubject(subjectDto));
     }
@@ -85,7 +86,7 @@ public class SubjectsResource {
     @PUT
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public SubjectDto updateSubject(@PathParam("id") @Valid @UUID String id, SubjectDto subjectDto) throws AccessDeniedException, EntityNotFoundException {
+    public SubjectDto updateSubject(@PathParam("id") @Valid @UUID String id, SubjectDto subjectDto) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "PUT /subjects/" + id);
         return SubjectDto.fromSubject(consentService.updateSubject(id, subjectDto));
     }
