@@ -58,6 +58,7 @@ public class IrrelevantBasicInfoRule extends RecordStatusRule {
     @Override
     public void apply(List<Record> records) {
         LOGGER.log(Level.FINE, "searching records with invalid basic info serial");
+        activeSerialsCache = new HashMap<>();
         records.stream().filter(record ->
             record.status.equals(Record.Status.UNKNOWN) && record.infoKey != null
                 && !record.infoKey.isEmpty() && !getActiveSerial(record.infoKey).contains(record.infoSerial)

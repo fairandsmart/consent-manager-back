@@ -45,10 +45,6 @@ public class ExpiredRecordRule extends RecordStatusRule {
 
     private static final Logger LOGGER = Logger.getLogger(ExpiredRecordRule.class.getName());
 
-    public ExpiredRecordRule() {
-        LOGGER.log(Level.FINE, "Building new ExpiredRecordInvalidationRule");
-    }
-
     @Override
     public void apply(List<Record> records) {
         LOGGER.log(Level.FINE, "searching records with expirationTimestamp before now");

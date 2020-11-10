@@ -58,6 +58,7 @@ public class IrrelevantBodyRule extends RecordStatusRule {
     @Override
     public void apply(List<Record> records) {
         LOGGER.log(Level.FINE, "searching records with invalid body serial");
+        activeSerialsCache = new HashMap<>();
         records.stream().filter(record ->
             record.status.equals(Record.Status.UNKNOWN) && record.bodyKey != null
                 && !record.bodyKey.isEmpty() && !getActiveSerial(record.bodyKey).contains(record.bodySerial)

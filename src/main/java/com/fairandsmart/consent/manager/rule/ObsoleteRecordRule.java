@@ -47,10 +47,6 @@ public class ObsoleteRecordRule extends RecordStatusRule {
 
     private static final Logger LOGGER = Logger.getLogger(ObsoleteRecordRule.class.getName());
 
-    public ObsoleteRecordRule() {
-        LOGGER.log(Level.FINE, "Building new ExpiredRecordInvalidationRule");
-    }
-
     @Override
     public void apply(List<Record> records) {
         LOGGER.log(Level.FINE, "searching latest record");

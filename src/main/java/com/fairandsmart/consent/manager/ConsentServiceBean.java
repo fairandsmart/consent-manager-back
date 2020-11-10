@@ -590,9 +590,10 @@ public class ConsentServiceBean implements ConsentService {
             String receiptId = this.saveConsent(ctx, valuesMap);
             ctx.setReceiptId(receiptId);
 
-            Event event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx).withArg("receipt", receiptId);
+            Event event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx);
             this.notification.notify(event);
 
+            /*
             if (!StringUtils.isEmpty(ctx.getNotificationRecipient()) && !StringUtils.isEmpty(ctx.getNotificationModel())) {
                 try {
                     ConsentNotification notification = this.buildConsentNotification(ctx);
@@ -602,6 +603,7 @@ public class ConsentServiceBean implements ConsentService {
                     LOGGER.log(Level.SEVERE, "Error while notifying consent submission", e);
                 }
             }
+            */
 
             return new ConsentTransaction(receiptId);
         } catch (TokenServiceException | ConsentServiceException e) {
@@ -761,6 +763,7 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
+    /*
     private ConsentNotification buildConsentNotification(ConsentContext ctx) throws ReceiptStoreException, RenderingException, ReceiptNotFoundException, ReceiptRendererNotFoundException, IllegalIdentifierException, EntityNotFoundException {
         ConsentNotification notification = new ConsentNotification();
         notification.setLanguage(ctx.getLanguage());
@@ -783,6 +786,7 @@ public class ConsentServiceBean implements ConsentService {
 
         return notification;
     }
+     */
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
         if (ctx.getInfo() == null && values.containsKey("info")) {
