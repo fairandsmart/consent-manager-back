@@ -27,6 +27,9 @@ FS_DEBUG=${FS_DEBUG:-}
 FS_JVM_ARGS=${FS_JVM_ARGS:-}
 FS_KEYSTORE_PATH=${FS_KEYSTORE_PATH:-/data/keystore.jks}
 FS_MAXHEAPSIZE=${FS_MAXHEAPSIZE:-1g}
+FS_MAILER_FROM=${FS_MAILER_FROM:-consent-manager@fairandsmart.io}
+FS_MAILER_HOST=${FS_MAILER_HOST:-127.0.0.1}
+FS_MAILER_PORT=${FS_MAILER_PORT:-25}
 FS_SERIAL_PREFIX=${FS_SERIAL_PREFIX:-U}
 FS_SERIAL_SLOT_CAPACITY=${FS_SERIAL_SLOT_CAPACITY:-100}
 FS_SERIAL_SLOT_INITIAL=${FS_SERIAL_SLOT_INITIAL:-0}
@@ -58,6 +61,11 @@ sed -i "s|##FS_AUTH_BACK_URI##|$FS_AUTH_BACK_URI|" /config/application.propertie
 sed -i "s|##FS_AUTH_FRONT_URI##|$FS_AUTH_FRONT_URI|" /config/application.properties
 sed -i "s|##FS_AUTH_REALM##|$FS_AUTH_REALM|" /config/application.properties
 sed -i "s|##FS_AUTH_CLIENTID##|$FS_AUTH_CLIENTID|" /config/application.properties
+
+# mailer setup
+sed -i "s|##FS_MAILER_FROM##|${FS_MAILER_FROM}|" /config/application.properties
+sed -i "s|##FS_MAILER_HOST##|${FS_MAILER_HOST}|" /config/application.properties
+sed -i "s|##FS_MAILER_PORT##|${FS_MAILER_PORT}|" /config/application.properties
 
 # DB setup
 if [[ ${FS_CONSENTMANAGER_BACKEND} == "h2" ]]; then
