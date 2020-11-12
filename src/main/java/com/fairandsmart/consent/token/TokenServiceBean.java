@@ -43,6 +43,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.token.entity.ThinToken;
+import io.quarkus.scheduler.Scheduled;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -121,7 +122,7 @@ public class TokenServiceBean implements TokenService {
         if (token.length() < 25) {
             LOGGER.log(Level.FINE, "Token is a thin one");
             Optional<ThinToken> entry = ThinToken.findByIdOptional(token);
-            fullToken = entry.map(e -> e.value).orElseThrow(() -> new InvalidTokenException("Unable to find a thin token with key: " + token));
+            fullToken = entry.map(e -> e.value).orElseThrow(() -> new TokenExpiredException("Unable to find a thin token with key: " + token));
         }
         DecodedJWT decodedJWT = getDecodedToken(fullToken);
 
@@ -165,6 +166,10 @@ public class TokenServiceBean implements TokenService {
         throw new TokenServiceException("token verifier is null");
     }
 
-    //TODO Purge expired thin token
+    @Scheduled(cron="0 0 1 * * ?")
+    public void purgeExpiredToken() {
+        LOGGER.log(Level.INFO, "Deleting expired thin tokens");
+        ThinToken.delete("expires > ?1", System.currentTimeMillis()-40000000);
+    }
 
 }
