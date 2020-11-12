@@ -13,12 +13,12 @@
         background-color: white;
     }
 
+    .consent-form h4, .consent-form p {
+        margin: 4px 0;
+    }
+
 
     /* Logo */
-
-    .logo-wrapper {
-        padding-bottom: 8px;
-    }
 
     .logo {
         max-height: 100px;
@@ -32,6 +32,7 @@
 
     .header .header-title {
         margin-top: 0;
+        margin-bottom: 8px;
     }
 
     .header .header-body {
@@ -40,7 +41,7 @@
     }
 
     .header .privacy-policy-link-wrapper {
-        margin: 24px 0;
+        margin: 8px 0;
     }
 
     .header .privacy-policy-link-wrapper a {
@@ -78,7 +79,7 @@
 
     .processing-list {
         overflow-y: auto;
-        padding: 24px;
+        padding: 16px 24px;
         height: 100%;
     }
 
@@ -89,6 +90,11 @@
     .processing-header {
         display: flex;
         justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .processing-header h3 {
+        margin: 0;
     }
 
     .processing-body {
@@ -97,7 +103,7 @@
 
     .block-wrapper {
         padding: 12px;
-        margin: 24px 0 16px 0;
+        margin: 12px 0;
         border-radius: 4px;
         background-color: #f5f5f5;
         text-align: left;
@@ -109,10 +115,16 @@
 
     .block-wrapper ul {
         margin: 0;
+        padding-left: 16px;
+    }
+
+    .item-wrapper {
+        margin-bottom: 8px;
     }
 
     .purpose-container {
         text-align: center;
+        margin-top: 8px !important;
     }
 
     .purpose {
@@ -124,7 +136,7 @@
     /* Footer */
 
     .footer-body {
-        margin: 12px 0;
+        margin-bottom: 8px;
         max-height: 100px;
         overflow-y: auto;
     }
@@ -136,7 +148,11 @@
 
     .accept-all-text {
         font-weight: bold;
-        margin: 12px 20px 12px 0;
+    }
+
+    .submit-container {
+        text-align: center;
+        margin: 8px 0 4px 0;
     }
 
     .submit {

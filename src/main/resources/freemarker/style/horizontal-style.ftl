@@ -67,10 +67,6 @@
         background: linear-gradient(#eeeeee, rgba(238, 238, 238, 0));
     }
 
-    .processing-list {
-        padding-top: 12px;
-    }
-
     .right .block-wrapper {
         background-color: #e0e0e0;
     }
@@ -82,10 +78,5 @@
         padding: 12px 0;
         border-top: 1px solid lightgray;
         margin: 0 36px;
-    }
-
-    .submit-container {
-        text-align: right;
-        margin: 18px;
     }
 </style>
