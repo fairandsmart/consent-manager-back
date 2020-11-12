@@ -57,4 +57,7 @@ public interface MainConfig {
     @ConfigProperty(name = "secret")
     String secret();
 
+    @ConfigProperty(name = "thintoken")
+    boolean useThinToken();
+
 }

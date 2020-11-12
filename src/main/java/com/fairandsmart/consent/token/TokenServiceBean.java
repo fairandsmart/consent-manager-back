@@ -41,15 +41,15 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fairandsmart.consent.common.config.MainConfig;
+import com.fairandsmart.consent.common.util.Base58;
+import com.fairandsmart.consent.token.entity.ThinToken;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.transaction.Transactional;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,6 +72,7 @@ public class TokenServiceBean implements TokenService {
     }
 
     @Override
+    @Transactional
     public String generateToken(Tokenizable tokenizable, Date expirationDate) {
         LOGGER.log(Level.INFO, "Generating token");
         JWTCreator.Builder builder = JWT.create().withIssuer(config.owner());
@@ -80,10 +81,25 @@ public class TokenServiceBean implements TokenService {
         builder.withClaim("payloadClass", tokenizable.getClass().getName());
         builder.withIssuer(config.owner());
         tokenizable.getClaims().forEach(builder::withClaim);
-        return builder.sign(algorithm);
+        String token = builder.sign(algorithm);
+        if (config.useThinToken()) {
+            //TODO If uuid distribution is uniform, find a close uuid may be possible
+            //   - maybe change to a random number generator with storage existence check and generation retry
+            String key = Base58.encodeUUID(UUID.randomUUID().toString());
+            LOGGER.log(Level.FINE, "Storing short token with key: " + key);
+            ThinToken thinToken = new ThinToken();
+            thinToken.id = key;
+            thinToken.value = token;
+            thinToken.expires = expirationDate.getTime();
+            thinToken.persist();
+            return thinToken.id;
+        } else {
+            return token;
+        }
     }
 
     @Override
+    @Transactional
     public String generateToken(Tokenizable tokenizable, int calendarField, int calendarAmount) {
         LOGGER.log(Level.INFO, "Generating token");
         Calendar calendar = Calendar.getInstance();
@@ -93,6 +109,7 @@ public class TokenServiceBean implements TokenService {
     }
 
     @Override
+    @Transactional
     public String generateToken(Tokenizable tokenizable) {
         return this.generateToken(tokenizable, Calendar.HOUR, 4);
     }
@@ -100,7 +117,13 @@ public class TokenServiceBean implements TokenService {
     @Override
     public Tokenizable readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "Reading token");
-        DecodedJWT decodedJWT = getDecodedToken(token);
+        String fullToken = token;
+        if (token.length() < 25) {
+            LOGGER.log(Level.FINE, "Token is a thin one");
+            Optional<ThinToken> entry = ThinToken.findByIdOptional(token);
+            fullToken = entry.map(e -> e.value).orElseThrow(() -> new InvalidTokenException("Unable to find a thin token with key: " + token));
+        }
+        DecodedJWT decodedJWT = getDecodedToken(fullToken);
 
         if (!decodedJWT.getClaims().containsKey("payloadClass")) {
             throw new InvalidTokenException("token must contains a payloadClass claim");
@@ -141,5 +164,7 @@ public class TokenServiceBean implements TokenService {
         }
         throw new TokenServiceException("token verifier is null");
     }
+
+    //TODO Purge expired thin token
 
 }
