@@ -714,6 +714,9 @@ public class ConsentServiceBean implements ConsentService {
         try {
             String xml = IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name());
             Receipt receipt = Receipt.build(xml);
+            LOGGER.log(Level.INFO, authentication.getConnectedIdentifier());
+            LOGGER.log(Level.INFO, "admin ? " + authentication.isConnectedIdentifierAdmin());
+            LOGGER.log(Level.INFO, "operator ? " + authentication.isConnectedIdentifierOperator());
             if (!authentication.getConnectedIdentifier().equals(receipt.getSubject()) && !authentication.isConnectedIdentifierOperator()) {
                 if (StringUtils.isNotEmpty(token)) {
                     ConsentTransaction tx = (ConsentTransaction) tokenService.readToken(token);

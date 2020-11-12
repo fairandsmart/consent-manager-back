@@ -49,22 +49,6 @@
         color: #2196F3;
     }
 
-    .close-wrapper {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 20;
-    }
-
-    .close-btn {
-        cursor: pointer;
-        border: none;
-        background: none;
-        color: black;
-        font-size: larger;
-        font-weight: bold;
-    }
-
     .content-fade {
         background: linear-gradient(white, rgba(255, 255, 255, 0));
         height: 32px;

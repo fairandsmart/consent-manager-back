@@ -55,11 +55,6 @@
         margin: -32px 0 0 0 !important;
     }
 
-    .close-wrapper {
-        top: 10px;
-        right: 10px;
-    }
-
 
     /* Content */
 
