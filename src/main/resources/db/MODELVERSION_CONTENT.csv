@@ -97,7 +97,7 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
 }",com.fairandsmart.consent.manager.model.Preference
 5985a954-bfe2-4af3-a142-991adc0572d1,fr,demo@localhost,"{
   ""type"" : ""email"",
-  ""sender"" : ""Michel SARL <contact@michelsarl.fr>"",
+  ""sender"" : ""Michel SARL <michelsarl@fairandsmart.tech>"",
   ""subject"" : ""Votre consentement"",
   ""title"" : ""Merci pour votre confiance"",
   ""body"" : ""Nous tenions à vous remercier de votre confiance. Selon la préférence que vous avez sélectionnée, nous vous recontacterons prochainement pour vous présenter nos nouveautés. "",
@@ -107,7 +107,7 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
 }",com.fairandsmart.consent.manager.model.Email
 20f8f70c-9eea-4410-9742-3a0f926715a8,fr,demo@localhost,"{
   ""type"" : ""email"",
-  ""sender"" : ""Michel SARL <contact@michelsarl.fr>"",
+  ""sender"" : ""Michel SARL <michelsarl@fairandsmart.tech>"",
   ""subject"" : ""Votre consentement"",
   ""title"" : ""Merci pour votre confiance"",
   ""body"" : ""Nous tenions à vous remercier de votre confiance. Selon la préférence que vous avez sélectionnée, nous vous recontacterons prochainement pour vous présenter nos nouveautés. "",
@@ -117,7 +117,7 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
 }",com.fairandsmart.consent.manager.model.Email
 6413e879-ae98-4f2e-b912-f82a02997d2b,fr,demo@localhost,"{
   ""type"" : ""email"",
-  ""sender"" : ""Michel SARL <contact@michelsarl.fr>"",
+  ""sender"" : ""Michel SARL <michelsarl@fairandsmart.tech>"",
   ""subject"" : ""Votre consentement"",
   ""title"" : ""Merci pour votre confiance"",
   ""body"" : ""Nous tenions à vous remercier de votre confiance. Selon la préférence que vous avez sélectionnée, nous vous recontacterons prochainement pour vous présenter nos nouveautés. "",
