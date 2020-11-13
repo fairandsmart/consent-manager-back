@@ -85,6 +85,10 @@
         color: rgba(0, 0, 0, 0.54);
     }
 
+    .processing-body li:first-of-type {
+        margin-top: 8px;
+    }
+
     .block-wrapper {
         padding: 12px;
         margin: 12px 0;
@@ -94,12 +98,29 @@
     }
 
     .block-wrapper h4 {
-        margin-top: 0;
+        margin: 0;
     }
 
     .block-wrapper ul {
         margin: 0;
         padding-left: 16px;
+        overflow: hidden;
+    }
+
+    .controller-header {
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .controller-hidden {
+        max-height: 0;
+        transition: 1s linear;
+    }
+
+    .controller-open {
+        max-height: 200px;
+        transition: 1s linear;
     }
 
     .item-wrapper {

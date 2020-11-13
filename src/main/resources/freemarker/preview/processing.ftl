@@ -33,6 +33,7 @@
     <#-- Data controller -->
         <#if element_content.showDataController && element_content.dataController?has_content>
             <#assign dataController=element_content.dataController>
+            <#assign dataControllerId="processing-controller">
             <#include "../data-controller.ftl">
         </#if>
 

@@ -36,6 +36,7 @@
     <#-- Data controller -->
         <#if langContent.showDataController && langContent.dataController?has_content>
             <#assign dataController=langContent.dataController>
+            <#assign dataControllerId=element.identifier + "-controller">
             <#include "data-controller.ftl">
         </#if>
 
