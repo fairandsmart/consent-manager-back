@@ -68,6 +68,21 @@
                 <value language="en">Retention Period</value>
                 <value language="fr">Durée de conservation</value>
             </key>
+            <key name="YEAR">
+                <value language="default">year(s)</value>
+                <value language="en">year(s)</value>
+                <value language="fr">an(s)</value>
+            </key>
+            <key name="MONTH">
+                <value language="default">month(s)</value>
+                <value language="en">month(s)</value>
+                <value language="fr">mois</value>
+            </key>
+            <key name="WEEK">
+                <value language="default">week(s)</value>
+                <value language="en">week(s)</value>
+                <value language="fr">semaine(s)</value>
+            </key>
             <key name="data_usage">
                 <value language="default">Data Usage</value>
                 <value language="en">Data Usage</value>
@@ -77,6 +92,31 @@
                 <value language="default">Data Purpose</value>
                 <value language="en">Data Purpose</value>
                 <value language="fr">Finalité</value>
+            </key>
+            <key name="CONSENT_CORE_SERVICE">
+                <value language="default">Core service</value>
+                <value language="en">Core service</value>
+                <value language="fr">Service principal</value>
+            </key>
+            <key name="CONSENT_IMPROVED_SERVICE">
+                <value language="default">Improved service</value>
+                <value language="en">Improved service</value>
+                <value language="fr">Service amélioré</value>
+            </key>
+            <key name="CONSENT_MARKETING">
+                <value language="default">Marketing</value>
+                <value language="en">Marketing</value>
+                <value language="fr">Marketing</value>
+            </key>
+            <key name="CONSENT_THIRD_PART_SHARING">
+                <value language="default">Sharing with third parties</value>
+                <value language="en">Sharing with third parties</value>
+                <value language="fr">Partage à des tierces-parties</value>
+            </key>
+            <key name="CONSENT_RESEARCH">
+                <value language="default">Research</value>
+                <value language="en">Research</value>
+                <value language="fr">Recherche</value>
             </key>
             <key name="subject_consent">
                 <value language="default">Subject Consent</value>
@@ -112,6 +152,21 @@
                 <value language="default">Collection Method</value>
                 <value language="en">Collection Method</value>
                 <value language="fr">Méthode de collecte</value>
+            </key>
+            <key name="WEBFORM">
+                <value language="default">Webform</value>
+                <value language="en">Webform</value>
+                <value language="fr">Formulaire Web</value>
+            </key>
+            <key name="OPERATOR">
+                <value language="default">Operator</value>
+                <value language="en">Operator</value>
+                <value language="fr">Opérateur</value>
+            </key>
+            <key name="EMAIL">
+                <value language="default">Email</value>
+                <value language="en">Email</value>
+                <value language="fr">Email</value>
             </key>
             <key name="update_url">
                 <value language="default">Update Consent Link</value>
@@ -218,7 +273,10 @@
                         </xsl:call-template>
                         <xsl:text>: </xsl:text>
                     </span>
-                    <xsl:value-of select="collectionMethod"/>
+                    <xsl:call-template name="translate">
+                        <xsl:with-param name="key"><xsl:value-of select="collectionMethod"/></xsl:with-param>
+                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                    </xsl:call-template>
                 </div>
                 <div class="receipt-date">
                     <span class="receipt-label">
@@ -259,7 +317,12 @@
                             </xsl:call-template>
                             <xsl:text>: </xsl:text>
                         </span>
-                        <xsl:value-of select="current()/retention"/>
+                        <xsl:value-of select="current()/retention"/><xsl:text> </xsl:text>
+                        <xsl:value-of select="current()/retentionDuration"/><xsl:text> </xsl:text>
+                        <xsl:call-template name="translate">
+                            <xsl:with-param name="key"><xsl:value-of select="current()/retentionUnit"/></xsl:with-param>
+                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                        </xsl:call-template><xsl:text>.</xsl:text>
                     </div>
                     <div>
                         <span class="receipt-label">
@@ -280,7 +343,10 @@
                             <xsl:text>: </xsl:text>
                         </span>
                         <xsl:for-each select="current()/purposes/purpose">
-                            <xsl:value-of select="current()"/>
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key"><xsl:value-of select="current()"/></xsl:with-param>
+                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                            </xsl:call-template>
                             <xsl:text> </xsl:text>
                         </xsl:for-each>
                     </div>

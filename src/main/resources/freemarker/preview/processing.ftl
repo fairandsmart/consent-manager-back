@@ -2,33 +2,26 @@
     <#if element_content?is_hash>
     <#-- Header -->
         <div class="processing-header">
-            <h3><@valueOrError element_content.processingTitle "missingValue"></@valueOrError></h3>
+            <h3><@valueOrError element_content.title "missingValue"></@valueOrError></h3>
 
             <@toggleSwitch "${identifier}"></@toggleSwitch>
         </div>
 
     <#-- Data -->
         <div class="item-wrapper">
-            <#if element_content.dataTitle?has_content>
-                <h4>${element_content.dataTitle}</h4>
-            </#if>
-            <p class="processing-body"><@valueOrError element_content.dataBody "missingValue"></@valueOrError></p>
+            <p class="processing-body"><@valueOrError element_content.data "missingValue"></@valueOrError></p>
         </div>
 
     <#-- Retention -->
         <div class="item-wrapper">
-            <#if element_content.retentionTitle?has_content>
-                <h4>${element_content.retentionTitle}</h4>
-            </#if>
-            <p class="processing-body"><@valueOrError element_content.retentionBody "missingValue"></@valueOrError></p>
+            <p class="processing-body">
+                <@valueOrError element_content.retention "missingValue"></@valueOrError> <@valueOrError element_content.retentionDuration "missingValue"></@valueOrError> <@readBundle element_content.retentionUnit "missingValue"></@readBundle>.
+            </p>
         </div>
 
     <#-- Usage & purposes -->
         <div class="item-wrapper">
-            <#if element_content.usageTitle?has_content>
-                <h4>${element_content.usageTitle}</h4>
-            </#if>
-            <p class="processing-body"><@valueOrError element_content.usageBody "missingValue"></@valueOrError></p>
+            <p class="processing-body"><@valueOrError element_content.usage "missingValue"></@valueOrError></p>
             <p class="processing-body purpose-container">
                 <#list element_content.purposes as purpose>
                     <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png"

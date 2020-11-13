@@ -45,6 +45,8 @@ public class Consent {
     private String serial;
     private String data;
     private String retention;
+    private int retentionDuration;
+    private String retentionUnit;
     private String usage;
     private Controller controller;
     @XmlElementWrapper(name="purposes")
@@ -80,6 +82,22 @@ public class Consent {
 
     public void setRetention(String retention) {
         this.retention = retention;
+    }
+
+    public int getRetentionDuration() {
+        return retentionDuration;
+    }
+
+    public void setRetentionDuration(int retentionDuration) {
+        this.retentionDuration = retentionDuration;
+    }
+
+    public String getRetentionUnit() {
+        return retentionUnit;
+    }
+
+    public void setRetentionUnit(String retentionUnit) {
+        this.retentionUnit = retentionUnit;
     }
 
     public String getUsage() {

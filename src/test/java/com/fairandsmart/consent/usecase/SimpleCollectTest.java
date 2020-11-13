@@ -220,7 +220,7 @@ public class SimpleCollectTest {
         assertTrue(receiptPage.contains("RE&Ccedil;U"));
         assertTrue(receiptPage.contains("<title>RE&Ccedil;U DE CONSENTEMENT</title>"));
         assertTrue(receiptPage.contains("Fran&ccedil;ais (France)"));
-        assertTrue(receiptPage.contains(ConsentContext.CollectionMethod.WEBFORM.name()));
+        assertTrue(receiptPage.contains("Formulaire Web"));
         assertTrue(receiptPage.contains("Data body " + t1Key));
         assertTrue(receiptPage.contains("Data body " + t2Key));
         assertTrue(receiptPage.contains("Accept&eacute;"));

@@ -26,7 +26,9 @@
 <#list data.consents as consent>
     <div><span class="receipt-label"><@readBundle "data_collected"></@readBundle>: </span>${consent.data}</div>
     <#if consent.retention??>
-        <div><span class="receipt-label"><@readBundle "data_retention"></@readBundle>: </span>${consent.retention}
+        <div>
+            <span class="receipt-label"><@readBundle "data_retention"></@readBundle>: </span>
+            ${consent.retention} ${consent.retentionDuration} <@readBundle consent.retentionUnit "missingValue"></@readBundle>.
         </div></#if>
     <div><span class="receipt-label"><@readBundle "data_usage"></@readBundle>: </span>${consent.usage}</div>
     <div class="spaced consent-value"><span
