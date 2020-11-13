@@ -37,6 +37,7 @@ import com.fairandsmart.consent.api.dto.RecordDto;
 import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
+import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
@@ -78,7 +79,7 @@ public class SubjectsResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public SubjectDto createSubject(SubjectDto subjectDto) throws ConsentManagerException {
+    public SubjectDto createSubject(SubjectDto subjectDto) throws ConsentManagerException, EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "POST /subjects/");
         return SubjectDto.fromSubject(consentService.createSubject(subjectDto));
     }

@@ -697,7 +697,7 @@ public class ConsentServiceTest {
 
         LOGGER.info("Testing Create subject with name already taken");
         subjectDto.setEmailAddress("duplicate@localhost");
-        assertThrows(ConsentManagerException.class, () -> service.createSubject(subjectDto));
+        assertThrows(EntityAlreadyExistsException.class, () -> service.createSubject(subjectDto));
 
         LOGGER.info("Testing Get new subject");
         subject = service.getSubject("stuart");

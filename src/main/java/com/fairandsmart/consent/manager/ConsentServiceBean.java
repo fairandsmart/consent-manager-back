@@ -640,7 +640,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Subject createSubject(SubjectDto subjectDto) throws ConsentManagerException {
+    public Subject createSubject(SubjectDto subjectDto) throws ConsentManagerException, EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "Creating subject with name: " + subjectDto.getName());
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to create subjects");
@@ -650,7 +650,7 @@ public class ConsentServiceBean implements ConsentService {
         }
         Optional<Subject> optional = Subject.find("owner = ?1 and name = ?2", config.owner(), subjectDto.getName()).singleResultOptional();
         if (optional.isPresent()) {
-            throw new ConsentManagerException("This subject name already exists");
+            throw new EntityAlreadyExistsException("This subject name already exists");
         }
         Instant now = Instant.now();
         Subject subject = new Subject();
