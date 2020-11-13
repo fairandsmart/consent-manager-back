@@ -42,6 +42,7 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.common.util.PageUtil;
 import com.fairandsmart.consent.common.util.SortUtil;
 import com.fairandsmart.consent.manager.cache.PreviewCache;
@@ -816,7 +817,7 @@ public class ConsentServiceBean implements ConsentService {
     private String saveConsent(ConsentContext ctx, Map<String, String> values) throws ConsentServiceException, InvalidConsentException {
         try {
             this.checkValuesCoherency(ctx, values);
-            String transaction = java.util.UUID.randomUUID().toString();
+            String transaction = Base58.encodeUUID(UUID.randomUUID().toString());
             Instant now = Instant.now();
 
             ConsentElementIdentifier infoId = null;

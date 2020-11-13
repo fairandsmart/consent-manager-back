@@ -184,4 +184,15 @@
         <loadData file="db/SUBJECT.csv" separator="," tableName="SUBJECT" schemaName="PUBLIC"/>
         <loadData file="db/RECORD.csv" separator="," tableName="RECORD" schemaName="PUBLIC"/>
     </changeSet>
+    <changeSet author="jayblanc" id="3">
+        <createTable tableName="THINTOKEN" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(25000)"/>
+            <column name="EXPIRES" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
