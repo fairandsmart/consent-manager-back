@@ -272,7 +272,7 @@
             </xsl:call-template>
             <xsl:text>: </xsl:text>
             <xsl:value-of select="current()/retention"/><xsl:text> </xsl:text>
-            <xsl:value-of select="current()/retentionDuration"/><xsl:text> </xsl:text>
+            <xsl:value-of select="current()/retentionValue"/><xsl:text> </xsl:text>
             <xsl:call-template name="translate">
                 <xsl:with-param name="key"><xsl:value-of select="current()/retentionUnit"/></xsl:with-param>
                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
@@ -291,11 +291,11 @@
             </xsl:call-template>
             <xsl:text>: </xsl:text>
             <xsl:for-each select="current()/purposes/purpose">
+                <xsl:if test="position() > 1"><xsl:text>, </xsl:text></xsl:if>
                 <xsl:call-template name="translate">
                     <xsl:with-param name="key"><xsl:value-of select="current()"/></xsl:with-param>
                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                 </xsl:call-template>
-                <xsl:text> </xsl:text>
             </xsl:for-each>
             <xsl:text>&#10;</xsl:text>
             <xsl:call-template name="translate">

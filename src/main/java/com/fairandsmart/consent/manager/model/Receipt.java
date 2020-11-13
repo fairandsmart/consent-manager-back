@@ -286,7 +286,7 @@ public class Receipt {
             trecord.setSerial(record.getValue().serial);
             trecord.setData(record.getKey().getData());
             trecord.setRetention(record.getKey().getRetention());
-            trecord.setRetentionDuration(record.getKey().getRetentionDuration());
+            trecord.setRetentionValue(record.getKey().getRetentionValue());
             trecord.setRetentionUnit(record.getKey().getRetentionUnit().name());
             trecord.setUsage(record.getKey().getUsage());
             trecord.setPurposes(record.getKey().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));

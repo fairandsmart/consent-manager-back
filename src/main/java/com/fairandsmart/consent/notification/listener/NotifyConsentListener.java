@@ -34,25 +34,13 @@ package com.fairandsmart.consent.notification.listener;
  */
 
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.ConsentNotification;
-import com.fairandsmart.consent.manager.ModelDataSerializationException;
-import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.worker.NotifyConsentWorker;
-import com.fairandsmart.consent.template.TemplateModel;
-import com.fairandsmart.consent.template.TemplateService;
-import com.fairandsmart.consent.template.TemplateServiceException;
-import io.quarkus.mailer.Mail;
-import io.quarkus.mailer.reactive.ReactiveMailer;
 import io.quarkus.vertx.ConsumeEvent;
-import org.apache.commons.lang3.LocaleUtils;
 import org.eclipse.microprofile.context.ManagedExecutor;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

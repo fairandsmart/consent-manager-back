@@ -140,7 +140,7 @@ public class TestUtils {
                 .withTitle("Processing title " + key)
                 .withData("Data body " + key)
                 .withRetention("Retention body " + key)
-                .withRetentionDuration(3)
+                .withRetentionValue(3)
                 .withRetentionUnit(Processing.RetentionUnit.MONTH)
                 .withUsage("Usage body " + key)
                 .withPurpose(Processing.Purpose.CONSENT_CORE_SERVICE)

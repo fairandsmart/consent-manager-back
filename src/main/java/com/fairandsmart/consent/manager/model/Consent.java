@@ -45,7 +45,7 @@ public class Consent {
     private String serial;
     private String data;
     private String retention;
-    private int retentionDuration;
+    private int retentionValue;
     private String retentionUnit;
     private String usage;
     private Controller controller;
@@ -84,12 +84,12 @@ public class Consent {
         this.retention = retention;
     }
 
-    public int getRetentionDuration() {
-        return retentionDuration;
+    public int getRetentionValue() {
+        return retentionValue;
     }
 
-    public void setRetentionDuration(int retentionDuration) {
-        this.retentionDuration = retentionDuration;
+    public void setRetentionValue(int retentionValue) {
+        this.retentionValue = retentionValue;
     }
 
     public String getRetentionUnit() {
