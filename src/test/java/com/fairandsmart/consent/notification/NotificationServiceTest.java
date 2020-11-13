@@ -55,7 +55,7 @@ public class NotificationServiceTest {
         Event event = new Event().withType(Event.CONSENT_SUBMIT).withAuthor("me").withArg("foo", "bar");
         service.notify(event);
 
-        //Find a way to test that the event is really treated...
+        //TODO Find a way to test that the event is really treated...
     }
 
 }

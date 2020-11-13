@@ -216,6 +216,7 @@ public class ConsentServiceBean implements ConsentService {
         authentication.ensureConnectedIdentifierIsAdmin();
         List<ModelVersion> versions = ModelVersion.find("owner = ?1 and entry.id = ?2", config.owner(), id).list();
         if (versions.isEmpty() || versions.stream().allMatch(v -> v.status.equals(ModelVersion.Status.DRAFT))) {
+            versions.forEach(v -> ModelVersion.deleteById(v.id));
             ModelEntry.deleteById(id);
             previewCache.remove(id);
         } else {
@@ -271,15 +272,15 @@ public class ConsentServiceBean implements ConsentService {
                 latest.persist();
                 latest = newversion;
             }
-            latest.content.clear();
-            for (Map.Entry<String, ModelData> e : data.entrySet()) {
-                latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
-            }
-            latest.availableLanguages = String.join(",", data.keySet());
-            if (latest.content.containsKey(defaultLanguage)) {
+            if (data.containsKey(defaultLanguage)) {
                 latest.defaultLanguage = defaultLanguage;
             } else {
                 throw new ConsentManagerException("Default language does not exist in content languages");
+            }
+            latest.availableLanguages = String.join(",", data.keySet());
+            latest.content.clear();
+            for (Map.Entry<String, ModelData> e : data.entrySet()) {
+                latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
             }
             latest.modificationDate = now;
             latest.persist();
@@ -371,15 +372,15 @@ public class ConsentServiceBean implements ConsentService {
             throw new ConsentManagerException("Unable to update content for version that is not last one");
         }
         try {
-            version.content.clear();
-            for (Map.Entry<String, ModelData> entry : data.entrySet()) {
-                version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
-            }
-            version.availableLanguages = String.join(",", data.keySet());
-            if (version.content.containsKey(defaultLanguage)) {
+            if (data.containsKey(defaultLanguage)) {
                 version.defaultLanguage = defaultLanguage;
             } else {
                 throw new ConsentManagerException("Default language does not exist in content languages");
+            }
+            version.availableLanguages = String.join(",", data.keySet());
+            version.content.clear();
+            for (Map.Entry<String, ModelData> entry : data.entrySet()) {
+                version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
             }
             version.modificationDate = System.currentTimeMillis();
             version.persist();
@@ -639,10 +640,17 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Subject createSubject(SubjectDto subjectDto) throws AccessDeniedException {
+    public Subject createSubject(SubjectDto subjectDto) throws ConsentManagerException, EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "Creating subject with name: " + subjectDto.getName());
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to create subjects");
+        }
+        if (StringUtils.isEmpty(subjectDto.getName())) {
+            throw new ConsentManagerException("Subject name cannot be empty");
+        }
+        Optional<Subject> optional = Subject.find("owner = ?1 and name = ?2", config.owner(), subjectDto.getName()).singleResultOptional();
+        if (optional.isPresent()) {
+            throw new EntityAlreadyExistsException("This subject name already exists");
         }
         Instant now = Instant.now();
         Subject subject = new Subject();
@@ -656,13 +664,16 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Subject updateSubject(String subjectId, SubjectDto subjectDto) throws AccessDeniedException, EntityNotFoundException {
+    public Subject updateSubject(String subjectId, SubjectDto subjectDto) throws ConsentManagerException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "Updating subject with id: " + subjectId);
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to update subjects");
         }
         Optional<Subject> optional = Subject.findByIdOptional(subjectId);
-        Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("unable to find a subject for id: " + subjectId));
+        Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("Unable to find a subject for id: " + subjectId));
+        if (!subject.name.equals(subjectDto.getName())) {
+            throw new ConsentManagerException("Subject name cannot be changed");
+        }
         subject.emailAddress = subjectDto.getEmailAddress();
         subject.persist();
         return subject;

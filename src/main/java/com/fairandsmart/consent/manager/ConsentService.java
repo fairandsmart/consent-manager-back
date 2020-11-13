@@ -123,9 +123,9 @@ public interface ConsentService {
 
     Subject getSubject(String name) throws AccessDeniedException;
 
-    Subject createSubject(SubjectDto subjectDto) throws AccessDeniedException;
+    Subject createSubject(SubjectDto subjectDto) throws ConsentManagerException, EntityAlreadyExistsException;
 
-    Subject updateSubject(String subjectId, SubjectDto subjectDto) throws AccessDeniedException, EntityNotFoundException;
+    Subject updateSubject(String subjectId, SubjectDto subjectDto) throws ConsentManagerException, EntityNotFoundException;
 
     /* Receipts */
 
