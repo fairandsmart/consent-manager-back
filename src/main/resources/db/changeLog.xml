@@ -195,4 +195,14 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet author="jayblanc" id="4">
+        <createTable tableName="INSTANCE" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

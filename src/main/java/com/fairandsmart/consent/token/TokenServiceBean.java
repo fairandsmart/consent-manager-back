@@ -167,6 +167,7 @@ public class TokenServiceBean implements TokenService {
     }
 
     @Scheduled(cron="0 0 1 * * ?")
+    @Transactional
     public void purgeExpiredToken() {
         LOGGER.log(Level.INFO, "Deleting expired thin tokens");
         ThinToken.delete("expires > ?1", System.currentTimeMillis()-40000000);

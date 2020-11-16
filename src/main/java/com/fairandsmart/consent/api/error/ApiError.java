@@ -150,6 +150,7 @@ public class ApiError {
         INVALID_TOKEN(HttpStatus.SC_BAD_REQUEST, "token-invalid", "Invalid Token"),
         TOKEN_EXPIRED(HttpStatus.SC_BAD_REQUEST, "token-expired", "Expired Token"),
 
+        SUPPORT_SERVICE_ERROR(HttpStatus.SC_NO_CONTENT, "support-error", "Unable to contact support service"),
         RENDERER_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Renderer Error"),
         TOKEN_SERVICE_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Token Exception"),
         UNEXPECTED_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Consent Exception");
