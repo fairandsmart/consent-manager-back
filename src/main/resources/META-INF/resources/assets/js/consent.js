@@ -79,3 +79,11 @@ for (let i = 0; i < switches.length; i++) {
 if (hasAcceptAll) {
     checkAcceptAll();
 }
+
+function toggleAccordion(id) {
+    if (document.getElementById(id).classList.contains("controller-hidden")) {
+        document.getElementById(id).classList.replace("controller-hidden", "controller-open");
+    } else {
+        document.getElementById(id).classList.replace("controller-open", "controller-hidden");
+    }
+}

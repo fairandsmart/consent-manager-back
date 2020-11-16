@@ -50,6 +50,7 @@ public class RecordDto {
     private String collectionMethod;
     private String comment;
     private String mailRecipient;
+    private String transaction;
 
     public RecordDto() {
     }
@@ -158,6 +159,14 @@ public class RecordDto {
         this.mailRecipient = mailRecipient;
     }
 
+    public String getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(String transaction) {
+        this.transaction = transaction;
+    }
+
     public static RecordDto fromRecord(Record record) {
         RecordDto dto = new RecordDto();
         dto.setSubject(record.subject);
@@ -173,6 +182,7 @@ public class RecordDto {
         dto.setStatusExplanation(record.statusExplanation.toString());
         dto.setValue(record.value);
         dto.setMailRecipient(record.mailRecipient);
+        dto.setTransaction(record.transaction);
         return dto;
     }
 
@@ -192,6 +202,7 @@ public class RecordDto {
                 ", collectionMethod='" + collectionMethod + '\'' +
                 ", comment='" + comment + '\'' +
                 ", mailRecipient='" + mailRecipient + '\'' +
+                ", transaction='" + transaction + '\'' +
                 '}';
     }
 }

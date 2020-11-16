@@ -284,9 +284,11 @@ public class Receipt {
         for ( Map.Entry<Processing, Record> record : records.entrySet() ) {
             Consent trecord = new Consent();
             trecord.setSerial(record.getValue().serial);
-            trecord.setData(record.getKey().getDataBody());
-            trecord.setRetention(record.getKey().getRetentionBody());
-            trecord.setUsage(record.getKey().getUsageBody());
+            trecord.setData(record.getKey().getData());
+            trecord.setRetention(record.getKey().getRetention());
+            trecord.setRetentionValue(record.getKey().getRetentionValue());
+            trecord.setRetentionUnit(record.getKey().getRetentionUnit().name());
+            trecord.setUsage(record.getKey().getUsage());
             trecord.setPurposes(record.getKey().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
             trecord.setController(record.getKey().getDataController());
             trecord.setValue(record.getValue().value);

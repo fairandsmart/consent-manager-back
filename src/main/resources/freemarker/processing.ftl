@@ -4,7 +4,7 @@
     <#if langContent?is_hash && langContent?has_content>
     <#-- Header -->
         <div class="processing-header">
-            <h3><@valueOrError langContent.processingTitle "missingValue"></@valueOrError></h3>
+            <h3><@valueOrError langContent.title "missingValue"></@valueOrError></h3>
 
             <#assign isChecked=(!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted")>
             <@toggleSwitch "${element.identifier}" isChecked></@toggleSwitch>
@@ -12,26 +12,19 @@
 
     <#-- Data -->
         <div class="item-wrapper">
-            <#if langContent.dataTitle?has_content>
-                <h4>${langContent.dataTitle}</h4>
-            </#if>
-            <p class="processing-body"><@valueOrError langContent.dataBody "missingValue"></@valueOrError></p>
+            <p class="processing-body"><@valueOrError langContent.data "missingValue"></@valueOrError></p>
         </div>
 
     <#-- Retention -->
         <div class="item-wrapper">
-            <#if langContent.retentionTitle?has_content>
-                <h4>${langContent.retentionTitle}</h4>
-            </#if>
-            <p class="processing-body"><@valueOrError langContent.retentionBody "missingValue"></@valueOrError></p>
+            <p class="processing-body">
+                <@valueOrError langContent.retention "missingValue"></@valueOrError> <@valueOrError langContent.retentionValue "missingValue"></@valueOrError> <@readBundle langContent.retentionUnit "missingValue"></@readBundle>.
+            </p>
         </div>
 
     <#-- Usage & purposes -->
         <div class="item-wrapper">
-            <#if langContent.usageTitle?has_content>
-                <h4>${langContent.usageTitle}</h4>
-            </#if>
-            <p class="processing-body"><@valueOrError langContent.usageBody "missingValue"></@valueOrError></p>
+            <p class="processing-body"><@valueOrError langContent.usage "missingValue"></@valueOrError></p>
             <p class="processing-body purpose-container">
                 <#list langContent.purposes as purpose>
                     <img class="purpose" src="/assets/img/purpose/${purpose?lower_case}.png"
@@ -43,6 +36,7 @@
     <#-- Data controller -->
         <#if langContent.showDataController && langContent.dataController?has_content>
             <#assign dataController=langContent.dataController>
+            <#assign dataControllerId=element.identifier + "-controller">
             <#include "data-controller.ftl">
         </#if>
 
