@@ -5,6 +5,7 @@ COPY src /project/src
 RUN mvn -f /project/pom.xml clean package -DskipTests -Dquarkus.package.uber-jar=true
 
 FROM adoptopenjdk:11-jre-hotspot
+RUN apt-get update && apt-get install -y gettext-base
 COPY --from=build /project/target/*-runner.jar /consent-manager-back.jar
 COPY fs /
 VOLUME /data
