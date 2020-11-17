@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.notification.listener;
+package com.fairandsmart.consent.common.config;
 
 /*-
  * #%L
@@ -33,33 +33,22 @@ package com.fairandsmart.consent.notification.listener;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.notification.entity.Event;
-import com.fairandsmart.consent.notification.worker.NotifyConsentWorker;
-import io.quarkus.vertx.ConsumeEvent;
-import org.eclipse.microprofile.context.ManagedExecutor;
+import io.quarkus.arc.config.ConfigProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+@ConfigProperties(prefix = "consent.support")
+public interface SupportConfig {
 
-@RequestScoped
-public class NotifyConsentListener {
+    @ConfigProperty(name = "enabled", defaultValue = "true")
+    boolean isEnabled();
 
-    private static final Logger LOGGER = Logger.getLogger(NotifyConsentListener.class.getName());
+    @ConfigProperty(name = "news")
+    boolean checkNews();
 
-    @Inject
-    ManagedExecutor executor;
+    @ConfigProperty(name = "bugs")
+    boolean reportBugs();
 
-    @Inject
-    NotifyConsentWorker worker;
+    @ConfigProperty(name = "stats")
+    boolean reportStats();
 
-    @ConsumeEvent(value = Event.CONSENT_SUBMIT)
-    public void consume(Event event) {
-        LOGGER.log(Level.FINE, "Consent Submit event received: " + event.toString());
-        ConsentContext ctx = (ConsentContext)event.getData();
-        worker.setCtx(ctx);
-        executor.submit(worker);
-    }
 }

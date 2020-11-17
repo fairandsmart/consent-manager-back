@@ -35,6 +35,8 @@ package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.UserDto;
 import com.fairandsmart.consent.security.AuthenticationService;
+import com.fairandsmart.consent.support.SupportServiceException;
+import com.fairandsmart.consent.support.SupportService;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -44,25 +46,36 @@ import javax.ws.rs.core.MediaType;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Path("/users")
-public class UsersResource {
+@Path("/system")
+public class SystemResource {
 
-    private static final Logger LOGGER = Logger.getLogger(UsersResource.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SystemResource.class.getName());
 
     @Inject
     AuthenticationService authenticationService;
 
+    @Inject
+    SupportService supportService;
+
     @GET
-    @Path("me")
+    @Path("/users/me")
     @Produces(MediaType.APPLICATION_JSON)
     public UserDto me() {
-        LOGGER.log(Level.INFO, "GET /users/me");
+        LOGGER.log(Level.INFO, "GET /system/users/me");
         UserDto user = new UserDto();
         user.setUsername(authenticationService.getConnectedIdentifier());
         user.setAdmin(authenticationService.isConnectedIdentifierAdmin());
         user.setOperator(authenticationService.isConnectedIdentifierOperator());
         user.setRoles(authenticationService.listConnectedIdentifierRoles());
         return user;
+    }
+
+    @GET
+    @Path("/support/version")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String latestVersion() throws SupportServiceException {
+        LOGGER.log(Level.INFO, "GET /system/support/version");
+        return supportService.checkLatestVersion();
     }
 
 }

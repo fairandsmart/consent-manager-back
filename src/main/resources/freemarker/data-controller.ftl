@@ -1,7 +1,9 @@
 <div class="block-wrapper">
-    <h4><@readBundle "defaultDataControllerTitle"></@readBundle></h4>
+    <h4 class="controller-header" onclick="toggleAccordion('${dataControllerId}')">
+        <@readBundle "defaultDataControllerTitle"></@readBundle> <span>+</span>
+    </h4>
 
-    <ul class="processing-body">
+    <ul id="${dataControllerId}" class="processing-body controller-hidden">
         <#if dataController.name?has_content>
             <li><span class="list-label"><@readBundle "controllerNameLabel"></@readBundle></span> <span
                         class="list-value">${dataController.name}</span></li>

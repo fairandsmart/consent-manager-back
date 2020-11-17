@@ -32,10 +32,6 @@
     </div>
 
     <div class="right">
-        <div class="close-wrapper">
-            <button type="button" class="close-btn">×</button>
-        </div>
-
         <div class="content-fade"></div>
 
         <div class="processing-list">

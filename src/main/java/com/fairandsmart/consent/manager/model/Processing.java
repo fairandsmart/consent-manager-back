@@ -44,13 +44,12 @@ public class Processing extends ModelData {
     public static final String TYPE = "processing";
 
     // Main text
-    private String processingTitle;
-    private String dataTitle;
-    private String dataBody;
-    private String retentionTitle;
-    private String retentionBody;
-    private String usageTitle;
-    private String usageBody;
+    private String title;
+    private String data;
+    private String retention;
+    private int retentionValue;
+    private RetentionUnit retentionUnit;
+    private String usage;
     private List<Purpose> purposes;
     // Sensitive data
     private boolean containsSensitiveData = false;
@@ -71,94 +70,81 @@ public class Processing extends ModelData {
         this.setAssociatedPreferences(new ArrayList<>());
     }
 
-    public String getProcessingTitle() {
-        return processingTitle;
+    public String getTitle() {
+        return title;
     }
 
-    public void setProcessingTitle(String processingTitle) {
-        this.processingTitle = processingTitle;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public Processing withProcessingTitle(String processingTitle) {
-        this.processingTitle = processingTitle;
+    public Processing withTitle(String title) {
+        this.title = title;
         return this;
     }
 
-    public String getDataTitle() {
-        return dataTitle;
+    public String getData() {
+        return data;
     }
 
-    public void setDataTitle(String dataTitle) {
-        this.dataTitle = dataTitle;
+    public void setData(String data) {
+        this.data = data;
     }
 
-    public Processing withDataTitle(String dataTitle) {
-        this.dataTitle = dataTitle;
+    public Processing withData(String data) {
+        this.data = data;
         return this;
     }
 
-    public String getDataBody() {
-        return dataBody;
+    public String getRetention() {
+        return retention;
     }
 
-    public void setDataBody(String dataBody) {
-        this.dataBody = dataBody;
+    public void setRetention(String retention) {
+        this.retention = retention;
     }
 
-    public Processing withDataBody(String dataBody) {
-        this.dataBody = dataBody;
+    public Processing withRetention(String retention) {
+        this.retention = retention;
         return this;
     }
 
-    public String getRetentionTitle() {
-        return retentionTitle;
+    public int getRetentionValue() {
+        return retentionValue;
     }
 
-    public void setRetentionTitle(String retentionTitle) {
-        this.retentionTitle = retentionTitle;
+    public void setRetentionValue(int retentionValue) {
+        this.retentionValue = retentionValue;
     }
 
-    public Processing withRetentionTitle(String retentionTitle) {
-        this.retentionTitle = retentionTitle;
+    public Processing withRetentionValue(int retentionValue) {
+        this.retentionValue = retentionValue;
         return this;
     }
 
-    public String getRetentionBody() {
-        return retentionBody;
+    public RetentionUnit getRetentionUnit() {
+        return retentionUnit;
     }
 
-    public void setRetentionBody(String retentionBody) {
-        this.retentionBody = retentionBody;
+    public void setRetentionUnit(RetentionUnit retentionUnit) {
+        this.retentionUnit = retentionUnit;
     }
 
-    public Processing withRetentionBody(String retentionBody) {
-        this.retentionBody = retentionBody;
+    public Processing withRetentionUnit(RetentionUnit retentionUnit) {
+        this.retentionUnit = retentionUnit;
         return this;
     }
 
-    public String getUsageTitle() {
-        return usageTitle;
+    public String getUsage() {
+        return usage;
     }
 
-    public void setUsageTitle(String usageTitle) {
-        this.usageTitle = usageTitle;
+    public void setUsage(String usage) {
+        this.usage = usage;
     }
 
-    public Processing withUsageTitle(String usageTitle) {
-        this.usageTitle = usageTitle;
-        return this;
-    }
-
-    public String getUsageBody() {
-        return usageBody;
-    }
-
-    public void setUsageBody(String usageBody) {
-        this.usageBody = usageBody;
-    }
-
-    public Processing withUsageBody(String usageBody) {
-        this.usageBody = usageBody;
+    public Processing withUsage(String usage) {
+        this.usage = usage;
         return this;
     }
 
@@ -284,6 +270,12 @@ public class Processing extends ModelData {
         return this;
     }
 
+    public enum RetentionUnit {
+        YEAR,
+        MONTH,
+        WEEK
+    }
+
     public enum Purpose {
         CONSENT_CORE_SERVICE,
         CONSENT_IMPROVED_SERVICE,
@@ -296,39 +288,37 @@ public class Processing extends ModelData {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Processing processing = (Processing) o;
-        return containsSensitiveData == processing.containsSensitiveData &&
-                containsMedicalData == processing.containsMedicalData &&
-                showDataController == processing.showDataController &&
-                associatedWithPreferences == processing.associatedWithPreferences &&
-                Objects.equals(processingTitle, processing.processingTitle) &&
-                Objects.equals(dataTitle, processing.dataTitle) &&
-                Objects.equals(dataBody, processing.dataBody) &&
-                Objects.equals(retentionTitle, processing.retentionTitle) &&
-                Objects.equals(retentionBody, processing.retentionBody) &&
-                Objects.equals(usageTitle, processing.usageTitle) &&
-                Objects.equals(usageBody, processing.usageBody) &&
-                Objects.equals(purposes, processing.purposes) &&
-                Objects.equals(dataController, processing.dataController) &&
-                Objects.equals(thirdParties, processing.thirdParties) &&
-                Objects.equals(associatedPreferences, processing.associatedPreferences);
+        Processing that = (Processing) o;
+        return retentionValue == that.retentionValue &&
+                containsSensitiveData == that.containsSensitiveData &&
+                containsMedicalData == that.containsMedicalData &&
+                showDataController == that.showDataController &&
+                associatedWithPreferences == that.associatedWithPreferences &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(data, that.data) &&
+                Objects.equals(retention, that.retention) &&
+                retentionUnit == that.retentionUnit &&
+                Objects.equals(usage, that.usage) &&
+                Objects.equals(purposes, that.purposes) &&
+                Objects.equals(dataController, that.dataController) &&
+                Objects.equals(thirdParties, that.thirdParties) &&
+                Objects.equals(associatedPreferences, that.associatedPreferences);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(processingTitle, dataTitle, dataBody, retentionTitle, retentionBody, usageTitle, usageBody, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties, associatedWithPreferences, associatedPreferences);
+        return Objects.hash(title, data, retention, retentionValue, retentionUnit, usage, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties, associatedWithPreferences, associatedPreferences);
     }
 
     @Override
     public String toString() {
         return "Processing{" +
-                "processingTitle='" + processingTitle + '\'' +
-                ", dataTitle='" + dataTitle + '\'' +
-                ", dataBody='" + dataBody + '\'' +
-                ", retentionTitle='" + retentionTitle + '\'' +
-                ", retentionBody='" + retentionBody + '\'' +
-                ", usageTitle='" + usageTitle + '\'' +
-                ", usageBody='" + usageBody + '\'' +
+                "title='" + title + '\'' +
+                ", data='" + data + '\'' +
+                ", retention='" + retention + '\'' +
+                ", retentionValue=" + retentionValue +
+                ", retentionUnit=" + retentionUnit +
+                ", usage='" + usage + '\'' +
                 ", purposes=" + purposes +
                 ", containsSensitiveData=" + containsSensitiveData +
                 ", containsMedicalData=" + containsMedicalData +

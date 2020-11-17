@@ -8,6 +8,7 @@
         <#-- Data controller -->
         <#if info.showDataController>
             <#assign dataController=info.dataController>
+            <#assign dataControllerId="header-controller">
             <#include "../data-controller.ftl">
         </#if>
 

@@ -804,31 +804,6 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
-    /*
-    private ConsentNotification buildConsentNotification(ConsentContext ctx) throws ReceiptStoreException, RenderingException, ReceiptNotFoundException, ReceiptRendererNotFoundException, IllegalIdentifierException, EntityNotFoundException {
-        ConsentNotification notification = new ConsentNotification();
-        notification.setLanguage(ctx.getLanguage());
-        notification.setRecipient(ctx.getNotificationRecipient());
-        ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getSerial(), true);
-        notification.setModel(notificationModel);
-        if (!StringUtils.isEmpty(ctx.getTheme())) {
-            ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
-            notification.setTheme(theme);
-        }
-        ctx.setCollectionMethod(ConsentContext.CollectionMethod.EMAIL);
-        notification.setToken(this.tokenService.generateToken(ctx));
-        URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
-        notification.setUrl(notificationUri.toString());
-        if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD) && StringUtils.isNotEmpty(ctx.getReceiptId())) {
-            notification.setReceiptName("receipt.pdf");
-            notification.setReceiptType("application/pdf");
-            notification.setReceipt(this.systemRenderReceipt(ctx.getReceiptId(), "application/pdf"));
-        }
-
-        return notification;
-    }
-     */
-
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
         if (ctx.getInfo() == null && values.containsKey("info")) {
             throw new InvalidConsentException("submitted basic info incoherency, expected: null got: " + values.get("info"));

@@ -1,7 +1,3 @@
-<div class="close-wrapper">
-    <button type="button" class="close-btn">×</button>
-</div>
-
 <div class="logo-wrapper">
     <img class="logo" src="/assets/img/themes/preview_logo.png" alt="Logo">
 </div>

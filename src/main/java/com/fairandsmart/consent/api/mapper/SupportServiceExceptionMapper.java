@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.notification.listener;
+package com.fairandsmart.consent.api.mapper;
 
 /*-
  * #%L
@@ -33,33 +33,25 @@ package com.fairandsmart.consent.notification.listener;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.notification.entity.Event;
-import com.fairandsmart.consent.notification.worker.NotifyConsentWorker;
-import io.quarkus.vertx.ConsumeEvent;
-import org.eclipse.microprofile.context.ManagedExecutor;
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.support.SupportServiceException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.enterprise.inject.Instance;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-@RequestScoped
-public class NotifyConsentListener {
+@Provider
+public class SupportServiceExceptionMapper implements ExceptionMapper<SupportServiceException> {
 
-    private static final Logger LOGGER = Logger.getLogger(NotifyConsentListener.class.getName());
+    @ConfigProperty(name = "consent.instance.name")
+    Instance<String> instance;
 
-    @Inject
-    ManagedExecutor executor;
-
-    @Inject
-    NotifyConsentWorker worker;
-
-    @ConsumeEvent(value = Event.CONSENT_SUBMIT)
-    public void consume(Event event) {
-        LOGGER.log(Level.FINE, "Consent Submit event received: " + event.toString());
-        ConsentContext ctx = (ConsentContext)event.getData();
-        worker.setCtx(ctx);
-        executor.submit(worker);
+    @Override
+    public Response toResponse(SupportServiceException exception) {
+        ApiError error = new ApiError(ApiError.Type.SUPPORT_SERVICE_ERROR).withInstance(instance.get()).withException(exception);
+        return Response.status(error.getStatus()).entity(error).build();
     }
 }
+

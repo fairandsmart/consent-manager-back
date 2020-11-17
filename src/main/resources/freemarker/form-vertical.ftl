@@ -21,10 +21,6 @@
 <form method="post" id="consent" action="#" class="consent-form">
     <input name="token" id="token" value="${data.token}" hidden/>
 
-    <div class="close-wrapper">
-        <button type="button" class="close-btn">×</button>
-    </div>
-
     <#include "info-logo.ftl">
 
     <div class="processing-list">

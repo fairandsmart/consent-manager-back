@@ -11,6 +11,7 @@
             <#-- Data controller -->
             <#if langContent.showDataController>
                 <#assign dataController=langContent.dataController>
+                <#assign dataControllerId=data.info.identifier + "-controller">
                 <#include "data-controller.ftl">
             </#if>
 
