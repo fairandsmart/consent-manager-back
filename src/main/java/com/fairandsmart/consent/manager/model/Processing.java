@@ -60,11 +60,15 @@ public class Processing extends ModelData {
     private boolean showDataController = true;
     // Third parties
     private List<NameValuePair> thirdParties;
+    // Associated preferences
+    private boolean associatedWithPreferences = false;
+    private List<String> associatedPreferences;
 
     public Processing() {
         this.setType(TYPE);
         this.setPurposes(new ArrayList<>());
         this.setThirdParties(new ArrayList<>());
+        this.setAssociatedPreferences(new ArrayList<>());
     }
 
     public String getProcessingTitle() {
@@ -254,6 +258,32 @@ public class Processing extends ModelData {
         return this;
     }
 
+    public boolean isAssociatedWithPreferences() {
+        return associatedWithPreferences;
+    }
+
+    public void setAssociatedWithPreferences(boolean associatedWithPreferences) {
+        this.associatedWithPreferences = associatedWithPreferences;
+    }
+
+    public Processing withAssociatedWithPreferences(boolean associatedWithPreferences) {
+        this.associatedWithPreferences = associatedWithPreferences;
+        return this;
+    }
+
+    public List<String> getAssociatedPreferences() {
+        return associatedPreferences;
+    }
+
+    public void setAssociatedPreferences(List<String> associatedPreferences) {
+        this.associatedPreferences = associatedPreferences;
+    }
+
+    public Processing withAssociatedPreferences(List<String> associatedPreferences) {
+        this.associatedPreferences = associatedPreferences;
+        return this;
+    }
+
     public enum Purpose {
         CONSENT_CORE_SERVICE,
         CONSENT_IMPROVED_SERVICE,
@@ -270,6 +300,7 @@ public class Processing extends ModelData {
         return containsSensitiveData == processing.containsSensitiveData &&
                 containsMedicalData == processing.containsMedicalData &&
                 showDataController == processing.showDataController &&
+                associatedWithPreferences == processing.associatedWithPreferences &&
                 Objects.equals(processingTitle, processing.processingTitle) &&
                 Objects.equals(dataTitle, processing.dataTitle) &&
                 Objects.equals(dataBody, processing.dataBody) &&
@@ -279,12 +310,13 @@ public class Processing extends ModelData {
                 Objects.equals(usageBody, processing.usageBody) &&
                 Objects.equals(purposes, processing.purposes) &&
                 Objects.equals(dataController, processing.dataController) &&
-                Objects.equals(thirdParties, processing.thirdParties);
+                Objects.equals(thirdParties, processing.thirdParties) &&
+                Objects.equals(associatedPreferences, processing.associatedPreferences);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(processingTitle, dataTitle, dataBody, retentionTitle, retentionBody, usageTitle, usageBody, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties);
+        return Objects.hash(processingTitle, dataTitle, dataBody, retentionTitle, retentionBody, usageTitle, usageBody, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties, associatedWithPreferences, associatedPreferences);
     }
 
     @Override
@@ -303,6 +335,8 @@ public class Processing extends ModelData {
                 ", dataController=" + dataController +
                 ", showDataController=" + showDataController +
                 ", thirdParties=" + thirdParties +
+                ", associatedWithPreferences=" + associatedWithPreferences +
+                ", associatedPreferences=" + associatedPreferences +
                 '}';
     }
 }

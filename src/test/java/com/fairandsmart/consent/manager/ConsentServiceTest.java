@@ -580,6 +580,131 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testFormGeneration() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, ConsentServiceException, InvalidTokenException, TokenExpiredException, InvalidConsentException {
+        LOGGER.info("#### Test form generation");
+        List<String> types = new ArrayList<>();
+        types.add(BasicInfo.TYPE);
+        types.add(Processing.TYPE);
+        types.add(Preference.TYPE);
+        CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        long entriesCount = entries.getTotalCount();
+        String language = "fr";
+
+        // Creating a BasicInfo entry
+        String biKey = UUID.randomUUID().toString();
+        ModelEntry ebi1 = service.createEntry(biKey, "Name " + biKey, "Description " + biKey, BasicInfo.TYPE);
+        assertNotNull(ebi1);
+        ModelVersion v1bi1 = service.createVersion(ebi1.id, language, Collections.singletonMap(language, TestUtils.generateBasicInfo(biKey)));
+        service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Preference entry n.1
+        String p1Key = UUID.randomUUID().toString();
+        ModelEntry ep1 = service.createEntry(p1Key, "Name " + p1Key, "Description " + p1Key, Preference.TYPE);
+        assertNotNull(ep1);
+        ModelVersion v1p1 = service.createVersion(ep1.id, language, Collections.singletonMap(language, TestUtils.generatePreference(p1Key)));
+        service.updateVersionStatus(v1p1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Preference entry n.2
+        String p2Key = UUID.randomUUID().toString();
+        ModelEntry ep2 = service.createEntry(p2Key, "Name " + p2Key, "Description " + p2Key, Preference.TYPE);
+        assertNotNull(ep2);
+        ModelVersion v1p2 = service.createVersion(ep2.id, language, Collections.singletonMap(language, TestUtils.generatePreference(p2Key)));
+        service.updateVersionStatus(v1p2.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Preference entry n.3
+        String p3Key = UUID.randomUUID().toString();
+        ModelEntry ep3 = service.createEntry(p3Key, "Name " + p3Key, "Description " + p3Key, Preference.TYPE);
+        assertNotNull(ep3);
+        ModelVersion v1p3 = service.createVersion(ep3.id, language, Collections.singletonMap(language, TestUtils.generatePreference(p3Key)));
+        service.updateVersionStatus(v1p3.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Processing entry n.1
+        String t1Key = UUID.randomUUID().toString();
+        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
+        assertNotNull(et1);
+        ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key, Collections.singletonList(p1Key))));
+        service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Processing entry n.2
+        String t2Key = UUID.randomUUID().toString();
+        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
+        assertNotNull(et2);
+        ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key, Collections.singletonList(p2Key))));
+        service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Processing entry n.3
+        String t3Key = UUID.randomUUID().toString();
+        ModelEntry et3 = service.createEntry(t3Key, "Name " + t3Key, "Description " + t3Key, Processing.TYPE);
+        assertNotNull(et3);
+        ModelVersion v1t3 = service.createVersion(et3.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t3Key, Collections.singletonList(p3Key))));
+        service.updateVersionStatus(v1t3.id, ModelVersion.Status.ACTIVE);
+
+        // Checking that the entries have been created
+        entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        assertEquals(entriesCount + 7, entries.getTotalCount());
+
+        LOGGER.info("Creating READ context and token");
+        String subject = "nmichu";
+        ConsentContext readCtx = new ConsentContext()
+                .setSubject(subject)
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setInfo(biKey)
+                .setElements(Arrays.asList(t1Key, t2Key, p1Key))
+                .setLanguage(language)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM)
+                .setFormType(ConsentContext.FormType.FULL)
+                .setAssociatePreferences(true);
+        String readToken = service.buildToken(readCtx);
+
+        LOGGER.info("First consent form");
+        ConsentForm form = service.generateForm(readToken);
+        assertEquals(4, form.getElements().size());
+        assertEquals(0, form.getPreviousValues().size());
+        assertEquals(t1Key, form.getElements().get(0).entry.key);
+        assertEquals(t2Key, form.getElements().get(1).entry.key);
+        assertEquals(p2Key, form.getElements().get(2).entry.key);
+        assertEquals(p1Key, form.getElements().get(3).entry.key);
+
+        LOGGER.info("Submitting consent (creating record)");
+        MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
+        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
+        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
+        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
+        values.putSingle("element/preference/" + p2Key + "/" + v1p2.serial, "Option3");
+        values.putSingle("element/preference/" + p1Key + "/" + v1p1.serial, "Option2");
+        service.submitConsent(form.getToken(), values);
+
+        LOGGER.info("Creating second READ context and token");
+        readCtx = new ConsentContext()
+                .setSubject(subject)
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setInfo(biKey)
+                .setElements(Arrays.asList(t1Key, t2Key, p1Key, t3Key))
+                .setLanguage(language)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM)
+                .setFormType(ConsentContext.FormType.PARTIAL)
+                .setAssociatePreferences(true);
+        readToken = service.buildToken(readCtx);
+
+        LOGGER.info("Second consent form");
+        form = service.generateForm(readToken);
+        assertEquals(2, form.getElements().size());
+        assertEquals(4, form.getPreviousValues().size());
+        assertEquals(t3Key, form.getElements().get(0).entry.key);
+        assertEquals(p3Key, form.getElements().get(1).entry.key);
+        assertTrue(form.getPreviousValues().containsKey(v1t1.serial));
+        assertTrue(form.getPreviousValues().containsKey(v1t2.serial));
+        assertTrue(form.getPreviousValues().containsKey(v1p1.serial));
+        assertTrue(form.getPreviousValues().containsKey(v1p2.serial));
+        assertEquals("accepted", form.getPreviousValues().get(v1t1.serial));
+        assertEquals("refused", form.getPreviousValues().get(v1t2.serial));
+        assertEquals("Option2", form.getPreviousValues().get(v1p1.serial));
+        assertEquals("Option3", form.getPreviousValues().get(v1p2.serial));
+    }
+
+    @Test
+    @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testSubjectLifecycle() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
         LOGGER.info("#### Test subject lifecycle");
         List<String> types = new ArrayList<>();

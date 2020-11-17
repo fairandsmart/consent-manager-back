@@ -3,9 +3,9 @@ package com.fairandsmart.consent.manager;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.manager;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -60,6 +60,7 @@ public class ConsentContext implements Tokenizable, Cloneable {
     @NotNull
     @NotEmpty
     private List<String> elements;
+    private boolean associatePreferences = false;
     private String callback;
     private String language;
     private String validity;
@@ -133,6 +134,15 @@ public class ConsentContext implements Tokenizable, Cloneable {
 
     public ConsentContext addElement(String element) {
         this.elements.add(element);
+        return this;
+    }
+
+    public boolean isAssociatePreferences() {
+        return associatePreferences;
+    }
+
+    public ConsentContext setAssociatePreferences(boolean associatePreferences) {
+        this.associatePreferences = associatePreferences;
         return this;
     }
 
@@ -305,6 +315,7 @@ public class ConsentContext implements Tokenizable, Cloneable {
         if (elements != null && !elements.isEmpty()) {
             claims.put("elements", this.getElementsString());
         }
+        claims.put("associatePreferences", Boolean.toString(this.isAssociatePreferences()));
         if (language != null) {
             claims.put("language", this.getLanguage());
         }
@@ -360,6 +371,9 @@ public class ConsentContext implements Tokenizable, Cloneable {
         }
         if (claims.containsKey("elements")) {
             this.setElementsString(claims.get("elements"));
+        }
+        if (claims.containsKey("associatePreferences")) {
+            this.setAssociatePreferences(Boolean.parseBoolean(claims.get("associatePreferences")));
         }
         if (claims.containsKey("language")) {
             this.setLanguage(claims.get("language"));
@@ -482,6 +496,7 @@ public class ConsentContext implements Tokenizable, Cloneable {
                 ", orientation=" + orientation +
                 ", info='" + info + '\'' +
                 ", elements=" + elements +
+                ", associatePreferences=" + associatePreferences +
                 ", callback='" + callback + '\'' +
                 ", validity='" + validity + '\'' +
                 ", language='" + language + '\'' +

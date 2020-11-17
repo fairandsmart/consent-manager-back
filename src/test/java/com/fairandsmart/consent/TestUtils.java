@@ -44,10 +44,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TestUtils {
@@ -135,7 +132,7 @@ public class TestUtils {
                 .withCustomAcceptAllText("Accept all " + key);
     }
 
-    public static Processing generateProcessing(String key) {
+    public static Processing generateProcessing(String key, List<String> associatedPreferences) {
         return new Processing()
                 .withProcessingTitle("Processing title " + key)
                 .withDataTitle("Data title " + key)
@@ -157,7 +154,25 @@ public class TestUtils {
                 .withThirdParty(
                         new NameValuePair(
                                 "Third party 2 name " + key,
-                                "Third party 2 description " + key));
+                                "Third party 2 description " + key))
+                .withAssociatedWithPreferences(associatedPreferences != null && associatedPreferences.size() > 0)
+                .withAssociatedPreferences(associatedPreferences);
+    }
+
+    public static Processing generateProcessing(String key) {
+        return generateProcessing(key, Collections.emptyList());
+    }
+
+    public static Preference generatePreference(String key) {
+        List<String> options = new ArrayList<>();
+        options.add("Option1");
+        options.add("Option2");
+        options.add("Option3");
+        return new Preference()
+                .withLabel("Label " + key)
+                .withDescription("Description " + key)
+                .withOptions(options)
+                .withValueType(Preference.ValueType.RADIO_BUTTONS);
     }
 
     public static Conditions generateConditions(String key) {

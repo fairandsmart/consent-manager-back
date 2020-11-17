@@ -36,7 +36,6 @@ package com.fairandsmart.consent.manager;
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
 import com.fairandsmart.consent.api.dto.SubjectDto;
-import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -83,13 +82,11 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -518,27 +515,49 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
 
-            Map<String, Record> previousRecords = new HashMap<>();
-            if (!ctx.isPreview()) {
-                previousRecords = systemListContextValidRecords(ctx);
-            }
-
+            // Initialize form
             ConsentForm form = new ConsentForm();
             form.setLanguage(ctx.getLanguage());
             form.setOrientation(ctx.getOrientation());
             form.setPreview(ctx.isPreview());
 
-            if (!StringUtils.isEmpty(ctx.getInfo())) {
-                String key = (ConsentElementIdentifier.isValid(ctx.getInfo())) ? ConsentElementIdentifier.deserialize(ctx.getInfo()).getKey() : ctx.getInfo();
-                ModelVersion info = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
-                form.setInfo(info);
-                ctx.setInfo(info.getIdentifier().serialize());
-            }
-
-            List<String> elementsIdentifiers = new ArrayList<>();
+            // Fetch elements from context
+            List<String> elementsKeys = new ArrayList<>();
+            List<ModelVersion> elementsVersions = new ArrayList<>();
             for (String element : ctx.getElements()) {
                 String key = (ConsentElementIdentifier.isValid(element)) ? ConsentElementIdentifier.deserialize(element).getKey() : element;
-                ModelVersion version = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
+                elementsKeys.add(key);
+                elementsVersions.add(ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key));
+            }
+
+            // Fetch preferences associated to processing
+            if (ctx.isAssociatePreferences()) {
+                int processingIndex = elementsVersions.size() - 1;
+                while (processingIndex >= 0) {
+                    if (Processing.TYPE.equals(elementsVersions.get(processingIndex).entry.type)) {
+                        Processing processing = ((Processing) elementsVersions.get(processingIndex).content.get(ctx.getLanguage()).getDataObject());
+                        List<String> preferences = processing.getAssociatedPreferences().stream().filter(key -> !elementsKeys.contains(key)).collect(Collectors.toList());
+                        for (String key : preferences) {
+                            elementsKeys.add(processingIndex + 1, key);
+                            elementsVersions.add(processingIndex + 1, ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key));
+                        }
+                    }
+                    processingIndex--;
+                }
+            }
+
+            // Fetch previous records
+            Map<String, Record> previousRecords = new HashMap<>();
+            if (!ctx.isPreview()) {
+                ctx.setElements(elementsKeys);
+                previousRecords = systemListContextValidRecords(ctx);
+            }
+
+            // Update form with previous values and update form & context with elements
+            List<String> elementsIdentifiers = new ArrayList<>();
+            for (int elementIndex = 0; elementIndex < elementsKeys.size(); elementIndex++) {
+                String key = elementsKeys.get(elementIndex);
+                ModelVersion version = elementsVersions.get(elementIndex);
                 if (previousRecords.containsKey(key)) {
                     form.addPreviousValue(version.serial, previousRecords.get(key).value);
                 }
@@ -549,6 +568,15 @@ public class ConsentServiceBean implements ConsentService {
             }
             ctx.setElements(elementsIdentifiers);
 
+            // Update form & context with basic infos
+            if (!StringUtils.isEmpty(ctx.getInfo())) {
+                String key = (ConsentElementIdentifier.isValid(ctx.getInfo())) ? ConsentElementIdentifier.deserialize(ctx.getInfo()).getKey() : ctx.getInfo();
+                ModelVersion info = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
+                form.setInfo(info);
+                ctx.setInfo(info.getIdentifier().serialize());
+            }
+
+            // Update form & context with theme
             if (!StringUtils.isEmpty(ctx.getTheme())) {
                 String key = (ConsentElementIdentifier.isValid(ctx.getTheme())) ? ConsentElementIdentifier.deserialize(ctx.getTheme()).getKey() : ctx.getTheme();
                 ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
@@ -556,15 +584,17 @@ public class ConsentServiceBean implements ConsentService {
                 ctx.setTheme(theme.getIdentifier().serialize());
             }
 
+            // Update form & context with notification model
             if (!StringUtils.isEmpty(ctx.getNotificationModel())) {
                 String key = (ConsentElementIdentifier.isValid(ctx.getNotificationModel())) ? ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getKey() : ctx.getNotificationModel();
                 ModelVersion notification = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
                 ctx.setNotificationModel(notification.getIdentifier().serialize());
             }
 
+            // Update form token
             form.setToken(this.tokenService.generateToken(ctx));
             return form;
-        } catch (TokenServiceException | IllegalIdentifierException e) {
+        } catch (TokenServiceException | IllegalIdentifierException | ModelDataSerializationException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
         }
     }

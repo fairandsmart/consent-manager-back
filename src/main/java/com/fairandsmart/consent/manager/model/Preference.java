@@ -43,8 +43,6 @@ public class Preference extends ModelData {
     public static final String TYPE = "preference";
 
     private String label;
-    private boolean associatedWithProcessing;
-    private List<String> associatedProcessing;
     private String description;
     private List<String> options;
     private ValueType valueType;
@@ -61,20 +59,9 @@ public class Preference extends ModelData {
         this.label = label;
     }
 
-    public boolean isAssociatedWithProcessing() {
-        return associatedWithProcessing;
-    }
-
-    public void setAssociatedWithProcessing(boolean associatedWithProcessing) {
-        this.associatedWithProcessing = associatedWithProcessing;
-    }
-
-    public List<String> getAssociatedProcessing() {
-        return associatedProcessing;
-    }
-
-    public void setAssociatedProcessing(List<String> associatedProcessing) {
-        this.associatedProcessing = associatedProcessing;
+    public Preference withLabel(String label) {
+        this.label = label;
+        return this;
     }
 
     public String getDescription() {
@@ -85,6 +72,11 @@ public class Preference extends ModelData {
         this.description = description;
     }
 
+    public Preference withDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
     public List<String> getOptions() {
         return options;
     }
@@ -93,12 +85,22 @@ public class Preference extends ModelData {
         this.options = options;
     }
 
+    public Preference withOptions(List<String> options) {
+        this.options = options;
+        return this;
+    }
+
     public ValueType getValueType() {
         return valueType;
     }
 
     public void setValueType(ValueType valueType) {
         this.valueType = valueType;
+    }
+
+    public Preference withValueType(ValueType valueType) {
+        this.valueType = valueType;
+        return this;
     }
 
     public enum ValueType {
@@ -116,9 +118,7 @@ public class Preference extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Preference that = (Preference) o;
-        return associatedWithProcessing == that.associatedWithProcessing &&
-                Objects.equals(label, that.label) &&
-                Objects.equals(associatedProcessing, that.associatedProcessing) &&
+        return Objects.equals(label, that.label) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(options, that.options) &&
                 valueType == that.valueType;
@@ -126,15 +126,13 @@ public class Preference extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, associatedWithProcessing, associatedProcessing, description, options, valueType);
+        return Objects.hash(label, description, options, valueType);
     }
 
     @Override
     public String toString() {
         return "Preference{" +
                 "label='" + label + '\'' +
-                ", associatedWithProcessing=" + associatedWithProcessing +
-                ", associatedProcessing=" + associatedProcessing +
                 ", description='" + description + '\'' +
                 ", options=" + options +
                 ", valueType=" + valueType +
