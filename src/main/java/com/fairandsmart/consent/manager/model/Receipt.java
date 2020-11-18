@@ -285,7 +285,7 @@ public class Receipt {
             Consent trecord = new Consent();
             trecord.setSerial(record.getValue().serial);
             trecord.setData(record.getKey().getData());
-            trecord.setRetention(record.getKey().getRetention());
+            trecord.setRetentionLabel(record.getKey().getRetentionLabel());
             trecord.setRetentionValue(record.getKey().getRetentionValue());
             trecord.setRetentionUnit(record.getKey().getRetentionUnit().name());
             trecord.setUsage(record.getKey().getUsage());

@@ -44,7 +44,7 @@ public class Consent {
 
     private String serial;
     private String data;
-    private String retention;
+    private String retentionLabel;
     private int retentionValue;
     private String retentionUnit;
     private String usage;
@@ -76,12 +76,12 @@ public class Consent {
         this.data = data;
     }
 
-    public String getRetention() {
-        return retention;
+    public String getRetentionLabel() {
+        return retentionLabel;
     }
 
-    public void setRetention(String retention) {
-        this.retention = retention;
+    public void setRetentionLabel(String retentionLabel) {
+        this.retentionLabel = retentionLabel;
     }
 
     public int getRetentionValue() {

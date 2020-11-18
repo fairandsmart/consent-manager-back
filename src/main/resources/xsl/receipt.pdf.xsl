@@ -297,7 +297,7 @@
                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                             </xsl:call-template>
                             <xsl:text>: </xsl:text>
-                            <xsl:value-of select="current()/retention"/><xsl:text> </xsl:text>
+                            <xsl:value-of select="current()/retentionLabel"/><xsl:text> </xsl:text>
                             <xsl:value-of select="current()/retentionValue"/><xsl:text> </xsl:text>
                             <xsl:call-template name="translate">
                                 <xsl:with-param name="key"><xsl:value-of select="current()/retentionUnit"/></xsl:with-param>
