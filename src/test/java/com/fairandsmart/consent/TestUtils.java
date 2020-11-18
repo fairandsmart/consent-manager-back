@@ -136,7 +136,7 @@ public class TestUtils {
         return new Processing()
                 .withTitle("Processing title " + key)
                 .withData("Data body " + key)
-                .withRetention("Retention body " + key)
+                .withRetentionLabel("Retention body " + key)
                 .withRetentionValue(3)
                 .withRetentionUnit(Processing.RetentionUnit.MONTH)
                 .withUsage("Usage body " + key)

@@ -46,7 +46,7 @@ public class Processing extends ModelData {
     // Main text
     private String title;
     private String data;
-    private String retention;
+    private String retentionLabel;
     private int retentionValue;
     private RetentionUnit retentionUnit;
     private String usage;
@@ -96,16 +96,16 @@ public class Processing extends ModelData {
         return this;
     }
 
-    public String getRetention() {
-        return retention;
+    public String getRetentionLabel() {
+        return retentionLabel;
     }
 
-    public void setRetention(String retention) {
-        this.retention = retention;
+    public void setRetentionLabel(String retentionLabel) {
+        this.retentionLabel = retentionLabel;
     }
 
-    public Processing withRetention(String retention) {
-        this.retention = retention;
+    public Processing withRetentionLabel(String retentionLabel) {
+        this.retentionLabel = retentionLabel;
         return this;
     }
 
@@ -296,7 +296,7 @@ public class Processing extends ModelData {
                 associatedWithPreferences == that.associatedWithPreferences &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(data, that.data) &&
-                Objects.equals(retention, that.retention) &&
+                Objects.equals(retentionLabel, that.retentionLabel) &&
                 retentionUnit == that.retentionUnit &&
                 Objects.equals(usage, that.usage) &&
                 Objects.equals(purposes, that.purposes) &&
@@ -307,7 +307,7 @@ public class Processing extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, data, retention, retentionValue, retentionUnit, usage, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties, associatedWithPreferences, associatedPreferences);
+        return Objects.hash(title, data, retentionLabel, retentionValue, retentionUnit, usage, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties, associatedWithPreferences, associatedPreferences);
     }
 
     @Override
@@ -315,7 +315,7 @@ public class Processing extends ModelData {
         return "Processing{" +
                 "title='" + title + '\'' +
                 ", data='" + data + '\'' +
-                ", retention='" + retention + '\'' +
+                ", retention='" + retentionLabel + '\'' +
                 ", retentionValue=" + retentionValue +
                 ", retentionUnit=" + retentionUnit +
                 ", usage='" + usage + '\'' +
