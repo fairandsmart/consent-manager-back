@@ -8,7 +8,7 @@
 
             <#if langContent.valueType=="TOGGLE">
                 <#assign isChecked=(!data.preview && data.previousValues[element.serial]?has_content
-                    && data.previousValues[element.serial]==langContent.options[1])>
+                    && data.previousValues[element.serial]=="accepted")>
                 <@toggleSwitch "${element.identifier}" isChecked></@toggleSwitch>
             </#if>
         </div>
