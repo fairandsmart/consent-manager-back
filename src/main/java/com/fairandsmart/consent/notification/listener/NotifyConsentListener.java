@@ -37,6 +37,7 @@ import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.worker.NotifyConsentWorker;
 import io.quarkus.vertx.ConsumeEvent;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.context.ManagedExecutor;
 
 import javax.enterprise.context.RequestScoped;
@@ -59,7 +60,9 @@ public class NotifyConsentListener {
     public void consume(Event event) {
         LOGGER.log(Level.FINE, "Consent Submit event received: " + event.toString());
         ConsentContext ctx = (ConsentContext)event.getData();
-        worker.setCtx(ctx);
-        executor.submit(worker);
+        if (StringUtils.isNotEmpty(ctx.getNotificationRecipient())) {
+            worker.setCtx(ctx);
+            executor.submit(worker);
+        }
     }
 }
