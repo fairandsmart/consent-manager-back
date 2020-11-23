@@ -47,6 +47,7 @@ import com.fairandsmart.consent.token.TokenExpiredException;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.Test;
+import org.slf4j.spi.LocationAwareLogger;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -858,4 +859,144 @@ public class ConsentServiceTest {
         assertThrows(EntityNotFoundException.class, () -> service.updateSubject(UUID.randomUUID().toString(), subjectDto));
     }
 
+    @Test
+    @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testSubjectRecords() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
+        LOGGER.info("#### Test subject lifecycle");
+        List<String> types = new ArrayList<>();
+        types.add(BasicInfo.TYPE);
+        types.add(Processing.TYPE);
+        CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        long entriesCount = entries.getTotalCount();
+        String language = "fr";
+
+        // Creating a BasicInfo entry
+        String biKey = UUID.randomUUID().toString();
+        ModelEntry ebi1 = service.createEntry(biKey, "Name " + biKey, "Description " + biKey, BasicInfo.TYPE);
+        assertNotNull(ebi1);
+        ModelVersion v1bi1 = service.createVersion(ebi1.id, language, Collections.singletonMap(language, TestUtils.generateBasicInfo(biKey)));
+        service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating a Processing entry
+        String t1Key = UUID.randomUUID().toString();
+        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
+        assertNotNull(et1);
+        ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key)));
+        service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating a Processing entry
+        String t2Key = UUID.randomUUID().toString();
+        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
+        assertNotNull(et2);
+        ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
+        service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
+
+        // Checking that the entries have been created
+        entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        assertEquals(entriesCount + 3, entries.getTotalCount());
+        String biIdentifier = "element/basicinfo/" + biKey + "/" + v1bi1.serial;
+        String t1Identifier = "element/processing/" + t1Key + "/" + v1t1.serial;
+        String t2Identifier = "element/processing/" + t2Key + "/" + v1t2.serial;
+
+        LOGGER.info("Submitting a consent for user1");
+        ConsentContext ctx = new ConsentContext()
+                .setSubject("user1")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setInfo(biKey)
+                .setElements(Arrays.asList(t1Key, t2Key))
+                .setLanguage(language)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+        String token = service.buildToken(ctx);
+        ConsentForm form = service.generateForm(token);
+        MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
+        values.putSingle("info", biIdentifier);
+        values.putSingle(t1Identifier, "accepted");
+        values.putSingle(t2Identifier, "refused");
+        service.submitConsent(form.getToken(), values);
+
+        LOGGER.info("Submitting a consent for user2");
+        ctx = new ConsentContext()
+                .setSubject("user2")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setInfo(biKey)
+                .setElements(Arrays.asList(t1Key, t2Key))
+                .setLanguage(language)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+        token = service.buildToken(ctx);
+        form = service.generateForm(token);
+        values = new MultivaluedHashMap<>();
+        values.putSingle("info", biIdentifier);
+        values.putSingle(t1Identifier, "refused");
+        values.putSingle(t2Identifier, "refused");
+        service.submitConsent(form.getToken(), values);
+
+        LOGGER.info("Submitting a consent for user3");
+        ctx = new ConsentContext()
+                .setSubject("user3")
+                .setOrientation(ConsentForm.Orientation.VERTICAL)
+                .setInfo(biKey)
+                .setElements(Arrays.asList(t1Key, t2Key))
+                .setLanguage(language)
+                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+        token = service.buildToken(ctx);
+        form = service.generateForm(token);
+        values = new MultivaluedHashMap<>();
+        values.putSingle("info", biIdentifier);
+        values.putSingle(t1Identifier, "accepted");
+        values.putSingle(t2Identifier, "accepted");
+        service.submitConsent(form.getToken(), values);
+
+        LOGGER.info("Create subject user4 (no records)");
+        SubjectDto subjectDto = new SubjectDto();
+        subjectDto.setName("user4");
+        service.createSubject(subjectDto);
+
+        LOGGER.info("Listing user1 records");
+        Map<String, List<Record>> records = service.listSubjectRecords("user1");
+        assertTrue(records.containsKey(t1Key));
+        assertTrue(records.get(t1Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("accepted")));
+        assertTrue(records.containsKey(t2Key));
+        assertTrue(records.get(t2Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("refused")));
+
+        LOGGER.info("Listing user2 records");
+        records = service.listSubjectRecords("user2");
+        assertTrue(records.containsKey(t1Key));
+        assertTrue(records.get(t1Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("refused")));
+        assertTrue(records.containsKey(t2Key));
+        assertTrue(records.get(t2Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("refused")));
+
+        LOGGER.info("Listing user3 records");
+        records = service.listSubjectRecords("user3");
+        assertTrue(records.containsKey(t1Key));
+        assertTrue(records.get(t1Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("accepted")));
+        assertTrue(records.containsKey(t2Key));
+        assertTrue(records.get(t2Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("accepted")));
+
+        LOGGER.info("Listing user4 records");
+        records = service.listSubjectRecords("user4");
+        assertTrue(records.isEmpty());
+
+        //TODO Increase rule based records status by adding new consent submit and new models versions.
+
+        LOGGER.info("Finding subjects with treatment t1 accepted");
+        List<Subject> subjects = service.findSubjectsWithRecords(t1Key, "accepted");
+        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user1")));
+        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user3")));
+
+        LOGGER.info("Finding subjects with treatment t1 refused");
+        subjects = service.findSubjectsWithRecords(t1Key, "refused");
+        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user2")));
+
+        LOGGER.info("Finding subjects with treatment t2 accepted");
+        subjects = service.findSubjectsWithRecords(t2Key, "accepted");
+        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user3")));
+
+        LOGGER.info("Finding subjects with treatment t2 refused");
+        subjects = service.findSubjectsWithRecords(t2Key, "refused");
+        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user1")));
+        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user2")));
+
+        //TODO Increase listing testing with rule based records status by adding new consent submit and new models versions.
+    }
 }

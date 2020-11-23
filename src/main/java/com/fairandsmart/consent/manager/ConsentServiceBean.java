@@ -73,6 +73,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
+import liquibase.pro.packaged.er;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -624,18 +625,6 @@ public class ConsentServiceBean implements ConsentService {
             Event event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx);
             this.notification.notify(event);
 
-            /*
-            if (!StringUtils.isEmpty(ctx.getNotificationRecipient()) && !StringUtils.isEmpty(ctx.getNotificationModel())) {
-                try {
-                    ConsentNotification notification = this.buildConsentNotification(ctx);
-                    Event notifyEvent = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_NOTIFY).withData(notification);
-                    this.notification.notify(notifyEvent);
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Error while notifying consent submission", e);
-                }
-            }
-            */
-
             return new ConsentTransaction(receiptId);
         } catch (TokenServiceException | ConsentServiceException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
@@ -749,6 +738,31 @@ public class ConsentServiceBean implements ConsentService {
         result.forEach((key, value) -> recordStatusChain.apply(value));
         return result.entrySet().stream().filter(entry -> entry.getValue().stream().anyMatch(record -> record.status.equals(Record.Status.VALID)))
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(record -> record.status.equals(Record.Status.VALID)).findFirst().get()));
+    }
+
+    @Override
+    public List<Subject> findSubjectsWithRecords(String key, String value) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "Searching subjects with a valid record for key: " + key + " and with value: " + value);
+        if (!authentication.isConnectedIdentifierAdmin()) {
+            throw new AccessDeniedException("You must be admin to search subjects");
+        }
+        List<String> serials = ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), key);
+        List<Subject> subjects = Subject.listAll();
+        return subjects.stream().filter(subject -> {
+            RecordFilter filter = new RecordFilter();
+            filter.setOwner(config.owner());
+            filter.setSubject(subject.name);
+            filter.setState(Record.State.COMMITTED);
+            filter.setElements(serials);
+            List<Record> records = Record.list(filter.getQueryString(), filter.getQueryParams());
+            recordStatusChain.apply(records);
+            LOGGER.log(Level.FINE, "Rules applied on loaded records of subject : " + subject + ": " + records);
+            if (records.stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals(value))) {
+                LOGGER.log(Level.FINE, "Found valid record that match value for subject: " + subject);
+                return true;
+            };
+            return false;
+        }).collect(Collectors.toList());
     }
 
     /* RECEIPTS */

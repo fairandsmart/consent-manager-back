@@ -33,7 +33,7 @@ package com.fairandsmart.consent.template;
  * #L%
  */
 
-import com.fairandsmart.consent.api.template.TemplateBodyWriter;
+import com.fairandsmart.consent.api.writer.TemplateBodyWriter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
