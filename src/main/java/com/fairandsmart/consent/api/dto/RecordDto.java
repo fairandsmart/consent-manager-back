@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.api.dto;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.manager.entity.Record;
 
 public class RecordDto {
@@ -13,8 +46,11 @@ public class RecordDto {
     private String type;
     private String value;
     private String status;
+    private String statusExplanation;
     private String collectionMethod;
     private String comment;
+    private String mailRecipient;
+    private String transaction;
 
     public RecordDto() {
     }
@@ -91,6 +127,14 @@ public class RecordDto {
         this.status = status;
     }
 
+    public String getStatusExplanation() {
+        return statusExplanation;
+    }
+
+    public void setStatusExplanation(String statusExplanation) {
+        this.statusExplanation = statusExplanation;
+    }
+
     public String getCollectionMethod() {
         return collectionMethod;
     }
@@ -107,7 +151,23 @@ public class RecordDto {
         this.comment = comment;
     }
 
-    public static final RecordDto fromRecord(Record record) {
+    public String getMailRecipient() {
+        return mailRecipient;
+    }
+
+    public void setMailRecipient(String mailRecipient) {
+        this.mailRecipient = mailRecipient;
+    }
+
+    public String getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(String transaction) {
+        this.transaction = transaction;
+    }
+
+    public static RecordDto fromRecord(Record record) {
         RecordDto dto = new RecordDto();
         dto.setSubject(record.subject);
         dto.setSerial(record.serial);
@@ -119,7 +179,30 @@ public class RecordDto {
         dto.setType(record.type);
         dto.setComment(record.comment);
         dto.setStatus(record.status.toString());
+        dto.setStatusExplanation(record.statusExplanation.toString());
         dto.setValue(record.value);
+        dto.setMailRecipient(record.mailRecipient);
+        dto.setTransaction(record.transaction);
         return dto;
+    }
+
+    @Override
+    public String toString() {
+        return "RecordDto{" +
+                "serial='" + serial + '\'' +
+                ", infoKey='" + infoKey + '\'' +
+                ", bodyKey='" + bodyKey + '\'' +
+                ", subject='" + subject + '\'' +
+                ", creationTimestamp=" + creationTimestamp +
+                ", expirationTimestamp=" + expirationTimestamp +
+                ", type='" + type + '\'' +
+                ", value='" + value + '\'' +
+                ", status='" + status + '\'' +
+                ", statusExplanation='" + statusExplanation + '\'' +
+                ", collectionMethod='" + collectionMethod + '\'' +
+                ", comment='" + comment + '\'' +
+                ", mailRecipient='" + mailRecipient + '\'' +
+                ", transaction='" + transaction + '\'' +
+                '}';
     }
 }

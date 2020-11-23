@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.usecase;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
@@ -9,7 +42,7 @@ import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.manager.model.BasicInfo;
-import com.fairandsmart.consent.manager.model.Treatment;
+import com.fairandsmart.consent.manager.model.Processing;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
@@ -39,7 +72,7 @@ public class CollectWithEmailTest {
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
 
-    private static final String locale = "fr_FR";
+    private static final String language = "fr";
     private static final String biKey = "cwet_bi1";
     private static final String t1Key = "cwet_t1";
     private static final String t2Key = "cwet_t2";
@@ -53,7 +86,7 @@ public class CollectWithEmailTest {
     String publicUrl;
 
     /**
-     * 1 : l'orga génère un context de collecte qui contient entre autres un email d'optout
+     * 1 : l'orga génère un context de collecte qui contient entre autres un email de notification
      * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
      * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
      * 4 : le user (anonyme) reçoit un email de confirmation
@@ -72,7 +105,7 @@ public class CollectWithEmailTest {
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
         List<String> keys = List.of(biKey, t1Key, t2Key, eKey);
-        List<String> types = List.of(BasicInfo.TYPE, Treatment.TYPE, Treatment.TYPE, Email.TYPE);
+        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE, Email.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);
@@ -88,7 +121,7 @@ public class CollectWithEmailTest {
 
             //Create model version
             LOGGER.log(Level.INFO, "Creating " + type + " version");
-            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(key, type, locale);
+            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(key, type, language);
             assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(versionDto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(versionDto).
@@ -117,9 +150,10 @@ public class CollectWithEmailTest {
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
-                .setLocale(locale)
-                .setOptoutModel(eKey)
-                .setOptoutRecipient(recipient);
+                .setLanguage(language)
+                .setReceiptDeliveryType(ConsentContext.ReceiptDeliveryType.DOWNLOAD)
+                .setNotificationModel(eKey)
+                .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
@@ -128,7 +162,7 @@ public class CollectWithEmailTest {
         LOGGER.log(Level.INFO, "Token :" + token);
 
         //PART 2
-        Response response = given().header("TOKEN", token).when().get("/consents");
+        Response response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
         String page = response.asString();
         response.then().contentType("text/html").assertThat().statusCode(200);
 
@@ -143,7 +177,7 @@ public class CollectWithEmailTest {
         postResponse.then().assertThat().statusCode(200);
 
         //PART 4
-        Thread.sleep(500);
+        Thread.sleep(1000);
         LOGGER.log(Level.INFO, "Checking email");
         assertTrue(mailbox.getTotalMessagesSent() > 0);
         List<Mail> sent = mailbox.getMessagesSentTo(recipient);
@@ -155,16 +189,17 @@ public class CollectWithEmailTest {
         assertTrue(received.contains("Footer " + eKey));
         assertTrue(received.contains("Signature " + eKey));
         assertTrue(received.contains(publicUrl + "/consents?t="));
+        assertFalse(sent.get(0).getAttachments().isEmpty());
         assertEquals("Sender " + eKey, sent.get(0).getFrom());
 
         //PART 5
         html = Jsoup.parse(received);
-        Optional<Element> optOutLink = html.select("a[href]").stream().filter(l -> l.id().equals("form-url")).findFirst();
-        if (optOutLink.isPresent()) {
-            response = given().when().get(optOutLink.get().attr("abs:href"));
+        Optional<Element> notificationLink = html.select("a[href]").stream().filter(l -> l.id().equals("form-url")).findFirst();
+        if (notificationLink.isPresent()) {
+            response = given().accept(ContentType.HTML).when().get(notificationLink.get().attr("abs:href"));
             response.then().contentType("text/html").assertThat().statusCode(200);
         } else {
-            fail("Optout link not found");
+            fail("notificationLink link not found");
         }
     }
 

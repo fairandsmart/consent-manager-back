@@ -1,3 +1,4 @@
+
 <#if info?is_hash>
     <div class="header">
         <h2 class="header-title"><@valueOrError info.title "missingValue"></@valueOrError></h2>
@@ -7,6 +8,7 @@
         <#-- Data controller -->
         <#if info.showDataController>
             <#assign dataController=info.dataController>
+            <#assign dataControllerId="header-controller">
             <#include "../data-controller.ftl">
         </#if>
 
@@ -58,6 +60,6 @@
     </div>
 <#else>
     <div class="header">
-        <p><@writeError "missingLocale"></@writeError></p>
+        <p><@writeError "missingLanguage"></@writeError></p>
     </div>
 </#if>

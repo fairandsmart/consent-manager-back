@@ -25,8 +25,8 @@
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="BRANCHES" type="VARCHAR(5000)"/>
-            <column name="AVAILABLELOCALES" type="VARCHAR(255)"/>
-            <column name="DEFAULTLOCALE" type="VARCHAR(255)"/>
+            <column name="AVAILABLELANGUAGES" type="VARCHAR(255)"/>
+            <column name="DEFAULTLANGUAGE" type="VARCHAR(255)"/>
             <column name="COUNTERPARTS" type="VARCHAR(5000)"/>
             <column name="OWNER" type="VARCHAR(255)"/>
             <column name="AUTHOR" type="VARCHAR(255)"/>
@@ -95,7 +95,8 @@
             <column name="TYPE" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="COMMENT" type="VARCHAR(5000)"/>
-            <column name="STATUS" type="VARCHAR(255)"/>
+            <column name="MAILRECIPIENT" type="VARCHAR(255)"/>
+            <column name="STATE" type="VARCHAR(255)"/>
             <column name="COLLECTIONMETHOD" type="VARCHAR(255)"/>
             <column name="CREATIONTIMESTAMP" type="BIGINT">
                 <constraints nullable="false"/>
@@ -146,6 +147,10 @@
             </column>
             <column name="OWNER" type="VARCHAR(255)"/>
             <column name="NAME" type="VARCHAR(2000)"/>
+            <column name="EMAILADDRESS" type="VARCHAR(256)"/>
+            <column name="CREATIONTIMESTAMP" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
         <createTable tableName="KEY" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
@@ -178,5 +183,26 @@
         <loadData file="db/SEQUENCE.csv" separator="," tableName="SEQUENCE" schemaName="PUBLIC"/>
         <loadData file="db/SUBJECT.csv" separator="," tableName="SUBJECT" schemaName="PUBLIC"/>
         <loadData file="db/RECORD.csv" separator="," tableName="RECORD" schemaName="PUBLIC"/>
+    </changeSet>
+    <changeSet author="jayblanc" id="3">
+        <createTable tableName="THINTOKEN" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(25000)"/>
+            <column name="EXPIRES" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="jayblanc" id="4">
+        <createTable tableName="INSTANCE" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 </databaseChangeLog>

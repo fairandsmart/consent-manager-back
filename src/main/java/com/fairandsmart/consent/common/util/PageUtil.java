@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.common.util;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.manager.filter.PaginableFilter;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
@@ -11,11 +44,13 @@ public class PageUtil {
 
     public static <T> CollectionPage<T> paginateQuery(PanacheQuery<T> query, PaginableFilter filter) {
         CollectionPage<T> collection = new CollectionPage<>();
-        collection.setValues(query.page(Page.of(filter.getPage(), filter.getSize())).list());
-        collection.setPageSize(filter.getSize());
+        long total = query.count();
+        int size = Math.max(1, filter.getSize() >= 0 ? filter.getSize() : (int) total);
+        collection.setValues(query.page(Page.of(filter.getPage(), size)).list());
+        collection.setPageSize(size);
         collection.setPage(filter.getPage());
         collection.setTotalPages(query.pageCount());
-        collection.setTotalCount(query.count());
+        collection.setTotalCount(total);
         return collection;
     }
 

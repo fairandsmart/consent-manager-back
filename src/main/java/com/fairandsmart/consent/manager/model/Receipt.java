@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.manager.model;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.common.util.ZonedDateTimeAdapter;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
@@ -27,7 +60,7 @@ public class Receipt {
 
     private String transaction;
     private String jurisdiction;
-    private String locale;
+    private String language;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
     private ZonedDateTime date;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
@@ -51,9 +84,8 @@ public class Receipt {
     private List<Attachment> attachments;
     private String privacyPolicyUrl;
     private ConsentContext.CollectionMethod collectionMethod;
-    private String token;
-
-    //TODO Add modification url
+    private String updateUrl;
+    private String updateUrlQrCode;
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
@@ -174,12 +206,12 @@ public class Receipt {
         this.attachments = attachments;
     }
 
-    public String getLocale() {
-        return locale;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public ConsentContext.CollectionMethod getCollectionMethod() {
@@ -190,12 +222,20 @@ public class Receipt {
         this.collectionMethod = collectionMethod;
     }
 
-    public String getToken() {
-        return token;
+    public String getUpdateUrl() {
+        return updateUrl;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setUpdateUrl(String updateUrl) {
+        this.updateUrl = updateUrl;
+    }
+
+    public String getUpdateUrlQrCode() {
+        return updateUrlQrCode;
+    }
+
+    public void setUpdateUrlQrCode(String updateUrlQrCode) {
+        this.updateUrlQrCode = updateUrlQrCode;
     }
 
     public String toXml() throws JAXBException {
@@ -223,10 +263,10 @@ public class Receipt {
         return (Receipt) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, Map<Treatment, Record> records) throws DatatypeConfigurationException {
+    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, Map<Processing, Record> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
-        receipt.setLocale(ctx.getLocale());
+        receipt.setLanguage(ctx.getLanguage());
         receipt.setDate(date);
         receipt.setExpirationDate(date.plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS));
         receipt.setProcessor(processor);
@@ -241,16 +281,18 @@ public class Receipt {
             receipt.setFooterNotice(info.getFooter());
         }
         receipt.setCollectionMethod(ctx.getCollectionMethod());
-        for ( Map.Entry<Treatment, Record> record : records.entrySet() ) {
+        for ( Map.Entry<Processing, Record> record : records.entrySet() ) {
             Consent trecord = new Consent();
             trecord.setSerial(record.getValue().serial);
-            trecord.setData(record.getKey().getDataBody());
-            trecord.setRetention(record.getKey().getRetentionBody());
-            trecord.setUsage(record.getKey().getUsageBody());
+            trecord.setData(record.getKey().getData());
+            trecord.setRetentionLabel(record.getKey().getRetentionLabel());
+            trecord.setRetentionValue(record.getKey().getRetentionValue());
+            trecord.setRetentionUnit(record.getKey().getRetentionUnit().name());
+            trecord.setUsage(record.getKey().getUsage());
             trecord.setPurposes(record.getKey().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
             trecord.setController(record.getKey().getDataController());
             trecord.setValue(record.getValue().value);
-            //TODO include specific treatment sharing information
+            //TODO include specific processing sharing information
             receipt.getConsents().add(trecord);
         }
         return receipt;

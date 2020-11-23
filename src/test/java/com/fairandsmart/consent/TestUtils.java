@@ -1,5 +1,38 @@
 package com.fairandsmart.consent;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.manager.ConsentContext;
@@ -11,10 +44,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TestUtils {
@@ -28,40 +58,40 @@ public class TestUtils {
         return dto;
     }
 
-    public static ModelVersionDto generateModelVersionDto(String key, String type, String locale) {
+    public static ModelVersionDto generateModelVersionDto(String key, String type, String language) {
         ModelVersionDto dto = new ModelVersionDto();
-        dto.setDefaultLocale(locale);
+        dto.setDefaultLanguage(language);
 
         switch (type) {
             case BasicInfo.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateBasicInfo(key)));
+                dto.setData(Collections.singletonMap(language, generateBasicInfo(key)));
                 break;
-            case Treatment.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateTreatment(key)));
+            case Processing.TYPE:
+                dto.setData(Collections.singletonMap(language, generateProcessing(key)));
                 break;
             case Conditions.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateConditions(key)));
+                dto.setData(Collections.singletonMap(language, generateConditions(key)));
                 break;
             case Email.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateEmail(key)));
+                dto.setData(Collections.singletonMap(language, generateEmail(key)));
                 break;
             case Theme.TYPE:
-                dto.setData(Collections.singletonMap(locale, generateTheme(key)));
+                dto.setData(Collections.singletonMap(language, generateTheme(key)));
                 break;
         }
 
         return dto;
     }
 
-    public static Map<String, ModelData> generateModelData(String key, String type, String locale) {
+    public static Map<String, ModelData> generateModelData(String key, String type, String language) {
         ModelData modelData = null;
 
         switch (type) {
             case BasicInfo.TYPE:
                 modelData = generateBasicInfo(key);
                 break;
-            case Treatment.TYPE:
-                modelData = generateTreatment(key);
+            case Processing.TYPE:
+                modelData = generateProcessing(key);
                 break;
             case Conditions.TYPE:
                 modelData = generateConditions(key);
@@ -75,7 +105,7 @@ public class TestUtils {
         }
 
         Map<String, ModelData> map = new HashMap<>();
-        map.put(locale, modelData);
+        map.put(language, modelData);
         return map;
     }
 
@@ -102,17 +132,16 @@ public class TestUtils {
                 .withCustomAcceptAllText("Accept all " + key);
     }
 
-    public static Treatment generateTreatment(String key) {
-        return new Treatment()
-                .withTreatmentTitle("Treatment title " + key)
-                .withDataTitle("Data title " + key)
-                .withDataBody("Data body " + key)
-                .withRetentionTitle("Retention title " + key)
-                .withRetentionBody("Retention body " + key)
-                .withUsageTitle("Usage title " + key)
-                .withUsageBody("Usage body " + key)
-                .withPurpose(Treatment.Purpose.CONSENT_CORE_SERVICE)
-                .withPurpose(Treatment.Purpose.CONSENT_THIRD_PART_SHARING)
+    public static Processing generateProcessing(String key, List<String> associatedPreferences) {
+        return new Processing()
+                .withTitle("Processing title " + key)
+                .withData("Data body " + key)
+                .withRetentionLabel("Retention body " + key)
+                .withRetentionValue(3)
+                .withRetentionUnit(Processing.RetentionUnit.MONTH)
+                .withUsage("Usage body " + key)
+                .withPurpose(Processing.Purpose.CONSENT_CORE_SERVICE)
+                .withPurpose(Processing.Purpose.CONSENT_THIRD_PART_SHARING)
                 .withDataController(generateDataController(key + "_dc"))
                 .withShowDataController(true)
                 .withContainsMedicalData(true)
@@ -124,7 +153,25 @@ public class TestUtils {
                 .withThirdParty(
                         new NameValuePair(
                                 "Third party 2 name " + key,
-                                "Third party 2 description " + key));
+                                "Third party 2 description " + key))
+                .withAssociatedWithPreferences(associatedPreferences != null && associatedPreferences.size() > 0)
+                .withAssociatedPreferences(associatedPreferences);
+    }
+
+    public static Processing generateProcessing(String key) {
+        return generateProcessing(key, Collections.emptyList());
+    }
+
+    public static Preference generatePreference(String key) {
+        List<String> options = new ArrayList<>();
+        options.add("Option1");
+        options.add("Option2");
+        options.add("Option3");
+        return new Preference()
+                .withLabel("Label " + key)
+                .withDescription("Description " + key)
+                .withOptions(options)
+                .withValueType(Preference.ValueType.RADIO_BUTTONS);
     }
 
     public static Conditions generateConditions(String key) {

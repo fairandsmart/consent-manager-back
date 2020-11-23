@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.timestamp;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.common.config.TsaConfig;
 import io.quarkus.runtime.Startup;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -33,8 +66,7 @@ public class TimestampServiceBean implements TimestampService {
     private static final Logger LOGGER = Logger.getLogger(TimestampServiceBean.class.getName());
 
     @ConfigProperty(name = "consent.keystore.path", defaultValue = "")
-    Optional<String> keystorePathConfig;
-    String keystorePathDefault = System.getProperty("user.home") + "/.consent-manager/keystore.jks";
+    String keystorePathConfig;
 
     @Inject
     TsaConfig config;
@@ -50,19 +82,22 @@ public class TimestampServiceBean implements TimestampService {
 //        - keystorePath defined => check it exists, or give up (prod mode)
 
         String keystorePath;
-        if (keystorePathConfig.isPresent()) {
-            keystorePath = String.valueOf(keystorePathConfig);
-        } else {
-            keystorePath = keystorePathDefault;
-            LOGGER.log(Level.WARNING, "consent.keystore.path undefined, copying our to {0}", keystorePath);
-            File keystoreFile = new File(keystorePath);
-            if (keystoreFile.exists()) {
-                LOGGER.log(Level.WARNING, "{0} already exists, overwriting", keystorePath);
-                if (!keystoreFile.delete()) throw new TimestampServiceException("could not delete {0}, please check");
-            }
+        keystorePath = String.valueOf(keystorePathConfig);
+
+        if ( keystorePath.startsWith("~") ) {
+            keystorePath = System.getProperty("user.home") + keystorePath.substring(1);
+            LOGGER.log(Level.INFO, "Setting keystore relative to user home directory : {0}", keystorePath);
+        }
+
+        File keystoreFile = new File(keystorePath);
+        if (! keystoreFile.exists()) {
+            LOGGER.log(Level.WARNING, "{0} do not exists, copying the default one", keystorePath);
             InputStream defaultKeystore = this.getClass().getClassLoader().getResourceAsStream("keystore.jks");
             assert defaultKeystore != null;
             try {
+                if (!keystoreFile.getAbsoluteFile().getParentFile().exists()) {
+                    Files.createDirectory(keystoreFile.getAbsoluteFile().getParentFile().toPath());
+                }
                 Files.copy(defaultKeystore, Paths.get(keystorePath));
             } catch (IOException e) {
                 throw new TimestampServiceException(String.format("could not copy default keystore to %s : %s", keystorePath, e.toString()));

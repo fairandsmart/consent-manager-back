@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <receipt>
     <transaction>28b0e38a-ddb0-47eb-a75a-5bc6df13c99b</transaction>
-    <locale>fr</locale>
+    <language>fr</language>
     <date>2020-10-09T07:35:31.388736Z[UTC]</date>
     <expirationDate>2021-04-08T07:35:31.388736Z[UTC]</expirationDate>
     <processor>https://www.fairandsmart.com</processor>
@@ -9,10 +9,10 @@
     <subjectInfos/>
     <consents>
         <consent>
-            <serial>.U6EvTzw.</serial>
-            <data>Vos données de contact (email, téléphone, adresse postale) suivant votre préférence</data>
+            <serial>U6EvTzw</serial>
+            <data>Vos données de contact (email, téléphone, adresse postale) suivant votre préférence.</data>
             <retention>Pendant toute la durée du service et jusqu'à 1 mois après votre désinscription pour des raisons techniques.</retention>
-            <usage>Pouvoir vous contacter pour vous proposer de nouveaux services adaptés à vos besoins</usage>
+            <usage>Pouvoir vous contacter pour vous proposer de nouveaux services adaptés à vos besoins.</usage>
             <controller>
                 <actingBehalfCompany>true</actingBehalfCompany>
                 <address>2, rue de Lorraine, 75002 PARIS</address>

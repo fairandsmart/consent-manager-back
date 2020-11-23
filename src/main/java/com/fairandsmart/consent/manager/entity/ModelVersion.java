@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.manager.entity;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentElementIdentifier;
@@ -31,8 +64,8 @@ public class ModelVersion extends PanacheEntityBase {
     public String branches;
     public String author;
     public String owner;
-    public String defaultLocale;
-    public String availableLocales = "";
+    public String defaultLanguage;
+    public String availableLanguages = "";
     @Enumerated(EnumType.STRING)
     public Status status;
     @Enumerated(EnumType.STRING)
@@ -44,11 +77,11 @@ public class ModelVersion extends PanacheEntityBase {
     @ElementCollection(fetch = FetchType.LAZY)
     public Map<String, ModelContent> content = new HashMap<>();
 
-    public ModelData getData(String locale) throws ModelDataSerializationException {
-        if (content.containsKey(locale)) {
-            return content.get(locale).getDataObject();
+    public ModelData getData(String language) throws ModelDataSerializationException {
+        if (content.containsKey(language)) {
+            return content.get(language).getDataObject();
         } else {
-            return content.get(defaultLocale).getDataObject();
+            return content.get(defaultLanguage).getDataObject();
         }
     }
 
@@ -86,8 +119,8 @@ public class ModelVersion extends PanacheEntityBase {
         return serials;
     }
 
-    public boolean hasLocale(String locale) {
-        return content.containsKey(locale);
+    public boolean hasLanguage(String language) {
+        return content.containsKey(language);
     }
 
     public enum Type {
@@ -113,8 +146,8 @@ public class ModelVersion extends PanacheEntityBase {
                 ", branches='" + branches + '\'' +
                 ", author='" + author + '\'' +
                 ", owner='" + owner + '\'' +
-                ", defaultLocale='" + defaultLocale + '\'' +
-                ", availableLocales='" + availableLocales + '\'' +
+                ", defaultLanguage='" + defaultLanguage + '\'' +
+                ", availableLanguages='" + availableLanguages + '\'' +
                 ", status=" + status +
                 ", type=" + type +
                 ", counterparts='" + counterparts + '\'' +

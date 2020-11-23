@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.manager.filter;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.manager.entity.Record;
 
 import java.util.ArrayList;
@@ -13,7 +46,7 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
     private int size;
     private String owner;
     private String subject;
-    private List<Record.Status> status;
+    private Record.State state;
     private List<String> infos;
     private List<String> elements;
     private String collectionMethod;
@@ -58,12 +91,12 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.subject = subject;
     }
 
-    public List<Record.Status> getStatus() {
-        return status;
+    public Record.State getState() {
+        return state;
     }
 
-    public void setStatus(List<Record.Status> status) {
-        this.status = status;
+    public void setState(Record.State state) {
+        this.state = state;
     }
 
     public List<String> getInfos() {
@@ -141,8 +174,8 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         if (subject != null && !subject.isEmpty()) {
             parts.add("subject = :subject");
         }
-        if (status != null && !status.isEmpty()) {
-            parts.add("status in :status");
+        if (state != null) {
+            parts.add("state = :state");
         }
         if (infos != null && !infos.isEmpty()) {
             parts.add("infoSerial in :infos");
@@ -174,8 +207,8 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         if (subject != null && !subject.isEmpty()) {
             params.put("subject", subject);
         }
-        if (status != null && status.size() > 0) {
-            params.put("status", status);
+        if (state != null) {
+            params.put("state", state);
         }
         if (infos != null && infos.size() > 0) {
             params.put("infos", infos);
@@ -205,7 +238,7 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
                 ", size=" + size +
                 ", owner='" + owner + '\'' +
                 ", subject='" + subject + '\'' +
-                ", status=" + status +
+                ", state=" + state +
                 ", infos=" + infos +
                 ", elements=" + elements +
                 ", collectionMethod='" + collectionMethod + '\'' +

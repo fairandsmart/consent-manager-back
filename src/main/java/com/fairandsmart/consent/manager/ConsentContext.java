@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.manager;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ *
+ * Authors:
+ *
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.token.Tokenizable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +43,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
 
-public class ConsentContext implements Tokenizable {
+public class ConsentContext implements Tokenizable, Cloneable {
 
     private static final String DEFAULT_VALIDITY = "P6M";
     private static final FormType DEFAULT_FORM_TYPE = FormType.FULL;
@@ -27,21 +60,23 @@ public class ConsentContext implements Tokenizable {
     @NotNull
     @NotEmpty
     private List<String> elements;
+    private boolean associatePreferences = false;
     private String callback;
-    private String locale;
+    private String language;
     private String validity;
     private FormType formType;
     private ReceiptDeliveryType receiptDeliveryType;
+    private ReceiptDisplayType receiptDisplayType;
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
-    private String optoutModel;
-    private String optoutRecipient;
+    private String notificationModel;
+    private String notificationRecipient;
     private CollectionMethod collectionMethod;
     private String author;
     private boolean preview = false;
     private boolean iframe = false;
-    private boolean conditions = false;
     private String theme;
+    private String receiptId;
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
@@ -102,6 +137,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public boolean isAssociatePreferences() {
+        return associatePreferences;
+    }
+
+    public ConsentContext setAssociatePreferences(boolean associatePreferences) {
+        this.associatePreferences = associatePreferences;
+        return this;
+    }
+
     public String getCallback() {
         return callback;
     }
@@ -111,15 +155,15 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getLocale() {
-        if (StringUtils.isEmpty(locale)) {
+    public String getLanguage() {
+        if (StringUtils.isEmpty(language)) {
             return Locale.getDefault().toLanguageTag();
         }
-        return locale;
+        return language;
     }
 
-    public ConsentContext setLocale(String locale) {
-        this.locale = locale;
+    public ConsentContext setLanguage(String language) {
+        this.language = language;
         return this;
     }
 
@@ -182,21 +226,21 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getOptoutModel() {
-        return optoutModel;
+    public String getNotificationModel() {
+        return notificationModel;
     }
 
-    public ConsentContext setOptoutModel(String optoutModel) {
-        this.optoutModel = optoutModel;
+    public ConsentContext setNotificationModel(String notificationModel) {
+        this.notificationModel = notificationModel;
         return this;
     }
 
-    public String getOptoutRecipient() {
-        return optoutRecipient;
+    public String getNotificationRecipient() {
+        return notificationRecipient;
     }
 
-    public ConsentContext setOptoutRecipient(String optoutRecipient) {
-        this.optoutRecipient = optoutRecipient;
+    public ConsentContext setNotificationRecipient(String notificationRecipient) {
+        this.notificationRecipient = notificationRecipient;
         return this;
     }
 
@@ -235,20 +279,30 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public boolean isConditions() {
-        return conditions;
-    }
-
-    public void setConditions(boolean conditions) {
-        this.conditions = conditions;
-    }
-
     public String getTheme() {
         return theme;
     }
 
     public ConsentContext setTheme(String theme) {
         this.theme = theme;
+        return this;
+    }
+
+    public ReceiptDisplayType getReceiptDisplayType() {
+        return receiptDisplayType;
+    }
+
+    public ConsentContext setReceiptDisplayType(ReceiptDisplayType receiptDisplayType) {
+        this.receiptDisplayType = receiptDisplayType;
+        return this;
+    }
+
+    public String getReceiptId() {
+        return receiptId;
+    }
+
+    public ConsentContext setReceiptId(String receiptId) {
+        this.receiptId = receiptId;
         return this;
     }
 
@@ -261,8 +315,9 @@ public class ConsentContext implements Tokenizable {
         if (elements != null && !elements.isEmpty()) {
             claims.put("elements", this.getElementsString());
         }
-        if (locale != null) {
-            claims.put("locale", this.getLocale());
+        claims.put("associatePreferences", Boolean.toString(this.isAssociatePreferences()));
+        if (language != null) {
+            claims.put("language", this.getLanguage());
         }
         if (validity != null) {
             claims.put("validity", this.getValidity());
@@ -279,11 +334,14 @@ public class ConsentContext implements Tokenizable {
         if (receiptDeliveryType != null) {
             claims.put("receiptDeliveryType", this.getReceiptDeliveryType().name());
         }
-        if (optoutModel != null) {
-            claims.put("optoutModel", this.getOptoutModel());
+        if (receiptDisplayType != null) {
+            claims.put("receiptDisplayType", this.getReceiptDisplayType().toString());
         }
-        if (optoutRecipient != null) {
-            claims.put("optoutRecipient", this.getOptoutRecipient());
+        if (notificationModel != null) {
+            claims.put("notificationModel", this.getNotificationModel());
+        }
+        if (notificationRecipient != null) {
+            claims.put("notificationRecipient", this.getNotificationRecipient());
         }
         if (collectionMethod != null) {
             claims.put("collectionMethod", this.getCollectionMethod().name());
@@ -300,7 +358,6 @@ public class ConsentContext implements Tokenizable {
         }
         claims.put("preview", Boolean.toString(this.isPreview()));
         claims.put("iframe", Boolean.toString(this.isIframe()));
-        claims.put("conditions", Boolean.toString(this.isConditions()));
         if (theme != null) {
             claims.put("theme", this.getTheme());
         }
@@ -315,8 +372,11 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("elements")) {
             this.setElementsString(claims.get("elements"));
         }
-        if (claims.containsKey("locale")) {
-            this.setLocale(claims.get("locale"));
+        if (claims.containsKey("associatePreferences")) {
+            this.setAssociatePreferences(Boolean.parseBoolean(claims.get("associatePreferences")));
+        }
+        if (claims.containsKey("language")) {
+            this.setLanguage(claims.get("language"));
         }
         if (claims.containsKey("validity")) {
             this.setValidity(claims.get("validity"));
@@ -333,11 +393,14 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("receiptDeliveryType")) {
             this.setReceiptDeliveryType(ReceiptDeliveryType.valueOf(claims.get("receiptDeliveryType")));
         }
-        if (claims.containsKey("optoutModel")) {
-            this.setOptoutModel(claims.get("optoutModel"));
+        if (claims.containsKey("receiptDisplayType")) {
+            this.setReceiptDisplayType(ReceiptDisplayType.valueOfName(claims.get("receiptDisplayType")));
         }
-        if (claims.containsKey("optoutRecipient")) {
-            this.setOptoutRecipient(claims.get("optoutRecipient"));
+        if (claims.containsKey("notificationModel")) {
+            this.setNotificationModel(claims.get("notificationModel"));
+        }
+        if (claims.containsKey("notificationRecipient")) {
+            this.setNotificationRecipient(claims.get("notificationRecipient"));
         }
         if (claims.containsKey("collectionMethod")) {
             this.setCollectionMethod(CollectionMethod.valueOf(claims.get("collectionMethod")));
@@ -347,9 +410,6 @@ public class ConsentContext implements Tokenizable {
         }
         if (claims.containsKey("iframe")) {
             this.setIframe(Boolean.parseBoolean(claims.get("iframe")));
-        }
-        if (claims.containsKey("conditions")) {
-            this.setConditions(Boolean.parseBoolean(claims.get("conditions")));
         }
         if (claims.containsKey("theme")) {
             this.setTheme(claims.get("theme"));
@@ -387,13 +447,46 @@ public class ConsentContext implements Tokenizable {
         DOWNLOAD
     }
 
+    public enum ReceiptDisplayType {
+        NONE("none"),
+        HTML("text/html"),
+        PDF("application/pdf"),
+        XML("application/xml"),
+        TEXT("text/plain");
+
+        private final String name;
+
+        ReceiptDisplayType(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
+        public static ReceiptDisplayType valueOfName(String name) {
+            for (ReceiptDisplayType e : values()) {
+                if (e.name.equals(name)) {
+                    return e;
+                }
+            }
+            throw new IllegalArgumentException("Unknown format : " + name);
+        }
+    }
+
     /**
      * WEBFORM the user filled in a form
      * OPERATOR an operator created the record based on an interaction with the user
      */
     public enum CollectionMethod {
         WEBFORM,
-        OPERATOR
+        OPERATOR,
+        EMAIL
     }
 
     @Override
@@ -403,21 +496,27 @@ public class ConsentContext implements Tokenizable {
                 ", orientation=" + orientation +
                 ", info='" + info + '\'' +
                 ", elements=" + elements +
+                ", associatePreferences=" + associatePreferences +
                 ", callback='" + callback + '\'' +
                 ", validity='" + validity + '\'' +
-                ", locale='" + locale + '\'' +
+                ", language='" + language + '\'' +
                 ", formType=" + formType +
                 ", receiptDeliveryType=" + receiptDeliveryType +
+                ", receiptDisplayType=" + receiptDisplayType +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
-                ", optoutEmailModel='" + optoutModel + '\'' +
-                ", optoutEmailRecipient='" + optoutRecipient + '\'' +
+                ", notificationEmailModel='" + notificationModel + '\'' +
+                ", notificationEmailRecipient='" + notificationRecipient + '\'' +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", preview=" + preview +
                 ", iframe=" + iframe +
-                ", conditions=" + conditions +
                 ", theme='" + theme + '\'' +
                 '}';
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

@@ -4,7 +4,8 @@ RUN mvn -f /project/pom.xml -B de.qaware.maven:go-offline-maven-plugin:1.2.5:res
 COPY src /project/src
 RUN mvn -f /project/pom.xml clean package -DskipTests -Dquarkus.package.uber-jar=true
 
-FROM adoptopenjdk:11-jre-openj9
+FROM adoptopenjdk:11-jre-hotspot
+RUN apt-get update && apt-get install -y gettext-base
 COPY --from=build /project/target/*-runner.jar /consent-manager-back.jar
 COPY fs /
 VOLUME /data

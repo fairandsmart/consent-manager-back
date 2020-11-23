@@ -6,7 +6,7 @@
             </div>
         </#if>
 
-        <#if info.showAcceptAll>
+        <#if displayAcceptAll>
             <div class="accept-all-container">
                 <div class="accept-all-text">
                     <#if info.customAcceptAllText?has_content>
@@ -19,7 +19,7 @@
         </#if>
     <#else>
         <div class="footer-body">
-            <p><@writeError "missingLocale"></@writeError></p>
+            <p><@writeError "missingLanguage"></@writeError></p>
         </div>
     </#if>
 

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fairandsmart</groupId>
     <artifactId>consent-manager-back</artifactId>
-    <version>0.0.0</version>
+    <version>0.1.0</version>
     <name>FairAndSmart Consent Manager Backend</name>
     <scm>
         <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
@@ -25,6 +25,107 @@
             <url>https://repository.fairandsmart.tech/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+    <developers>
+        <developer>
+            <id>xlefevbre</id>
+            <name>Xavier Lefevre</name>
+            <email>xavier.lefevre@fairandsmart.com</email>
+            <timezone>+1</timezone>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>manager</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>abalbo</id>
+            <name>Alan Balbo</name>
+            <email>alan.balbo@fairandsmart.com</email>
+            <timezone>+1</timezone>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>nrueff</id>
+            <name>Nicolas Rueff</name>
+            <email>nicolas.rueff@fairandsmart.com</email>
+            <timezone>+1</timezone>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>fpierre</id>
+            <name>Frederic Pierre</name>
+            <email>frederic.pierre@fairandsmart.com</email>
+            <timezone>+1</timezone>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>vguillaume</id>
+            <name>Victor Guillaume</name>
+            <email>victor.guillaume@fairandsmart.com</email>
+            <timezone>+1</timezone>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>jblanchard</id>
+            <name>Jerome Blanchard</name>
+            <email>jerome.blanchard@fairandsmart.com</email>
+            <timezone>+1</timezone>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>mstremplewski</id>
+            <name>Manon Stremplewski</name>
+            <email>manon.stremplewski@fairandsmart.com</email>
+            <timezone>+1</timezone>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>pkullmann</id>
+            <name>Pauline Kullmann</name>
+            <email>pauline.kullmann@fairandsmart.com</email>
+            <timezone>+1</timezone>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <organization>
+        <name>Fair And Smart</name>
+        <url>https://fairandsmart.io/facogen/team-list.html</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>GPL (GNU General Public License) version 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <properties>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -42,6 +143,7 @@
         <version.maven>3.6.2</version.maven>
         <version.maven-clean-plugin>3.1.0</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.8.1</version.maven-compiler-plugin>
+        <version.maven-license-plugin>2.0.0</version.maven-license-plugin>
         <version.maven-dependency-check-plugin>5.3.2</version.maven-dependency-check-plugin>
         <version.maven-deploy-plugin>3.0.0-M1</version.maven-deploy-plugin>
         <version.maven-enforcer-plugin>3.0.0-M3</version.maven-enforcer-plugin>
@@ -52,11 +154,14 @@
         <version.maven-resources-plugin>3.1.0</version.maven-resources-plugin>
         <version.maven-site-plugin>3.9.0</version.maven-site-plugin>
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
-        <version.quarkus>1.8.0.Final</version.quarkus>
+        <version.quarkus>1.9.2.Final</version.quarkus>
         <version.resteasy-client>4.5.3.Final</version.resteasy-client>
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
         <version.xades4j>1.5.1</version.xades4j>
+        <version.apache-fop>2.5</version.apache-fop>
+        <version.zxing>3.4.1</version.zxing>
+        <version.xerces>2.12.0</version.xerces>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -190,10 +295,16 @@
             <version>${version.jackson}</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+            <version>${version.jackson}</version>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${version.jackson}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.exist-db</groupId>
             <artifactId>exist-core</artifactId>
@@ -217,6 +328,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>${version.apache-fop}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>${version.zxing}</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>${version.xerces}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
@@ -258,6 +387,35 @@
                     <execution>
                         <goals>
                             <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${version.maven-license-plugin}</version>
+                <configuration>
+                    <licenseName>gpl_v3</licenseName>
+                    <encoding>UTF-8</encoding>
+                    <includes>
+                        <include>com/fairandsmart/consent/**/*.java</include>
+                    </includes>
+                    <descriptionTemplate>${basedir}/src/etc/header.ftl</descriptionTemplate>
+                    <offline>true</offline>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>update-headers</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                    </execution>
+                    <execution>
+                        <id>download-licenses</id>
+                        <goals>
+                            <goal>download-licenses</goal>
                         </goals>
                     </execution>
                 </executions>

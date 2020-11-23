@@ -35,7 +35,7 @@
 
     .header {
         text-align: center;
-        margin: 0 0 18px 12px;
+        margin: 0 0 8px 12px;
         border-bottom: 1px solid #eee;
     }
 
@@ -53,10 +53,5 @@
 
     .accept-all-container {
         padding: 0 12px;
-    }
-
-    .submit-container {
-        text-align: center;
-        margin: 8px 0 16px 0;
     }
 </style>

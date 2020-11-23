@@ -55,20 +55,11 @@
         margin: -32px 0 0 0 !important;
     }
 
-    .close-wrapper {
-        top: 10px;
-        right: 10px;
-    }
-
 
     /* Content */
 
     .right .content-fade {
         background: linear-gradient(#eeeeee, rgba(238, 238, 238, 0));
-    }
-
-    .treatments {
-        padding-top: 12px;
     }
 
     .right .block-wrapper {
@@ -82,10 +73,5 @@
         padding: 12px 0;
         border-top: 1px solid lightgray;
         margin: 0 36px;
-    }
-
-    .submit-container {
-        text-align: right;
-        margin: 18px;
     }
 </style>

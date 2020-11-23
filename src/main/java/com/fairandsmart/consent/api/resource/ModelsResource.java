@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.api.resource;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -45,7 +78,8 @@ public class ModelsResource {
             @QueryParam("size") @DefaultValue("25") int size,
             @QueryParam("order") @DefaultValue("key") String order,
             @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
-            @QueryParam("types") List<String> types) throws ConsentManagerException, ModelDataSerializationException {
+            @QueryParam("types") List<String> types,
+            @QueryParam("keys") List<String> keys) throws ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models");
         ModelFilter filter = new ModelFilter();
         filter.setPage(page);
@@ -53,10 +87,11 @@ public class ModelsResource {
         filter.setOrder(order);
         filter.setDirection(direction);
         filter.setTypes(types);
+        filter.setKeys(keys);
         CollectionPage<ModelEntry> entries = consentService.listEntries(filter);
         CollectionPage<ModelEntryDto> dto = new CollectionPage<>(entries);
         List<ModelEntryDto> values = new ArrayList<>();
-        for ( ModelEntry modelEntry : entries.getValues() ) {
+        for (ModelEntry modelEntry : entries.getValues()) {
             ModelEntryDto modelEntryDto = transformEntryToDto(modelEntry);
             values.add(modelEntryDto);
         }
@@ -65,6 +100,7 @@ public class ModelsResource {
     }
 
     @POST
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelEntryDto createEntry(@Valid ModelEntryDto dto) throws EntityAlreadyExistsException, ConsentManagerException, ModelDataSerializationException {
@@ -74,7 +110,7 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ModelEntryDto getEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id);
@@ -83,7 +119,8 @@ public class ModelsResource {
     }
 
     @PUT
-    @Path("/{id}")
+    @Path("{id}")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelEntryDto updateEntry(@PathParam("id") @Valid @UUID String id, ModelEntryDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
@@ -93,7 +130,8 @@ public class ModelsResource {
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("{id}")
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteEntry(@PathParam("id") @Valid @UUID String id) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id);
@@ -101,29 +139,30 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}/versions")
+    @Path("{id}/versions")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ModelVersionDtoLight> listVersions(@PathParam("id") @Valid @UUID String id) throws ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions");
         List<ModelVersionDtoLight> dto = new ArrayList<>();
-        for ( ModelVersion version : consentService.getVersionHistoryForEntry(id) ) {
+        for (ModelVersion version : consentService.getVersionHistoryForEntry(id)) {
             dto.add(ModelVersionDtoLight.fromModelVersion(version));
         }
         return dto;
     }
 
     @POST
-    @Path("/{id}/versions")
+    @Path("{id}/versions")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto createVersion(@PathParam("id") @Valid @UUID String id, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "POST /models/" + id + "/versions");
-        ModelVersion version = consentService.createVersion(id, dto.getDefaultLocale(), dto.getData());
+        ModelVersion version = consentService.createVersion(id, dto.getDefaultLanguage(), dto.getData());
         return ModelVersionDto.fromModelVersion(version);
     }
 
     @GET
-    @Path("/{id}/versions/latest")
+    @Path("{id}/versions/latest")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLatestVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info, @Context HttpHeaders headers) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/latest");
@@ -133,7 +172,7 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}/versions/active")
+    @Path("{id}/versions/active")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getActiveVersion(@PathParam("id") @Valid @UUID String id, @Context UriInfo info, @Context HttpHeaders headers) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/active");
@@ -143,12 +182,12 @@ public class ModelsResource {
     }
 
     @GET
-    @Path("/{id}/versions/{vid}")
+    @Path("{id}/versions/{vid}")
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto getVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, AccessDeniedException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid);
         ModelVersion version = consentService.getVersion(vid);
-        if ( !version.entry.id.equals(id) ) {
+        if (!version.entry.id.equals(id)) {
             throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
         }
         return ModelVersionDto.fromModelVersion(version);
@@ -156,13 +195,13 @@ public class ModelsResource {
 
     @PUT
     @Transactional
-    @Path("/{id}/versions/{vid}")
+    @Path("{id}/versions/{vid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto updateVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid);
-        ModelVersion version = consentService.updateVersion(vid, dto.getDefaultLocale(), dto.getData());
-        if ( !version.entry.id.equals(id) ) {
+        ModelVersion version = consentService.updateVersion(vid, dto.getDefaultLanguage(), dto.getData());
+        if (!version.entry.id.equals(id)) {
             throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
         }
         return ModelVersionDto.fromModelVersion(version);
@@ -170,13 +209,13 @@ public class ModelsResource {
 
     @PUT
     @Transactional
-    @Path("/{id}/versions/{vid}/status")
+    @Path("{id}/versions/{vid}/status")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto updateVersionStatus(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionStatusDto dto) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "PUT /models/" + id + "/versions/" + vid + "/status");
         ModelVersion version = consentService.updateVersionStatus(vid, dto.getStatus());
-        if ( !version.entry.id.equals(id) ) {
+        if (!version.entry.id.equals(id)) {
             throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
         }
         return ModelVersionDto.fromModelVersion(version);
@@ -184,7 +223,7 @@ public class ModelsResource {
 
     @PUT
     @Transactional
-    @Path("/{id}/versions/{vid}/type")
+    @Path("{id}/versions/{vid}/type")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ModelVersionDto updateVersionType(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @Valid ModelVersionTypeDto dto) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
@@ -194,7 +233,8 @@ public class ModelsResource {
     }
 
     @POST
-    @Path("/{id}/versions/{vid}/preview")
+    @Path("{id}/versions/{vid}/preview")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_HTML)
     public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
@@ -202,22 +242,14 @@ public class ModelsResource {
         return templateService.buildModel(consentService.previewVersion(id, vid, dto));
     }
 
-    @POST
-    @Path("/{id}/versions/new/preview")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_HTML)
-    public TemplateModel previewVersion(@PathParam("id") @Valid @UUID String id, PreviewDto dto) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
-        LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/new/preview");
-        return templateService.buildModel(consentService.previewVersion(id, "new", dto));
-    }
-
     @DELETE
-    @Path("/{id}/versions/{vid}")
+    @Path("{id}/versions/{vid}")
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid) throws EntityNotFoundException, ConsentManagerException {
         LOGGER.log(Level.INFO, "DELETE /models/" + id + "/versions/" + vid);
         ModelVersion version = consentService.getVersion(vid);
-        if ( !version.entry.id.equals(id) ) {
+        if (!version.entry.id.equals(id)) {
             throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
         }
         consentService.deleteVersion(vid);

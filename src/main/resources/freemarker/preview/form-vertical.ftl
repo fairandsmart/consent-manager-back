@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="${locale}">
+<html lang="${language}">
 <head>
     <#include "../macros/lang-macros.ftl">
     <#include "../macros/elements-macros.ftl">
@@ -32,7 +32,7 @@
         <#include "info-logo.ftl">
     </#if>
 
-    <div class="treatments">
+    <div class="processing-list">
         <#if data.info??>
             <#include "info-head.ftl">
         </#if>
@@ -48,6 +48,7 @@
     <#if data.info??>
         <@fetchMultiLangContent data.info></@fetchMultiLangContent>
         <#assign info=langContent>
+        <#assign displayAcceptAll=(info.showAcceptAll && data.elements?size > 1)>
         <#include "info-foot.ftl">
     </#if>
 </div>

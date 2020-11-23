@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.manager.filter;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +42,7 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
 
     private String owner;
     private List<String> types;
+    private List<String> keys;
     private int page;
     private int size;
     private String order;
@@ -35,6 +69,19 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
 
     public ModelFilter withTypes(List<String> types) {
         this.types = types;
+        return this;
+    }
+
+    public List<String> getKeys() {
+        return keys;
+    }
+
+    public void setKeys(List<String> keys) {
+        this.keys = keys;
+    }
+
+    public ModelFilter withKeys(List<String> keys) {
+        this.keys = keys;
         return this;
     }
 
@@ -101,6 +148,9 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (types != null && !types.isEmpty()) {
             parts.add("type in :types");
         }
+        if (keys != null && !keys.isEmpty()) {
+            parts.add("key in :keys");
+        }
         return String.join(" and ", parts);
     }
 
@@ -112,6 +162,9 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         }
         if (types != null && !types.isEmpty()) {
             params.put("types", types);
+        }
+        if (keys != null && !keys.isEmpty()) {
+            params.put("keys", keys);
         }
         return params;
     }

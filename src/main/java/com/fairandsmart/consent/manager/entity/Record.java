@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.manager.entity;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.filter.SortableFilter;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -33,9 +66,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public String bodyKey;
     public String value;
     @Enumerated(EnumType.STRING)
-    public Status status;
-    @Transient
-    public String statusExplanation;
+    public State state;
     @Enumerated(EnumType.STRING)
     public ConsentContext.CollectionMethod collectionMethod;
     public String author;
@@ -43,15 +74,33 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public String comment;
     @ElementCollection(fetch = FetchType.EAGER)
     public Map<String, String> attributes;
+    @Transient
+    public Status status;
+    @Transient
+    public StatusExplanation statusExplanation;
+    public String mailRecipient;
 
-    public enum Status {
+    public enum State {
         PENDING,
         COMMITTED,
-        DELETED,
+        DELETED
+    }
+
+    public enum Status {
         VALID,
         OBSOLETE,
         EXPIRED,
-        IRRELEVANT
+        IRRELEVANT,
+        UNKNOWN
+    }
+
+    public enum StatusExplanation {
+        LATEST_VALID,
+        OBSOLETE,
+        EXPIRED,
+        INFO_SERIAL_ARCHIVED,
+        BODY_SERIAL_ARCHIVED,
+        NOT_COMMITTED
     }
 
     @Override
@@ -72,11 +121,13 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
                 ", infoKey='" + infoKey + '\'' +
                 ", bodyKey='" + bodyKey + '\'' +
                 ", value='" + value + '\'' +
+                ", state=" + state +
                 ", status=" + status +
-                ", statusExplanation='" + statusExplanation + '\'' +
+                ", statusExplanation=" + statusExplanation +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", comment='" + comment + '\'' +
+                ", mailRecipient='" + mailRecipient + '\'' +
                 ", attributes=" + attributes +
                 '}';
     }

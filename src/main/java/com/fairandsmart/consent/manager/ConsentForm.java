@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.manager;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 
 import java.util.ArrayList;
@@ -12,13 +45,12 @@ public class ConsentForm {
     private String token;
     private ModelVersion info;
     private List<ModelVersion> elements;
-    private String locale;
+    private String language;
     private Orientation orientation;
     private Map<String, String> previousValues;
     private boolean preview = false;
-    private boolean conditions = false;
     private ModelVersion theme;
-    private ModelVersion optoutEmail;
+    private ModelVersion notificationEmail;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -53,12 +85,12 @@ public class ConsentForm {
         this.elements.add(element);
     }
 
-    public String getLocale() {
-        return locale;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public Orientation getOrientation() {
@@ -89,14 +121,6 @@ public class ConsentForm {
         this.preview = preview;
     }
 
-    public boolean isConditions() {
-        return conditions;
-    }
-
-    public void setConditions(boolean conditions) {
-        this.conditions = conditions;
-    }
-
     public ModelVersion getTheme() {
         return theme;
     }
@@ -105,12 +129,12 @@ public class ConsentForm {
         this.theme = theme;
     }
 
-    public ModelVersion getOptoutEmail() {
-        return optoutEmail;
+    public ModelVersion getNotificationEmail() {
+        return notificationEmail;
     }
 
-    public void setOptoutEmail(ModelVersion optoutEmail) {
-        this.optoutEmail = optoutEmail;
+    public void setNotificationEmail(ModelVersion notificationEmail) {
+        this.notificationEmail = notificationEmail;
     }
 
     @Override
@@ -119,12 +143,12 @@ public class ConsentForm {
                 "token='" + token + '\'' +
                 ", info=" + info +
                 ", elements=" + elements +
-                ", locale='" + locale + '\'' +
+                ", language='" + language + '\'' +
                 ", orientation=" + orientation +
+                ", previousValues=" + previousValues +
                 ", preview=" + preview +
-                ", conditions=" + conditions +
                 ", theme=" + theme +
-                ", optoutEmail=" + optoutEmail +
+                ", notificationEmail=" + notificationEmail +
                 '}';
     }
 

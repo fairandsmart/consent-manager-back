@@ -9,11 +9,16 @@
         height: 100vh;
     }
 
-    /* Logo */
-
-    .logo-wrapper {
-        padding-bottom: 8px;
+    .consent-form {
+        background-color: white;
     }
+
+    .consent-form h4, .consent-form p {
+        margin: 4px 0;
+    }
+
+
+    /* Logo */
 
     .logo {
         max-height: 100px;
@@ -27,6 +32,7 @@
 
     .header .header-title {
         margin-top: 0;
+        margin-bottom: 8px;
     }
 
     .header .header-body {
@@ -35,28 +41,12 @@
     }
 
     .header .privacy-policy-link-wrapper {
-        margin: 24px 0;
+        margin: 8px 0;
     }
 
     .header .privacy-policy-link-wrapper a {
         text-decoration: none;
         color: #2196F3;
-    }
-
-    .close-wrapper {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 20;
-    }
-
-    .close-btn {
-        cursor: pointer;
-        border: none;
-        background: none;
-        color: black;
-        font-size: larger;
-        font-weight: bold;
     }
 
     .content-fade {
@@ -71,43 +61,75 @@
 
     /* Content */
 
-    .treatments {
+    .processing-list {
         overflow-y: auto;
-        padding: 24px;
+        padding: 16px 24px;
         height: 100%;
     }
 
-    .treatment {
+    .processing {
         padding: 6px 0 6px 12px;
     }
 
-    .treatment-header {
+    .processing-header {
         display: flex;
         justify-content: space-between;
+        margin-bottom: 8px;
     }
 
-    .treatment-body {
+    .processing-header h3 {
+        margin: 0;
+    }
+
+    .processing-body {
         color: rgba(0, 0, 0, 0.54);
+    }
+
+    .processing-body li:first-of-type {
+        margin-top: 8px;
     }
 
     .block-wrapper {
         padding: 12px;
-        margin: 24px 0 16px 0;
+        margin: 12px 0;
         border-radius: 4px;
         background-color: #f5f5f5;
         text-align: left;
     }
 
     .block-wrapper h4 {
-        margin-top: 0;
+        margin: 0;
     }
 
     .block-wrapper ul {
         margin: 0;
+        padding-left: 16px;
+        overflow: hidden;
+    }
+
+    .controller-header {
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .controller-hidden {
+        max-height: 0;
+        transition: 1s linear;
+    }
+
+    .controller-open {
+        max-height: 200px;
+        transition: 1s linear;
+    }
+
+    .item-wrapper {
+        margin-bottom: 8px;
     }
 
     .purpose-container {
         text-align: center;
+        margin-top: 8px !important;
     }
 
     .purpose {
@@ -119,7 +141,7 @@
     /* Footer */
 
     .footer-body {
-        margin: 12px 0;
+        margin-bottom: 8px;
         max-height: 100px;
         overflow-y: auto;
     }
@@ -131,7 +153,11 @@
 
     .accept-all-text {
         font-weight: bold;
-        margin: 12px 20px 12px 0;
+    }
+
+    .submit-container {
+        text-align: center;
+        margin: 8px 0 4px 0;
     }
 
     .submit {

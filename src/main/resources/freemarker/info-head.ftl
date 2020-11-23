@@ -11,6 +11,7 @@
             <#-- Data controller -->
             <#if langContent.showDataController>
                 <#assign dataController=langContent.dataController>
+                <#assign dataControllerId=data.info.identifier + "-controller">
                 <#include "data-controller.ftl">
             </#if>
 
@@ -52,8 +53,7 @@
 
             <#if langContent.privacyPolicyUrl?has_content>
                 <div class="privacy-policy-link-wrapper">
-                    <a class="privacy-policy-link" href="${langContent.privacyPolicyUrl}"
-                       <#if data.preview>style="pointer-events: none;"</#if>>
+                    <a class="privacy-policy-link" href="${langContent.privacyPolicyUrl}" <#if data.preview>style="pointer-events: none;"</#if>>
                         <#if langContent.customPrivacyPolicyText?has_content>
                             ${langContent.customPrivacyPolicyText}
                         <#else>
@@ -65,7 +65,7 @@
         </div>
     <#else>
         <div class="header">
-            <p><@writeError "missingLocale"></@writeError></p>
+            <p><@writeError "missingLanguage"></@writeError></p>
         </div>
     </#if>
 </#if>

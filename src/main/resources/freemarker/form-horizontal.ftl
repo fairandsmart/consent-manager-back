@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="${locale}">
+<html lang="${language}">
 <head>
     <#include "macros/lang-macros.ftl">
     <#include "macros/elements-macros.ftl">
@@ -32,13 +32,9 @@
     </div>
 
     <div class="right">
-        <div class="close-wrapper">
-            <button type="button" class="close-btn">×</button>
-        </div>
-
         <div class="content-fade"></div>
 
-        <div class="treatments">
+        <div class="processing-list">
             <#list data.elements as element>
                 <#include element.entry.type + ".ftl">
             </#list>

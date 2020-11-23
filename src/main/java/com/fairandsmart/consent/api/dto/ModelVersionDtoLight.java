@@ -1,5 +1,38 @@
 package com.fairandsmart.consent.api.dto;
 
+/*-
+ * #%L
+ * Right Consent / A Consent Manager Platform
+ * 
+ * Authors:
+ * 
+ * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
+ * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
+ * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
+ * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
+ * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
+ * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
+ * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
+ * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * %%
+ * Copyright (C) 2020 Fair And Smart
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 
@@ -13,8 +46,8 @@ public class ModelVersionDtoLight {
     private String parent;
     private String child;
     private String author;
-    private String defaultLocale;
-    private List<String> availableLocales;
+    private String defaultLanguage;
+    private List<String> availableLanguages;
     private ModelVersion.Status status;
     private ModelVersion.Type type;
     private long creationDate;
@@ -64,20 +97,20 @@ public class ModelVersionDtoLight {
         this.author = author;
     }
 
-    public String getDefaultLocale() {
-        return defaultLocale;
+    public String getDefaultLanguage() {
+        return defaultLanguage;
     }
 
-    public void setDefaultLocale(String defaultLocale) {
-        this.defaultLocale = defaultLocale;
+    public void setDefaultLanguage(String defaultLanguage) {
+        this.defaultLanguage = defaultLanguage;
     }
 
-    public List<String> getAvailableLocales() {
-        return availableLocales;
+    public List<String> getAvailableLanguages() {
+        return availableLanguages;
     }
 
-    public void setAvailableLocales(List<String> availableLocales) {
-        this.availableLocales = availableLocales;
+    public void setAvailableLanguages(List<String> availableLanguages) {
+        this.availableLanguages = availableLanguages;
     }
 
     public ModelVersion.Status getStatus() {
@@ -127,13 +160,31 @@ public class ModelVersionDtoLight {
         dto.setParent(version.parent);
         dto.setChild(version.child);
         dto.setSerial(version.serial);
-        dto.setDefaultLocale(version.defaultLocale);
-        dto.setAvailableLocales(Arrays.asList(version.availableLocales.split(",")));
+        dto.setDefaultLanguage(version.defaultLanguage);
+        dto.setAvailableLanguages(Arrays.asList(version.availableLanguages.split(",")));
         dto.setStatus(version.status);
         dto.setType(version.type);
         dto.setCreationDate(version.creationDate);
         dto.setModificationDate(version.modificationDate);
         dto.setIdentifier(version.getIdentifier().toString());
         return dto;
+    }
+
+    @Override
+    public String toString() {
+        return "ModelVersionDtoLight{" +
+                "id='" + id + '\'' +
+                ", serial='" + serial + '\'' +
+                ", parent='" + parent + '\'' +
+                ", child='" + child + '\'' +
+                ", author='" + author + '\'' +
+                ", defaultLanguage='" + defaultLanguage + '\'' +
+                ", availableLanguages=" + availableLanguages +
+                ", status=" + status +
+                ", type=" + type +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
+                ", identifier='" + identifier + '\'' +
+                '}';
     }
 }
