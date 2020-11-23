@@ -33,13 +33,12 @@ package com.fairandsmart.consent.api.error;
  * #L%
  */
 
-import com.fairandsmart.consent.api.template.TemplateBodyWriter;
+import com.fairandsmart.consent.api.writer.TemplateBodyWriter;
 import com.fairandsmart.consent.template.TemplateModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.commons.lang3.LocaleUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;

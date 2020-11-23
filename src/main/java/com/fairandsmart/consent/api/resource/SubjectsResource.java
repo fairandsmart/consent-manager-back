@@ -79,6 +79,14 @@ public class SubjectsResource {
         return consentService.findSubjectsWithRecords(dto.getKey(), dto.getValue()).stream().map(SubjectDto::fromSubject).collect(Collectors.toList());
     }
 
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("text/csv")
+    public List<SubjectDto> extractSubjectsCsv(@Valid ExtractSubjectDto dto) throws AccessDeniedException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "GET /subjects");
+        return consentService.findSubjectsWithRecords(dto.getKey(), dto.getValue()).stream().map(SubjectDto::fromSubject).collect(Collectors.toList());
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public SubjectDto createSubject(SubjectDto subjectDto) throws ConsentManagerException, EntityAlreadyExistsException {
