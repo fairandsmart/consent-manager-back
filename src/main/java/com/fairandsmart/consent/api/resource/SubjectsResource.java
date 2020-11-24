@@ -33,7 +33,6 @@ package com.fairandsmart.consent.api.resource;
  * #L%
  */
 
-import com.fairandsmart.consent.api.dto.ExtractSubjectDto;
 import com.fairandsmart.consent.api.dto.RecordDto;
 import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
@@ -49,7 +48,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -69,22 +72,6 @@ public class SubjectsResource {
     public List<SubjectDto> listSubjects(@QueryParam("name") @NotNull @NotEmpty String name) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /subjects");
         return consentService.findSubjects(name).stream().map(SubjectDto::fromSubject).collect(Collectors.toList());
-    }
-
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<SubjectDto> extractSubjects(@Valid ExtractSubjectDto dto) throws AccessDeniedException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "GET /subjects");
-        return consentService.findSubjectsWithRecords(dto.getKey(), dto.getValue()).stream().map(SubjectDto::fromSubject).collect(Collectors.toList());
-    }
-
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces("text/csv")
-    public List<SubjectDto> extractSubjectsCsv(@Valid ExtractSubjectDto dto) throws AccessDeniedException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "GET /subjects");
-        return consentService.findSubjectsWithRecords(dto.getKey(), dto.getValue()).stream().map(SubjectDto::fromSubject).collect(Collectors.toList());
     }
 
     @POST
@@ -113,10 +100,10 @@ public class SubjectsResource {
     @GET
     @Path("{subject}/records")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, List<RecordDto>> listCustomerRecords(@PathParam("subject") String subject) throws AccessDeniedException {
+    public Response listCustomerRecords(@PathParam("subject") String subject, @Context UriInfo uriInfo) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /subjects/" + subject + "/records");
-        Map<String, List<Record>> records = consentService.listSubjectRecords(subject);
-        return records.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().stream().map(RecordDto::fromRecord).collect(Collectors.toList())));
+        URI other = uriInfo.getBaseUriBuilder().path(RecordsResource.class).queryParam("subject", subject).build();
+        return Response.seeOther(other).build();
     }
 
 }

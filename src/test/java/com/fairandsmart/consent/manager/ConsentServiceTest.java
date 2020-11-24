@@ -980,22 +980,22 @@ public class ConsentServiceTest {
         //TODO Increase rule based records status by adding new consent submit and new models versions.
 
         LOGGER.info("Finding subjects with treatment t1 accepted");
-        List<Subject> subjects = service.findSubjectsWithRecords(t1Key, "accepted");
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user1")));
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user3")));
+        Map<Subject, Record> subjects = service.extractRecords(t1Key, "accepted", false);
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user1")));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user3")));
 
         LOGGER.info("Finding subjects with treatment t1 refused");
-        subjects = service.findSubjectsWithRecords(t1Key, "refused");
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user2")));
+        subjects = service.extractRecords(t1Key, "refused", false);
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user2")));
 
         LOGGER.info("Finding subjects with treatment t2 accepted");
-        subjects = service.findSubjectsWithRecords(t2Key, "accepted");
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user3")));
+        subjects = service.extractRecords(t2Key, "accepted", false);
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user3")));
 
         LOGGER.info("Finding subjects with treatment t2 refused");
-        subjects = service.findSubjectsWithRecords(t2Key, "refused");
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user1")));
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user2")));
+        subjects = service.extractRecords(t2Key, "refused", false);
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user1")));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user2")));
 
         //TODO Increase listing testing with rule based records status by adding new consent submit and new models versions.
     }

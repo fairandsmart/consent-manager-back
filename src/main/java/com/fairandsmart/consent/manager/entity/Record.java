@@ -78,7 +78,6 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public Status status;
     @Transient
     public StatusExplanation statusExplanation;
-    public String mailRecipient;
 
     public enum State {
         PENDING,
@@ -127,7 +126,6 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", comment='" + comment + '\'' +
-                ", mailRecipient='" + mailRecipient + '\'' +
                 ", attributes=" + attributes +
                 '}';
     }

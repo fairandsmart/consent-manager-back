@@ -6,6 +6,7 @@ import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.Email;
+import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.template.TemplateServiceException;
@@ -56,6 +57,7 @@ public class NotifyConsentWorker implements Runnable {
     @Override
     public void run() {
         LOGGER.log(Level.FINE, "Notify Consent worker started for ctx: " + ctx);
+        NotificationReport report = new NotificationReport(config.owner(), ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
         try {
             ConsentNotification notification = new ConsentNotification();
             notification.setLanguage(ctx.getLanguage());
@@ -94,10 +96,17 @@ public class NotifyConsentWorker implements Runnable {
             mailer.send(mail);
         } catch (ModelDataSerializationException e) {
             LOGGER.log(Level.SEVERE, "unable to read email model data", e);
+            report.status = NotificationReport.Status.ERROR;
+            report.explanation = e.getMessage();
         } catch (TemplateServiceException e) {
             LOGGER.log(Level.SEVERE, "error while calculating template for email", e);
+            report.status = NotificationReport.Status.ERROR;
+            report.explanation = e.getMessage();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "unexpected error", e);
+            report.status = NotificationReport.Status.ERROR;
+            report.explanation = e.getMessage();
         }
+        report.persist();
     }
 }

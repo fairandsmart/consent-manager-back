@@ -741,14 +741,15 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public List<Subject> findSubjectsWithRecords(String key, String value) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "Searching subjects with a valid record for key: " + key + " and with value: " + value);
+    public Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "Extracting valid records with key: " + key + " and value: " + value + ((regexpValue)?"(regexp)":"(exact match)"));
         if (!authentication.isConnectedIdentifierAdmin()) {
             throw new AccessDeniedException("You must be admin to search subjects");
         }
+        Map<Subject, Record> result = new HashMap<>();
         List<String> serials = ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), key);
-        List<Subject> subjects = Subject.listAll();
-        return subjects.stream().filter(subject -> {
+        Stream<Subject> subjects = Subject.streamAll();
+        subjects.forEach(subject -> {
             RecordFilter filter = new RecordFilter();
             filter.setOwner(config.owner());
             filter.setSubject(subject.name);
@@ -757,12 +758,12 @@ public class ConsentServiceBean implements ConsentService {
             List<Record> records = Record.list(filter.getQueryString(), filter.getQueryParams());
             recordStatusChain.apply(records);
             LOGGER.log(Level.FINE, "Rules applied on loaded records of subject : " + subject + ": " + records);
-            if (records.stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals(value))) {
-                LOGGER.log(Level.FINE, "Found valid record that match value for subject: " + subject);
-                return true;
-            };
-            return false;
-        }).collect(Collectors.toList());
+            Optional<Record> record = records.stream().filter(r -> r.status.equals(Record.Status.VALID) && (regexpValue)?r.value.matches(value):r.value.equals(value)).findFirst();
+            if (record.isPresent()) {
+                result.put(subject, record.get());
+            }
+        });
+        return result;
     }
 
     /* RECEIPTS */
@@ -880,9 +881,6 @@ public class ConsentServiceBean implements ConsentService {
                     record.collectionMethod = ctx.getCollectionMethod();
                     record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : config.owner();
                     record.comment = comment;
-                    if (!StringUtils.isEmpty(ctx.getNotificationRecipient()) && !StringUtils.isEmpty(ctx.getNotificationModel())) {
-                        record.mailRecipient = ctx.getNotificationRecipient();
-                    }
                     record.persist();
                     records.add(record);
                 } catch (IllegalIdentifierException e) {
@@ -912,6 +910,10 @@ public class ConsentServiceBean implements ConsentService {
                     }
                 });
                 receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
+                if (ctx.getNotificationRecipient() != null && !ctx.getNotificationRecipient().isEmpty()) {
+                    receipt.setNotificationType("email");
+                    receipt.setNotificationRecipient(ctx.getNotificationRecipient());
+                }
                 String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
                 try {

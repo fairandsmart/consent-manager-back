@@ -86,6 +86,8 @@ public class Receipt {
     private ConsentContext.CollectionMethod collectionMethod;
     private String updateUrl;
     private String updateUrlQrCode;
+    private String notificationType;
+    private String notificationRecipient;
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
@@ -236,6 +238,22 @@ public class Receipt {
 
     public void setUpdateUrlQrCode(String updateUrlQrCode) {
         this.updateUrlQrCode = updateUrlQrCode;
+    }
+
+    public String getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
+    }
+
+    public String getNotificationRecipient() {
+        return notificationRecipient;
+    }
+
+    public void setNotificationRecipient(String notificationRecipient) {
+        this.notificationRecipient = notificationRecipient;
     }
 
     public String toXml() throws JAXBException {
