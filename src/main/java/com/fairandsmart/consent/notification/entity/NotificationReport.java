@@ -1,14 +1,10 @@
 package com.fairandsmart.consent.notification.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 @Entity
 public class NotificationReport extends PanacheEntityBase {
@@ -25,7 +21,9 @@ public class NotificationReport extends PanacheEntityBase {
     public String owner;
     public String transaction;
     public long creationTimestamp;
+    @Enumerated(EnumType.STRING)
     public Status status;
+    @Enumerated(EnumType.STRING)
     public Type type;
     public String explanation;
 
