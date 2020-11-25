@@ -34,8 +34,8 @@ public class ClientConfigDto {
     public static ClientConfigDto fromClientConfig(ClientConfig config) {
         ClientConfigDto dto = new ClientConfigDto();
         dto.setUserPageEnabled(config.isUserPageEnabled());
-        if (config.userPageElements().length()>0) {
-            dto.setUserPageElements(Arrays.asList(config.userPageElements().split(",")));
+        if (config.userPageElements().isPresent()) {
+            dto.setUserPageElements(Arrays.asList(config.userPageElements().get().split(",")));
         }
         return dto;
     }
