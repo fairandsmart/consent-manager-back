@@ -1240,6 +1240,34 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "[Config] config",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apihost}}/system/config",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"system",
+								"config"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -1301,6 +1329,44 @@
 								"key": "Accept",
 								"type": "text",
 								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"condition\": {\n        \"key\": \"Market.1\",\n        \"value\": \"accepted\",\n        \"regexpValue\": false \n    }\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/records/extraction",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"records",
+								"extraction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Records] extract (csv)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "text/csv"
 							},
 							{
 								"key": "Content-Type",
