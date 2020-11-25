@@ -748,7 +748,7 @@ public class ConsentServiceBean implements ConsentService {
         }
         Map<Subject, Record> result = new HashMap<>();
         List<String> serials = ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), key);
-        Stream<Subject> subjects = Subject.streamAll();
+        List<Subject> subjects = Subject.listAll();
         subjects.forEach(subject -> {
             RecordFilter filter = new RecordFilter();
             filter.setOwner(config.owner());
