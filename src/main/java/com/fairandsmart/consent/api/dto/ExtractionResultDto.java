@@ -10,6 +10,7 @@ public class ExtractionResultDto {
     private String subjectId;
     private String subjectName;
     private String subjectEmail;
+    private String recordKey;
     private String recordSerial;
     private String recordValue;
 
@@ -40,6 +41,14 @@ public class ExtractionResultDto {
         this.subjectEmail = subjectEmail;
     }
 
+    public String getRecordKey() {
+        return recordKey;
+    }
+
+    public void setRecordKey(String recordKey) {
+        this.recordKey = recordKey;
+    }
+
     public String getRecordSerial() {
         return recordSerial;
     }
@@ -61,6 +70,7 @@ public class ExtractionResultDto {
         dto.setSubjectId(entry.getKey().id);
         dto.setSubjectName(entry.getKey().name);
         dto.setSubjectEmail(entry.getKey().emailAddress);
+        dto.setRecordKey(entry.getValue().bodyKey);
         dto.setRecordSerial(entry.getValue().serial);
         dto.setRecordValue(entry.getValue().value);
         return dto;
