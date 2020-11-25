@@ -26,7 +26,7 @@ public class ExtractionConfigDto {
         @NotNull
         @NotEmpty
         private String value;
-        private boolean isRegexpValue;
+        private boolean regexpValue;
 
         public String getKey() {
             return key;
@@ -45,11 +45,11 @@ public class ExtractionConfigDto {
         }
 
         public boolean isRegexpValue() {
-            return isRegexpValue;
+            return regexpValue;
         }
 
         public void setRegexpValue(boolean regexpValue) {
-            isRegexpValue = regexpValue;
+            this.regexpValue = regexpValue;
         }
     }
 
