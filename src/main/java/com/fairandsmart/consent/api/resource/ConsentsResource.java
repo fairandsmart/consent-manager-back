@@ -52,7 +52,7 @@ import javax.ws.rs.core.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Path("/consents")
+@Path("consents")
 public class ConsentsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ConsentsResource.class.getName());

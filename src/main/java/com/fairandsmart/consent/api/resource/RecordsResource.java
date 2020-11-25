@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Path("/records")
+@Path("records")
 public class RecordsResource {
 
     private static final Logger LOGGER = Logger.getLogger(RecordsResource.class.getName());
