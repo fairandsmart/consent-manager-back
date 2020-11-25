@@ -57,7 +57,7 @@
         <div class="processing-header">
             <h3>Donec eu ex nunc</h3>
 
-            <@toggleSwitch "t1" true></@toggleSwitch>
+            <@toggleSwitch "t1"></@toggleSwitch>
         </div>
 
         <div class="item-wrapper">
@@ -134,7 +134,7 @@
         <div class="processing-header">
             <h3>Cras sed rutrum dui, viverra porttitor mauris</h3>
 
-            <@toggleSwitch "t1" true></@toggleSwitch>
+            <@toggleSwitch "t2"></@toggleSwitch>
         </div>
 
         <div class="item-wrapper">

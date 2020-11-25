@@ -7,16 +7,20 @@ if (hasAcceptAll) {
         if (e.target.checked) { /* Check all */
             for (let i = 0; i < switches.length - 1; i++) { // Last element is button "Accept all"
                 const key = switches[i].children[0].id; // Checkbox input id
-                document.getElementById(key).checked = true; // Check input
-                document.getElementById(key + "-accepted").selected = true; // Select option "accepted"
-                document.getElementById(key + "-refused").selected = false; // Deselect option "refused"
+                if (!key.includes("/preference/")) {
+                    document.getElementById(key).checked = true; // Check input
+                    document.getElementById(key + "-accepted").selected = true; // Select option "accepted"
+                    document.getElementById(key + "-refused").selected = false; // Deselect option "refused"
+                }
             }
         } else { /* Uncheck all */
             for (let j = 0; j < switches.length - 1; j++) { // Last element is button "Accept all"
                 const key = switches[j].children[0].id; // Checkbox input id
-                document.getElementById(key).checked = false; // Uncheck input
-                document.getElementById(key + "-accepted").selected = false; // Deselect option "accepted"
-                document.getElementById(key + "-refused").selected = true; // Select option "refused"
+                if (!key.includes("/preference/")) {
+                    document.getElementById(key).checked = false; // Uncheck input
+                    document.getElementById(key + "-accepted").selected = false; // Deselect option "accepted"
+                    document.getElementById(key + "-refused").selected = true; // Select option "refused"
+                }
             }
         }
     });
@@ -30,7 +34,7 @@ function checkAcceptAll() {
     let key;
     while (allChecked && i < switches.length) {
         key = switches[i].children[0].id; // Checkbox input id
-        if (key !== "accept-all") {
+        if (key !== "accept-all" && !key.includes("/preference/")) {
             allChecked = document.getElementById(key + "-accepted").selected;
         }
         i++;
@@ -59,7 +63,7 @@ for (let i = 0; i < switches.length; i++) {
                 refused.selected = true;
             }
 
-            if (hasAcceptAll) {
+            if (hasAcceptAll && !key.includes("/preference/")) {
                 const acceptAllButton = document.getElementById("accept-all");
                 /* Uncheck "Accept all" if current toggle switch is unchecked */
                 if (acceptAllButton.checked && !e.target.checked) {
