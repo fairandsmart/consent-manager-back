@@ -53,6 +53,7 @@ public class ConsentForm {
     private ModelVersion notificationEmail;
     private boolean showAcceptAll = false;
     private String acceptAllText;
+    private boolean footerOnTop = false;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -155,6 +156,14 @@ public class ConsentForm {
         this.acceptAllText = acceptAllText;
     }
 
+    public boolean isFooterOnTop() {
+        return footerOnTop;
+    }
+
+    public void setFooterOnTop(boolean footerOnTop) {
+        this.footerOnTop = footerOnTop;
+    }
+
     @Override
     public String toString() {
         return "ConsentForm{" +
@@ -169,6 +178,7 @@ public class ConsentForm {
                 ", notificationEmail=" + notificationEmail +
                 ", showAcceptAll=" + showAcceptAll +
                 ", acceptAllText='" + acceptAllText + '\'' +
+                ", footerOnTop=" + footerOnTop +
                 '}';
     }
 

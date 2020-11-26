@@ -166,22 +166,21 @@
         </div>
     </div>
 
-</div>
+    <div class="footer">
+        <div class="footer-body">
+            Nulla in aliquet elit. Quisque ultricies hendrerit mi accumsan lobortis. Mauris elementum ipsum vitae euismod
+            accumsan. Duis eget placerat mi.
+        </div>
 
-<div class="footer">
-    <div class="footer-body">
-        Nulla in aliquet elit. Quisque ultricies hendrerit mi accumsan lobortis. Mauris elementum ipsum vitae euismod
-        accumsan. Duis eget placerat mi.
-    </div>
+        <div class="accept-all-container">
+            <div class="accept-all-text">Pellentesque molestie odio vitae justo vestibulum, vel pulvinar leo.</div>
+            <@toggleSwitch "accept-all"></@toggleSwitch>
+        </div>
 
-    <div class="accept-all-container">
-        <div class="accept-all-text">Pellentesque molestie odio vitae justo vestibulum, vel pulvinar leo.</div>
-        <@toggleSwitch "accept-all"></@toggleSwitch>
-    </div>
-
-    <div class="submit-container">
-        <button type="submit" class="submit" disabled style="pointer-events: none;">
-            <@readBundle "submit" "missingValue"></@readBundle>
-        </button>
+        <div class="submit-container">
+            <button type="submit" class="submit" disabled style="pointer-events: none;">
+                <@readBundle "submit" "missingValue"></@readBundle>
+            </button>
+        </div>
     </div>
 </div>

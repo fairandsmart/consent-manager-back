@@ -523,6 +523,7 @@ public class ConsentServiceBean implements ConsentService {
             form.setPreview(ctx.isPreview());
             form.setShowAcceptAll(ctx.isShowAcceptAll());
             form.setAcceptAllText(ctx.getAcceptAllText());
+            form.setFooterOnTop(ctx.isFooterOnTop());
 
             // Fetch elements from context
             List<String> elementsKeys = new ArrayList<>();

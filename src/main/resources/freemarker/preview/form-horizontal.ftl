@@ -50,12 +50,16 @@
                 <#assign identifier=element?index>
                 <#include element.entry.type + ".ftl">
             </#list>
-        </div>
 
-        <#if data.info??>
             <@fetchMultiLangContent data.info></@fetchMultiLangContent>
             <#assign info=langContent>
             <#assign displayAcceptAll=(data.showAcceptAll && data.elements?size > 1)>
+            <#if !data.footerOnTop>
+                <#include "info-foot.ftl">
+            </#if>
+        </div>
+
+        <#if data.footerOnTop>
             <#include "info-foot.ftl">
         </#if>
     </div>

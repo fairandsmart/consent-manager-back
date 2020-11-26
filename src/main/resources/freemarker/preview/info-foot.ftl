@@ -5,23 +5,23 @@
                 ${info.footer}
             </div>
         </#if>
-
-        <#if displayAcceptAll>
-            <div class="accept-all-container">
-                <div class="accept-all-text">
-                    <#if data.acceptAllText?has_content>
-                        ${data.acceptAllText}
-                    <#else>
-                        <@readBundle "acceptAll" "missingValue"></@readBundle>
-                    </#if>
-                </div>
-
-                <@toggleSwitch "accept-all"></@toggleSwitch>
-            </div>
-        </#if>
     <#else>
         <div class="footer-body">
             <p><@writeError "missingLanguage"></@writeError></p>
+        </div>
+    </#if>
+
+    <#if displayAcceptAll>
+        <div class="accept-all-container">
+            <div class="accept-all-text">
+                <#if data.acceptAllText?has_content>
+                    ${data.acceptAllText}
+                <#else>
+                    <@readBundle "acceptAll" "missingValue"></@readBundle>
+                </#if>
+            </div>
+
+            <@toggleSwitch "accept-all"></@toggleSwitch>
         </div>
     </#if>
 
