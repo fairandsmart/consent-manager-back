@@ -48,7 +48,7 @@
     <#if data.info??>
         <@fetchMultiLangContent data.info></@fetchMultiLangContent>
         <#assign info=langContent>
-        <#assign displayAcceptAll=(info.showAcceptAll && data.elements?size > 1)>
+        <#assign displayAcceptAll=(data.showAcceptAll && data.elements?size > 1)>
         <#include "info-foot.ftl">
     </#if>
 </div>

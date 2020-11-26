@@ -77,6 +77,8 @@ public class ConsentContext implements Tokenizable, Cloneable {
     private boolean iframe = false;
     private String theme;
     private String receiptId;
+    private boolean showAcceptAll = false;
+    private String acceptAllText;
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
@@ -306,6 +308,24 @@ public class ConsentContext implements Tokenizable, Cloneable {
         return this;
     }
 
+    public boolean isShowAcceptAll() {
+        return showAcceptAll;
+    }
+
+    public ConsentContext setShowAcceptAll(boolean showAcceptAll) {
+        this.showAcceptAll = showAcceptAll;
+        return this;
+    }
+
+    public String getAcceptAllText() {
+        return acceptAllText;
+    }
+
+    public ConsentContext setAcceptAllText(String acceptAllText) {
+        this.acceptAllText = acceptAllText;
+        return this;
+    }
+
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
@@ -361,6 +381,13 @@ public class ConsentContext implements Tokenizable, Cloneable {
         if (theme != null) {
             claims.put("theme", this.getTheme());
         }
+        if (receiptId != null) {
+            claims.put("receiptId", this.getReceiptId());
+        }
+        claims.put("showAcceptAll", Boolean.toString(this.isShowAcceptAll()));
+        if (acceptAllText != null) {
+            claims.put("acceptAllText", this.getAcceptAllText());
+        }
         return claims;
     }
 
@@ -413,6 +440,15 @@ public class ConsentContext implements Tokenizable, Cloneable {
         }
         if (claims.containsKey("theme")) {
             this.setTheme(claims.get("theme"));
+        }
+        if (claims.containsKey("receiptId")) {
+            this.setReceiptId(claims.get("receiptId"));
+        }
+        if (claims.containsKey("showAcceptAll")) {
+            this.setShowAcceptAll(Boolean.parseBoolean(claims.get("showAcceptAll")));
+        }
+        if (claims.containsKey("acceptAllText")) {
+            this.setAcceptAllText(claims.get("acceptAllText"));
         }
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
                 entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
@@ -513,6 +549,8 @@ public class ConsentContext implements Tokenizable, Cloneable {
                 ", iframe=" + iframe +
                 ", theme='" + theme + '\'' +
                 ", receiptId='" + receiptId + '\'' +
+                ", showAcceptAll=" + showAcceptAll +
+                ", acceptAllText='" + acceptAllText + '\'' +
                 '}';
     }
 

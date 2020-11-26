@@ -127,9 +127,7 @@ public class TestUtils {
                 .withShowScope(true)
                 .withShortNoticeLink("Short notice " + key)
                 .withShowShortNoticeLink(true)
-                .withCustomPrivacyPolicyText("Privacy policy label " + key)
-                .withShowAcceptAll(true)
-                .withCustomAcceptAllText("Accept all " + key);
+                .withCustomPrivacyPolicyText("Privacy policy label " + key);
     }
 
     public static Processing generateProcessing(String key, List<String> associatedPreferences) {

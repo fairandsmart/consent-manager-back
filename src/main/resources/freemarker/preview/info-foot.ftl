@@ -9,8 +9,10 @@
         <#if displayAcceptAll>
             <div class="accept-all-container">
                 <div class="accept-all-text">
-                    <#if info.customAcceptAllText?has_content>
-                        ${info.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle>
+                    <#if data.acceptAllText?has_content>
+                        ${data.acceptAllText}
+                    <#else>
+                        <@readBundle "acceptAll" "missingValue"></@readBundle>
                     </#if>
                 </div>
 

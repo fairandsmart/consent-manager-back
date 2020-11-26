@@ -73,7 +73,6 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
-import liquibase.pro.packaged.er;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -522,6 +521,8 @@ public class ConsentServiceBean implements ConsentService {
             form.setLanguage(ctx.getLanguage());
             form.setOrientation(ctx.getOrientation());
             form.setPreview(ctx.isPreview());
+            form.setShowAcceptAll(ctx.isShowAcceptAll());
+            form.setAcceptAllText(ctx.getAcceptAllText());
 
             // Fetch elements from context
             List<String> elementsKeys = new ArrayList<>();
