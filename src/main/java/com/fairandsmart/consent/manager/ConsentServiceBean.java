@@ -101,6 +101,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -749,6 +750,7 @@ public class ConsentServiceBean implements ConsentService {
         Map<Subject, Record> result = new HashMap<>();
         List<String> serials = ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), key);
         List<Subject> subjects = Subject.listAll();
+        final Pattern pattern = regexpValue ? Pattern.compile(value) : null;
         subjects.forEach(subject -> {
             RecordFilter filter = new RecordFilter();
             filter.setOwner(config.owner());
@@ -758,10 +760,11 @@ public class ConsentServiceBean implements ConsentService {
             List<Record> records = Record.list(filter.getQueryString(), filter.getQueryParams());
             recordStatusChain.apply(records);
             LOGGER.log(Level.FINE, "Rules applied on loaded records of subject : " + subject + ": " + records);
-            Optional<Record> record = records.stream().filter(r -> r.status.equals(Record.Status.VALID) && (regexpValue)?r.value.matches(value):r.value.equals(value)).findFirst();
-            if (record.isPresent()) {
-                result.put(subject, record.get());
-            }
+            records.stream()
+                    .filter(r -> r.status.equals(Record.Status.VALID)
+                            && (pattern != null ? pattern.matcher(r.value).matches() : r.value.equals(value)))
+                    .findFirst()
+                    .ifPresent(r -> result.put(subject, r));
         });
         return result;
     }

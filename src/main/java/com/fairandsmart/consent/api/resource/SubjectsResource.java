@@ -33,7 +33,6 @@ package com.fairandsmart.consent.api.resource;
  * #L%
  */
 
-import com.fairandsmart.consent.api.dto.RecordDto;
 import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -41,7 +40,6 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
-import com.fairandsmart.consent.manager.entity.Record;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -54,7 +52,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -100,7 +97,7 @@ public class SubjectsResource {
     @GET
     @Path("{subject}/records")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listCustomerRecords(@PathParam("subject") String subject, @Context UriInfo uriInfo) throws AccessDeniedException {
+    public Response listCustomerRecords(@PathParam("subject") String subject, @Context UriInfo uriInfo) {
         LOGGER.log(Level.INFO, "GET /subjects/" + subject + "/records");
         URI other = uriInfo.getBaseUriBuilder().path(RecordsResource.class).queryParam("subject", subject).build();
         return Response.seeOther(other).build();

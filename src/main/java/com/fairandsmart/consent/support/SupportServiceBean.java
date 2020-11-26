@@ -12,7 +12,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import javax.ws.rs.WebApplicationException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +28,8 @@ public class SupportServiceBean implements SupportService {
     private static final String INSTANCE_ID = "42";
 
     private static Instance instance;
+    private static String supportStatus;
+    private static String latestVersion;
 
     @Inject
     SupportConfig config;
@@ -34,15 +39,31 @@ public class SupportServiceBean implements SupportService {
     RemoteSupportService remoteSupportService;
 
     @Override
-    public String checkLatestVersion() throws SupportServiceException {
+    public String getSupportStatus() {
+        if (config.isEnabled()) {
+            return supportStatus;
+        }
+        return "Support is disabled";
+    }
+
+    @Override
+    public String getLatestVersion() throws SupportServiceException {
+        if (config.isEnabled()) {
+            return latestVersion;
+        }
+        throw new SupportServiceException("Support has been disabled in configuration, re-enable if you want to contact support API");
+    }
+
+    @Override
+    public String getCurrentVersion() throws SupportServiceException {
         if (config.isEnabled()) {
             try {
-                String latestVersion = remoteSupportService.getAvailableVersion(instance.key);
-                //TODO compare to existing version
-                LOGGER.log(Level.INFO, "Latest version available: " + latestVersion);
-                return latestVersion;
-            } catch (WebApplicationException e) {
-                throw new SupportServiceException("Unable to contact support API", e);
+                InputStream resourceAsStream = this.getClass().getResourceAsStream("/META-INF/maven/com.fairandsmart/consent-manager-back/pom.properties");
+                Properties prop = new Properties();
+                prop.load(resourceAsStream);
+                return prop.getProperty("version");
+            } catch (IOException e) {
+                throw new SupportServiceException("unable to get version from package", e);
             }
         }
         throw new SupportServiceException("Support has been disabled in configuration, re-enable if you want to contact support API");
@@ -50,10 +71,13 @@ public class SupportServiceBean implements SupportService {
 
     @Scheduled(cron="0 0 0 ? * MON")
     private void autoCheckLatestVersion() {
-        try {
-            this.checkLatestVersion();
-        } catch (SupportServiceException e) {
-            LOGGER.log(Level.INFO, "Unable to check latest version available", e);
+        if (config.isEnabled()) {
+            try {
+                SupportServiceBean.latestVersion = this.checkLatestVersion();
+            } catch (SupportServiceException e) {
+                LOGGER.log(Level.WARNING, "Error while checking latest version available", e);
+                SupportServiceBean.supportStatus = e.getMessage();
+            }
         }
     }
 
@@ -72,4 +96,15 @@ public class SupportServiceBean implements SupportService {
         }
         this.autoCheckLatestVersion();
     }
+
+    private String checkLatestVersion() throws SupportServiceException {
+        try {
+            String latestVersion = remoteSupportService.getAvailableVersion(instance.key);
+            LOGGER.log(Level.INFO, "Latest version available: " + latestVersion);
+            return latestVersion;
+        } catch (WebApplicationException e) {
+            throw new SupportServiceException("Unable to contact support API: " + e.getResponse().getStatusInfo(), e);
+        }
+    }
+
 }

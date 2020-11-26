@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ClientConfigDto {
 
-    private boolean isUserPageEnabled;
+    private boolean userPageEnabled;
     private List<String> userPageElements;
 
     public ClientConfigDto() {
@@ -16,11 +16,11 @@ public class ClientConfigDto {
     }
 
     public boolean isUserPageEnabled() {
-        return isUserPageEnabled;
+        return userPageEnabled;
     }
 
     public void setUserPageEnabled(boolean userPageEnabled) {
-        isUserPageEnabled = userPageEnabled;
+        this.userPageEnabled = userPageEnabled;
     }
 
     public List<String> getUserPageElements() {
