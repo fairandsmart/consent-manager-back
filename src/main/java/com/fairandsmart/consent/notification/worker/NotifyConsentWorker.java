@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Locale;
@@ -55,6 +56,7 @@ public class NotifyConsentWorker implements Runnable {
     }
 
     @Override
+    @Transactional
     public void run() {
         LOGGER.log(Level.FINE, "Notify Consent worker started for ctx: " + ctx);
         NotificationReport report = new NotificationReport(config.owner(), ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
