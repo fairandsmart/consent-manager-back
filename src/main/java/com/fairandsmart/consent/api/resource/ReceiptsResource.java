@@ -63,7 +63,7 @@ public class ReceiptsResource {
     @Path("{tid}")
     public Response getReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token, @QueryParam("format") String format) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
-        String mimeType = format != null ? format : "text/plain";
+        String mimeType = format != null ? format : "text/html";
         byte[] receipt = consentService.renderReceipt(token, transaction, mimeType);
         return Response.ok(receipt, mimeType).build();
     }

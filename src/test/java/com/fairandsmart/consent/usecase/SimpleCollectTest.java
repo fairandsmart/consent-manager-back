@@ -220,13 +220,16 @@ public class SimpleCollectTest {
         assertTrue(receiptPage.contains("RE&Ccedil;U"));
         assertTrue(receiptPage.contains("<title>RE&Ccedil;U DE CONSENTEMENT</title>"));
         assertTrue(receiptPage.contains("Fran&ccedil;ais (France)"));
-        assertTrue(receiptPage.contains("Formulaire Web"));
+        assertTrue(receiptPage.contains("Formulaire web"));
         assertTrue(receiptPage.contains("Data body " + t1Key));
         assertTrue(receiptPage.contains("Data body " + t2Key));
+        assertTrue(receiptPage.contains("<h3>Processing title " + t1Key + "</h3>"));
+        assertTrue(receiptPage.contains("<h3>Processing title " + t2Key + "</h3>"));
+        assertTrue(receiptPage.contains("<div class=\"processing-response accepted \">Accept&eacute;</div>"));
+        assertFalse(receiptPage.contains("<div class=\"processing-response accepted \">Refus&eacute;</div>"));
         assertTrue(receiptPage.contains("Accept&eacute;"));
         assertFalse(receiptPage.contains("Refus&eacute;"));
         assertTrue(receiptPage.contains(SUBJECT));
-        assertTrue(receiptPage.contains("Name " + biKey + "_dc"));
 
         //PART 3
         //Check previous values are loaded on new consent form
@@ -317,7 +320,7 @@ public class SimpleCollectTest {
         links = html.getElementsByTag("a");
         link = links.get(0).attr("href");
 
-        // Check that embed link redirect to the correct receipt display type (html)
+        // Check that embed link redirect to the correct receipt display type (xml)
         receiptResponse = given().contentType(ContentType.URLENC).when().get(link.replace("%2F", "/"));
         receiptPage = receiptResponse.asString();
         receiptResponse.then().contentType("application/xml").assertThat().statusCode(200);

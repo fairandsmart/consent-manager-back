@@ -919,6 +919,13 @@ public class ConsentServiceBean implements ConsentService {
                 }
                 String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
+
+                if (ctx.getTheme() != null && ctx.getTheme().length() > 1) {
+                    receipt.setTheme(ctx.getTheme());
+                    String[] themeParts = ctx.getTheme().split("/");
+                    receipt.setThemePath(config.publicUrl() + "/models/serials/" + themeParts[themeParts.length - 1] + "/data");
+                }
+
                 try {
                     BitMatrix bitMatrix = new QRCodeWriter().encode(receipt.getUpdateUrl(), BarcodeFormat.QR_CODE, 300, 300);
                     ByteArrayOutputStream out = new ByteArrayOutputStream();

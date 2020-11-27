@@ -1,38 +1,55 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<?xml-stylesheet type="text/xsl" href="receipt-html.xsl" ?>
 <receipt>
-    <transaction>9c770bb1-3d5a-4d96-83ed-d358fd0a2a4c</transaction>
+    <transaction>QjyaPZfZJP8xLGpiR6H7D6</transaction>
+    <jurisdiction>France</jurisdiction>
     <language>fr</language>
-    <date>2020-08-20T13:11:00.005929Z[UTC]</date>
-    <expirationDate>2022-08-20T13:11:00.005929Z[UTC]</expirationDate>
+    <logoPath>https://assets.fairandsmart.tech/logo_fs_tagline.png</logoPath>
+    <logoAltText>Logo Fair&amp;Smart</logoAltText>
+    <date>2020-11-24T15:18:17.326598100Z[UTC]</date>
+    <expirationDate>2021-05-24T15:18:17.326598100Z[UTC]</expirationDate>
     <processor>https://www.fairandsmart.com</processor>
-    <subject>mmichu</subject>
+    <subject>Micheline Michu</subject>
     <subjectInfos/>
-    <headerNotice>Title h1 Body h1</headerNotice>
+    <dataController>
+        <actingBehalfCompany>true</actingBehalfCompany>
+        <address>2, rue de Lorraine 75002 PARIS</address>
+        <company>Michel SARL</company>
+        <email>michel@michel.fr</email>
+        <name>M. Michel</name>
+        <phoneNumber>0142424242</phoneNumber>
+    </dataController>
+    <headerNotice>Votre consentement Pour nous permettre de vous satisfaire pleinement avec nos services, il nous faut récolter un certain nombre d'informations.</headerNotice>
     <consents>
         <consent>
-            <serial>U4gVDf5.U3JRtfh.USCnwh</serial>
-            <data>Nous voulons votre email.</data>
-            <retention>Nous le conserverons 3 ans.</retention>
-            <usage>Nous pourrons ainsi vous contacter.</usage>
+            <serial>U7GDy7u.U6EvTzw</serial>
+            <data>Nous souhaiterions utiliser vos données de contact (email, téléphone, adresse postale) suivant votre préférence.</data>
+            <retentionLabel>Nous les conserverons pendant :</retentionLabel>
+            <retentionValue>1</retentionValue>
+            <retentionUnit>MONTH</retentionUnit>
+            <title>Marketing direct</title>
+            <usage>Ceci afin de pouvoir vous contacter pour vous proposer de nouveaux services adaptés à vos besoins.</usage>
+            <controller>
+                <actingBehalfCompany>true</actingBehalfCompany>
+                <address>2, rue de Lorraine, 75002 PARIS</address>
+                <company>Michel SARL</company>
+                <email>michel@michel.fr</email>
+                <name>M. Michel</name>
+                <phoneNumber>0142424242</phoneNumber>
+            </controller>
             <purposes>
                 <purpose>CONSENT_MARKETING</purpose>
             </purposes>
-            <value>refused</value>
-        </consent>
-        <consent>
-            <serial>U4gVDf5.U5XQp7H.USCnwh</serial>
-            <data>Nous avons besoin de votre nom.</data>
-            <retention>Nous le garderons pendant toute votre vie.</retention>
-            <usage>Nous pourrons ainsi tout savoir sur vous.</usage>
-            <purposes>
-                <purpose>CONSENT_CORE_SERVICE</purpose>
-            </purposes>
-            <value>refused</value>
+            <value>accepted</value>
+            <containsSensitiveData>true</containsSensitiveData>
+            <containsMedicalData>false</containsMedicalData>
         </consent>
     </consents>
+    <footerNotice>Merci pour vos réponses !
+        Vous pourrez consulter et modifier vos réponses à tout moment.</footerNotice>
     <attributes/>
     <attachments/>
-    <privacyPolicyUrl>Readmore h1</privacyPolicyUrl>
+    <privacyPolicyUrl>https://www.fairandsmart.com/politique-confidentialite/</privacyPolicyUrl>
     <collectionMethod>WEBFORM</collectionMethod>
+    <updateUrl>http://localhost:8087/consents?t=Jpsm2c6fjdYjGBkgDGifjG</updateUrl>
+    <updateUrlQrCode>data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsAQAAAABRBrPYAAACG0lEQVR4Xu2ZvW3EMAxGaVzhMiNoFI9mj6ZRboSUKQwzfJSc5JQLkjLAZzaSxecrPvBPPvO/2KuNJ0/twga7sMEubLALG+z/Y9Ww4j7tsS6b77PfF89TWxWx3Ja6Tv6GY+IpXvr0yWFmMw7f7SUEY/GmYlHGqk37/EogdRXVMcfv95ZQtvykmwTGNnQ7bI7dRoKVZ5klg6VQhdAhns6l6aeInbbZLVPKbm8v9/R3U8PQLWqM2XHjaT2gfTugF0mMfsyAQnGxPqcsWx5+jTcZzE9/G1faWTXGuGZy2GYU3br2ceWAjSXjSRPzEKyc40oeEUHfdFPBKjqFYFv3Z+Ehs84SrIalIVjGE+NKRtDU5309LHSLvpOLf8wpUXiYWvpPaGHOra8XFyfPSDBbGW8HeUWwik7nNThSKlRkGTNLCFuJIEInSnAYdHHPuXYBUMOyGXFCcXEG2hSMJl3SL4dlZpWc2OhCeVK/ZZYOVtfUzdqg/2N31sL8s9puOc15DrSRbpJYlJoQjEsx/fjI2tuiC78gRkqVRmM7FdhymuuaamHduPIY39eS5t2sxIJYTZEKJz2CZioOremh9upgK9viRBBK9Sbd4il9chjtp3x8JciKU43MetRNDcvunE9GPB006Se66WD5983djHiKhXEFtyLGNnSzNqD0r/JcgIomZljDvH8lKNx8/DGzZLBf7cIGu7DBLmywCxtMCHsHCtppWOBsOs0AAAAASUVORK5CYII=</updateUrlQrCode>
 </receipt>
