@@ -14,4 +14,7 @@ public interface ClientConfig {
     @ConfigProperty(name = "user-page.elements")
     Optional<String> userPageElements();
 
+    @ConfigProperty(name = "user-page.public-url")
+    Optional<String> userPagePublicUrl();
+
 }

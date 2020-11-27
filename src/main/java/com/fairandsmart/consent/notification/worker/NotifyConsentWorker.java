@@ -2,6 +2,7 @@ package com.fairandsmart.consent.notification.worker;
 
 
 import com.fairandsmart.consent.api.resource.ConsentsResource;
+import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
@@ -43,7 +44,10 @@ public class NotifyConsentWorker implements Runnable {
     TokenService tokenService;
 
     @Inject
-    MainConfig config;
+    MainConfig mainConfig;
+
+    @Inject
+    ClientConfig clientConfig;
 
     private ConsentContext ctx;
 
@@ -59,7 +63,7 @@ public class NotifyConsentWorker implements Runnable {
     @Transactional
     public void run() {
         LOGGER.log(Level.FINE, "Notify Consent worker started for ctx: " + ctx);
-        NotificationReport report = new NotificationReport(config.owner(), ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
+        NotificationReport report = new NotificationReport(mainConfig.owner(), ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
         try {
             ConsentNotification notification = new ConsentNotification();
             notification.setLanguage(ctx.getLanguage());
@@ -70,10 +74,18 @@ public class NotifyConsentWorker implements Runnable {
                 ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
                 notification.setTheme(theme);
             }
-            ctx.setCollectionMethod(ConsentContext.CollectionMethod.EMAIL);
-            notification.setToken(this.tokenService.generateToken(ctx));
-            URI notificationUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
-            notification.setUrl(notificationUri.toString());
+            if (clientConfig.isUserPageEnabled() && clientConfig.userPagePublicUrl().isPresent()) {
+                //TODO There is no pre authentication info on this link, we have to think about
+                // - generate a token for accesing this page
+                // - provide a secret for accessing page
+                // - pass the username (email) allowing IdP account creation prefilled username...
+                notification.setUrl(clientConfig.userPagePublicUrl().get());
+            } else {
+                ctx.setCollectionMethod(ConsentContext.CollectionMethod.EMAIL);
+                notification.setToken(this.tokenService.generateToken(ctx));
+                URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
+                notification.setUrl(notificationUri.toString());
+            }
             if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD) && StringUtils.isNotEmpty(ctx.getReceiptId())) {
                 notification.setReceiptName("receipt.pdf");
                 notification.setReceiptType("application/pdf");
