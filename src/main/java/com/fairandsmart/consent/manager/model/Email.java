@@ -35,6 +35,8 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.Objects;
 
 public class Email extends ModelData {
@@ -142,6 +144,16 @@ public class Email extends ModelData {
     public Email withSignature(String signature) {
         this.signature = signature;
         return this;
+    }
+
+    @Override
+    public String extractDataMimeType() {
+        return MediaType.APPLICATION_JSON;
+    }
+
+    @Override
+    public String toMimeContent() throws IOException {
+        return this.toJson();
     }
 
     @Override

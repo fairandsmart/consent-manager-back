@@ -3,9 +3,9 @@ package com.fairandsmart.consent.manager.model;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.manager.model;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -47,15 +47,18 @@ public class Consent {
     private String retentionLabel;
     private int retentionValue;
     private String retentionUnit;
+    private String title;
     private String usage;
     private Controller controller;
     @XmlElementWrapper(name="purposes")
     @XmlElement(name="purpose")
     private List<String> purposes;
-    @XmlElementWrapper(name="sharings")
-    @XmlElement(name="sharing")
-    private List<Sharing> sharings;
+    @XmlElementWrapper(name="thirdParties")
+    @XmlElement(name="thirdParty")
+    private List<NameValuePair> thirdParties;
     private String value;
+    private boolean containsSensitiveData;
+    private boolean containsMedicalData;
 
     public Consent() {
     }
@@ -124,19 +127,43 @@ public class Consent {
         this.controller = controller;
     }
 
-    public List<Sharing> getSharings() {
-        return sharings;
-    }
-
-    public void setSharings(List<Sharing> sharings) {
-        this.sharings = sharings;
-    }
-
     public String getValue() {
         return value;
     }
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public boolean isContainsMedicalData() {
+        return containsMedicalData;
+    }
+
+    public void setContainsMedicalData(boolean containsMedicalData) {
+        this.containsMedicalData = containsMedicalData;
+    }
+
+    public boolean isContainsSensitiveData() {
+        return containsSensitiveData;
+    }
+
+    public void setContainsSensitiveData(boolean containsSensitiveData) {
+        this.containsSensitiveData = containsSensitiveData;
+    }
+
+    public List<NameValuePair> getThirdParties() {
+        return thirdParties;
+    }
+
+    public void setThirdParties(List<NameValuePair> thirdParties) {
+        this.thirdParties = thirdParties;
     }
 }
