@@ -43,6 +43,7 @@ import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.InvalidStatusException;
 import com.fairandsmart.consent.manager.ModelDataSerializationException;
+import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -55,6 +56,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -254,6 +256,32 @@ public class ModelsResource {
         }
         consentService.deleteVersion(vid);
     }
+
+    @GET
+    @Path("{id}/versions/{vid}/data")
+    @Produces(MediaType.WILDCARD)
+    public Response getDataForVersion(@PathParam("id") @Valid @UUID String id, @PathParam("vid") @Valid @UUID String vid, @QueryParam("locale") String locale) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException, IOException {
+        LOGGER.log(Level.INFO, "GET /models/" + id + "/versions/" + vid + "/data");
+        ModelVersion version = consentService.getVersion(vid);
+        if (!version.entry.id.equals(id)) {
+            throw new EntityNotFoundException("Unable to find a version with id: " + vid + " in entry with id: " + id);
+        }
+        ModelData data = version.getData(locale != null ? locale : "en");
+        return Response.ok(data.toMimeContent(), data.extractDataMimeType()).build();
+    }
+
+    @GET
+    @Path("serials/{sid}/data")
+    @Produces(MediaType.WILDCARD)
+    public Response getDataForSerial(@PathParam("sid") String modelSerial, @QueryParam("locale") String locale) throws EntityNotFoundException, ModelDataSerializationException, IOException {
+        ModelVersion version = consentService.findVersionForSerial(modelSerial);
+        if (version == null) {
+            throw new EntityNotFoundException("Unable to find a version with serial: " + modelSerial);
+        }
+        ModelData data = version.getData(locale != null ? locale : "en");
+        return Response.ok(data.toMimeContent(), data.extractDataMimeType()).build();
+    }
+
 
     private ModelEntryDto transformEntryToDto(ModelEntry entry) throws ConsentManagerException, ModelDataSerializationException {
         List<ModelVersion> versions = consentService.getVersionHistoryForEntry(entry.id);

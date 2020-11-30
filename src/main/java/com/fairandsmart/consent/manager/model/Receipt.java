@@ -3,9 +3,9 @@ package com.fairandsmart.consent.manager.model;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,22 +21,24 @@ package com.fairandsmart.consent.manager.model;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 
+import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.util.ZonedDateTimeAdapter;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -47,9 +49,11 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,6 +65,8 @@ public class Receipt {
     private String transaction;
     private String jurisdiction;
     private String language;
+    private String logoPath;
+    private String logoAltText;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
     private ZonedDateTime date;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
@@ -86,6 +92,10 @@ public class Receipt {
     private ConsentContext.CollectionMethod collectionMethod;
     private String updateUrl;
     private String updateUrlQrCode;
+    private String theme;
+    private String themePath;
+    private String notificationType;
+    private String notificationRecipient;
 
     public Receipt() {
         subjectDetails = new ArrayList<>();
@@ -238,6 +248,38 @@ public class Receipt {
         this.updateUrlQrCode = updateUrlQrCode;
     }
 
+    public String getLogoPath() {
+        return logoPath;
+    }
+
+    public void setLogoPath(String logoPath) {
+        this.logoPath = logoPath;
+    }
+
+    public String getLogoAltText() {
+        return logoAltText;
+    }
+
+    public void setLogoAltText(String logoAltText) {
+        this.logoAltText = logoAltText;
+    }
+    
+    public String getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
+    }
+
+    public String getNotificationRecipient() {
+        return notificationRecipient;
+    }
+
+    public void setNotificationRecipient(String notificationRecipient) {
+        this.notificationRecipient = notificationRecipient;
+    }
+
     public String toXml() throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
         Marshaller marshaller = jaxbContext.createMarshaller();
@@ -279,6 +321,10 @@ public class Receipt {
             receipt.setPrivacyPolicyUrl(info.getPrivacyPolicyUrl());
             receipt.setHeaderNotice(info.getTitle() + " " + info.getHeader());
             receipt.setFooterNotice(info.getFooter());
+            if (info.getLogoPath() != null) {
+                receipt.setLogoPath(info.getLogoPath());
+                receipt.setLogoAltText(info.getLogoAltText());
+            }
         }
         receipt.setCollectionMethod(ctx.getCollectionMethod());
         for ( Map.Entry<Processing, Record> record : records.entrySet() ) {
@@ -289,13 +335,33 @@ public class Receipt {
             trecord.setRetentionValue(record.getKey().getRetentionValue());
             trecord.setRetentionUnit(record.getKey().getRetentionUnit().name());
             trecord.setUsage(record.getKey().getUsage());
+            trecord.setTitle(record.getKey().getTitle());
             trecord.setPurposes(record.getKey().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
             trecord.setController(record.getKey().getDataController());
+            trecord.setContainsSensitiveData(record.getKey().isContainsSensitiveData());
+            trecord.setContainsMedicalData(record.getKey().isContainsMedicalData());
             trecord.setValue(record.getValue().value);
-            //TODO include specific processing sharing information
+            if (record.getKey().getThirdParties() != null && record.getKey().getThirdParties().size() > 0) {
+                trecord.setThirdParties(record.getKey().getThirdParties());
+            }
             receipt.getConsents().add(trecord);
         }
         return receipt;
     }
 
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
+
+    public String getThemePath() {
+        return themePath;
+    }
+
+    public void setThemePath(String themePath) {
+        this.themePath = themePath;
+    }
 }

@@ -195,11 +195,8 @@ public class ModelVersion extends PanacheEntityBase {
         }
 
         public static List<String> findActiveSerialsForKey(String owner, String key) {
-            ModelVersion version = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResult();
-            if ( version == null ) {
-                return Collections.emptyList();
-            }
-            return version.getSerials();
+            Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
+            return optional.isPresent() ? optional.get().getSerials() : Collections.emptyList();
         }
 
         public static ModelVersion findActiveVersionByEntryId(String owner, String entryId) throws EntityNotFoundException {

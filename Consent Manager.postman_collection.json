@@ -147,80 +147,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "[User] get me",
-					"request": {
-						"auth": {
-							"type": "bearer"
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "Bearer {{TOKEN}}"
-							}
-						],
-						"url": {
-							"raw": "{{apihost}}/users/me",
-							"host": [
-								"{{apihost}}"
-							],
-							"path": [
-								"users",
-								"me"
-							],
-							"query": [
-								{
-									"key": "types",
-									"value": null,
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "[User] get me (key)",
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "{{key_secret}}",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "{{key_id}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apihost}}/users/me",
-							"host": [
-								"{{apihost}}"
-							],
-							"path": [
-								"users",
-								"me"
-							],
-							"query": [
-								{
-									"key": "types",
-									"value": null,
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -611,7 +537,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"defaultLanguage\": \"fr\",\n    \"data\": {\n        \"fr\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"Un titre de header de test\",\n            \"body\": \"Ceci est le body de test de mon header de test\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Moi\"\n            },\n            \"showDataController\": false,\n            \"scope\": \"Scope de test\",\n            \"showScope\": false,\n            \"shortNoticeLink\": \"Plus d'information ici : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy.html\",\n            \"customPrivacyPolicyText\" : \"Notre politique de confidentialité\"\n        },\n        \"en\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"A title for testing header type\",\n            \"body\": \"Main body of my testing header model\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Me\"\n            },\n            \"showDataController\": false,\n            \"shortNoticeLink\": \"This is short notice link : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy_en.html\",\n            \"customPrivacyPolicyText\" : \"Our dedicated privacy policy\"\n        }\n    }\n}"
+							"raw": "{\n    \"defaultLocale\": \"fr_FR\",\n    \"data\": {\n        \"fr_FR\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"Un titre de header de test\",\n            \"body\": \"Ceci est le body de test de mon header de test\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Moi\"\n            },\n            \"showDataController\": false,\n            \"scope\": \"Scope de test\",\n            \"showScope\": false,\n            \"shortNoticeLink\": \"Plus d'information ici : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy.html\",\n            \"customPrivacyPolicyText\" : \"Notre politique de confidentialité\"\n        },\n        \"en_US\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"A title for testing header type\",\n            \"body\": \"Main body of my testing header model\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Me\"\n            },\n            \"showDataController\": false,\n            \"shortNoticeLink\": \"This is short notice link : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy_en.html\",\n            \"customPrivacyPolicyText\" : \"Our dedicated privacy policy\"\n        }\n    }\n}"
 						},
 						"url": {
 							"raw": "{{apihost}}/models/{{entry_id}}/versions",
@@ -763,7 +689,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"defaultLanguage\": \"fr\",\n    \"data\": {\n        \"fr\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"Un titre de header de test (updated)\",\n            \"body\": \"Ceci est le body de test de mon header de test (updated)\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Moi\"\n            },\n            \"showDataController\": false,\n            \"scope\": \"Scope de test\",\n            \"showScope\": false,\n            \"shortNoticeLink\": \"Plus d'information ici : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy.html\",\n            \"customPrivacyPolicyText\" : \"Notre politique de confidentialité\"\n        },\n        \"en\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"A title for testing header type (updated)\",\n            \"body\": \"Main body of my testing header model (updated)\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Me\"\n            },\n            \"showDataController\": false,\n            \"shortNoticeLink\": \"This is short notice link : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy_en.html\",\n            \"customPrivacyPolicyText\" : \"Our dedicated privacy policy\"\n        }\n    }\n}"
+							"raw": "{\n    \"defaultLocale\": \"fr_FR\",\n    \"data\": {\n        \"fr_FR\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"Un titre de header de test (updated)\",\n            \"body\": \"Ceci est le body de test de mon header de test (updated)\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Moi\"\n            },\n            \"showDataController\": false,\n            \"scope\": \"Scope de test\",\n            \"showScope\": false,\n            \"shortNoticeLink\": \"Plus d'information ici : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy.html\",\n            \"customPrivacyPolicyText\" : \"Notre politique de confidentialité\"\n        },\n        \"en_US\": {\n            \"type\": \"header\",\n            \"logoAltText\" : \"Logo\",\n            \"title\": \"A title for testing header type (updated)\",\n            \"body\": \"Main body of my testing header model (updated)\",\n            \"jurisdiction\": \"France\",\n            \"showJurisdiction\": true,\n            \"collectionMethod\": \"WEBFORM\",\n            \"showCollectionMethod\": true,\n            \"dataController\": {\n                \"name\": \"Me\"\n            },\n            \"showDataController\": false,\n            \"shortNoticeLink\": \"This is short notice link : http://www.fairandsmart.com\",\n            \"showShortNoticeLink\": false,\n            \"privacyPolicyUrl\": \"http://www.fairandsmart.com/privacy_en.html\",\n            \"customPrivacyPolicyText\" : \"Our dedicated privacy policy\"\n        }\n    }\n}"
 						},
 						"url": {
 							"raw": "{{apihost}}/models/{{entry_id}}/versions/{{version_id}}",
@@ -1038,6 +964,428 @@
 							"path": [
 								"receipts",
 								"{{receipt_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Subject",
+			"item": [
+				{
+					"name": "[Subject] export (json)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"Market.1\",\n    \"value\": \"accepted\"\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/subjects",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"subjects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Subject] export (csv)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "text/csv"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"Market.1\",\n    \"value\": \"accepted\"\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/subjects",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"subjects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Subject] list",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/subjects?name=a",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"subjects"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "a"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Subject] get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/subjects/{{subject_name}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"subjects",
+								"{{subject_name}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "[User] get me",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/system/users/me",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"system",
+								"users",
+								"me"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[User] get me (key)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{key_secret}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{key_id}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apihost}}/system/users/me",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"system",
+								"users",
+								"me"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Support] version",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apihost}}/system/support/version",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"system",
+								"support",
+								"version"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Config] config",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apihost}}/system/config",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"system",
+								"config"
+							],
+							"query": [
+								{
+									"key": "types",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Records",
+			"item": [
+				{
+					"name": "[Records] list",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{apihost}}/records?subject={{subject_name}}",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"records"
+							],
+							"query": [
+								{
+									"key": "subject",
+									"value": "{{subject_name}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Records] extract (json)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"condition\": {\n        \"key\": \"Market.1\",\n        \"value\": \"accepted\",\n        \"regexpValue\": false \n    }\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/records/extraction",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"records",
+								"extraction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Records] extract (csv)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "text/csv"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"condition\": {\n        \"key\": \"Market.1\",\n        \"value\": \"accepted\",\n        \"regexpValue\": false \n    }\n}"
+						},
+						"url": {
+							"raw": "{{apihost}}/records/extraction",
+							"host": [
+								"{{apihost}}"
+							],
+							"path": [
+								"records",
+								"extraction"
 							]
 						}
 					},

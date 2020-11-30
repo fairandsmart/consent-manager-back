@@ -35,6 +35,8 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.Objects;
 
 public class Theme extends ModelData {
@@ -119,6 +121,16 @@ public class Theme extends ModelData {
     public Theme withTargetType(TargetType targetType) {
         this.targetType = targetType;
         return this;
+    }
+
+    @Override
+    public String extractDataMimeType() {
+        return "text/css";
+    }
+
+    @Override
+    public String toMimeContent() {
+        return this.getCss();
     }
 
     @Override

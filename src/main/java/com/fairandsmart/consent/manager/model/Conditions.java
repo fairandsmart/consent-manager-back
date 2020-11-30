@@ -35,6 +35,8 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.Objects;
 
 public class Conditions extends ModelData {
@@ -100,6 +102,16 @@ public class Conditions extends ModelData {
     public Conditions withRejectLabel(String rejectLabel) {
         this.rejectLabel = rejectLabel;
         return this;
+    }
+
+    @Override
+    public String extractDataMimeType() {
+        return MediaType.APPLICATION_JSON;
+    }
+
+    @Override
+    public String toMimeContent() throws IOException {
+        return this.toJson();
     }
 
     @Override

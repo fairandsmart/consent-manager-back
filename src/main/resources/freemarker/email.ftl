@@ -20,9 +20,8 @@
 <div class="fsc-opt-out-wrapper">
     <h1 class="fsc-opt-out-title h2">${langContent.title}</h1>
     <div class="fsc-opt-out-body">${langContent.body}</div>
-    <div class="fsc-opt-out-button"><a id="form-url" class="btn btn-primary"
-                                       href="${(data.url?has_content)?then(data.url, '#')}">${langContent.buttonLabel}</a>
-    </div>
+    <div class="fsc-opt-out-button">
+        <a id="form-url" class="btn btn-primary" href="${(data.url?has_content)?then(data.url, '#')}">${langContent.buttonLabel}</a> </div>
     <div class="fsc-opt-out-footer">${langContent.footer}</div>
     <div class="fsc-opt-out-signature">${langContent.signature}</div>
 </div>

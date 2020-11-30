@@ -498,20 +498,21 @@ public class ConsentContext implements Tokenizable, Cloneable {
                 ", elements=" + elements +
                 ", associatePreferences=" + associatePreferences +
                 ", callback='" + callback + '\'' +
-                ", validity='" + validity + '\'' +
                 ", language='" + language + '\'' +
+                ", validity='" + validity + '\'' +
                 ", formType=" + formType +
                 ", receiptDeliveryType=" + receiptDeliveryType +
                 ", receiptDisplayType=" + receiptDisplayType +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
-                ", notificationEmailModel='" + notificationModel + '\'' +
-                ", notificationEmailRecipient='" + notificationRecipient + '\'' +
+                ", notificationModel='" + notificationModel + '\'' +
+                ", notificationRecipient='" + notificationRecipient + '\'' +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", preview=" + preview +
                 ", iframe=" + iframe +
                 ", theme='" + theme + '\'' +
+                ", receiptId='" + receiptId + '\'' +
                 '}';
     }
 
