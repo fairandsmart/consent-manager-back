@@ -35,6 +35,8 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -111,6 +113,16 @@ public class Preference extends ModelData {
         LIST_SINGLE,
         LIST_MULTI,
         FREE_TEXT
+    }
+
+    @Override
+    public String extractDataMimeType() {
+        return MediaType.APPLICATION_JSON;
+    }
+
+    @Override
+    public String toMimeContent() throws IOException {
+        return this.toJson();
     }
 
     @Override

@@ -35,6 +35,9 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import javax.activation.MimeType;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.Objects;
 
 public class BasicInfo extends ModelData {
@@ -286,6 +289,16 @@ public class BasicInfo extends ModelData {
     public BasicInfo withCustomPrivacyPolicyText(String customPrivacyPolicyText) {
         this.customPrivacyPolicyText = customPrivacyPolicyText;
         return this;
+    }
+
+    @Override
+    public String extractDataMimeType() {
+        return MediaType.APPLICATION_JSON;
+    }
+
+    @Override
+    public String toMimeContent() throws IOException {
+        return this.toJson();
     }
 
     @Override

@@ -35,6 +35,8 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -282,6 +284,16 @@ public class Processing extends ModelData {
         CONSENT_MARKETING,
         CONSENT_THIRD_PART_SHARING,
         CONSENT_RESEARCH
+    }
+
+    @Override
+    public String extractDataMimeType() {
+        return MediaType.APPLICATION_JSON;
+    }
+
+    @Override
+    public String toMimeContent() throws IOException {
+        return this.toJson();
     }
 
     @Override
