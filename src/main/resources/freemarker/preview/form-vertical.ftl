@@ -40,7 +40,7 @@
         <#list data.elements as element>
             <@fetchMultiLangContent element></@fetchMultiLangContent>
             <#assign element_content=langContent>
-            <#assign identifier=element?index>
+            <#assign identifier="element/" + element.entry.type + "/" + element?index>
             <#include element.entry.type + ".ftl">
         </#list>
     </div>

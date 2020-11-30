@@ -48,6 +48,8 @@ public class Preference extends ModelData {
     private String description;
     private List<String> options;
     private ValueType valueType;
+    private boolean includeDefault;
+    private List<String> defaultValues;
 
     public Preference() {
         this.setType(TYPE);
@@ -105,6 +107,32 @@ public class Preference extends ModelData {
         return this;
     }
 
+    public boolean isIncludeDefault() {
+        return includeDefault;
+    }
+
+    public void setIncludeDefault(boolean includeDefault) {
+        this.includeDefault = includeDefault;
+    }
+
+    public Preference withIncludeDefault(boolean includeDefault) {
+        this.includeDefault = includeDefault;
+        return this;
+    }
+
+    public List<String> getDefaultValues() {
+        return defaultValues;
+    }
+
+    public void setDefaultValues(List<String> defaultValues) {
+        this.defaultValues = defaultValues;
+    }
+
+    public Preference withDefaultValues(List<String> defaultValues) {
+        this.defaultValues = defaultValues;
+        return this;
+    }
+
     public enum ValueType {
         NONE,
         TOGGLE,
@@ -130,15 +158,17 @@ public class Preference extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Preference that = (Preference) o;
-        return Objects.equals(label, that.label) &&
+        return includeDefault == that.includeDefault &&
+                Objects.equals(label, that.label) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(options, that.options) &&
-                valueType == that.valueType;
+                valueType == that.valueType &&
+                Objects.equals(defaultValues, that.defaultValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, description, options, valueType);
+        return Objects.hash(label, description, options, valueType, includeDefault, defaultValues);
     }
 
     @Override
@@ -148,6 +178,8 @@ public class Preference extends ModelData {
                 ", description='" + description + '\'' +
                 ", options=" + options +
                 ", valueType=" + valueType +
+                ", includeDefault=" + includeDefault +
+                ", defaultValues='" + defaultValues + '\'' +
                 '}';
     }
 }

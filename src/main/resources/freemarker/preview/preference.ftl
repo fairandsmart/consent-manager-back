@@ -5,7 +5,13 @@
             <h3><@valueOrError element_content.label "missingValue"></@valueOrError></h3>
 
             <#if element_content.valueType=="TOGGLE">
-                <@toggleSwitch key=identifier acceptText=element_content.options[1] refuseText=element_content.options[0]></@toggleSwitch>
+                <#if element_content.includeDefault && element_content.defaultValues?has_content && element_content.options?size==2>
+                    <#assign isChecked=element_content.defaultValues?seq_contains(element_content.options[1])>
+                <#else>
+                    <#assign isChecked=false>
+                </#if>
+                <@toggleSwitch key=identifier isChecked=isChecked acceptText=element_content.options[1]
+                refuseText=element_content.options[0]></@toggleSwitch>
             </#if>
         </div>
 
@@ -23,7 +29,10 @@
                     <ul style="list-style-type: none;">
                         <#list element_content.options as option>
                             <li style="margin-top: 4px;">
-                                <input type="checkbox" value="${option}" name="${identifier}">${option}
+                                <input type="checkbox" value="${option}" name="${identifier}"
+                                    <#if element_content.includeDefault && element_content.defaultValues?has_content
+                                    && element_content.defaultValues?seq_contains(option)>checked</#if>>
+                                <label for="${option}">${option}</label>
                             </li>
                         </#list>
                     </ul>
@@ -33,7 +42,10 @@
                     <ul style="list-style-type: none;">
                         <#list element_content.options as option>
                             <li style="margin-top: 4px;">
-                                <input type="radio" value="${option}" name="${identifier}">${option}
+                                <input type="radio" value="${option}" name="${identifier}"
+                                    <#if element_content.includeDefault && element_content.defaultValues?has_content
+                                    && element_content.defaultValues?seq_contains(option)>checked</#if>>
+                                <label for="${option}">${option}</label>
                             </li>
                         </#list>
                     </ul>
@@ -42,13 +54,18 @@
                 <#if element_content.valueType=="LIST_SINGLE" || element_content.valueType=="LIST_MULTI">
                     <select name="${identifier}" <#if element_content.valueType=="LIST_MULTI">multiple</#if>>
                         <#list element_content.options as option>
-                            <option value="${option}">${option}</option>
+                            <option value="${option}" <#if element_content.includeDefault && element_content.defaultValues?has_content
+                            && element_content.defaultValues?seq_contains(option)>selected</#if>>${option}</option>
                         </#list>
                     </select>
                 </#if>
 
                 <#if element_content.valueType=="FREE_TEXT">
                     <input type="text" id="${identifier}">
+                </#if>
+
+                <#if element_content.valueType=="NONE">
+                    <input type="hidden" id="${identifier}">
                 </#if>
 
             </div>

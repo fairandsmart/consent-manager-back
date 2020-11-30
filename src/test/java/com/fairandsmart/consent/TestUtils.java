@@ -171,7 +171,9 @@ public class TestUtils {
                 .withLabel("Label " + key)
                 .withDescription("Description " + key)
                 .withOptions(options)
-                .withValueType(Preference.ValueType.RADIO_BUTTONS);
+                .withValueType(Preference.ValueType.RADIO_BUTTONS)
+                .withIncludeDefault(true)
+                .withDefaultValues(Collections.singletonList("Option3"));
     }
 
     public static Conditions generateConditions(String key) {
