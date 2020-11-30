@@ -123,7 +123,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
     }
 
     @Override
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void logAccess() {
         long now = System.currentTimeMillis();
         Optional<AccessLog> optional = AccessLog.findByIdOptional(identity.getPrincipal().getName());
