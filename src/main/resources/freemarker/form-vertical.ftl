@@ -29,9 +29,15 @@
         <#list data.elements as element>
             <#include element.entry.type + ".ftl">
         </#list>
+
+        <#if !data.footerOnTop>
+            <#include "info-foot.ftl">
+        </#if>
     </div>
 
-    <#include "info-foot.ftl">
+    <#if data.footerOnTop>
+        <#include "info-foot.ftl">
+    </#if>
 </form>
 
 <script src="/assets/js/consent.js"></script>

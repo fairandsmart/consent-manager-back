@@ -140,6 +140,11 @@
 
     /* Footer */
 
+    .processing-list .footer {
+        margin-left: -24px;
+        margin-right: -24px;
+    }
+
     .footer-body {
         margin-bottom: 8px;
         max-height: 100px;

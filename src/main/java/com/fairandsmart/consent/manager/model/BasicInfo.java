@@ -65,9 +65,6 @@ public class BasicInfo extends ModelData {
     // Privacy policy
     private String privacyPolicyUrl;
     private String customPrivacyPolicyText;
-    // Validation options
-    private boolean showAcceptAll = false;
-    private String customAcceptAllText;
 
     public BasicInfo() {
         this.setType(TYPE);
@@ -294,32 +291,6 @@ public class BasicInfo extends ModelData {
         return this;
     }
 
-    public boolean isShowAcceptAll() {
-        return showAcceptAll;
-    }
-
-    public void setShowAcceptAll(boolean showAcceptAll) {
-        this.showAcceptAll = showAcceptAll;
-    }
-
-    public BasicInfo withShowAcceptAll(boolean showAcceptAll) {
-        this.showAcceptAll = showAcceptAll;
-        return this;
-    }
-
-    public String getCustomAcceptAllText() {
-        return customAcceptAllText;
-    }
-
-    public void setCustomAcceptAllText(String customAcceptAllText) {
-        this.customAcceptAllText = customAcceptAllText;
-    }
-
-    public BasicInfo withCustomAcceptAllText(String customAcceptAllText) {
-        this.customAcceptAllText = customAcceptAllText;
-        return this;
-    }
-
     @Override
     public String extractDataMimeType() {
         return MediaType.APPLICATION_JSON;
@@ -340,7 +311,6 @@ public class BasicInfo extends ModelData {
                 showDataController == info.showDataController &&
                 showScope == info.showScope &&
                 showShortNoticeLink == info.showShortNoticeLink &&
-                showAcceptAll == info.showAcceptAll &&
                 Objects.equals(logoPath, info.logoPath) &&
                 Objects.equals(logoAltText, info.logoAltText) &&
                 Objects.equals(title, info.title) &&
@@ -352,13 +322,12 @@ public class BasicInfo extends ModelData {
                 Objects.equals(scope, info.scope) &&
                 Objects.equals(shortNoticeLink, info.shortNoticeLink) &&
                 Objects.equals(privacyPolicyUrl, info.privacyPolicyUrl) &&
-                Objects.equals(customPrivacyPolicyText, info.customPrivacyPolicyText) &&
-                Objects.equals(customAcceptAllText, info.customAcceptAllText);
+                Objects.equals(customPrivacyPolicyText, info.customPrivacyPolicyText);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(logoPath, logoAltText, title, header, footer, jurisdiction, showJurisdiction, collectionMethod, showCollectionMethod, dataController, showDataController, scope, showScope, shortNoticeLink, showShortNoticeLink, privacyPolicyUrl, customPrivacyPolicyText, showAcceptAll, customAcceptAllText);
+        return Objects.hash(logoPath, logoAltText, title, header, footer, jurisdiction, showJurisdiction, collectionMethod, showCollectionMethod, dataController, showDataController, scope, showScope, shortNoticeLink, showShortNoticeLink, privacyPolicyUrl, customPrivacyPolicyText);
     }
 
     @Override
@@ -381,8 +350,6 @@ public class BasicInfo extends ModelData {
                 ", showShortNoticeLink=" + showShortNoticeLink +
                 ", privacyPolicyUrl='" + privacyPolicyUrl + '\'' +
                 ", customPrivacyPolicyText='" + customPrivacyPolicyText + '\'' +
-                ", showAcceptAll=" + showAcceptAll +
-                ", customAcceptAllText='" + customAcceptAllText + '\'' +
                 '}';
     }
 }

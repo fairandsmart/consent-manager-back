@@ -53,7 +53,7 @@
             <div class="processing-list">
                 <#include "info-head.ftl">
             </div>
-            <#assign displayAcceptAll=true>
+            <#assign displayAcceptAll=false>
             <#include "info-foot.ftl">
         </#if>
         <#if model.type=="processing">

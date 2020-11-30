@@ -8,23 +8,25 @@
                     ${langContent.footer}
                 </div>
             </#if>
-
-            <#if langContent.showAcceptAll && (data.elements?size > 1)>
-                <div class="accept-all-container">
-                    <div class="accept-all-text">
-                        <#if langContent.customAcceptAllText?has_content>
-                            ${langContent.customAcceptAllText}<#else><@readBundle "acceptAll" "missingValue"></@readBundle>
-                        </#if>
-                    </div>
-
-                    <@toggleSwitch "accept-all"></@toggleSwitch>
-                </div>
-            </#if>
         <#else>
             <div class="footer-body">
                 <p><@writeError "missingLanguage"></@writeError></p>
             </div>
         </#if>
+    </#if>
+
+    <#if data.showAcceptAll && (data.elements?size > 1)>
+        <div class="accept-all-container">
+            <div class="accept-all-text">
+                <#if data.acceptAllText?has_content>
+                    ${data.acceptAllText}
+                <#else>
+                    <@readBundle "acceptAll" "missingValue"></@readBundle>
+                </#if>
+            </div>
+
+            <@toggleSwitch "accept-all"></@toggleSwitch>
+        </div>
     </#if>
 
     <div class="submit-container">
