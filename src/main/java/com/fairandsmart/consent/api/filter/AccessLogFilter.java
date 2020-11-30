@@ -40,20 +40,18 @@ import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
+import java.util.logging.Logger;
 
 @Provider
 public class AccessLogFilter implements ContainerRequestFilter {
-
-    @Inject
-    SecurityIdentity identity;
 
     @Inject
     AuthenticationService auth;
 
     @Override
     public void filter(ContainerRequestContext ctx) {
-        if ( !identity.isAnonymous() ) {
-            auth.logAccess(identity.getPrincipal().getName());
+        if ( auth.isIdentified() ) {
+            auth.logAccess();
         }
     }
 }

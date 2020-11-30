@@ -41,6 +41,8 @@ import java.util.Set;
 
 public interface AuthenticationService {
 
+    boolean isIdentified();
+
     String getConnectedIdentifier();
 
     Set<String> listConnectedIdentifierRoles();
@@ -57,7 +59,7 @@ public interface AuthenticationService {
 
     void ensureConnectedIdentifierIsApi() throws AccessDeniedException;
 
-    void logAccess(String username);
+    void logAccess();
 
     List<Key> listKeys() throws AccessDeniedException;
 
