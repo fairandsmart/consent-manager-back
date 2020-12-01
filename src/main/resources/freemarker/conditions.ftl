@@ -46,10 +46,10 @@
     </div>
 </#if>
 
-<script src="/assets/js/jquery/jquery-3.5.1.slim.min.js" integrity="sha256-GKc/Ggw4TYpRFISB2sJfIOjWaFWhLlk1nbwJijGoY7o="></script>
+<script src="/assets/js/jquery/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs="></script>
 <script src="/assets/js/conditions.js"></script>
 <script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js" crossorigin=""
-        integrity="sha256-VnjX/dNthWqIpTji9AbZLghQx9fdOAw2t4nSgiWLxfM="></script>
+        integrity="sha256-uqJEaigsh7a1ncOLCy3CLi7FboUzLC6zNE5u5dRNVmI="></script>
 
 </body>
 </html>
