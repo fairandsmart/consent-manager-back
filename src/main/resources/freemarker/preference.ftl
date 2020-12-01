@@ -1,4 +1,4 @@
-<div class="processing">
+<div class="processing <#if data.elementsDependencies[element.serial]?has_content>dependent</#if>" <#if data.elementsDependencies[element.serial]?has_content>data-dependent-to="${data.elementsDependencies[element.serial]}"</#if>>
     <@fetchMultiLangContent element></@fetchMultiLangContent>
     <#assign hasPreviousValues=!data.preview && data.previousValues[element.serial]?has_content>
     <#assign hasDefaultValues=langContent.includeDefault && langContent.defaultValues?has_content>

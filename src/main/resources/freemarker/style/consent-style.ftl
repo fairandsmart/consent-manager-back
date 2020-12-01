@@ -71,6 +71,12 @@
         padding: 6px 0 6px 12px;
     }
 
+    .processing.disabled {
+        filter: grayscale(50%);
+        opacity: .3;
+        cursor: not-allowed;
+    }
+
     .processing-header {
         display: flex;
         justify-content: space-between;
