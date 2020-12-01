@@ -135,11 +135,6 @@ public class ConsentContext implements Tokenizable, Cloneable {
         return this;
     }
 
-    public ConsentContext addElement(String element) {
-        this.elements.add(element);
-        return this;
-    }
-
     public boolean isAssociatePreferences() {
         return associatePreferences;
     }

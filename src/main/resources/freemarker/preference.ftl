@@ -5,6 +5,9 @@
     <#assign previousValues=hasPreviousValues?then(data.previousValues[element.serial]?split(","),[])>
 
     <#if langContent?is_hash && langContent?has_content>
+        <input type="hidden" name="${element.identifier}-optional" id="${element.identifier}-optional"
+               value="${langContent.optional?then('optional','mandatory')}">
+
     <#-- Header -->
         <div class="processing-header">
             <h3><@valueOrError langContent.label "missingValue"></@valueOrError></h3>
@@ -100,6 +103,12 @@
                     <input type="hidden" id="${element.identifier}" name="${element.identifier}" value="">
                 </#if>
 
+            </div>
+        </#if>
+
+        <#if !langContent.optional>
+            <div class="item-wrapper preference-error hidden" id="${element.identifier}-missing">
+                <@readBundle "missingPreference" "missingValue"></@readBundle>
             </div>
         </#if>
     <#else>

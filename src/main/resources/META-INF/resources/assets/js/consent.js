@@ -1,93 +1,102 @@
-/* Handling button "Accept all" */
-const acceptAll = document.getElementById("accept-all-switch");
-const hasAcceptAll = acceptAll != null;
-if (hasAcceptAll) {
-    acceptAll.addEventListener("change", (e) => {
-        const switches = document.getElementsByClassName("switch");
-        if (e.target.checked) { /* Check all */
-            for (let i = 0; i < switches.length - 1; i++) { // Last element is button "Accept all"
-                const key = switches[i].children[0].id; // Checkbox input id
-                if (!key.includes("/preference/")) {
-                    document.getElementById(key).checked = true; // Check input
-                    document.getElementById(key + "-accepted").selected = true; // Select option "accepted"
-                    document.getElementById(key + "-refused").selected = false; // Deselect option "refused"
-                }
-            }
-        } else { /* Uncheck all */
-            for (let j = 0; j < switches.length - 1; j++) { // Last element is button "Accept all"
-                const key = switches[j].children[0].id; // Checkbox input id
-                if (!key.includes("/preference/")) {
-                    document.getElementById(key).checked = false; // Uncheck input
-                    document.getElementById(key + "-accepted").selected = false; // Deselect option "accepted"
-                    document.getElementById(key + "-refused").selected = true; // Select option "refused"
-                }
-            }
-        }
-    });
+function formatSelector(key) {
+    return "#" + key.replace(/([:.\[\],=@\/])/g, "\\$1");
+}
+
+function toggleAccordion(id) {
+    const selector = formatSelector(id);
+    const wasHidden = $(selector).hasClass("controller-hidden");
+    $(selector).toggleClass("controller-open", wasHidden);
+    $(selector).toggleClass("controller-hidden", !wasHidden);
+}
+
+function isPreference(selector) {
+    return selector.includes("\\/preference\\/");
+}
+
+function getSwitchesSelectors() {
+    return $(".switch").toArray().map(element => formatSelector(element.children[0].id));
+}
+
+function toggleSwitch(selector, isOn, updateCheckbox) {
+    if (updateCheckbox) {
+        $(selector).prop("checked", isOn ? "checked" : "");
+    }
+    $(selector + "-accepted").prop("selected", isOn);
+    $(selector + "-refused").prop("selected", !isOn);
 }
 
 /* Checking "Accept all" if all the toggle switches are checked */
+const acceptAllSelector = "#accept-all";
+
 function checkAcceptAll() {
-    const switches = document.getElementsByClassName("switch");
-    let allChecked = true;
-    let i = 0;
-    let key;
-    while (allChecked && i < switches.length) {
-        key = switches[i].children[0].id; // Checkbox input id
-        if (key !== "accept-all" && !key.includes("/preference/")) {
-            allChecked = document.getElementById(key + "-accepted").selected;
-        }
-        i++;
-    }
+    const allChecked = getSwitchesSelectors()
+        .filter(selector => selector !== acceptAllSelector && !isPreference(selector))
+        .every(selector => $(selector + "-accepted").prop("selected"));
     if (allChecked) {
-        document.getElementById("accept-all").checked = true; // Check input
-        document.getElementById("accept-all-accepted").selected = true; // Select option "accepted"
-        document.getElementById("accept-all-refused").selected = false; // Deselect option "refused"
+        toggleSwitch(acceptAllSelector, true, true);
     }
 }
 
-/* Handling hidden values when a user clicks on a toggle switch */
-const switches = document.getElementsByClassName("switch");
-for (let i = 0; i < switches.length; i++) {
-    const key = switches[i].children[0].id; // Checkbox input id
+/* Handling button "Accept all" */
+const acceptAll = $(acceptAllSelector + "-switch");
+const hasAcceptAll = acceptAll.length > 0;
+if (hasAcceptAll) {
+    acceptAll.on("change", (e) => {
+        toggleSwitch(acceptAllSelector, e.target.checked, false);
 
-    if (key !== "accept-all") { // Regular toggle switch
-        document.getElementById(key).addEventListener("change", (e) => {
-            const accepted = document.getElementById(key + "-accepted");
-            const refused = document.getElementById(key + "-refused");
-            if (e.target.checked) {
-                accepted.selected = true;
-                refused.selected = false;
-            } else {
-                accepted.selected = false;
-                refused.selected = true;
-            }
+        getSwitchesSelectors().filter(selector => selector !== acceptAllSelector && !isPreference(selector))
+            .forEach(selector => {
+                toggleSwitch(selector, e.target.checked, true);
+            });
+    });
+}
 
-            if (hasAcceptAll && !key.includes("/preference/")) {
-                const acceptAllButton = document.getElementById("accept-all");
+/* Handling preferences switches */
+getSwitchesSelectors().filter(selector => isPreference(selector))
+    .forEach(selector => $(selector).on("change", (e) => toggleSwitch(selector, e.target.checked, false)));
+
+/* Handling processing switches */
+getSwitchesSelectors().filter(selector => selector !== acceptAllSelector && !isPreference(selector))
+    .forEach(selector => {
+        $(selector).on("change", (e) => {
+            toggleSwitch(selector, e.target.checked, false);
+
+            if (hasAcceptAll) {
+                const isAcceptAllChecked = $(acceptAllSelector + "-accepted").prop("selected");
                 /* Uncheck "Accept all" if current toggle switch is unchecked */
-                if (acceptAllButton.checked && !e.target.checked) {
-                    acceptAllButton.checked = false; // Uncheck input
-                    document.getElementById("accept-all-accepted").selected = false; // Deselect option "accepted"
-                    document.getElementById("accept-all-refused").selected = true; // Select option "refused"
+                if (isAcceptAllChecked && !e.target.checked) {
+                    toggleSwitch(acceptAllSelector, false, true);
                 } /* Check "Accept all" if current toggle switch is checked and all the other switches are checked */
-                else if (!acceptAllButton.checked && e.target.checked) {
+                else if (!isAcceptAllChecked && e.target.checked) {
                     checkAcceptAll();
                 }
             }
         });
-    }
-}
+    });
 
 /* If all the previous values are "accepted", "Accept all" must be already checked */
 if (hasAcceptAll) {
     checkAcceptAll();
 }
 
-function toggleAccordion(id) {
-    if (document.getElementById(id).classList.contains("controller-hidden")) {
-        document.getElementById(id).classList.replace("controller-hidden", "controller-open");
-    } else {
-        document.getElementById(id).classList.replace("controller-open", "controller-hidden");
-    }
+const consentForm = $("#consent");
+if (consentForm.length > 0) {
+    consentForm.submit(function (e) {
+        let valid = true;
+        const values = consentForm.serializeArray();
+        const preferencesAnswers = values.filter(entry => entry.name.startsWith("element/preference/") && !entry.name.endsWith("-optional"));
+        values.filter(entry => entry.name.endsWith("-optional") && entry.value === "mandatory")
+            .forEach(entry => {
+                const answered = preferencesAnswers.some(e => entry.name.includes(e.name));
+                if (!answered) {
+                    valid = false;
+                }
+                const missingSelector = formatSelector(entry.name.replace("-optional", "-missing"));
+                $(missingSelector).toggleClass("hidden", answered);
+            });
+
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
 }
