@@ -137,6 +137,15 @@
         height: 32px;
     }
 
+    .preference-error {
+        color: red;
+        font-style: italic;
+    }
+
+    .preference-error.hidden {
+        display: none;
+    }
+
 
     /* Footer */
 
