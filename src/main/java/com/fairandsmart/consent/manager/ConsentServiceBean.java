@@ -528,6 +528,7 @@ public class ConsentServiceBean implements ConsentService {
             // Fetch elements from context
             List<String> elementsKeys = new ArrayList<>();
             List<ModelVersion> elementsVersions = new ArrayList<>();
+            Map<String, String> elementsDependencies = new HashMap<>();
             for (String element : ctx.getElements()) {
                 String key = (ConsentElementIdentifier.isValid(element)) ? ConsentElementIdentifier.deserialize(element).getKey() : element;
                 elementsKeys.add(key);
@@ -543,12 +544,16 @@ public class ConsentServiceBean implements ConsentService {
                         List<String> preferences = processing.getAssociatedPreferences().stream().filter(key -> !elementsKeys.contains(key)).collect(Collectors.toList());
                         for (String key : preferences) {
                             elementsKeys.add(processingIndex + 1, key);
-                            elementsVersions.add(processingIndex + 1, ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key));
+                            ModelVersion version = ModelVersion.SystemHelper.findActiveVersionByKey(config.owner(), key);
+                            elementsDependencies.put(version.serial, elementsVersions.get(processingIndex).getIdentifier().toString());
+                            elementsVersions.add(processingIndex + 1, version);
                         }
                     }
                     processingIndex--;
                 }
             }
+
+            form.setElementsDependencies(elementsDependencies);
 
             // Fetch previous records
             Map<String, Record> previousRecords = new HashMap<>();
