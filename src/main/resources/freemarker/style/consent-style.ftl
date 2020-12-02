@@ -20,9 +20,14 @@
 
     /* Logo */
 
+    .logo-wrapper {
+        padding: 0 24px;
+    }
+
     .logo {
         max-height: 100px;
     }
+
 
     /* Header */
 
@@ -140,12 +145,17 @@
 
     /* Footer */
 
+    .footer {
+        padding: 12px 24px;
+    }
+
     .processing-list .footer {
         margin-left: -24px;
         margin-right: -24px;
     }
 
     .footer-body {
+        padding: 0 12px;
         margin-bottom: 8px;
         max-height: 100px;
         overflow-y: auto;

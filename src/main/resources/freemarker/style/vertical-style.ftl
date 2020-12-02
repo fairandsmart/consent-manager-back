@@ -43,12 +43,7 @@
     /* Footer */
 
     .footer {
-        padding: 12px 24px;
         background-color: #eeeeee;
-    }
-
-    .footer-body {
-        padding: 0 12px;
     }
 
     .accept-all-container {

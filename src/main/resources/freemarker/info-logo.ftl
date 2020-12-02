@@ -1,9 +1,14 @@
-<#if data.info?has_content>
-    <@fetchMultiLangContent data.info></@fetchMultiLangContent>
-    <#if langContent?is_hash && langContent.logoPath?has_content>
-        <div class="logo-wrapper">
-            <img class="logo" src="${langContent.logoPath}" alt="${langContent.logoAltText}">
-        </div>
-        <div class="content-fade"></div>
-    </#if>
+<#if theme?is_hash && theme.logoPosition?has_content>
+    <#assign position=theme.logoPosition?lower_case>
+<#else>
+    <#assign position="center">
 </#if>
+
+<div class="logo-wrapper" style="text-align: ${position};">
+    <#if theme?is_hash>
+        <#if theme.logoPath?has_content>
+            <img class="logo" src="${theme.logoPath}" alt="${theme.logoAltText}">
+        </#if>
+    </#if>
+</div>
+<div class="content-fade"></div>

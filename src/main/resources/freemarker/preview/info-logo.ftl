@@ -1,7 +1,14 @@
-<div class="logo-wrapper">
-    <#if info?is_hash && info.logoPath?has_content>
-        <img class="logo" src="${info.logoPath}" alt="${info.logoAltText}">
+<#if theme?is_hash && theme.logoPosition?has_content>
+    <#assign position=theme.logoPosition?lower_case>
+<#else>
+    <#assign position="center">
+</#if>
+
+<div class="logo-wrapper" style="text-align: ${position};">
+    <#if theme?is_hash>
+        <#if theme.logoPath?has_content>
+            <img class="logo" src="${theme.logoPath}" alt="${theme.logoAltText}">
+        </#if>
     </#if>
 </div>
-
 <div class="content-fade"></div>

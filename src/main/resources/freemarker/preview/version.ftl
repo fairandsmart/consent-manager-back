@@ -49,7 +49,6 @@
     <div class="consent-form">
         <#if model.type=="basicinfo">
             <#assign info=model>
-            <#include "info-logo.ftl">
             <div class="processing-list">
                 <#include "info-head.ftl">
             </div>
@@ -72,10 +71,16 @@
         </#if>
         <#if model.type=="theme">
             <#assign theme=model>
-            <#if data.orientation=="horizontal">
-                <#include "theme-horizontal.ftl">
-            <#else>
-                <#include "theme-vertical.ftl">
+            <#if data.previewType=="FORM">
+                <#if data.orientation=="HORIZONTAL">
+                    <#include "theme-horizontal.ftl">
+                <#else>
+                    <#include "theme-vertical.ftl">
+                </#if>
+            <#elseif data.previewType=="RECEIPT">
+                <#include "theme-receipt.ftl">
+            <#elseif data.previewType=="EMAIL">
+                <#include "theme-email.ftl">
             </#if>
         </#if>
     </div>

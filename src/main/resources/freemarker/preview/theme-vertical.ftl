@@ -1,8 +1,4 @@
-<div class="logo-wrapper">
-    <img class="logo" src="/assets/img/themes/preview_logo.png" alt="Logo">
-</div>
-
-<div class="content-fade"></div>
+<#include "info-logo.ftl">
 
 <div class="processing-list">
     <div class="header">

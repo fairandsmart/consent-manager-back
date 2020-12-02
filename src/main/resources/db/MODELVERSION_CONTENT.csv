@@ -1,8 +1,6 @@
 MODELVERSION_ID,CONTENT_KEY,AUTHOR,DATA,DATACLASS
 6614821a-67f9-432f-9d8f-ea0c1f788ba8,fr,demo@localhost,"{
   ""type"" : ""basicinfo"",
-  ""logoPath"" : ""https://assets.fairandsmart.tech/logo_fs_tagline.png"",
-  ""logoAltText"" : ""Logo Fair&Smart"",
   ""title"" : ""Votre consentement"",
   ""header"" : ""Pour nous permettre de vous satisfaire pleinement avec nos services, il nous faut récolter un certain nombre d'informations."",
   ""footer"" : ""Merci pour vos réponses !\\nVous pourrez consulter et modifier vos réponses à tout moment."",

@@ -18,10 +18,14 @@
             <#-- Other header data -->
             <#if langContent.showJurisdiction || langContent.showCollectionMethod || langContent.showScope || langContent.showShortNoticeLink>
                 <div class="block-wrapper">
-                    <h4><@readBundle "defaultAdditionalInfoTitle"></@readBundle></h4>
-                    <ul>
+                    <h4 class="controller-header" onclick="toggleAccordion('header-infos')">
+                        <@readBundle "defaultAdditionalInfoTitle"></@readBundle> <span>+</span>
+                    </h4>
+
+                    <ul id="header-infos" class="processing-body controller-hidden">
                         <#if langContent.showJurisdiction>
-                            <li><span class="list-label"><@readBundle "jurisdictionLabel"></@readBundle></span>
+                            <li>
+                                <span class="list-label"><@readBundle "jurisdictionLabel"></@readBundle></span>
                                 <span class="list-value"><@valueOrError langContent.jurisdiction "missingValue"></@valueOrError></span>
                             </li>
                         </#if>
@@ -32,19 +36,25 @@
                             </li>
                         </#if>
                         <#if langContent.showScope>
-                            <li><span class="list-label"><@readBundle "scopeLabel"></@readBundle></span> <span
-                                        class="list-value"><@valueOrError langContent.scope "missingValue"></@valueOrError></span>
+                            <li>
+                                <span class="list-label"><@readBundle "scopeLabel"></@readBundle></span>
+                                <span class="list-value"><@valueOrError langContent.scope "missingValue"></@valueOrError></span>
                             </li>
                         </#if>
                         <#if langContent.showShortNoticeLink>
                             <#if langContent.shortNoticeLink?has_content>
-                                <li><span class="list-label"><a href="${langContent.shortNoticeLink}"
-                                                                <#if data.preview>style="pointer-events: none;"</#if>><@readBundle "shortNoticeLinkLabel"></@readBundle></a></span>
+                                <li>
+                                    <span class="list-label">
+                                        <a href="${langContent.shortNoticeLink}" <#if data.preview>style="pointer-events: none;"</#if>>
+                                            <@readBundle "shortNoticeLinkLabel"></@readBundle>
+                                        </a>
+                                    </span>
                                 </li>
                             <#else>
                                 <li>
                                     <span class="list-label"><@readBundle "shortNoticeLinkLabel"></@readBundle></span>
-                                    <span class="list-value"><@writeError "missingValue"></@writeError></span></li>
+                                    <span class="list-value"><@writeError "missingValue"></@writeError></span>
+                                </li>
                             </#if>
                         </#if>
                     </ul>

@@ -198,7 +198,6 @@ public class TestUtils {
                 .withName("Name " + key)
                 .withPresentation("Presentation " + key)
                 .withIcon("Icon " + key)
-                .withTargetType(Theme.TargetType.FORM)
                 .withCss("CSS " + key);
     }
 

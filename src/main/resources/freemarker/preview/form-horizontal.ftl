@@ -18,6 +18,8 @@
         <#if theme?is_hash>
             <style>${theme.css}</style>
         </#if>
+    <#else>
+        <#assign theme="">
     </#if>
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
@@ -27,11 +29,11 @@
 <div class="consent-form">
 
     <div class="left">
+        <#include "info-logo.ftl">
+
         <#if data.info??>
             <@fetchMultiLangContent data.info></@fetchMultiLangContent>
             <#assign info=langContent>
-            <#include "info-logo.ftl">
-
             <div class="left-content">
                 <#include "info-head.ftl">
             </div>
