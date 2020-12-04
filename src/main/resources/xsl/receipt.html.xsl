@@ -29,14 +29,19 @@
                 <value language="fr">Refusé</value>
             </key>
             <key name="date">
-                <value language="default">Date</value>
-                <value language="en">Date</value>
-                <value language="fr">Date</value>
+                <value language="default">Timestamp</value>
+                <value language="en">Timestamp</value>
+                <value language="fr">Horodatage</value>
             </key>
             <key name="expires">
-                <value language="default">Expires</value>
-                <value language="en">Expires</value>
-                <value language="fr">Expire le</value>
+                <value language="default">Consent and Receipt Expiration Date</value>
+                <value language="en">Consent and Receipt Expiration Date</value>
+                <value language="fr">Date d’expiration du consentement et du reçu</value>
+            </key>
+            <key name="expires_explanation">
+                <value language="default">(After this date, the data controller must collect your consent again)</value>
+                <value language="en">(After this date, the data controller must collect your consent again)</value>
+                <value language="fr">(une fois cette date expirée, le responsable de traitement devra collecter à nouveau votre consentement)</value>
             </key>
             <key name="language">
                 <value language="default">Language</value>
@@ -54,48 +59,43 @@
                 <value language="fr">Anglais (Royaume Unis)</value>
             </key>
             <key name="receipt_id">
-                <value language="default">Receipt Identifier</value>
-                <value language="en">Receipt Identifier</value>
+                <value language="default">Consent Record ID</value>
+                <value language="en">Consent Record ID</value>
                 <value language="fr">Identifiant du reçu</value>
             </key>
             <key name="data_collected">
-                <value language="default">Data collected</value>
-                <value language="en">Data collected</value>
-                <value language="fr">Données collectées</value>
+                <value language="default">PII Categories</value>
+                <value language="en">PII Categories</value>
+                <value language="fr">Données utilisées</value>
             </key>
             <key name="data_retention">
-                <value language="default">Retention Period</value>
-                <value language="en">Retention Period</value>
-                <value language="fr">Durée de conservation</value>
+                <value language="default">Data Retention Duration</value>
+                <value language="en">Data Retention Duration</value>
+                <value language="fr">Durée de conservation des données</value>
             </key>
             <key name="data_usage">
-                <value language="default">Data Usage</value>
-                <value language="en">Data Usage</value>
-                <value language="fr">Utilisation</value>
+                <value language="default">Purpose description</value>
+                <value language="en">Purpose description</value>
+                <value language="fr">Description de la finalité</value>
             </key>
             <key name="data_purpose">
-                <value language="default">Data Purpose</value>
-                <value language="en">Data Purpose</value>
-                <value language="fr">Finalité</value>
+                <value language="default">Purpose category</value>
+                <value language="en">Purpose category</value>
+                <value language="fr">Catégorie de la finalité</value>
             </key>
             <key name="subject_consent">
-                <value language="default">Subject Consent</value>
-                <value language="en">Subject Consent</value>
-                <value language="fr">Consentement</value>
+                <value language="default">Status</value>
+                <value language="en">Status</value>
+                <value language="fr">Réponse</value>
             </key>
             <key name="subject_id">
-                <value language="default">Subject Id</value>
-                <value language="en">Subject Id</value>
-                <value language="fr">Identifiant utilisateur</value>
-            </key>
-            <key name="issuer_id">
-                <value language="default">Data Processor</value>
-                <value language="en">Data Processor</value>
-                <value language="fr">Gestionnaire des données</value>
+                <value language="default">PII Principal ID</value>
+                <value language="en">PII Principal ID</value>
+                <value language="fr">Identifiant de la personne concernée</value>
             </key>
             <key name="data_controller_name">
-                <value language="default">Controller Name</value>
-                <value language="en">Controller Name</value>
+                <value language="default">PII Controller</value>
+                <value language="en">PII Controller</value>
                 <value language="fr">Responsable de traitement</value>
             </key>
             <key name="data_controller_details">
@@ -104,8 +104,8 @@
                 <value language="fr">Informations sur le responsable de traitement</value>
             </key>
             <key name="privacy_policy">
-                <value language="default">Privacy Policy</value>
-                <value language="en">Privacy Policy</value>
+                <value language="default">Privacy Notice</value>
+                <value language="en">Privacy Notice</value>
                 <value language="fr">Politique de confidentialité</value>
             </key>
             <key name="collection_method">
@@ -124,9 +124,9 @@
                 <value language="fr">Opérateur</value>
             </key>
             <key name="update_url">
-                <value language="default">Update Consent Link</value>
-                <value language="en">Update Consent Link</value>
-                <value language="fr">Lien de modification</value>
+                <value language="default">Change your consent</value>
+                <value language="en">Change your consent</value>
+                <value language="fr">Modifier votre consentement</value>
             </key>
             <key name="update_url_link">
                 <value language="default">Click here to update your consent</value>
@@ -222,170 +222,168 @@
                 <meta charset="UTF-8"/>
                 <style>
                     html {
-                    font-family: Aria, Helvetica, sans-serif;
+                        font-family: Aria, Helvetica, sans-serif;
                     }
 
                     body {
-                    margin: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    height: 100vh;
+                        margin: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100vh;
                     }
 
                     .receipt {
-                    position: relative;
-                    display: flex;
-                    flex-direction: column;
-                    width: 100%;
+                        position: relative;
+                        overflow-y: auto;
+                        width: 100%;
                     }
 
                     @media screen and (max-width: 800px) {
-                    .receipt {
-                    height: 100vh;
-                    }
+                        .receipt {
+                            height: 100vh;
+                        }
                     }
 
                     @media screen and (min-width: 800px) {
-                    .receipt {
-                    margin: auto;
-                    border: 1px solid #eeeeee;
-                    border-radius: 4px;
-                    box-shadow: 4px 4px 8px grey;
-                    max-height: 90vh;
-                    width: 800px;
-                    }
+                        .receipt {
+                            margin: auto;
+                            border: 1px solid #eeeeee;
+                            border-radius: 4px;
+                            box-shadow: 4px 4px 8px grey;
+                            max-height: 90vh;
+                            width: 800px;
+                        }
                     }
 
                     .header {
-                    text-align: center;
-                    padding: 16px 24px;
-                    border-bottom: 1px solid #eee;
+                        text-align: center;
+                        padding: 16px 24px;
+                        border-bottom: 1px solid #eee;
                     }
 
                     .logo-wrapper {
-                    text-align: center;
-                    margin-top: 24px;
+                        text-align: center;
+                        margin-top: 24px;
                     }
 
                     .header h2 {
-                    margin-top: 0;
-                    margin-bottom: 8px;
+                        margin-top: 0;
+                        margin-bottom: 8px;
                     }
                     .header-body {
-                    color: rgba(0, 0, 0, 0.54);
-                    font-weight: bold;
-                    margin: 4px 0;
+                        color: rgba(0, 0, 0, 0.54);
+                        font-weight: bold;
+                        margin: 4px 0;
                     }
 
                     .block-wrapper {
-                    padding: 12px;
-                    margin: 12px 0;
-                    border-radius: 4px;
-                    background-color: #f5f5f5;
-                    text-align: left;
+                        padding: 12px;
+                        margin: 12px 0;
+                        border-radius: 4px;
+                        background-color: #f5f5f5;
+                        text-align: left;
                     }
                     .block-wrapper h4 {
-                    margin: 0;
+                        margin: 0;
                     }
 
                     .processing-list {
-                    overflow-y: auto;
-                    padding: 16px 24px;
-                    height: 100%;
+                        padding: 16px 24px;
+                        height: 100%;
                     }
                     .content-fade {
-                    background: linear-gradient(white, rgba(255, 255, 255, 0));
-                    height: 32px;
-                    margin: 0 16px -32px 16px;
-                    z-index: 10;
-                    overflow-y: hidden;
-                    pointer-events: none;
-                    flex-shrink: 0;
+                        background: linear-gradient(white, rgba(255, 255, 255, 0));
+                        height: 32px;
+                        margin: 0 16px -32px 16px;
+                        z-index: 10;
+                        overflow-y: hidden;
+                        pointer-events: none;
+                        flex-shrink: 0;
                     }
 
                     .content-fade, .header, .qr-code, .privacy-policy-link-wrapper {
-                    flex-shrink: 0;
+                        flex-shrink: 0;
                     }
 
                     .processing-body {
-                    color: rgba(0, 0, 0, 0.54);
-                    padding-left: 16px;
+                        color: rgba(0, 0, 0, 0.54);
+                        padding-left: 16px;
                     }
                     .list-label {
-                    font-weight: bold;
+                        font-weight: bold;
                     }
 
                     .privacy-policy-link {
-                    text-decoration: none;
-                    color: #2196F3;
+                        text-decoration: none;
+                        color: #2196F3;
                     }
                     .privacy-policy-link-wrapper {
-                    text-align: center;
+                        text-align: center;
                     }
                     .processing {
-                    padding: 24px;
+                        padding: 24px;
                     }
 
                     .processing-header {
-                    display: flex;
-                    flex-direction: row;
-                    flex-wrap: nowrap;
-                    align-items: center;
-                    justify-content: space-between;
+                        display: flex;
+                        flex-direction: row;
+                        flex-wrap: nowrap;
+                        align-items: center;
+                        justify-content: space-between;
                     }
 
                     .processing-header h3 {
-                    margin: 0;
+                        margin: 0;
                     }
 
                     .processing-response {
-                    display: block;
-                    position: relative;
-                    text-transform: uppercase;
-                    font-weight: 300;
+                        display: block;
+                        position: relative;
+                        text-transform: uppercase;
+                        font-weight: 300;
                     }
 
                     .processing-response.accepted:before {
-                    position: absolute;
-                    left: -24px;
-                    height: 15px;
-                    width: 15px;
-                    border-radius: 50%;
-                    background: #1B870BDD;
-                    content: "";
+                        position: absolute;
+                        left: -24px;
+                        height: 15px;
+                        width: 15px;
+                        border-radius: 50%;
+                        background: #1B870BDD;
+                        content: "";
                     }
 
                     .processing-response.refused:before {
-                    position: absolute;
-                    left: -24px;
-                    height: 15px;
-                    width: 15px;
-                    border-radius: 50%;
-                    background: #9C1A1ACC;
-                    content: "";
+                        position: absolute;
+                        left: -24px;
+                        height: 15px;
+                        width: 15px;
+                        border-radius: 50%;
+                        background: #9C1A1ACC;
+                        content: "";
                     }
 
                     .processing-info p {
-                    color: rgba(0, 0, 0, 0.74);
+                        color: rgba(0, 0, 0, 0.74);
                     }
 
                     .qr-code {
-                    text-align: center;
-                    border-bottom: 1px solid #eee;
+                        text-align: center;
+                        border-bottom: 1px solid #eee;
                     }
 
                     .qr-code img {
-                    width: 150px;
+                        width: 150px;
                     }
 
                     .purpose-container {
-                    text-align: center;
-                    margin-top: 8px !important;
+                        text-align: center;
+                        margin-top: 8px !important;
                     }
                     .purpose {
-                    width: 32px;
-                    height: 32px;
+                        width: 32px;
+                        height: 32px;
                     }
                 </style>
                 <xsl:if test="themePath">
@@ -400,7 +398,7 @@
                         <div class="logo-wrapper">
                             <xsl:element name="img">
                                 <xsl:attribute name="src"><xsl:value-of select="logoPath"/></xsl:attribute>
-                                <xsl:attribute name="href"><xsl:value-of select="logoPathAlt"/></xsl:attribute>
+                                <xsl:if test="logoPathAlt"><xsl:attribute name="alt"><xsl:value-of select="logoPathAlt"/></xsl:attribute></xsl:if>
                             </xsl:element>
                         </div>
                     </xsl:if>
@@ -485,6 +483,10 @@
                                             <xsl:with-param name="DateTimeStr" select="expirationDate"/>
                                         </xsl:call-template>
                                     </span>
+                                    <div><xsl:call-template name="translate">
+                                        <xsl:with-param name="key">expires_explanation</xsl:with-param>
+                                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                    </xsl:call-template></div>
                                 </li>
                                 <li>
                                     <span class="list-label">
@@ -605,13 +607,25 @@
                         </xsl:if>
                     </div>
                     <div class="privacy-policy-link-wrapper">
-                        <a class="privacy-policy-link">
-                            <xsl:attribute name="href"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>
-                            <xsl:call-template name="translate">
-                                <xsl:with-param name="key">privacy_policy</xsl:with-param>
-                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                            </xsl:call-template>
-                        </a>
+                        <p>
+                            <xsl:if test="dataController and dataController/company">
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">data_controller_name</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                                <xsl:text>: </xsl:text>
+                                <xsl:value-of select="dataController/company"/>
+                            </xsl:if>
+                        </p>
+                        <p>
+                            <a class="privacy-policy-link">
+                                <xsl:attribute name="href"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">privacy_policy</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                            </a>
+                        </p>
                     </div>
                 </div>
             </body>

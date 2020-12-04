@@ -28,14 +28,19 @@
                 <value language="fr">Refusé</value>
             </key>
             <key name="date">
-                <value language="default">Date</value>
-                <value language="en">Date</value>
-                <value language="fr">Date</value>
+                <value language="default">Timestamp</value>
+                <value language="en">Timestamp</value>
+                <value language="fr">Horodatage</value>
             </key>
             <key name="expires">
-                <value language="default">Expires</value>
-                <value language="en">Expires</value>
-                <value language="fr">Expire le</value>
+                <value language="default">Consent and Receipt Expiration Date</value>
+                <value language="en">Consent and Receipt Expiration Date</value>
+                <value language="fr">Date d&#39;expiration du consentement et du reçu</value>
+            </key>
+            <key name="expires_explanation">
+                <value language="default">(After this date, the data controller must collect your consent again)</value>
+                <value language="en">(After this date, the data controller must collect your consent again)</value>
+                <value language="fr">(une fois cette date expirée, le responsable de traitement devra collecter à nouveau votre consentement)</value>
             </key>
             <key name="language">
                 <value language="default">Language</value>
@@ -53,58 +58,48 @@
                 <value language="fr">Anglais (Royaume Unis)</value>
             </key>
             <key name="receipt_id">
-                <value language="default">Receipt Identifier</value>
-                <value language="en">Receipt Identifier</value>
+                <value language="default">Consent Record ID</value>
+                <value language="en">Consent Record ID</value>
                 <value language="fr">Identifiant du reçu</value>
             </key>
             <key name="data_collected">
-                <value language="default">Data collected</value>
-                <value language="en">Data collected</value>
-                <value language="fr">Données collectées</value>
+                <value language="default">PII Categories</value>
+                <value language="en">PII Categories</value>
+                <value language="fr">Données utilisées</value>
             </key>
             <key name="data_retention">
-                <value language="default">Retention Period</value>
-                <value language="en">Retention Period</value>
-                <value language="fr">Durée de conservation</value>
+                <value language="default">Data Retention Duration</value>
+                <value language="en">Data Retention Duration</value>
+                <value language="fr">Durée de conservation des données</value>
             </key>
             <key name="data_usage">
-                <value language="default">Data Usage</value>
-                <value language="en">Data Usage</value>
-                <value language="fr">Utilisation</value>
+                <value language="default">Purpose description</value>
+                <value language="en">Purpose description</value>
+                <value language="fr">Description de la finalité</value>
             </key>
             <key name="data_purpose">
-                <value language="default">Data Purpose</value>
-                <value language="en">Data Purpose</value>
-                <value language="fr">Finalité</value>
+                <value language="default">Purpose category</value>
+                <value language="en">Purpose category</value>
+                <value language="fr">Catégorie de la finalité</value>
             </key>
             <key name="subject_consent">
-                <value language="default">Subject Consent</value>
-                <value language="en">Subject Consent</value>
-                <value language="fr">Consentement</value>
+                <value language="default">Status</value>
+                <value language="en">Status</value>
+                <value language="fr">Réponse</value>
             </key>
             <key name="subject_id">
-                <value language="default">Subject Id</value>
-                <value language="en">Subject Id</value>
-                <value language="fr">Identifiant utilisateur</value>
-            </key>
-            <key name="issuer_id">
-                <value language="default">Data Processor</value>
-                <value language="en">Data Processor</value>
-                <value language="fr">Gestionnaire des données</value>
+                <value language="default">PII Principal ID</value>
+                <value language="en">PII Principal ID</value>
+                <value language="fr">Identifiant de la personne concernée</value>
             </key>
             <key name="data_controller_name">
-                <value language="default">Controller Name</value>
-                <value language="en">Controller Name</value>
+                <value language="default">PII Controller</value>
+                <value language="en">PII Controller</value>
                 <value language="fr">Responsable de traitement</value>
             </key>
-            <key name="data_controller_details">
-                <value language="default">Controller Details</value>
-                <value language="en">Controller Details</value>
-                <value language="fr">Informations sur le responsable de traitement</value>
-            </key>
             <key name="privacy_policy">
-                <value language="default">Privacy Policy</value>
-                <value language="en">Privacy Policy</value>
+                <value language="default">Privacy Notice</value>
+                <value language="en">Privacy Notice</value>
                 <value language="fr">Politique de confidentialité</value>
             </key>
             <key name="collection_method">
@@ -123,9 +118,9 @@
                 <value language="fr">Opérateur</value>
             </key>
             <key name="update_url">
-                <value language="default">Update Consent Link</value>
-                <value language="en">Update Consent Link</value>
-                <value language="fr">Lien de modification</value>
+                <value language="default">Change your consent</value>
+                <value language="en">Change your consent</value>
+                <value language="fr">Modifier votre consentement</value>
             </key>
             <key name="update_url_link">
                 <value language="default">Click here to update your consent</value>
@@ -289,6 +284,12 @@
                             </xsl:call-template>
                         </fo:block>
                         <fo:block font-size="10pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">expires_explanation</xsl:with-param>
+                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                            </xsl:call-template>
+                        </fo:block>
+                        <fo:block font-size="10pt">
                             <fo:inline font-weight="bold">
                                 <xsl:call-template name="translate">
                                     <xsl:with-param name="key">receipt_id</xsl:with-param>
@@ -398,47 +399,24 @@
                         <fo:block width="100%" border-bottom="1px solid #CCC" margin-bottom="5pt"/>
                     </xsl:for-each>
 
-                    <!--
-                    <xsl:if test="updateUrlQrCode">
-                        <fo:block margin-top="10pt">
-                            <fo:external-graphic>
-                                <xsl:attribute name="src">
-                                    <xsl:text>url('</xsl:text>
-                                    <xsl:value-of select="updateUrlQrCode"/>
-                                    <xsl:text>')</xsl:text>
-                                </xsl:attribute>
-                            </fo:external-graphic>
-                        </fo:block>
-                    </xsl:if>
-                    -->
+<!--                    <xsl:if test="updateUrlQrCode">-->
+<!--                        <fo:block margin-top="10pt">-->
+<!--                            <fo:external-graphic>-->
+<!--                                <xsl:attribute name="src">-->
+<!--                                    <xsl:value-of select="updateUrlQrCode"/>-->
+<!--                                </xsl:attribute>-->
+<!--                            </fo:external-graphic>-->
+<!--                        </fo:block>-->
+<!--                    </xsl:if>-->
 
-                    <fo:block font-size="10pt">
-                        <xsl:call-template name="translate">
-                            <xsl:with-param name="key">issuer_id</xsl:with-param>
-                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                        </xsl:call-template>
-                        <xsl:text>: </xsl:text>
-                        <xsl:value-of select="processor"/>
-                    </fo:block>
-                    <xsl:if test="dataController and dataController/name and dataController/company">
+                    <xsl:if test="dataController and dataController/company">
                         <fo:block font-size="10pt" margin-top="10pt">
                             <xsl:call-template name="translate">
                                 <xsl:with-param name="key">data_controller_name</xsl:with-param>
                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                             </xsl:call-template>
                             <xsl:text>: </xsl:text>
-                            <xsl:value-of select="dataController/name"/>
-                        </fo:block>
-                        <fo:block font-size="10pt">
-                            <xsl:call-template name="translate">
-                                <xsl:with-param name="key">data_controller_details</xsl:with-param>
-                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                            </xsl:call-template>
-                            <xsl:text>: </xsl:text>
-                            <xsl:value-of select="dataController/company"/><xsl:text>: </xsl:text>
-                            <xsl:value-of select="dataController/address"/><xsl:text>: </xsl:text>
-                            <xsl:value-of select="dataController/email"/><xsl:text>: </xsl:text>
-                            <xsl:value-of select="dataController/phoneNumber"/>
+                            <xsl:value-of select="dataController/company"/>
                         </fo:block>
                     </xsl:if>
                     <xsl:if test="privacyPolicyUrl">
