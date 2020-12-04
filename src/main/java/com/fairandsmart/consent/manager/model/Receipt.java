@@ -321,10 +321,6 @@ public class Receipt {
             receipt.setPrivacyPolicyUrl(info.getPrivacyPolicyUrl());
             receipt.setHeaderNotice(info.getTitle() + " " + info.getHeader());
             receipt.setFooterNotice(info.getFooter());
-            if (info.getLogoPath() != null) {
-                receipt.setLogoPath(info.getLogoPath());
-                receipt.setLogoAltText(info.getLogoAltText());
-            }
         }
         receipt.setCollectionMethod(ctx.getCollectionMethod());
         for ( Map.Entry<Processing, Record> record : records.entrySet() ) {

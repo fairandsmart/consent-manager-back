@@ -5,10 +5,8 @@
 </#if>
 
 <div class="logo-wrapper" style="text-align: ${position};">
-    <#if theme?is_hash>
-        <#if theme.logoPath?has_content>
-            <img class="logo" src="${theme.logoPath}" alt="${theme.logoAltText}">
-        </#if>
+    <#if theme?is_hash && theme.logoPath?has_content>
+        <img class="logo" src="${theme.logoPath}" alt="${theme.logoAltText}">
     </#if>
 </div>
 <div class="content-fade"></div>

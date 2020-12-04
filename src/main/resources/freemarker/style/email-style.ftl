@@ -24,16 +24,25 @@
         width: 100%;
     }
 
-    .fsc-opt-out-wrapper {
+    .logo-wrapper {
+        width: 100%;
+    }
+
+    .email-content {
         border: 1px solid black;
         padding: 16px;
     }
 
-    .fsc-opt-out-button {
+    .email-button-wrapper {
+        text-align: center;
+        margin: 16px auto;
+    }
+
+    .email-button {
         padding: 8px;
     }
 
-    .fsc-opt-out-button a {
+    .email-button a {
         padding: 8px;
         margin: 8px auto;
         border-radius: 8px;
@@ -41,17 +50,15 @@
         color: white;
         text-decoration: none;
         font-weight: bold;
-        width: 60px;
-        display: block;
         text-align: center;
         cursor: pointer;
     }
 
-    .fsc-opt-out-footer {
+    .email-footer {
         font-style: italic;
     }
 
-    .fsc-opt-out-signature {
+    .email-signature {
         margin-top: 16px;
         padding-top: 8px;
         border-top: 1px solid black;

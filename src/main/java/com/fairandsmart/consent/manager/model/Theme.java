@@ -47,11 +47,11 @@ public class Theme extends ModelData {
     private String css;
     private String logoPath;
     private String logoAltText = "Logo";
-    private LogoPosition logoPosition = LogoPosition.MIDDLE;
+    private LogoPosition logoPosition = LogoPosition.CENTER;
 
     public enum LogoPosition {
         LEFT,
-        MIDDLE,
+        CENTER,
         RIGHT
     }
 

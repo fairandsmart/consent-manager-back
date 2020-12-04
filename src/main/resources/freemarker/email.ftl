@@ -2,7 +2,6 @@
 <html lang="${language}">
 <head>
     <#include "macros/lang-macros.ftl">
-    <@fetchMultiLangContent data.model></@fetchMultiLangContent>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -13,17 +12,33 @@
     <#include "style/email-style.ftl">
     <#include "theme.ftl">
 
+    <@fetchMultiLangContent data.model></@fetchMultiLangContent>
     <title>${langContent.subject}</title>
 </head>
 
 <body>
-<div class="fsc-opt-out-wrapper">
-    <h1 class="fsc-opt-out-title h2">${langContent.title}</h1>
-    <div class="fsc-opt-out-body">${langContent.body}</div>
-    <div class="fsc-opt-out-button">
-        <a id="form-url" class="btn btn-primary" href="${(data.url?has_content)?then(data.url, '#')}">${langContent.buttonLabel}</a> </div>
-    <div class="fsc-opt-out-footer">${langContent.footer}</div>
-    <div class="fsc-opt-out-signature">${langContent.signature}</div>
-</div>
+    <div class="email-content">
+        <#if theme?is_hash && theme.logoPosition?has_content>
+            <#assign position=theme.logoPosition?lower_case>
+        <#else>
+            <#assign position="center">
+        </#if>
+
+        <div class="logo-wrapper" style="text-align: ${position};">
+            <#if theme?is_hash && theme.logoPath?has_content>
+                <img class="logo" src="${theme.logoPath}" alt="${theme.logoAltText}">
+            </#if>
+        </div>
+
+        <h1 class="email-title">${langContent.title}</h1>
+        <div class="email-body">${langContent.body}</div>
+        <div class="email-button-wrapper">
+            <div class="email-button">
+                <a id="form-url" href="${(data.url?has_content)?then(data.url, '#')}">${langContent.buttonLabel}</a>
+            </div>
+        </div>
+        <div class="email-footer">${langContent.footer}</div>
+        <div class="email-signature">${langContent.signature}</div>
+    </div>
 </body>
 </html>

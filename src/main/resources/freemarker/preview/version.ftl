@@ -17,7 +17,7 @@
     </#if>
     <#if model.type=="theme">
         <#include "../style/consent-style.ftl">
-        <#if data.orientation=="horizontal">
+        <#if data.orientation=="HORIZONTAL">
             <#include "../style/horizontal-style.ftl">
         <#else>
             <#include "../style/vertical-style.ftl">
