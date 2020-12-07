@@ -15,11 +15,17 @@
         <#include "../style/consent-style.ftl">
         <#include "../style/vertical-style.ftl">
     <#elseif model.type=="theme">
-        <#include "../style/consent-style.ftl">
-        <#if data.orientation=="HORIZONTAL">
-            <#include "../style/horizontal-style.ftl">
-        <#else>
-            <#include "../style/vertical-style.ftl">
+        <#if data.previewType=="EMAIL">
+            <#include "../style/email-style.ftl">
+        <#elseif data.previewType=="RECEIPT">
+            <#include "../style/receipt-style.ftl">
+        <#elseif data.previewType=="FORM">
+            <#include "../style/consent-style.ftl">
+            <#if data.orientation=="HORIZONTAL">
+                <#include "../style/horizontal-style.ftl">
+            <#else>
+                <#include "../style/vertical-style.ftl">
+            </#if>
         </#if>
         <style>${model.css}</style>
     <#elseif model.type=="conditions">

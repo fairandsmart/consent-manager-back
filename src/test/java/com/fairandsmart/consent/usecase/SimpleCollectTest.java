@@ -167,7 +167,7 @@ public class SimpleCollectTest {
         //BasicInfo
         assertTrue(page.contains("Title " + biKey));
         assertTrue(page.contains("Header " + biKey));
-        assertTrue(page.contains("href=\"Privacy policy URL " + biKey + "\""));
+        assertTrue(page.contains("Privacy policy label " + biKey));
         assertTrue(page.contains("Footer " + biKey));
         assertTrue(page.contains("accept-all-switch"));
         //Processing 1
@@ -281,7 +281,7 @@ public class SimpleCollectTest {
         //BasicInfo
         assertTrue(page.contains("Title " + biKey));
         assertTrue(page.contains("Header " + biKey));
-        assertTrue(page.contains("href=\"Privacy policy URL " + biKey + "\""));
+        assertTrue(page.contains("Privacy policy label " + biKey));
         assertTrue(page.contains("Footer " + biKey));
         assertTrue(page.contains("accept-all-switch"));
         //Processing 1

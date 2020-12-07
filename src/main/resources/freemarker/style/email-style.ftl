@@ -24,10 +24,6 @@
         width: 100%;
     }
 
-    .logo-wrapper {
-        width: 100%;
-    }
-
     .email-content {
         border: 1px solid black;
         padding: 16px;
