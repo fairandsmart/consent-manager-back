@@ -67,6 +67,11 @@ public class AuthenticationServiceBean implements AuthenticationService {
     MainConfig config;
 
     @Override
+    public boolean isIdentified() {
+        return getConnectedIdentifier() != securityConfig.anonymousIdentifierName();
+    }
+
+    @Override
     public String getConnectedIdentifier() {
         String connectedIdentifier = (identity != null && identity.getPrincipal() != null && identity.getPrincipal().getName() != null && identity.getPrincipal().getName().length() > 0) ? identity.getPrincipal().getName() : securityConfig.anonymousIdentifierName();
         LOGGER.log(Level.FINEST, "Connected Identifier: " + connectedIdentifier);
@@ -118,8 +123,8 @@ public class AuthenticationServiceBean implements AuthenticationService {
     }
 
     @Override
-    @Transactional
-    public void logAccess(String username) {
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void logAccess() {
         long now = System.currentTimeMillis();
         Optional<AccessLog> optional = AccessLog.findByIdOptional(identity.getPrincipal().getName());
         if ( optional.isEmpty() ) {
@@ -129,7 +134,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
             try {
                 log.persistAndFlush();
                 LOGGER.log(Level.FINE, "AccessLog created: " + log);
-            } catch ( ConstraintViolationException e ) {
+            } catch ( PersistenceException e ) {
                 LOGGER.log(Level.FINE, "AccessLog already created concurrently, nothing to do");
             }
         } else {

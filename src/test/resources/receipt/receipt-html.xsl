@@ -4,144 +4,144 @@
     <xsl:variable name="bundle">
         <labels>
             <key name="not-found">
-                <value locale="default">Key not found</value>
-                <value locale="en">Key not found</value>
-                <value locale="fr">Clé introuvable</value>
+                <value language="default">Key not found</value>
+                <value language="en">Key not found</value>
+                <value language="fr">Clé introuvable</value>
             </key>
             <key name="title">
-                <value locale="default">CONSENT RECEIPT</value>
-                <value locale="en">CONSENT RECEIPT</value>
-                <value locale="fr">REÇU DE CONSENTEMENT</value>
+                <value language="default">CONSENT RECEIPT</value>
+                <value language="en">CONSENT RECEIPT</value>
+                <value language="fr">REÇU DE CONSENTEMENT</value>
             </key>
             <key name="accept">
-                <value locale="default">Accept</value>
-                <value locale="en">Accept</value>
-                <value locale="fr">Accepter</value>
+                <value language="default">Accept</value>
+                <value language="en">Accept</value>
+                <value language="fr">Accepter</value>
             </key>
             <key name="accepted">
-                <value locale="default">Accepted</value>
-                <value locale="en">Accepted</value>
-                <value locale="fr">Accepté</value>
+                <value language="default">Accepted</value>
+                <value language="en">Accepted</value>
+                <value language="fr">Accepté</value>
             </key>
             <key name="refused">
-                <value locale="default">Refused</value>
-                <value locale="en">Refused</value>
-                <value locale="fr">Refusé</value>
+                <value language="default">Refused</value>
+                <value language="en">Refused</value>
+                <value language="fr">Refusé</value>
             </key>
             <key name="date">
-                <value locale="default">Date</value>
-                <value locale="en">Date</value>
-                <value locale="fr">Date</value>
+                <value language="default">Timestamp</value>
+                <value language="en">Timestamp</value>
+                <value language="fr">Horodatage</value>
             </key>
             <key name="expires">
-                <value locale="default">Expires</value>
-                <value locale="en">Expires</value>
-                <value locale="fr">Expire le</value>
+                <value language="default">Consent and Receipt Expiration Date</value>
+                <value language="en">Consent and Receipt Expiration Date</value>
+                <value language="fr">Date d’expiration du consentement et du reçu</value>
+            </key>
+            <key name="expires_explanation">
+                <value language="default">(After this date, the data controller must collect your consent again)</value>
+                <value language="en">(After this date, the data controller must collect your consent again)</value>
+                <value language="fr">(une fois cette date expirée, le responsable de traitement devra collecter à nouveau votre consentement)</value>
             </key>
             <key name="language">
-                <value locale="default">Language</value>
-                <value locale="en">Language</value>
-                <value locale="fr">Langue</value>
+                <value language="default">Language</value>
+                <value language="en">Language</value>
+                <value language="fr">Langue</value>
             </key>
             <key name="language_fr">
-                <value locale="default">French (France)</value>
-                <value locale="en">French (France)</value>
-                <value locale="fr">Français (France)</value>
+                <value language="default">French (France)</value>
+                <value language="en">French (France)</value>
+                <value language="fr">Français (France)</value>
             </key>
             <key name="language_en">
-                <value locale="default">English (England)</value>
-                <value locale="en">English (England)</value>
-                <value locale="fr">Anglais (Royaume Unis)</value>
+                <value language="default">English (England)</value>
+                <value language="en">English (England)</value>
+                <value language="fr">Anglais (Royaume Unis)</value>
             </key>
             <key name="receipt_id">
-                <value locale="default">Receipt Identifier</value>
-                <value locale="en">Receipt Identifier</value>
-                <value locale="fr">Identifiant du reçu</value>
+                <value language="default">Consent Record ID</value>
+                <value language="en">Consent Record ID</value>
+                <value language="fr">Identifiant du reçu</value>
             </key>
             <key name="data_collected">
-                <value locale="default">Data collected</value>
-                <value locale="en">Data collected</value>
-                <value locale="fr">Données collectées</value>
+                <value language="default">PII Categories</value>
+                <value language="en">PII Categories</value>
+                <value language="fr">Données utilisées</value>
             </key>
             <key name="data_retention">
-                <value locale="default">Retention Period</value>
-                <value locale="en">Retention Period</value>
-                <value locale="fr">Durée de conservation</value>
+                <value language="default">Data Retention Duration</value>
+                <value language="en">Data Retention Duration</value>
+                <value language="fr">Durée de conservation des données</value>
             </key>
             <key name="data_usage">
-                <value locale="default">Data Usage</value>
-                <value locale="en">Data Usage</value>
-                <value locale="fr">Utilisation</value>
+                <value language="default">Purpose description</value>
+                <value language="en">Purpose description</value>
+                <value language="fr">Description de la finalité</value>
             </key>
             <key name="data_purpose">
-                <value locale="default">Data Purpose</value>
-                <value locale="en">Data Purpose</value>
-                <value locale="fr">Finalité</value>
+                <value language="default">Purpose category</value>
+                <value language="en">Purpose category</value>
+                <value language="fr">Catégorie de la finalité</value>
             </key>
             <key name="subject_consent">
-                <value locale="default">Subject Consent</value>
-                <value locale="en">Subject Consent</value>
-                <value locale="fr">Consentement</value>
+                <value language="default">Status</value>
+                <value language="en">Status</value>
+                <value language="fr">Réponse</value>
             </key>
             <key name="subject_id">
-                <value locale="default">Subject Id</value>
-                <value locale="en">Subject Id</value>
-                <value locale="fr">Identifiant utilisateur</value>
-            </key>
-            <key name="issuer_id">
-                <value locale="default">Data Processor</value>
-                <value locale="en">Data Processor</value>
-                <value locale="fr">Gestionnaire des données</value>
+                <value language="default">PII Principal ID</value>
+                <value language="en">PII Principal ID</value>
+                <value language="fr">Identifiant de la personne concernée</value>
             </key>
             <key name="data_controller_name">
-                <value locale="default">Controller Name</value>
-                <value locale="en">Controller Name</value>
-                <value locale="fr">Responsable de traitement</value>
+                <value language="default">PII Controller</value>
+                <value language="en">PII Controller</value>
+                <value language="fr">Responsable de traitement</value>
             </key>
             <key name="data_controller_details">
-                <value locale="default">Controller Details</value>
-                <value locale="en">Controller Details</value>
-                <value locale="fr">Informations sur le responsable de traitement</value>
+                <value language="default">Controller Details</value>
+                <value language="en">Controller Details</value>
+                <value language="fr">Informations sur le responsable de traitement</value>
             </key>
             <key name="privacy_policy">
-                <value locale="default">Privacy Policy</value>
-                <value locale="en">Privacy Policy</value>
-                <value locale="fr">Politique de confidentialité</value>
+                <value language="default">Privacy Notice</value>
+                <value language="en">Privacy Notice</value>
+                <value language="fr">Politique de confidentialité</value>
             </key>
             <key name="collection_method">
-                <value locale="default">Collection Method</value>
-                <value locale="en">Collection Method</value>
-                <value locale="fr">Méthode de collecte</value>
+                <value language="default">Collection Method</value>
+                <value language="en">Collection Method</value>
+                <value language="fr">Méthode de collecte</value>
             </key>
             <key name="collection_method_WEBFORM">
-                <value locale="default">Web form</value>
-                <value locale="en">Web form</value>
-                <value locale="fr">Formulaire web</value>
+                <value language="default">Web form</value>
+                <value language="en">Web form</value>
+                <value language="fr">Formulaire web</value>
             </key>
             <key name="collection_method_OPERATOR">
-                <value locale="default">Operator</value>
-                <value locale="en">Operator</value>
-                <value locale="fr">Opérateur</value>
+                <value language="default">Operator</value>
+                <value language="en">Operator</value>
+                <value language="fr">Opérateur</value>
             </key>
             <key name="update_url">
-                <value locale="default">Update Consent Link</value>
-                <value locale="en">Update Consent Link</value>
-                <value locale="fr">Lien de modification</value>
+                <value language="default">Change your consent</value>
+                <value language="en">Change your consent</value>
+                <value language="fr">Modifier votre consentement</value>
             </key>
             <key name="update_url_link">
-                <value locale="default">Click here to update your consent</value>
-                <value locale="en">Click here to update your consent</value>
-                <value locale="fr">Cliquer ici pour modifier votre consentement</value>
+                <value language="default">Click here to update your consent</value>
+                <value language="en">Click here to update your consent</value>
+                <value language="fr">Cliquer ici pour modifier votre consentement</value>
             </key>
             <key name="general_info">
-                <value locale="default">Informations</value>
-                <value locale="en">Informations</value>
-                <value locale="fr">Informations générales</value>
+                <value language="default">Informations</value>
+                <value language="en">Informations</value>
+                <value language="fr">Informations générales</value>
             </key>
             <key name="sensitive_data">
-                <value locale="default">About sensitive Data</value>
-                <value locale="en">Sensitive Data</value>
-                <value locale="fr">À propos des données sensibles</value>
+                <value language="default">About sensitive Data</value>
+                <value language="en">Sensitive Data</value>
+                <value language="fr">À propos des données sensibles</value>
             </key>
             <key name="contains_sensitive_data">
                 <value locale="default">Contains sensitive data</value>
@@ -154,33 +154,33 @@
                 <value locale="fr">Contient des données médicales</value>
             </key>
             <key name="third_parties">
-                <value locale="default">These data will be shared with:</value>
-                <value locale="en">These data will be shared with:</value>
-                <value locale="fr">Ces données seront transmises à :</value>
+                <value language="default">These data will be shared with:</value>
+                <value language="en">These data will be shared with:</value>
+                <value language="fr">Ces données seront transmises à :</value>
             </key>
         </labels>
     </xsl:variable>
     <xsl:template name="translate">
         <xsl:param name="key" />
-        <xsl:param name="locale" />
+        <xsl:param name="language" />
         <xsl:choose>
             <xsl:when test="exslt:node-set($bundle)/labels/key[@name = $key]">
                 <xsl:choose>
-                    <xsl:when test="exslt:node-set($bundle)/labels/key[@name = $key]/value[@locale = $locale]">
-                        <xsl:value-of select="exslt:node-set($bundle)/labels/key[@name = $key]/value[@locale = $locale]"/>
+                    <xsl:when test="exslt:node-set($bundle)/labels/key[@name = $key]/value[@language = $language]">
+                        <xsl:value-of select="exslt:node-set($bundle)/labels/key[@name = $key]/value[@language = $language]"/>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:value-of select="exslt:node-set($bundle)/labels/key[@name = $key]/value[@locale = 'default']"/>
+                        <xsl:value-of select="exslt:node-set($bundle)/labels/key[@name = $key]/value[@language = 'default']"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:choose>
-                    <xsl:when test="exslt:node-set($bundle)/labels/key[@name = 'not-found']/value[@locale = $locale]">
-                        <xsl:value-of select="exslt:node-set($bundle)/labels/key[@name = 'not-found']/value[@locale = $locale]"/>
+                    <xsl:when test="exslt:node-set($bundle)/labels/key[@name = 'not-found']/value[@language = $language]">
+                        <xsl:value-of select="exslt:node-set($bundle)/labels/key[@name = 'not-found']/value[@language = $language]"/>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:value-of select="exslt:node-set($bundle)/labels/key[@name = 'not-found']/value[@locale = 'default']"/>
+                        <xsl:value-of select="exslt:node-set($bundle)/labels/key[@name = 'not-found']/value[@language = 'default']"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:otherwise>
@@ -216,7 +216,7 @@
                 <title>
                     <xsl:call-template name="translate">
                         <xsl:with-param name="key">title</xsl:with-param>
-                        <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                     </xsl:call-template>
                 </title>
                 <meta charset="UTF-8"/>
@@ -235,8 +235,7 @@
 
                     .receipt {
                     position: relative;
-                    display: flex;
-                    flex-direction: column;
+                    overflow-y: auto;
                     width: 100%;
                     }
 
@@ -290,7 +289,6 @@
                     }
 
                     .processing-list {
-                    overflow-y: auto;
                     padding: 16px 24px;
                     height: 100%;
                     }
@@ -400,7 +398,7 @@
                         <div class="logo-wrapper">
                             <xsl:element name="img">
                                 <xsl:attribute name="src"><xsl:value-of select="logoPath"/></xsl:attribute>
-                                <xsl:attribute name="href"><xsl:value-of select="logoPathAlt"/></xsl:attribute>
+                                <xsl:if test="logoPathAlt"><xsl:attribute name="alt"><xsl:value-of select="logoPathAlt"/></xsl:attribute></xsl:if>
                             </xsl:element>
                         </div>
                     </xsl:if>
@@ -408,7 +406,7 @@
                         <h2>
                             <xsl:call-template name="translate">
                                 <xsl:with-param name="key">title</xsl:with-param>
-                                <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                             </xsl:call-template>
                         </h2>
                         <p class="header-body">-</p>
@@ -416,7 +414,7 @@
                             <h4 class="controller-header">
                                 <xsl:call-template name="translate">
                                     <xsl:with-param name="key">general_info</xsl:with-param>
-                                    <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                 </xsl:call-template>
                             </h4>
                             <ul class="processing-body controller-open">
@@ -424,7 +422,7 @@
                                     <span class="list-label">
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key">subject_id</xsl:with-param>
-                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                         <xsl:text>: </xsl:text>
                                     </span>
@@ -434,14 +432,14 @@
                                     <span class="list-label">
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key">language</xsl:with-param>
-                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                         <xsl:text>: </xsl:text>
                                     </span>
                                     <span class="list-value">
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key">language_<xsl:value-of select="$lang"/></xsl:with-param>
-                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                     </span>
                                 </li>
@@ -449,21 +447,21 @@
                                     <span class="list-label">
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key">collection_method</xsl:with-param>
-                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                         <xsl:text>: </xsl:text>
                                     </span>
                                     <span class="list-value">
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key">collection_method_<xsl:value-of select="collectionMethod"/></xsl:with-param>
-                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                     </span>
                                 </li>
                                 <li>
                                     <span class="list-label"> <xsl:call-template name="translate">
                                         <xsl:with-param name="key">date</xsl:with-param>
-                                        <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                     </xsl:call-template>
                                         <xsl:text>: </xsl:text>
                                     </span>
@@ -476,7 +474,7 @@
                                 <li>
                                     <span class="list-label">  <xsl:call-template name="translate">
                                         <xsl:with-param name="key">expires</xsl:with-param>
-                                        <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                     </xsl:call-template>
                                         <xsl:text>: </xsl:text>
                                     </span>
@@ -485,12 +483,16 @@
                                             <xsl:with-param name="DateTimeStr" select="expirationDate"/>
                                         </xsl:call-template>
                                     </span>
+                                    <div><xsl:call-template name="translate">
+                                        <xsl:with-param name="key">expires_explanation</xsl:with-param>
+                                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                    </xsl:call-template></div>
                                 </li>
                                 <li>
                                     <span class="list-label">
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key">receipt_id</xsl:with-param>
-                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                         <xsl:text>: </xsl:text>
                                     </span>
@@ -505,7 +507,7 @@
                                     <xsl:attribute name="class">privacy-policy-link</xsl:attribute>
                                     <xsl:call-template name="translate">
                                         <xsl:with-param name="key">update_url_link</xsl:with-param>
-                                        <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                     </xsl:call-template>
                                 </xsl:element>
                             </div>
@@ -523,7 +525,7 @@
                                         </xsl:attribute>
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key"><xsl:value-of select="current()/value"/></xsl:with-param>
-                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                     </div>
                                 </div>
@@ -545,7 +547,7 @@
                                         <h4>
                                             <xsl:call-template name="translate">
                                                 <xsl:with-param name="key">sensitive_data</xsl:with-param>
-                                                <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                             </xsl:call-template>
                                         </h4>
                                         <ul class="processing-body">
@@ -554,7 +556,7 @@
                                                     <span class="list-value">
                                                         <xsl:call-template name="translate">
                                                             <xsl:with-param name="key">contains_sensitive_data</xsl:with-param>
-                                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                                         </xsl:call-template>
                                                     </span>
                                                 </li>
@@ -564,7 +566,7 @@
                                                     <span class="list-value">
                                                         <xsl:call-template name="translate">
                                                             <xsl:with-param name="key">contains_medical_data</xsl:with-param>
-                                                            <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                                         </xsl:call-template>
                                                     </span>
                                                 </li>
@@ -577,7 +579,7 @@
                                         <h4>
                                             <xsl:call-template name="translate">
                                                 <xsl:with-param name="key">third_parties</xsl:with-param>
-                                                <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                             </xsl:call-template>
                                         </h4>
                                         <ul class="processing-body">
@@ -605,13 +607,25 @@
                         </xsl:if>
                     </div>
                     <div class="privacy-policy-link-wrapper">
-                        <a class="privacy-policy-link">
-                            <xsl:attribute name="href"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>
-                            <xsl:call-template name="translate">
-                                <xsl:with-param name="key">privacy_policy</xsl:with-param>
-                                <xsl:with-param name="locale"><xsl:value-of select="$lang"/></xsl:with-param>
-                            </xsl:call-template>
-                        </a>
+                        <p>
+                            <xsl:if test="dataController and dataController/company">
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">data_controller_name</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                                <xsl:text>: </xsl:text>
+                                <xsl:value-of select="dataController/company"/>
+                            </xsl:if>
+                        </p>
+                        <p>
+                            <a class="privacy-policy-link">
+                                <xsl:attribute name="href"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">privacy_policy</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                            </a>
+                        </p>
                     </div>
                 </div>
             </body>

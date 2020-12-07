@@ -72,7 +72,8 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
   ""options"" : [ ""Jour"", ""Nuit"" ],
   ""valueType"" : ""TOGGLE"",
   ""includeDefault"" : true,
-  ""defaultValues"" : [ ""Jour"" ]
+  ""defaultValues"" : [ ""Jour"" ],
+  ""optional"" : true
 }",com.fairandsmart.consent.manager.model.Preference
 7da0ca6b-50a5-4128-8f2b-f874ed8d214d,fr,demo@localhost,"{
   ""type"" : ""preference"",
@@ -81,7 +82,8 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
   ""options"" : [ ""Email"", ""SMS"", ""Téléphone"", ""Courrier postal"", ""Porte-à-porte"" ],
   ""valueType"" : ""CHECKBOXES"",
   ""includeDefault"" : true,
-  ""defaultValues"" : [ ""Email"", ""SMS"" ]
+  ""defaultValues"" : [ ""Email"", ""SMS"" ],
+  ""optional"" : true
 }",com.fairandsmart.consent.manager.model.Preference
 873fd0f0-6123-49e8-9414-5c36c98bb021,fr,demo@localhost,"{
   ""type"" : ""preference"",
@@ -90,7 +92,8 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
   ""options"" : [ ""Quotidien"", ""Hebdomadaire"", ""Mensuel"", ""Annuel"" ],
   ""valueType"" : ""RADIO_BUTTONS"",
   ""includeDefault"" : true,
-  ""defaultValues"" : [ ""Mensuel"" ]
+  ""defaultValues"" : [ ""Mensuel"" ],
+  ""optional"" : true
 }",com.fairandsmart.consent.manager.model.Preference
 6afd6983-6ead-4ed6-8a11-32a1d2acf32a,fr,demo@localhost,"{
   ""type"" : ""preference"",
@@ -99,7 +102,8 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
   ""options"" : [ ],
   ""valueType"" : ""FREE_TEXT"",
   ""includeDefault"" : false,
-  ""defaultValues"" : [ ]
+  ""defaultValues"" : [ ],
+  ""optional"" : true
 }",com.fairandsmart.consent.manager.model.Preference
 5985a954-bfe2-4af3-a142-991adc0572d1,fr,demo@localhost,"{
   ""type"" : ""email"",
@@ -213,5 +217,6 @@ afda9ec0-f05e-43db-a986-b75c7c449d41,fr,demo@localhost,"{
   ""options"" : [ ""quotidien"", ""hebdomadaire"", ""mensuel"", ""annuel"" ],
   ""valueType"" : ""RADIO_BUTTONS"",
   ""includeDefault"" : true,
-  ""defaultValues"" : [ ""mensuel"" ]
-}",com.fairandsmart.consent.manager.model.Preference    
+  ""defaultValues"" : [ ""mensuel"" ],
+  ""optional"" : true
+}",com.fairandsmart.consent.manager.model.Preference

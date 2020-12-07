@@ -1,9 +1,16 @@
-<div class="processing">
+<#assign hasDependency=data.elementsDependencies?? && data.elementsDependencies[element.serial]?has_content>
+<div class="processing <#if hasDependency>dependent</#if>" <#if hasDependency>data-dependent-to="${data.elementsDependencies[element.serial]}"</#if>>
     <#assign hasPreviousValues=!data.preview && data.previousValues[element.serial]?has_content>
     <#assign hasDefaultValues=elementContent.includeDefault && elementContent.defaultValues?has_content>
     <#assign previousValues=hasPreviousValues?then(data.previousValues[element.serial]?split(","),[])>
 
     <#if elementContent?is_hash>
+        <#-- Header -->
+        <#if !data.preview>
+            <input type="hidden" name="${identifier}-optional" id="${identifier}-optional"
+                   value="${elementContent.optional?then('optional','mandatory')}">
+        </#if>
+
         <#-- Header -->
         <div class="processing-header">
             <h3><@valueOrError elementContent.label "missingValue"></@valueOrError></h3>
@@ -99,6 +106,12 @@
                     <input type="hidden" id="${identifier}" name="${identifier}" value="">
                 </#if>
 
+            </div>
+        </#if>
+
+        <#if !elementContent.optional>
+            <div class="item-wrapper preference-error hidden" id="${identifier}-missing">
+                <@readBundle "missingPreference" "missingValue"></@readBundle>
             </div>
         </#if>
     <#else>

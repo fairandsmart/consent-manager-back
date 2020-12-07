@@ -54,6 +54,7 @@ public class ConsentForm {
     private boolean showAcceptAll = false;
     private String acceptAllText;
     private boolean footerOnTop = false;
+    private Map<String, String> elementsDependencies;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -180,6 +181,14 @@ public class ConsentForm {
                 ", acceptAllText='" + acceptAllText + '\'' +
                 ", footerOnTop=" + footerOnTop +
                 '}';
+    }
+
+    public Map<String, String> getElementsDependencies() {
+        return elementsDependencies;
+    }
+
+    public void setElementsDependencies(Map<String, String> elementsDependencies) {
+        this.elementsDependencies = elementsDependencies;
     }
 
     public enum Orientation {

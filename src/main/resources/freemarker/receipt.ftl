@@ -44,7 +44,6 @@
 
 <div class="spaced"><span class="receipt-label"><@readBundle "subject_id"></@readBundle>: </span>${data.subject}</div>
 
-<div><span class="receipt-label"><@readBundle "issuer_id"></@readBundle>: </span>${data.processor}</div>
 <#if data.dataController?? && data.dataController.name?? && data.dataController.company??>
     <div>
         <span class="receipt-label"><@readBundle "data_controller_name"></@readBundle>: </span>${data.dataController.name}
@@ -56,7 +55,7 @@
 <div><span class="receipt-label"><@readBundle "privacy_policy"></@readBundle>: </span><#if data.privacyPolicyUrl??>${data.privacyPolicyUrl}<#else>?</#if></div>
 
 <script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js" crossorigin=""
-        integrity="sha256-uqJEaigsh7a1ncOLCy3CLi7FboUzLC6zNE5u5dRNVmI="></script>
+        integrity="sha256-VnjX/dNthWqIpTji9AbZLghQx9fdOAw2t4nSgiWLxfM="></script>
 
 <script type="text/javascript">
     window.iFrameResizer = {

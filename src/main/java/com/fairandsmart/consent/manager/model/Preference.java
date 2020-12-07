@@ -50,6 +50,7 @@ public class Preference extends ModelData {
     private ValueType valueType;
     private boolean includeDefault;
     private List<String> defaultValues;
+    private boolean optional;
 
     public Preference() {
         this.setType(TYPE);
@@ -133,6 +134,19 @@ public class Preference extends ModelData {
         return this;
     }
 
+    public boolean isOptional() {
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
+
+    public Preference withOptional(boolean optional) {
+        this.optional = optional;
+        return this;
+    }
+
     public enum ValueType {
         NONE,
         TOGGLE,
@@ -159,6 +173,7 @@ public class Preference extends ModelData {
         if (o == null || getClass() != o.getClass()) return false;
         Preference that = (Preference) o;
         return includeDefault == that.includeDefault &&
+                optional == that.optional &&
                 Objects.equals(label, that.label) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(options, that.options) &&
@@ -168,7 +183,7 @@ public class Preference extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, description, options, valueType, includeDefault, defaultValues);
+        return Objects.hash(label, description, options, valueType, includeDefault, defaultValues, optional);
     }
 
     @Override
@@ -179,7 +194,8 @@ public class Preference extends ModelData {
                 ", options=" + options +
                 ", valueType=" + valueType +
                 ", includeDefault=" + includeDefault +
-                ", defaultValues='" + defaultValues + '\'' +
+                ", defaultValues=" + defaultValues +
+                ", optional=" + optional +
                 '}';
     }
 }

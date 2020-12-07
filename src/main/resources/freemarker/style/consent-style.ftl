@@ -77,6 +77,12 @@
         padding: 6px 0 6px 12px;
     }
 
+    .processing.disabled {
+        filter: grayscale(50%);
+        opacity: .3;
+        cursor: not-allowed;
+    }
+
     .processing-header {
         display: flex;
         justify-content: space-between;
@@ -141,6 +147,15 @@
     .purpose {
         width: 32px;
         height: 32px;
+    }
+
+    .preference-error {
+        color: red;
+        font-style: italic;
+    }
+
+    .preference-error.hidden {
+        display: none;
     }
 
 

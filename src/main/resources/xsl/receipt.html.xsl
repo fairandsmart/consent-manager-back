@@ -29,14 +29,19 @@
                 <value language="fr">Refusé</value>
             </key>
             <key name="date">
-                <value language="default">Date</value>
-                <value language="en">Date</value>
-                <value language="fr">Date</value>
+                <value language="default">Timestamp</value>
+                <value language="en">Timestamp</value>
+                <value language="fr">Horodatage</value>
             </key>
             <key name="expires">
-                <value language="default">Expires</value>
-                <value language="en">Expires</value>
-                <value language="fr">Expire le</value>
+                <value language="default">Consent and Receipt Expiration Date</value>
+                <value language="en">Consent and Receipt Expiration Date</value>
+                <value language="fr">Date d’expiration du consentement et du reçu</value>
+            </key>
+            <key name="expires_explanation">
+                <value language="default">(After this date, the data controller must collect your consent again)</value>
+                <value language="en">(After this date, the data controller must collect your consent again)</value>
+                <value language="fr">(une fois cette date expirée, le responsable de traitement devra collecter à nouveau votre consentement)</value>
             </key>
             <key name="language">
                 <value language="default">Language</value>
@@ -54,48 +59,43 @@
                 <value language="fr">Anglais (Royaume Unis)</value>
             </key>
             <key name="receipt_id">
-                <value language="default">Receipt Identifier</value>
-                <value language="en">Receipt Identifier</value>
+                <value language="default">Consent Record ID</value>
+                <value language="en">Consent Record ID</value>
                 <value language="fr">Identifiant du reçu</value>
             </key>
             <key name="data_collected">
-                <value language="default">Data collected</value>
-                <value language="en">Data collected</value>
-                <value language="fr">Données collectées</value>
+                <value language="default">PII Categories</value>
+                <value language="en">PII Categories</value>
+                <value language="fr">Données utilisées</value>
             </key>
             <key name="data_retention">
-                <value language="default">Retention Period</value>
-                <value language="en">Retention Period</value>
-                <value language="fr">Durée de conservation</value>
+                <value language="default">Data Retention Duration</value>
+                <value language="en">Data Retention Duration</value>
+                <value language="fr">Durée de conservation des données</value>
             </key>
             <key name="data_usage">
-                <value language="default">Data Usage</value>
-                <value language="en">Data Usage</value>
-                <value language="fr">Utilisation</value>
+                <value language="default">Purpose description</value>
+                <value language="en">Purpose description</value>
+                <value language="fr">Description de la finalité</value>
             </key>
             <key name="data_purpose">
-                <value language="default">Data Purpose</value>
-                <value language="en">Data Purpose</value>
-                <value language="fr">Finalité</value>
+                <value language="default">Purpose category</value>
+                <value language="en">Purpose category</value>
+                <value language="fr">Catégorie de la finalité</value>
             </key>
             <key name="subject_consent">
-                <value language="default">Subject Consent</value>
-                <value language="en">Subject Consent</value>
-                <value language="fr">Consentement</value>
+                <value language="default">Status</value>
+                <value language="en">Status</value>
+                <value language="fr">Réponse</value>
             </key>
             <key name="subject_id">
-                <value language="default">Subject Id</value>
-                <value language="en">Subject Id</value>
-                <value language="fr">Identifiant utilisateur</value>
-            </key>
-            <key name="issuer_id">
-                <value language="default">Data Processor</value>
-                <value language="en">Data Processor</value>
-                <value language="fr">Gestionnaire des données</value>
+                <value language="default">PII Principal ID</value>
+                <value language="en">PII Principal ID</value>
+                <value language="fr">Identifiant de la personne concernée</value>
             </key>
             <key name="data_controller_name">
-                <value language="default">Controller Name</value>
-                <value language="en">Controller Name</value>
+                <value language="default">PII Controller</value>
+                <value language="en">PII Controller</value>
                 <value language="fr">Responsable de traitement</value>
             </key>
             <key name="data_controller_details">
@@ -104,8 +104,8 @@
                 <value language="fr">Informations sur le responsable de traitement</value>
             </key>
             <key name="privacy_policy">
-                <value language="default">Privacy Policy</value>
-                <value language="en">Privacy Policy</value>
+                <value language="default">Privacy Notice</value>
+                <value language="en">Privacy Notice</value>
                 <value language="fr">Politique de confidentialité</value>
             </key>
             <key name="collection_method">
@@ -124,9 +124,9 @@
                 <value language="fr">Opérateur</value>
             </key>
             <key name="update_url">
-                <value language="default">Update Consent Link</value>
-                <value language="en">Update Consent Link</value>
-                <value language="fr">Lien de modification</value>
+                <value language="default">Change your consent</value>
+                <value language="en">Change your consent</value>
+                <value language="fr">Modifier votre consentement</value>
             </key>
             <key name="update_url_link">
                 <value language="default">Click here to update your consent</value>
@@ -303,41 +303,41 @@
                     }
 
                     .block-wrapper {
-                    padding: 12px;
-                    margin: 12px 0;
-                    border-radius: 4px;
-                    background-color: #f5f5f5;
-                    text-align: left;
+                        padding: 12px;
+                        margin: 12px 0;
+                        border-radius: 4px;
+                        background-color: #f5f5f5;
+                        text-align: left;
                     }
 
                     .block-wrapper h4 {
-                    margin: 0;
+                        margin: 0;
                     }
 
                     .block-wrapper ul {
-                    margin: 0;
-                    padding-left: 16px;
-                    overflow: hidden;
+                        margin: 0;
+                        padding-left: 16px;
+                        overflow: hidden;
                     }
 
                     .controller-header {
-                    cursor: pointer;
-                    display: flex;
-                    justify-content: space-between;
+                        cursor: pointer;
+                        display: flex;
+                        justify-content: space-between;
                     }
 
                     .controller-hidden {
-                    max-height: 0;
-                    transition: .5s linear;
+                        max-height: 0;
+                        transition: .5s linear;
                     }
 
                     .controller-open {
-                    max-height: 200px;
-                    transition: .5s linear;
+                        max-height: 200px;
+                        transition: .5s linear;
                     }
 
                     .item-wrapper {
-                    margin-bottom: 8px;
+                        margin-bottom: 8px;
                     }
 
                     .purpose-container {
@@ -474,7 +474,9 @@
                         <div class="logo-wrapper">
                             <xsl:element name="img">
                                 <xsl:attribute name="src"><xsl:value-of select="logoPath"/></xsl:attribute>
-                                <xsl:attribute name="href"><xsl:value-of select="logoPathAlt"/></xsl:attribute>
+                                <xsl:if test="logoPathAlt">
+                                    <xsl:attribute name="alt"><xsl:value-of select="logoPathAlt"/></xsl:attribute>
+                                </xsl:if>
                             </xsl:element>
                         </div>
                     </xsl:if>
@@ -536,10 +538,11 @@
                                         </span>
                                     </li>
                                     <li>
-                                        <span class="list-label"> <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">date</xsl:with-param>
-                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                        </xsl:call-template>
+                                        <span class="list-label">
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">date</xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
                                             <xsl:text>: </xsl:text>
                                         </span>
                                         <span class="list-value">
@@ -549,17 +552,18 @@
                                         </span>
                                     </li>
                                     <li>
-                                        <span class="list-label">  <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">expires</xsl:with-param>
-                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                        </xsl:call-template>
-                                            <xsl:text>: </xsl:text>
-                                        </span>
-                                        <span class="list-value">
-                                            <xsl:call-template name="formatdate">
-                                                <xsl:with-param name="DateTimeStr" select="expirationDate"/>
+                                        <span class="list-label">
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">expires</xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                             </xsl:call-template>
                                         </span>
+                                        <div>
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">expires_explanation</xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
+                                        </div>
                                     </li>
                                     <li>
                                         <span class="list-label">
@@ -679,13 +683,25 @@
                         </xsl:if>
                     </div>
                     <div class="privacy-policy-link-wrapper">
-                        <a class="privacy-policy-link">
-                            <xsl:attribute name="href"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>
-                            <xsl:call-template name="translate">
-                                <xsl:with-param name="key">privacy_policy</xsl:with-param>
-                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                            </xsl:call-template>
-                        </a>
+                        <p>
+                            <xsl:if test="dataController and dataController/company">
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">data_controller_name</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                                <xsl:text>: </xsl:text>
+                                <xsl:value-of select="dataController/company"/>
+                            </xsl:if>
+                        </p>
+                        <p>
+                            <a class="privacy-policy-link">
+                                <xsl:attribute name="href"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">privacy_policy</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                            </a>
+                        </p>
                     </div>
                 </div>
             </body>
