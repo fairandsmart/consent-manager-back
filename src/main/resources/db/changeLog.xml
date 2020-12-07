@@ -201,7 +201,7 @@
             <column name="EXPLANATION" type="VARCHAR(2500)"/>
         </createTable>
     </changeSet>
-    <changeSet author="jayblanc" id="2" context="DEMO">
+    <changeSet author="jayblanc" id="2" context="demo">
         <loadData file="db/MODELENTRY.csv" separator="," tableName="${instance}_MODELENTRY" schemaName="PUBLIC"/>
         <loadData file="db/MODELVERSION.csv" separator="," tableName="${instance}_MODELVERSION" schemaName="PUBLIC"/>
         <loadData file="db/MODELVERSION_CONTENT.csv" separator="," tableName="${instance}_MODELVERSION_CONTENT" schemaName="PUBLIC">

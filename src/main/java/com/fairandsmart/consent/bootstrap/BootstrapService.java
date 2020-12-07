@@ -12,6 +12,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BootstrapService {
@@ -32,9 +33,7 @@ public class BootstrapService {
         try (Liquibase liquibase = liquibaseFactory.createLiquibase()) {
             liquibase.setChangeLogParameter("instance", config.instance());
             Contexts ctx = liquibaseFactory.createContexts();
-            if (config.isDemoInstance()) {
-                ctx.getContexts().add(MainConfig.DEMO_INSTANCE_NAME);
-            }
+            ctx.add(config.instance());
             liquibase.update(ctx, liquibaseFactory.createLabels());
             //List<ChangeSetStatus> status = liquibase.getChangeSetStatuses(liquibaseFactory.createContexts(), liquibaseFactory.createLabels());
         }

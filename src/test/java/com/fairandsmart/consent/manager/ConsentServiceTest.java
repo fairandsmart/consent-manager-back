@@ -55,6 +55,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -792,6 +793,7 @@ public class ConsentServiceTest {
 
         LOGGER.info("Testing find subjects");
         List<Subject> subjects = service.findSubjects("e");
+        LOGGER.info("Subjects: " + subjects.stream().map(s -> s.name).collect(Collectors.joining(",")));
         assertEquals(3, subjects.size());
         assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s.name)));
         assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s.name)));
@@ -858,7 +860,7 @@ public class ConsentServiceTest {
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testSubjectRecords() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
-        LOGGER.info("#### Test subject lifecycle");
+        LOGGER.info("#### Test subject records");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
         types.add(Processing.TYPE);
