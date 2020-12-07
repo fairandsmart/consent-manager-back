@@ -44,7 +44,6 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
 
     private int page;
     private int size;
-    private String owner;
     private String subject;
     private Record.State state;
     private List<String> infos;
@@ -73,14 +72,6 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
 
     public void setSize(int size) {
         this.size = size;
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
     }
 
     public String getSubject() {
@@ -168,9 +159,6 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
     @Override
     public String getQueryString() {
         List<String> parts = new ArrayList<>();
-        if (owner != null && !owner.isEmpty()) {
-            parts.add("owner = :owner");
-        }
         if (subject != null && !subject.isEmpty()) {
             parts.add("subject = :subject");
         }
@@ -201,9 +189,6 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
     @Override
     public Map<String, Object> getQueryParams() {
         Map<String, Object> params = new HashMap<>();
-        if (owner != null && !owner.isEmpty()) {
-            params.put("owner", owner);
-        }
         if (subject != null && !subject.isEmpty()) {
             params.put("subject", subject);
         }
@@ -236,7 +221,6 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         return "RecordFilter{" +
                 "page=" + page +
                 ", size=" + size +
-                ", owner='" + owner + '\'' +
                 ", subject='" + subject + '\'' +
                 ", state=" + state +
                 ", infos=" + infos +

@@ -63,7 +63,6 @@ public class ModelVersion extends PanacheEntityBase {
     @Column(length = 5000)
     public String branches;
     public String author;
-    public String owner;
     public String defaultLanguage;
     public String availableLanguages = "";
     @Enumerated(EnumType.STRING)
@@ -145,7 +144,6 @@ public class ModelVersion extends PanacheEntityBase {
                 ", child='" + child + '\'' +
                 ", branches='" + branches + '\'' +
                 ", author='" + author + '\'' +
-                ", owner='" + owner + '\'' +
                 ", defaultLanguage='" + defaultLanguage + '\'' +
                 ", availableLanguages='" + availableLanguages + '\'' +
                 ", status=" + status +
@@ -189,19 +187,19 @@ public class ModelVersion extends PanacheEntityBase {
 
     public static class SystemHelper {
 
-        public static ModelVersion findActiveVersionByKey(String owner, String key) throws EntityNotFoundException {
-            Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
-            return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key + " and owner: " + owner));
+        public static ModelVersion findActiveVersionByKey(String key) throws EntityNotFoundException {
+            Optional<ModelVersion> optional = ModelVersion.find("entry.key = ?1 and status = ?2", key, ModelVersion.Status.ACTIVE).singleResultOptional();
+            return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key));
         }
 
-        public static List<String> findActiveSerialsForKey(String owner, String key) {
-            Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.key = ?2 and status = ?3", owner, key, ModelVersion.Status.ACTIVE).singleResultOptional();
+        public static List<String> findActiveSerialsForKey(String key) {
+            Optional<ModelVersion> optional = ModelVersion.find("entry.key = ?1 and status = ?2", key, ModelVersion.Status.ACTIVE).singleResultOptional();
             return optional.isPresent() ? optional.get().getSerials() : Collections.emptyList();
         }
 
-        public static ModelVersion findActiveVersionByEntryId(String owner, String entryId) throws EntityNotFoundException {
-            Optional<ModelVersion> optional = ModelVersion.find("owner = ?1 and entry.id = ?2 and status = ?3", owner, entryId, ModelVersion.Status.ACTIVE).singleResultOptional();
-            return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId + " and owner: " + owner));
+        public static ModelVersion findActiveVersionByEntryId(String entryId) throws EntityNotFoundException {
+            Optional<ModelVersion> optional = ModelVersion.find("entry.id = ?1 and status = ?2", entryId, ModelVersion.Status.ACTIVE).singleResultOptional();
+            return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with id: " + entryId));
         }
 
         public static ModelVersion findModelVersionForSerial(String serial, boolean forceContentLoad) throws com.fairandsmart.consent.common.exception.EntityNotFoundException {

@@ -95,7 +95,6 @@ public class ConsentServiceTest {
         entry = service.findEntryForKey(key);
         LOGGER.info("Entry: " + entry);
         assertNotNull(entry.id);
-        assertNotNull(entry.owner);
         assertEquals(BasicInfo.TYPE, entry.type);
         assertEquals(key, entry.key);
         assertEquals("Entry First Name", entry.name);
@@ -816,7 +815,6 @@ public class ConsentServiceTest {
         subjectDto.setEmailAddress("rajesh@localhost");
         Subject subject = service.createSubject(subjectDto);
         assertNotNull(subject.id);
-        assertNotNull(subject.owner);
         assertEquals("rajesh", subject.name);
         assertEquals("rajesh@localhost", subject.emailAddress);
         assertTrue(subject.creationTimestamp > 0);
@@ -828,7 +826,6 @@ public class ConsentServiceTest {
         LOGGER.info("Testing Get new subject");
         subject = service.getSubject("stuart");
         assertNull(subject.id);
-        assertNull(subject.owner);
         assertEquals("stuart", subject.name);
         assertNull(subject.emailAddress);
         assertEquals(0, subject.creationTimestamp);
@@ -836,7 +833,6 @@ public class ConsentServiceTest {
         LOGGER.info("Testing Get known subject");
         subject = service.getSubject("rajesh");
         assertNotNull(subject.id);
-        assertNotNull(subject.owner);
         assertEquals("rajesh", subject.name);
         assertEquals("rajesh@localhost", subject.emailAddress);
         assertTrue(subject.creationTimestamp > 0);
@@ -846,7 +842,6 @@ public class ConsentServiceTest {
         subjectDto.setEmailAddress("new.rajesh@localhost");
         subject = service.updateSubject(subjectId, subjectDto);
         assertNotNull(subject.id);
-        assertNotNull(subject.owner);
         assertEquals("rajesh", subject.name);
         assertEquals("new.rajesh@localhost", subject.emailAddress);
         assertTrue(subject.creationTimestamp > 0);

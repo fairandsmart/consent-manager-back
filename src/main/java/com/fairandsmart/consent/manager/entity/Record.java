@@ -53,7 +53,6 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public long version;
     public long creationTimestamp;
     public long expirationTimestamp;
-    public String owner;
     @Column(length = 2000)
     public String subject;
     public String transaction;
@@ -109,7 +108,6 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
                 ", version=" + version +
                 ", creationTimestamp=" + creationTimestamp +
                 ", expirationTimestamp=" + expirationTimestamp +
-                ", owner='" + owner + '\'' +
                 ", subject='" + subject + '\'' +
                 ", transaction='" + transaction + '\'' +
                 ", parent='" + parent + '\'' +

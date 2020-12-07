@@ -39,11 +39,14 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ConfigProperties(prefix = "consent")
 public interface MainConfig {
 
-    @ConfigProperty(name = "instance.name", defaultValue = "demo")
-    String name();
+    String DEMO_INSTANCE_NAME = "DEMO";
 
-    @ConfigProperty(name = "instance.owner",  defaultValue = "demo")
-    String owner();
+    @ConfigProperty(name = "instance")
+    String instance();
+
+    default boolean isDemoInstance() {
+        return instance().equals(DEMO_INSTANCE_NAME);
+    }
 
     @ConfigProperty(name = "public.url")
     String publicUrl();

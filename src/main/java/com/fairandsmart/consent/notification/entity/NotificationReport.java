@@ -17,8 +17,6 @@ public class NotificationReport extends PanacheEntityBase {
     @Version
     @JsonIgnore
     public long version;
-    @JsonIgnore
-    public String owner;
     public String transaction;
     public long creationTimestamp;
     @Enumerated(EnumType.STRING)
@@ -30,9 +28,8 @@ public class NotificationReport extends PanacheEntityBase {
     public NotificationReport() {
     }
 
-    public NotificationReport(String owner, String transaction, Type type, Status status) {
+    public NotificationReport(String transaction, Type type, Status status) {
         this.creationTimestamp = System.currentTimeMillis();
-        this.owner = owner;
         this.transaction = transaction;
         this.type = type;
         this.status = status;

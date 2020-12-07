@@ -33,12 +33,10 @@ package com.fairandsmart.consent.manager.rule;
  * #L%
  */
 
-import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.entity.Record;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +49,6 @@ public class IrrelevantBasicInfoRule extends RecordStatusRule {
     private static final Logger LOGGER = Logger.getLogger(IrrelevantBasicInfoRule.class.getName());
 
     private Map<String, List<String>> activeSerialsCache = new HashMap<>();
-
-    @Inject
-    MainConfig config;
 
     @Override
     public void apply(List<Record> records) {
@@ -72,7 +67,7 @@ public class IrrelevantBasicInfoRule extends RecordStatusRule {
 
     private List<String> getActiveSerial(String key) {
         if ( !activeSerialsCache.containsKey(key) ) {
-            activeSerialsCache.put(key, ModelVersion.SystemHelper.findActiveSerialsForKey(config.owner(), key));
+            activeSerialsCache.put(key, ModelVersion.SystemHelper.findActiveSerialsForKey(key));
         }
         return activeSerialsCache.get(key);
     }
