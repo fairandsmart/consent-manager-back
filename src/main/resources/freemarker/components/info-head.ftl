@@ -1,14 +1,18 @@
 <#if info?is_hash>
+    <#if !data.preview>
+        <input name="info" value="${infoIdentifier}" hidden/>
+    </#if>
+
     <div class="header">
         <h2 class="header-title"><@valueOrError info.title "missingValue"></@valueOrError></h2>
 
         <p class="header-body"><@valueOrError info.header "missingValue"></@valueOrError></p>
 
         <#-- Data controller -->
-        <#if info.showDataController>
+        <#if info.showDataController && info.dataController?has_content>
             <#assign dataController=info.dataController>
-            <#assign dataControllerId="header-controller">
-            <#include "../data-controller.ftl">
+            <#assign dataControllerId=infoIdentifier + "-controller">
+            <#include "data-controller.ftl">
         </#if>
 
         <#-- Other header data -->
@@ -41,7 +45,14 @@
                         <#if info.shortNoticeLink?has_content>
                             <li>
                                 <span class="list-label">
-                                    <a href="" style="pointer-events: none;"><@readBundle "shortNoticeLinkLabel"></@readBundle></a>
+                                    <#if data.preview>
+                                        <#assign linkParams="style='pointer-events: none;'">
+                                    <#else>
+                                        <#assign linkParams="href='"+info.privacyPolicyUrl+"'">
+                                    </#if>
+                                    <a ${linkParams}>
+                                        <@readBundle "shortNoticeLinkLabel"></@readBundle>
+                                    </a>
                                 </span>
                             </li>
                         <#else>
@@ -57,7 +68,12 @@
 
         <#if info.privacyPolicyUrl?has_content>
             <div class="privacy-policy-link-wrapper">
-                <a class="privacy-policy-link" href="" style="pointer-events: none;">
+                <#if data.preview>
+                    <#assign linkParams="style='pointer-events: none;'">
+                <#else>
+                    <#assign linkParams="href='"+info.privacyPolicyUrl+"'">
+                </#if>
+                <a class="privacy-policy-link" ${linkParams}>
                     <#if info.customPrivacyPolicyText?has_content>
                         ${info.customPrivacyPolicyText}
                     <#else>

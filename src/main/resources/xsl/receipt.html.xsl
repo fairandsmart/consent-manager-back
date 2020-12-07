@@ -146,12 +146,12 @@
             <key name="contains_sensitive_data">
                 <value language="default">Contains sensitive data</value>
                 <value language="en">Contains sensitive data</value>
-                <value language="fr">Contiens des données sensibles</value>
+                <value language="fr">Contient des données sensibles</value>
             </key>
             <key name="contains_medical_data">
                 <value language="default">Contains medical data</value>
                 <value language="en">Contains medical data</value>
-                <value language="fr">Contiens des données médicales</value>
+                <value language="fr">Contient des données médicales</value>
             </key>
             <key name="third_parties">
                 <value language="default">These data will be shared with:</value>
@@ -222,60 +222,84 @@
                 <meta charset="UTF-8"/>
                 <style>
                     html {
-                    font-family: Aria, Helvetica, sans-serif;
+                        font-family: Arial, Helvetica, sans-serif;
                     }
 
                     body {
-                    margin: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    height: 100vh;
-                    }
-
-                    .receipt {
-                    position: relative;
-                    display: flex;
-                    flex-direction: column;
-                    width: 100%;
-                    }
-
-                    @media screen and (max-width: 800px) {
-                    .receipt {
-                    height: 100vh;
-                    }
-                    }
-
-                    @media screen and (min-width: 800px) {
-                    .receipt {
-                    margin: auto;
-                    border: 1px solid #eeeeee;
-                    border-radius: 4px;
-                    box-shadow: 4px 4px 8px grey;
-                    max-height: 90vh;
-                    width: 800px;
-                    }
-                    }
-
-                    .header {
-                    text-align: center;
-                    padding: 16px 24px;
-                    border-bottom: 1px solid #eee;
+                        margin: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100vh;
                     }
 
                     .logo-wrapper {
-                    text-align: center;
-                    margin-top: 24px;
+                        padding: 0 24px;
                     }
 
-                    .header h2 {
-                    margin-top: 0;
-                    margin-bottom: 8px;
+                    .logo {
+                        max-height: 100px;
                     }
-                    .header-body {
-                    color: rgba(0, 0, 0, 0.54);
-                    font-weight: bold;
-                    margin: 4px 0;
+
+                    .header {
+                        margin: 24px;
+                    }
+
+                    .header .header-title {
+                        margin-top: 0;
+                        margin-bottom: 8px;
+                    }
+
+                    .header .header-body {
+                        color: rgba(0, 0, 0, 0.54);
+                        font-weight: bold;
+                    }
+
+                    .header .privacy-policy-link-wrapper {
+                        margin: 8px 0;
+                    }
+
+                    .header .privacy-policy-link-wrapper a {
+                        text-decoration: none;
+                        color: #2196F3;
+                    }
+
+                    .content-fade {
+                        background: linear-gradient(white, rgba(255, 255, 255, 0));
+                        height: 32px;
+                        margin: 0 16px -32px 16px;
+                        z-index: 10;
+                        overflow-y: hidden;
+                        pointer-events: none;
+                        flex-shrink: 0;
+                    }
+
+                    .processing-list {
+                        overflow-y: auto;
+                        padding: 16px 24px;
+                        height: 100%;
+                    }
+
+                    .processing {
+                        padding: 6px 0 6px 12px;
+                    }
+
+                    .processing-header {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 8px;
+                    }
+
+                    .processing-header h3 {
+                        margin: 0;
+                    }
+
+                    .processing-body {
+                        color: rgba(0, 0, 0, 0.54);
+                    }
+
+                    .processing-body li:first-of-type {
+                        margin-top: 8px;
                     }
 
                     .block-wrapper {
@@ -285,107 +309,157 @@
                     background-color: #f5f5f5;
                     text-align: left;
                     }
+
                     .block-wrapper h4 {
                     margin: 0;
                     }
 
-                    .processing-list {
-                    overflow-y: auto;
-                    padding: 16px 24px;
-                    height: 100%;
-                    }
-                    .content-fade {
-                    background: linear-gradient(white, rgba(255, 255, 255, 0));
-                    height: 32px;
-                    margin: 0 16px -32px 16px;
-                    z-index: 10;
-                    overflow-y: hidden;
-                    pointer-events: none;
-                    flex-shrink: 0;
-                    }
-
-                    .content-fade, .header, .qr-code, .privacy-policy-link-wrapper {
-                    flex-shrink: 0;
-                    }
-
-                    .processing-body {
-                    color: rgba(0, 0, 0, 0.54);
+                    .block-wrapper ul {
+                    margin: 0;
                     padding-left: 16px;
-                    }
-                    .list-label {
-                    font-weight: bold;
+                    overflow: hidden;
                     }
 
-                    .privacy-policy-link {
-                    text-decoration: none;
-                    color: #2196F3;
-                    }
-                    .privacy-policy-link-wrapper {
-                    text-align: center;
-                    }
-                    .processing {
-                    padding: 24px;
-                    }
-
-                    .processing-header {
+                    .controller-header {
+                    cursor: pointer;
                     display: flex;
-                    flex-direction: row;
-                    flex-wrap: nowrap;
-                    align-items: center;
                     justify-content: space-between;
                     }
 
-                    .processing-header h3 {
-                    margin: 0;
+                    .controller-hidden {
+                    max-height: 0;
+                    transition: .5s linear;
                     }
 
-                    .processing-response {
-                    display: block;
-                    position: relative;
-                    text-transform: uppercase;
-                    font-weight: 300;
+                    .controller-open {
+                    max-height: 200px;
+                    transition: .5s linear;
                     }
 
-                    .processing-response.accepted:before {
-                    position: absolute;
-                    left: -24px;
-                    height: 15px;
-                    width: 15px;
-                    border-radius: 50%;
-                    background: #1B870BDD;
-                    content: "";
-                    }
-
-                    .processing-response.refused:before {
-                    position: absolute;
-                    left: -24px;
-                    height: 15px;
-                    width: 15px;
-                    border-radius: 50%;
-                    background: #9C1A1ACC;
-                    content: "";
-                    }
-
-                    .processing-info p {
-                    color: rgba(0, 0, 0, 0.74);
-                    }
-
-                    .qr-code {
-                    text-align: center;
-                    border-bottom: 1px solid #eee;
-                    }
-
-                    .qr-code img {
-                    width: 150px;
+                    .item-wrapper {
+                    margin-bottom: 8px;
                     }
 
                     .purpose-container {
-                    text-align: center;
-                    margin-top: 8px !important;
+                        text-align: center;
+                        margin-top: 8px !important;
                     }
+
                     .purpose {
-                    width: 32px;
-                    height: 32px;
+                        width: 32px;
+                        height: 32px;
+                    }
+                </style>
+                <style>
+                    .logo-wrapper {
+                        text-align: center;
+                        margin-top: 24px;
+                    }
+
+                    .header {
+                        text-align: center;
+                        margin: 0 0 8px 12px;
+                        border-bottom: 1px solid #eee;
+                    }
+                </style>
+                <style>
+                    .receipt {
+                        position: relative;
+                        display: flex;
+                        flex-direction: column;
+                        width: 100%;
+                        background-color: white;
+                    }
+
+                    @media screen and (max-width: 800px) {
+                        .receipt {
+                            height: 100vh;
+                        }
+                    }
+
+                    @media screen and (min-width: 800px) {
+                        .receipt {
+                            margin: auto;
+                            border: 1px solid #eeeeee;
+                            border-radius: 4px;
+                            box-shadow: 4px 4px 8px grey;
+                            max-height: 90vh;
+                            width: 800px;
+                        }
+                    }
+
+                    .receipt h4, .receipt p {
+                        margin: 4px 0;
+                    }
+
+                    .header h2 {
+                        margin-top: 0;
+                        margin-bottom: 8px;
+                    }
+
+                    .header-body {
+                        margin: 4px 0;
+                    }
+
+                    .content-fade, .header, .qr-code, .privacy-policy-link-wrapper {
+                        flex-shrink: 0;
+                    }
+
+                    .processing-body {
+                        padding-left: 16px;
+                    }
+
+                    .list-label {
+                        font-weight: bold;
+                    }
+
+                    .privacy-policy-link {
+                        text-decoration: none;
+                        color: #2196F3;
+                    }
+
+                    .privacy-policy-link-wrapper {
+                        text-align: center;
+                    }
+
+                    .processing-response {
+                        display: block;
+                        position: relative;
+                        text-transform: uppercase;
+                        font-weight: 300;
+                    }
+
+                    .processing-response.accepted:before {
+                        position: absolute;
+                        left: -24px;
+                        height: 15px;
+                        width: 15px;
+                        border-radius: 50%;
+                        background: #1B870BDD;
+                        content: "";
+                    }
+
+                    .processing-response.refused:before {
+                        position: absolute;
+                        left: -24px;
+                        height: 15px;
+                        width: 15px;
+                        border-radius: 50%;
+                        background: #9C1A1ACC;
+                        content: "";
+                    }
+
+                    .processing-info p {
+                        color: rgba(0, 0, 0, 0.74);
+                    }
+
+                    .qr-code {
+                        text-align: center;
+                        border-bottom: 1px solid #eee;
+                    }
+
+                    .qr-code img {
+                        width: 150px;
                     }
                 </style>
                 <xsl:if test="themePath">
@@ -404,114 +478,114 @@
                             </xsl:element>
                         </div>
                     </xsl:if>
-                    <div class="header">
-                        <h2>
-                            <xsl:call-template name="translate">
-                                <xsl:with-param name="key">title</xsl:with-param>
-                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                            </xsl:call-template>
-                        </h2>
-                        <p class="header-body">-</p>
-                        <div class="block-wrapper">
-                            <h4 class="controller-header">
+                    <div class="processing-list">
+                        <div class="header">
+                            <h2>
                                 <xsl:call-template name="translate">
-                                    <xsl:with-param name="key">general_info</xsl:with-param>
+                                    <xsl:with-param name="key">title</xsl:with-param>
                                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                 </xsl:call-template>
-                            </h4>
-                            <ul class="processing-body controller-open">
-                                <li>
-                                    <span class="list-label">
-                                        <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">subject_id</xsl:with-param>
-                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                        </xsl:call-template>
-                                        <xsl:text>: </xsl:text>
-                                    </span>
-                                    <span class="list-value"><xsl:value-of select="subject"/></span>
-                                </li>
-                                <li>
-                                    <span class="list-label">
-                                        <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">language</xsl:with-param>
-                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                        </xsl:call-template>
-                                        <xsl:text>: </xsl:text>
-                                    </span>
-                                    <span class="list-value">
-                                        <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">language_<xsl:value-of select="$lang"/></xsl:with-param>
-                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                        </xsl:call-template>
-                                    </span>
-                                </li>
-                                <li>
-                                    <span class="list-label">
-                                        <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">collection_method</xsl:with-param>
-                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                        </xsl:call-template>
-                                        <xsl:text>: </xsl:text>
-                                    </span>
-                                    <span class="list-value">
-                                        <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">collection_method_<xsl:value-of select="collectionMethod"/></xsl:with-param>
-                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                        </xsl:call-template>
-                                    </span>
-                                </li>
-                                <li>
-                                    <span class="list-label"> <xsl:call-template name="translate">
-                                        <xsl:with-param name="key">date</xsl:with-param>
-                                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                    </xsl:call-template>
-                                        <xsl:text>: </xsl:text>
-                                    </span>
-                                    <span class="list-value">
-                                        <xsl:call-template name="formatdate">
-                                            <xsl:with-param name="DateTimeStr" select="date"/>
-                                        </xsl:call-template>
-                                    </span>
-                                </li>
-                                <li>
-                                    <span class="list-label">  <xsl:call-template name="translate">
-                                        <xsl:with-param name="key">expires</xsl:with-param>
-                                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                    </xsl:call-template>
-                                        <xsl:text>: </xsl:text>
-                                    </span>
-                                    <span class="list-value">
-                                        <xsl:call-template name="formatdate">
-                                            <xsl:with-param name="DateTimeStr" select="expirationDate"/>
-                                        </xsl:call-template>
-                                    </span>
-                                </li>
-                                <li>
-                                    <span class="list-label">
-                                        <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">receipt_id</xsl:with-param>
-                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                        </xsl:call-template>
-                                        <xsl:text>: </xsl:text>
-                                    </span>
-                                    <span class="list-value"><xsl:value-of select="transaction"/></span>
-                                </li>
-                            </ul>
-                        </div>
-                        <xsl:if test="updateUrl">
-                            <div class="privacy-policy-link-wrapper">
-                                <xsl:element name="a" >
-                                    <xsl:attribute name="href"><xsl:value-of select="updateUrl"/></xsl:attribute>
-                                    <xsl:attribute name="class">privacy-policy-link</xsl:attribute>
+                            </h2>
+                            <p class="header-body">-</p>
+                            <div class="block-wrapper">
+                                <h4 class="controller-header">
                                     <xsl:call-template name="translate">
-                                        <xsl:with-param name="key">update_url_link</xsl:with-param>
+                                        <xsl:with-param name="key">general_info</xsl:with-param>
                                         <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                     </xsl:call-template>
-                                </xsl:element>
+                                </h4>
+                                <ul class="processing-body controller-open">
+                                    <li>
+                                        <span class="list-label">
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">subject_id</xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
+                                            <xsl:text>: </xsl:text>
+                                        </span>
+                                        <span class="list-value"><xsl:value-of select="subject"/></span>
+                                    </li>
+                                    <li>
+                                        <span class="list-label">
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">language</xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
+                                            <xsl:text>: </xsl:text>
+                                        </span>
+                                        <span class="list-value">
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">language_<xsl:value-of select="$lang"/></xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="list-label">
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">collection_method</xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
+                                            <xsl:text>: </xsl:text>
+                                        </span>
+                                        <span class="list-value">
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">collection_method_<xsl:value-of select="collectionMethod"/></xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="list-label"> <xsl:call-template name="translate">
+                                            <xsl:with-param name="key">date</xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                        </xsl:call-template>
+                                            <xsl:text>: </xsl:text>
+                                        </span>
+                                        <span class="list-value">
+                                            <xsl:call-template name="formatdate">
+                                                <xsl:with-param name="DateTimeStr" select="date"/>
+                                            </xsl:call-template>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="list-label">  <xsl:call-template name="translate">
+                                            <xsl:with-param name="key">expires</xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                        </xsl:call-template>
+                                            <xsl:text>: </xsl:text>
+                                        </span>
+                                        <span class="list-value">
+                                            <xsl:call-template name="formatdate">
+                                                <xsl:with-param name="DateTimeStr" select="expirationDate"/>
+                                            </xsl:call-template>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="list-label">
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key">receipt_id</xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
+                                            <xsl:text>: </xsl:text>
+                                        </span>
+                                        <span class="list-value"><xsl:value-of select="transaction"/></span>
+                                    </li>
+                                </ul>
                             </div>
-                        </xsl:if>
-                    </div>
-                    <div class="processing-list">
+                            <xsl:if test="updateUrl">
+                                <div class="privacy-policy-link-wrapper">
+                                    <xsl:element name="a" >
+                                        <xsl:attribute name="href"><xsl:value-of select="updateUrl"/></xsl:attribute>
+                                        <xsl:attribute name="class">privacy-policy-link</xsl:attribute>
+                                        <xsl:call-template name="translate">
+                                            <xsl:with-param name="key">update_url_link</xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:element>
+                                </div>
+                            </xsl:if>
+                        </div>
                         <xsl:for-each select="consents/consent">
                             <div class="processing">
                                 <div class="processing-header">

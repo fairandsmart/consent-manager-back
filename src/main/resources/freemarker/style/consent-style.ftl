@@ -64,6 +64,7 @@
         flex-shrink: 0;
     }
 
+
     /* Content */
 
     .processing-list {
@@ -120,12 +121,12 @@
 
     .controller-hidden {
         max-height: 0;
-        transition: 1s linear;
+        transition: .5s linear;
     }
 
     .controller-open {
         max-height: 200px;
-        transition: 1s linear;
+        transition: .5s linear;
     }
 
     .item-wrapper {

@@ -1,4 +1,5 @@
-<#include "info-logo.ftl">
+<#include "../components/logo.ftl">
+<div class="content-fade"></div>
 
 <div class="processing-list">
     <div class="header">
@@ -81,8 +82,8 @@
                 tortor quis, tristique tellus. Nam ut dui id massa rhoncus pharetra rhoncus pharetra lacus. Phasellus
                 vitae sagittis neque.</p>
             <p class="processing-body purpose-container">
-                <img class="purpose" src="/assets/img/purpose/consent_core_service.png" alt="Bibendum turpis"/>
-                <img class="purpose" src="/assets/img/purpose/consent_third_part_sharing.png"
+                <img class="purpose" src="/assets/img/purpose/CONSENT_CORE_SERVICE.png" alt="Bibendum turpis"/>
+                <img class="purpose" src="/assets/img/purpose/CONSENT_THIRD_PART_SHARING.png"
                      alt="Nunc tristique dui in"/>
             </p>
         </div>
@@ -157,7 +158,7 @@
                 non vulputate mauris ullamcorper ac. Sed dignissim id erat congue dignissim. Nulla pulvinar porttitor
                 arcu sit amet dapibus. Sed interdum venenatis neque, eu commodo lorem porta ut.</p>
             <p class="processing-body purpose-container">
-                <img class="purpose" src="/assets/img/purpose/consent_research.png" alt="Bibendum turpis"/>
+                <img class="purpose" src="/assets/img/purpose/CONSENT_RESEARCH.png" alt="Bibendum turpis"/>
             </p>
         </div>
     </div>

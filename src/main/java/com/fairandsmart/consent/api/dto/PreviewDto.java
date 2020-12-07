@@ -42,6 +42,7 @@ public class PreviewDto {
     private ConsentForm.Orientation orientation;
     private ModelData data;
     private PreviewType previewType = PreviewType.FORM;
+    private final boolean preview = true;
 
     public PreviewDto() {
     }
@@ -78,6 +79,10 @@ public class PreviewDto {
         this.previewType = previewType;
     }
 
+    public boolean isPreview() {
+        return preview;
+    }
+
     public enum PreviewType {
         FORM,
         RECEIPT,
@@ -91,6 +96,7 @@ public class PreviewDto {
                 ", orientation=" + orientation +
                 ", data=" + data +
                 ", previewType=" + previewType +
+                ", preview=" + preview +
                 '}';
     }
 

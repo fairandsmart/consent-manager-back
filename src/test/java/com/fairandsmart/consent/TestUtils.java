@@ -114,8 +114,6 @@ public class TestUtils {
                 .withTitle("Title " + key)
                 .withHeader("Header " + key)
                 .withFooter("Footer " + key)
-                .withLogoPath("Logo path " + key)
-                .withLogoAltText("Logo alt text " + key)
                 .withPrivacyPolicyUrl("Privacy policy URL " + key)
                 .withDataController(generateDataController(key + "_dc"))
                 .withShowDataController(true)

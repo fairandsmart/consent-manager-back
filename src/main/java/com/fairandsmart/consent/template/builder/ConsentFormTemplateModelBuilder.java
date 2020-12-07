@@ -3,9 +3,9 @@ package com.fairandsmart.consent.template.builder;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.template.builder;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -36,7 +36,6 @@ package com.fairandsmart.consent.template.builder;
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateModelBuilder;
-import org.apache.commons.lang3.LocaleUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Locale;
@@ -64,11 +63,7 @@ public class ConsentFormTemplateModelBuilder implements TemplateModelBuilder {
         model.setData(form);
 
         String orientation = form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL) ? "horizontal" : "vertical";
-        if (form.isPreview()) {
-            model.setTemplate("preview/form-" + orientation + ".ftl");
-        } else {
-            model.setTemplate("form-" + orientation + ".ftl");
-        }
+        model.setTemplate("form-" + orientation + ".ftl");
 
         LOGGER.log(Level.FINE, model.toString());
         return model;

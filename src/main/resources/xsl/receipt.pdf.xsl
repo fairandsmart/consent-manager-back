@@ -145,12 +145,12 @@
             <key name="contains_sensitive_data">
                 <value language="default">Contains sensitive data</value>
                 <value language="en">Contains sensitive data</value>
-                <value language="fr">Contiens des données sensibles</value>
+                <value language="fr">Contient des données sensibles</value>
             </key>
             <key name="contains_medical_data">
                 <value language="default">Contains medical data</value>
                 <value language="en">Contains medical data</value>
-                <value language="fr">Contiens des données médicales</value>
+                <value language="fr">Contient des données médicales</value>
             </key>
             <key name="third_parties">
                 <value language="default">These data will be shared with:</value>

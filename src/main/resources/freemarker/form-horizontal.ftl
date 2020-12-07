@@ -12,20 +12,35 @@
     <#include "style/common-style.ftl">
     <#include "style/consent-style.ftl">
     <#include "style/horizontal-style.ftl">
-    <#include "theme.ftl">
+    <#include "components/theme.ftl">
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
 
 <body>
+<#if data.preview>
+<div class="consent-form">
+<#else>
 <form method="post" id="consent" action="#" class="consent-form">
     <input name="token" id="token" value="${data.token}" hidden/>
+</#if>
+
+    <#if data.info?? && data.info?has_content>
+        <@fetchMultiLangContent data.info></@fetchMultiLangContent>
+        <#assign info=langContent>
+        <#assign infoIdentifier=data.info.identifier>
+    <#else>
+        <#assign info="">
+        <#assign infoIdentifier="infos">
+    </#if>
+    <#assign displayAcceptAll=(data.showAcceptAll && data.elements?size > 1)>
 
     <div class="left">
-        <#include "info-logo.ftl">
+        <#include "components/logo.ftl">
+        <div class="content-fade"></div>
 
         <div class="left-content">
-            <#include "info-head.ftl">
+            <#include "components/info-head.ftl">
         </div>
 
         <div class="content-fade fade-inverted"></div>
@@ -36,19 +51,27 @@
 
         <div class="processing-list">
             <#list data.elements as element>
-                <#include element.entry.type + ".ftl">
+                <@fetchMultiLangContent element></@fetchMultiLangContent>
+                <#assign elementContent=langContent>
+                <#assign identifier=element.identifier>
+                <#include "components/" + element.entry.type + ".ftl">
             </#list>
 
             <#if !data.footerOnTop>
-                <#include "info-foot.ftl">
+                <#include "components/info-foot.ftl">
             </#if>
         </div>
 
         <#if data.footerOnTop>
-            <#include "info-foot.ftl">
+            <#include "components/info-foot.ftl">
         </#if>
     </div>
+
+<#if data.preview>
+</div>
+<#else>
 </form>
+</#if>
 
 <script src="/assets/js/consent.js"></script>
 <script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js" crossorigin=""

@@ -16,4 +16,13 @@
     .receipt-label {
         font-weight: bold;
     }
+
+    .qr-code {
+        text-align: center;
+        border-bottom: 1px solid #eee;
+    }
+
+    .qr-code img {
+        width: 150px;
+    }
 </style>

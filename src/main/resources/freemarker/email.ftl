@@ -10,35 +10,15 @@
 
     <#include "style/common-style.ftl">
     <#include "style/email-style.ftl">
-    <#include "theme.ftl">
+    <#include "components/theme.ftl">
 
     <@fetchMultiLangContent data.model></@fetchMultiLangContent>
-    <title>${langContent.subject}</title>
+    <#assign email=langContent>
+    <title>${email.subject}</title>
 </head>
 
 <body>
-    <div class="email-content">
-        <#if theme?is_hash && theme.logoPosition?has_content>
-            <#assign position=theme.logoPosition?lower_case>
-        <#else>
-            <#assign position="center">
-        </#if>
-
-        <div class="logo-wrapper" style="text-align: ${position};">
-            <#if theme?is_hash && theme.logoPath?has_content>
-                <img class="logo" src="${theme.logoPath}" alt="${theme.logoAltText}">
-            </#if>
-        </div>
-
-        <h1 class="email-title">${langContent.title}</h1>
-        <div class="email-body">${langContent.body}</div>
-        <div class="email-button-wrapper">
-            <div class="email-button">
-                <a id="form-url" href="${(data.url?has_content)?then(data.url, '#')}">${langContent.buttonLabel}</a>
-            </div>
-        </div>
-        <div class="email-footer">${langContent.footer}</div>
-        <div class="email-signature">${langContent.signature}</div>
-    </div>
+    <#assign url=data.url?has_content?then(data.url,"")>
+    <#include "components/email.ftl">
 </body>
 </html>

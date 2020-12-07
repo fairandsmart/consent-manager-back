@@ -1,5 +1,7 @@
 <#if data.theme?has_content>
-    <input name="theme" value="${data.theme.identifier}" hidden/>
+    <#if !data.preview>
+        <input name="theme" value="${data.theme.identifier}" hidden/>
+    </#if>
     <@fetchMultiLangContent data.theme></@fetchMultiLangContent>
     <#assign theme=langContent>
 
