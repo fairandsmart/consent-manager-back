@@ -34,6 +34,9 @@ public class BootstrapService {
             liquibase.setChangeLogParameter("instance", config.instance());
             Contexts ctx = liquibaseFactory.createContexts();
             ctx.add(config.instance());
+            if (config.importDemoData()) {
+                ctx.add("import");
+            }
             liquibase.update(ctx, liquibaseFactory.createLabels());
             //List<ChangeSetStatus> status = liquibase.getChangeSetStatuses(liquibaseFactory.createContexts(), liquibaseFactory.createLabels());
         }
