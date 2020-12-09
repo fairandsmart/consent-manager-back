@@ -41,16 +41,15 @@
         </#if>
 
     <#-- Sensitive data -->
-        <#if langContent.containsSensitiveData || langContent.containsMedicalData>
+        <#if langContent.containsSensitiveData>
             <div class="block-wrapper">
                 <h4><@readBundle "defaultSensitiveDataTitle"></@readBundle></h4>
 
                 <ul class="processing-body">
-                    <#if langContent.containsSensitiveData>
-                        <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
-                    </#if>
                     <#if langContent.containsMedicalData>
                         <li><span class="list-value"><@readBundle "containsMedicalData"></@readBundle></span></li>
+                    <#else>
+                        <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
                     </#if>
                 </ul>
             </div>
