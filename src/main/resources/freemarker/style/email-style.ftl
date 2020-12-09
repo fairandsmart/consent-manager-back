@@ -38,7 +38,7 @@
         padding: 8px;
     }
 
-    .email-button a {
+    .email-button-content {
         padding: 8px;
         margin: 8px auto;
         border-radius: 8px;

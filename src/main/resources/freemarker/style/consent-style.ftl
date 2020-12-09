@@ -45,11 +45,12 @@
         font-weight: bold;
     }
 
-    .header .privacy-policy-link-wrapper {
+    .privacy-policy-link-wrapper {
         margin: 8px 0;
+        text-align: center;
     }
 
-    .header .privacy-policy-link-wrapper a {
+    .privacy-policy-link {
         text-decoration: none;
         color: #2196F3;
     }
@@ -130,7 +131,7 @@
         transition: .5s linear;
     }
 
-    .controller-open {
+    .controller-visible {
         max-height: 200px;
         transition: .5s linear;
     }

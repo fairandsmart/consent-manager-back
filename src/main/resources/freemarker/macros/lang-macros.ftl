@@ -2,7 +2,7 @@
 <#assign lang=language>
 
 <#-- Crée une balise span contenant le message d'erreur récupéré dans le bundle avec la clé error_key -->
-<#macro writeError error_key><span class="fsc-content-error">${bundle.getString("errorPrefix")} ${bundle.containsKey(error_key)?then(bundle.getString(error_key), error_key)}</span></#macro>
+<#macro writeError error_key><span class="content-error">${bundle.getString("errorPrefix")} ${bundle.containsKey(error_key)?then(bundle.getString(error_key), error_key)}</span></#macro>
 
 <#-- Affiche le contenu de var dans la langue du modèle si disponible, sinon affiche le message d'erreur associé à error_key dans le bundle -->
 <#macro multiLang var={} error_key=""><#if var[lang]?has_content>${var[lang]}<#elseif error_key?has_content><@writeError error_key></@writeError></#if></#macro>

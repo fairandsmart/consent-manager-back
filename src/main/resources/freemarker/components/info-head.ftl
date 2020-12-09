@@ -45,12 +45,7 @@
                         <#if info.shortNoticeLink?has_content>
                             <li>
                                 <span class="list-label">
-                                    <#if data.preview>
-                                        <#assign linkParams="style='pointer-events: none;'">
-                                    <#else>
-                                        <#assign linkParams="href='"+info.privacyPolicyUrl+"'">
-                                    </#if>
-                                    <a ${linkParams}>
+                                    <a <@linkHref info.privacyPolicyUrl data.preview></@linkHref>>
                                         <@readBundle "shortNoticeLinkLabel"></@readBundle>
                                     </a>
                                 </span>
@@ -68,12 +63,7 @@
 
         <#if info.privacyPolicyUrl?has_content>
             <div class="privacy-policy-link-wrapper">
-                <#if data.preview>
-                    <#assign linkParams="style='pointer-events: none;'">
-                <#else>
-                    <#assign linkParams="href='"+info.privacyPolicyUrl+"'">
-                </#if>
-                <a class="privacy-policy-link" ${linkParams}>
+                <a class="privacy-policy-link" <@linkHref info.privacyPolicyUrl data.preview></@linkHref>>
                     <#if info.customPrivacyPolicyText?has_content>
                         ${info.customPrivacyPolicyText}
                     <#else>

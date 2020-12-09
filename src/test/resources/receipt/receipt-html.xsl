@@ -398,12 +398,14 @@
                         <div class="logo-wrapper">
                             <xsl:element name="img">
                                 <xsl:attribute name="src"><xsl:value-of select="logoPath"/></xsl:attribute>
-                                <xsl:if test="logoPathAlt"><xsl:attribute name="alt"><xsl:value-of select="logoPathAlt"/></xsl:attribute></xsl:if>
+                                <xsl:if test="logoAltText">
+                                    <xsl:attribute name="alt"><xsl:value-of select="logoAltText"/></xsl:attribute>
+                                </xsl:if>
                             </xsl:element>
                         </div>
                     </xsl:if>
                     <div class="header">
-                        <h2>
+                        <h2 class="header-title">
                             <xsl:call-template name="translate">
                                 <xsl:with-param name="key">title</xsl:with-param>
                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
@@ -417,7 +419,7 @@
                                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                 </xsl:call-template>
                             </h4>
-                            <ul class="processing-body controller-open">
+                            <ul class="processing-body controller-visible">
                                 <li>
                                     <span class="list-label">
                                         <xsl:call-template name="translate">
@@ -597,7 +599,7 @@
                     </div>
                     <div class="qr-code">
                         <xsl:if test="updateUrlQrCode">
-                            <div class="spaced">
+                            <div>
                                 <img>
                                     <xsl:attribute name="src">
                                         <xsl:value-of select="updateUrlQrCode"/>
@@ -607,16 +609,16 @@
                         </xsl:if>
                     </div>
                     <div class="privacy-policy-link-wrapper">
-                        <p>
-                            <xsl:if test="dataController and dataController/company">
+                        <xsl:if test="dataController and dataController/company">
+                            <p>
                                 <xsl:call-template name="translate">
                                     <xsl:with-param name="key">data_controller_name</xsl:with-param>
                                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                 </xsl:call-template>
                                 <xsl:text>: </xsl:text>
                                 <xsl:value-of select="dataController/company"/>
-                            </xsl:if>
-                        </p>
+                            </p>
+                        </xsl:if>
                         <p>
                             <a class="privacy-policy-link">
                                 <xsl:attribute name="href"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>

@@ -7,12 +7,7 @@
         <div class="email-button-wrapper">
             <#if url?has_content && email.buttonLabel?has_content>
                 <div class="email-button">
-                    <#if data.preview>
-                        <#assign linkParams="style='pointer-events: none;'">
-                    <#else>
-                        <#assign linkParams="href='${url}'">
-                    </#if>
-                    <a id="form-url" ${linkParams}>
+                    <a id="form-url" class="email-button-content" <@linkHref url data.preview></@linkHref>>
                         <@valueOrError email.buttonLabel "missingValue"></@valueOrError>
                     </a>
                 </div>

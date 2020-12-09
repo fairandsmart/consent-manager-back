@@ -17,14 +17,15 @@
     <#elseif model.type=="theme">
         <#if data.previewType=="EMAIL">
             <#include "../style/email-style.ftl">
-        <#elseif data.previewType=="RECEIPT">
-            <#include "../style/receipt-style.ftl">
-        <#elseif data.previewType=="FORM">
+        <#else>
             <#include "../style/consent-style.ftl">
             <#if data.orientation=="HORIZONTAL">
                 <#include "../style/horizontal-style.ftl">
             <#else>
                 <#include "../style/vertical-style.ftl">
+            </#if>
+            <#if data.previewType=="RECEIPT">
+                <#include "../style/receipt-style.ftl">
             </#if>
         </#if>
         <style>${model.css}</style>
@@ -63,6 +64,23 @@
 
         <#include "../components/email.ftl">
     </div>
+<#elseif model.type=="theme">
+    <#assign theme=model>
+    <#if data.previewType=="FORM">
+    <div class="consent-form">
+        <#if data.orientation=="HORIZONTAL">
+            <#include "theme-horizontal.ftl">
+        <#else>
+            <#include "theme-vertical.ftl">
+        </#if>
+    </div>
+    <#elseif data.previewType=="RECEIPT">
+        <div class="receipt">
+            <#include "theme-receipt.ftl">
+        </div>
+    <#elseif data.previewType=="EMAIL">
+        <#include "theme-email.ftl">
+    </#if>
 <#else>
     <div class="consent-form">
 
@@ -86,19 +104,6 @@
                 <#assign identifier="preference">
                 <#include "../components/preference.ftl">
             </div>
-        <#elseif model.type=="theme">
-            <#assign theme=model>
-            <#if data.previewType=="FORM">
-                <#if data.orientation=="HORIZONTAL">
-                    <#include "theme-horizontal.ftl">
-                <#else>
-                    <#include "theme-vertical.ftl">
-                </#if>
-            <#elseif data.previewType=="RECEIPT">
-                <#include "theme-receipt.ftl">
-            <#elseif data.previewType=="EMAIL">
-                <#include "theme-email.ftl">
-            </#if>
         </#if>
 
     </div>

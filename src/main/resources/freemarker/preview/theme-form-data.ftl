@@ -65,8 +65,8 @@
         "showDataController": false,
         "thirdParties": [
             {
-                "name": "Aliquam sed nibh nec metus",
-                "value": "lacinia convallis vitae in lectus"
+                "name": "Nibh nec metus",
+                "value": "vitae in lectus"
             }
         ],
         "associatedWithPreferences": false,

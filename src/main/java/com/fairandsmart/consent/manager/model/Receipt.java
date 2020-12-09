@@ -67,6 +67,7 @@ public class Receipt {
     private String language;
     private String logoPath;
     private String logoAltText;
+    private String logoPosition;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
     private ZonedDateTime date;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
@@ -263,7 +264,31 @@ public class Receipt {
     public void setLogoAltText(String logoAltText) {
         this.logoAltText = logoAltText;
     }
-    
+
+    public String getLogoPosition() {
+        return logoPosition;
+    }
+
+    public void setLogoPosition(String logoPosition) {
+        this.logoPosition = logoPosition;
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
+
+    public String getThemePath() {
+        return themePath;
+    }
+
+    public void setThemePath(String themePath) {
+        this.themePath = themePath;
+    }
+
     public String getNotificationType() {
         return notificationType;
     }
@@ -343,21 +368,5 @@ public class Receipt {
             receipt.getConsents().add(trecord);
         }
         return receipt;
-    }
-
-    public String getTheme() {
-        return theme;
-    }
-
-    public void setTheme(String theme) {
-        this.theme = theme;
-    }
-
-    public String getThemePath() {
-        return themePath;
-    }
-
-    public void setThemePath(String themePath) {
-        this.themePath = themePath;
     }
 }

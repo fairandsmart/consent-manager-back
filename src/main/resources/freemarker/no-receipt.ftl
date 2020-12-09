@@ -8,6 +8,9 @@
     <meta name="description" content="Outil de gestion des consentements Fair&Smart">
     <meta name="author" content="Fair&Smart">
 
+    <#include "style/common-style.ftl">
+    <#include "style/consent-style.ftl">
+    <#include "style/vertical-style.ftl">
     <#include "style/receipt-style.ftl">
 
     <title><@readBundle "receiptPageTitle" "missingValue"></@readBundle></title>

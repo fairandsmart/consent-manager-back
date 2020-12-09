@@ -5,10 +5,14 @@
         font-family: Arial, Helvetica, sans-serif;
     }
 
+    .list-label {
+        font-weight: bold;
+    }
+
 
     /* Errors */
 
-    .fsc-content-error {
+    .content-error {
         color: red;
         font-weight: bold;
     }

@@ -941,6 +941,7 @@ public class ConsentServiceBean implements ConsentService {
                     if (theme.getLogoPath() != null && !theme.getLogoPath().isEmpty()) {
                         receipt.setLogoPath(theme.getLogoPath());
                         receipt.setLogoAltText(theme.getLogoAltText());
+                        receipt.setLogoPosition(theme.getLogoPosition().name());
                     }
                     receipt.setThemePath(config.publicUrl() + "/models/serials/" + themeId.getSerial() + "/data");
                 }

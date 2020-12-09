@@ -5,7 +5,7 @@ function formatSelector(key) {
 function toggleAccordion(id) {
     const selector = formatSelector(id);
     const wasHidden = $(selector).hasClass("controller-hidden");
-    $(selector).toggleClass("controller-open", wasHidden);
+    $(selector).toggleClass("controller-visible", wasHidden);
     $(selector).toggleClass("controller-hidden", !wasHidden);
 }
 
