@@ -144,14 +144,14 @@
                 <value language="fr">À propos des données sensibles</value>
             </key>
             <key name="contains_sensitive_data">
-                <value language="default">Contains sensitive data</value>
-                <value language="en">Contains sensitive data</value>
-                <value language="fr">Contiens des données sensibles</value>
+                <value language="default">The transmitted information contains sensitive data.</value>
+                <value language="en">The transmitted information contains sensitive data.</value>
+                <value language="fr">Les informations transmises contiennent des données sensibles.</value>
             </key>
             <key name="contains_medical_data">
-                <value language="default">Contains medical data</value>
-                <value language="en">Contains medical data</value>
-                <value language="fr">Contiens des données médicales</value>
+                <value language="default">The transmitted information contains sensitive data, including medical data.</value>
+                <value language="en">The transmitted information contains sensitive data, including medical data.</value>
+                <value language="fr">Les informations transmises contiennent des données sensibles, dont des données de santé.</value>
             </key>
             <key name="third_parties">
                 <value language="default">These data will be shared with:</value>
@@ -542,7 +542,7 @@
                                         </xsl:element>
                                     </xsl:for-each>
                                 </div>
-                                <xsl:if test="current()/containsSensitiveData = 'true' or current()/containsMedicalData = 'true'">
+                                <xsl:if test="current()/containsSensitiveData = 'true'">
                                     <div class="block-wrapper">
                                         <h4>
                                             <xsl:call-template name="translate">
@@ -551,7 +551,7 @@
                                             </xsl:call-template>
                                         </h4>
                                         <ul class="processing-body">
-                                            <xsl:if test="current()/containsSensitiveData = 'true'">
+                                            <xsl:if test="current()/containsMedicalData = 'false'">
                                                 <li>
                                                     <span class="list-value">
                                                         <xsl:call-template name="translate">

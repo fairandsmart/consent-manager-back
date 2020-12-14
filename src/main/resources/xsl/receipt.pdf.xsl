@@ -138,14 +138,14 @@
                 <value language="fr">À propos des données sensibles</value>
             </key>
             <key name="contains_sensitive_data">
-                <value language="default">Contains sensitive data</value>
-                <value language="en">Contains sensitive data</value>
-                <value language="fr">Contiens des données sensibles</value>
+                <value language="default">The transmitted information contains sensitive data.</value>
+                <value language="en">The transmitted information contains sensitive data.</value>
+                <value language="fr">Les informations transmises contiennent des données sensibles.</value>
             </key>
             <key name="contains_medical_data">
-                <value language="default">Contains medical data</value>
-                <value language="en">Contains medical data</value>
-                <value language="fr">Contiens des données médicales</value>
+                <value language="default">The transmitted information contains sensitive data, including medical data.</value>
+                <value language="en">The transmitted information contains sensitive data, including medical data.</value>
+                <value language="fr">Les informations transmises contiennent des données sensibles, dont des données de santé.</value>
             </key>
             <key name="third_parties">
                 <value language="default">These data will be shared with:</value>
@@ -353,7 +353,7 @@
                             </fo:block>
                         </xsl:for-each>
 
-                        <xsl:if test="current()/containsSensitiveData = 'true' or current()/containsMedicalData = 'true'">
+                        <xsl:if test="current()/containsSensitiveData = 'true'">
                             <fo:block background-color="#f5f5f5" padding="10pt" margin="0 0 10pt 0" font-size="10pt">
                                 <fo:block font-size="11pt" font-weight="bold" margin-bottom="3pt">
                                     <xsl:call-template name="translate">
@@ -361,7 +361,7 @@
                                         <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                     </xsl:call-template>
                                 </fo:block>
-                                <xsl:if test="current()/containsSensitiveData = 'true'">
+                                <xsl:if test="current()/containsMedicalData = 'false'">
                                     <fo:block color="#4F4F4F">-
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key">contains_sensitive_data</xsl:with-param>
