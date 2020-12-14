@@ -63,7 +63,7 @@ public class NotifyConsentWorker implements Runnable {
     @Transactional
     public void run() {
         LOGGER.log(Level.FINE, "Notify Consent worker started for ctx: " + ctx);
-        NotificationReport report = new NotificationReport(mainConfig.owner(), ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
+        NotificationReport report = new NotificationReport(ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
         try {
             ConsentNotification notification = new ConsentNotification();
             notification.setLanguage(ctx.getLanguage());

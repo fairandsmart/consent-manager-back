@@ -33,9 +33,11 @@ package com.fairandsmart.consent.manager.store;
  * #L%
  */
 
+import com.fairandsmart.consent.common.config.MainConfig;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -51,18 +53,19 @@ public class LocalReceiptStore implements ReceiptStore {
 
     private static final String RECEIPT_STORE_HOME = "receipts";
 
-    @ConfigProperty(name = "consent.home")
-    String home;
+    @Inject
+    MainConfig mainConfig;
 
     private Path base;
 
     @PostConstruct
     public void init() {
+        String home = mainConfig.home();
         if ( home.startsWith("~") ) {
             home = System.getProperty("user.home") + home.substring(1);
             LOGGER.log(Level.INFO, "Setting service home relative to user home directory: " + home);
         }
-        this.base = Paths.get(home, RECEIPT_STORE_HOME);
+        this.base = Paths.get(home, RECEIPT_STORE_HOME, mainConfig.instance());
         LOGGER.log(Level.INFO, "Initializing store with base folder: " + base);
         try {
             Files.createDirectories(base);

@@ -40,7 +40,6 @@ import java.util.Map;
 
 public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFilter {
 
-    private String owner;
     private List<String> types;
     private List<String> keys;
     private int page;
@@ -49,14 +48,6 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
     private String direction;
 
     public ModelFilter() {
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
     }
 
     public List<String> getTypes() {
@@ -142,9 +133,6 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
     @Override
     public String getQueryString() {
         List<String> parts = new ArrayList<>();
-        if (owner != null && !owner.isEmpty()) {
-            parts.add("owner = :owner");
-        }
         if (types != null && !types.isEmpty()) {
             parts.add("type in :types");
         }
@@ -157,9 +145,6 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
     @Override
     public Map<String, Object> getQueryParams() {
         Map<String, Object> params = new HashMap<>();
-        if (owner != null && !owner.isEmpty()) {
-            params.put("owner", owner);
-        }
         if (types != null && !types.isEmpty()) {
             params.put("types", types);
         }
@@ -172,8 +157,7 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
     @Override
     public String toString() {
         return "ModelFilter{" +
-                "owner='" + owner + '\'' +
-                ", types=" + types +
+                "types=" + types +
                 ", page=" + page +
                 ", size=" + size +
                 ", order='" + order + '\'' +

@@ -58,12 +58,11 @@ public class ModelEntry extends PanacheEntityBase {
     @Column(length = 5000)
     public String description;
     public String author;
-    public String owner;
     @Column(length = 5000)
     public String branches;
 
-    public static boolean isKeyAlreadyExistsForOwner(String owner, String key) {
-        return ModelEntry.count("owner = ?1 and key = ?2", owner, key) > 0;
+    public static boolean isKeyAlreadyExists(String key) {
+        return ModelEntry.count("key = ?1", key) > 0;
     }
 
     @Override
@@ -76,7 +75,6 @@ public class ModelEntry extends PanacheEntityBase {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", author='" + author + '\'' +
-                ", owner='" + owner + '\'' +
                 ", branches='" + branches + '\'' +
                 '}';
     }

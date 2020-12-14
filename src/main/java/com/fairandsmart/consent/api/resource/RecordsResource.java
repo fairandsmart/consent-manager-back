@@ -31,7 +31,7 @@ public class RecordsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, List<RecordDto>> extractCustomerRecords(@QueryParam("subject") String subject) throws AccessDeniedException {
+    public Map<String, List<RecordDto>> listSubjectRecords(@QueryParam("subject") String subject) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /records");
         Map<String, List<Record>> records = consentService.listSubjectRecords(subject);
         return records.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (e) -> e.getValue().stream().map(RecordDto::fromRecord).map(dto -> dto.withNotificationReports(notificationService.listReports(dto.getTransaction()))).collect(Collectors.toList())));

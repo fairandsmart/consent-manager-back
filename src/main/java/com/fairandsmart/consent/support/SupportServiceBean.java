@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.support;
 
+import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.config.SupportConfig;
 import com.fairandsmart.consent.support.entity.Instance;
 import io.quarkus.runtime.Startup;
@@ -11,6 +12,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
+import javax.transaction.UserTransaction;
 import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,14 +27,19 @@ import java.util.logging.Logger;
 public class SupportServiceBean implements SupportService {
 
     private static final Logger LOGGER = Logger.getLogger(SupportService.class.getName());
-    private static final String INSTANCE_ID = "42";
 
     private static Instance instance;
     private static String supportStatus;
     private static String latestVersion;
 
     @Inject
+    MainConfig mainConfig;
+
+    @Inject
     SupportConfig config;
+
+    @Inject
+    UserTransaction transaction;
 
     @Inject
     @RestClient
@@ -69,11 +76,12 @@ public class SupportServiceBean implements SupportService {
         throw new SupportServiceException("Support has been disabled in configuration, re-enable if you want to contact support API");
     }
 
+    @Override
     @Scheduled(cron="0 0 0 ? * MON")
-    private void autoCheckLatestVersion() {
+    public void checkLatestVersion() {
         if (config.isEnabled()) {
             try {
-                SupportServiceBean.latestVersion = this.checkLatestVersion();
+                SupportServiceBean.latestVersion = this.remoteCheckLatestVersion();
             } catch (SupportServiceException e) {
                 LOGGER.log(Level.WARNING, "Error while checking latest version available", e);
                 SupportServiceBean.supportStatus = e.getMessage();
@@ -81,23 +89,29 @@ public class SupportServiceBean implements SupportService {
         }
     }
 
-    @Transactional
-    protected void onStart(@Observes StartupEvent ev) {
+    private String remoteCheckLatestVersion() throws SupportServiceException {
         LOGGER.log(Level.INFO, "Loading instance");
-        Optional<Instance> dbInstance = Instance.findByIdOptional(INSTANCE_ID);
+        Optional<Instance> dbInstance = Instance.findByIdOptional(mainConfig.instance());
         if (!dbInstance.isPresent()) {
             Instance instance = new Instance();
-            instance.id = INSTANCE_ID;
+            instance.id = mainConfig.instance();
             instance.key = UUID.randomUUID().toString();
-            instance.persist();
+            try {
+                transaction.begin();
+                instance.persist();
+                transaction.commit();
+            } catch (Exception e) {
+                try {
+                    transaction.rollback();
+                } catch (Exception e2) {
+                    //
+                }
+                throw new SupportServiceException("Unable to create instance entity", e);
+            }
             this.instance = instance;
         } else {
             this.instance = dbInstance.get();
         }
-        this.autoCheckLatestVersion();
-    }
-
-    private String checkLatestVersion() throws SupportServiceException {
         try {
             String latestVersion = remoteSupportService.getAvailableVersion(instance.key);
             LOGGER.log(Level.INFO, "Latest version available: " + latestVersion);

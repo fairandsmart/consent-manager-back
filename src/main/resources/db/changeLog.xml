@@ -3,13 +3,12 @@
                    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
-
+    
     <changeSet author="jayblanc" id="1">
-        <createTable tableName="MODELENTRY" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_MODELENTRY" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="OWNER" type="VARCHAR(255)"/>
             <column name="AUTHOR" type="VARCHAR(255)"/>
             <column name="KEY" type="VARCHAR(255)"/>
             <column name="NAME" type="VARCHAR(255)"/>
@@ -20,7 +19,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createTable tableName="MODELVERSION" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_MODELVERSION" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -28,7 +27,6 @@
             <column name="AVAILABLELANGUAGES" type="VARCHAR(255)"/>
             <column name="DEFAULTLANGUAGE" type="VARCHAR(255)"/>
             <column name="COUNTERPARTS" type="VARCHAR(5000)"/>
-            <column name="OWNER" type="VARCHAR(255)"/>
             <column name="AUTHOR" type="VARCHAR(255)"/>
             <column name="PARENT" type="VARCHAR(255)"/>
             <column name="CHILD" type="VARCHAR(255)"/>
@@ -47,14 +45,14 @@
             </column>
         </createTable>
         <addForeignKeyConstraint
-                constraintName="FK_MODELENTRY"
+                constraintName="${instance}_FK_MODELENTRY"
                 baseColumnNames="ENTRY_ID"
-                baseTableName="MODELVERSION"
+                baseTableName="${instance}_MODELVERSION"
                 baseTableSchemaName="PUBLIC"
                 referencedColumnNames="ID"
-                referencedTableName="MODELENTRY"
+                referencedTableName="${instance}_MODELENTRY"
                 referencedTableSchemaName="PUBLIC"/>
-        <createTable tableName="MODELVERSION_CONTENT" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_MODELVERSION_CONTENT" schemaName="PUBLIC" >
             <column name="MODELVERSION_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -66,19 +64,19 @@
             <column name="DATACLASS" type="VARCHAR(2000)"/>
         </createTable>
         <addForeignKeyConstraint
-                constraintName="FK_MODELENTRY_CONTENT"
+                constraintName="${instance}_FK_MODELENTRY_CONTENT"
                 baseColumnNames="MODELVERSION_ID"
-                baseTableName="MODELVERSION_CONTENT"
+                baseTableName="${instance}_MODELVERSION_CONTENT"
                 baseTableSchemaName="PUBLIC"
                 referencedColumnNames="ID"
-                referencedTableName="MODELVERSION"
+                referencedTableName="${instance}_MODELVERSION"
                 referencedTableSchemaName="PUBLIC"/>
         <addPrimaryKey
-                constraintName="PK_MODELVERSION_CONTENT_ID"
+                constraintName="${instance}_PK_MODELVERSION_CONTENT_ID"
                 columnNames="MODELVERSION_ID, CONTENT_KEY"
                 schemaName="PUBLIC"
-                tableName="MODELVERSION_CONTENT"/>
-        <createTable tableName="RECORD" schemaName="PUBLIC" >
+                tableName="${instance}_MODELVERSION_CONTENT"/>
+        <createTable tableName="${instance}_RECORD" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -87,7 +85,6 @@
             <column name="BODYSERIAL" type="VARCHAR(255)"/>
             <column name="INFOKEY" type="VARCHAR(255)"/>
             <column name="INFOSERIAL" type="VARCHAR(255)"/>
-            <column name="OWNER" type="VARCHAR(255)"/>
             <column name="PARENT" type="VARCHAR(255)"/>
             <column name="SERIAL" type="VARCHAR(255)"/>
             <column name="SUBJECT" type="VARCHAR(2000)"/>
@@ -108,7 +105,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createTable tableName="RECORD_ATTRIBUTES" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_RECORD_ATTRIBUTES" schemaName="PUBLIC" >
             <column name="RECORD_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -118,19 +115,19 @@
             <column name="ATTRIBUTES" type="VARCHAR(5000)"/>
         </createTable>
         <addForeignKeyConstraint
-                constraintName="FK_RECORD_ATTRIBUTES_ID"
+                constraintName="${instance}_FK_RECORD_ATTRIBUTES_ID"
                 baseColumnNames="RECORD_ID"
-                baseTableName="RECORD_ATTRIBUTES"
+                baseTableName="${instance}_RECORD_ATTRIBUTES"
                 baseTableSchemaName="PUBLIC"
                 referencedColumnNames="ID"
-                referencedTableName="RECORD"
+                referencedTableName="${instance}_RECORD"
                 referencedTableSchemaName="PUBLIC"/>
         <addPrimaryKey
-                constraintName="PK_RECORD_ATTRIBUTES_ID"
+                constraintName="${instance}_PK_RECORD_ATTRIBUTES_ID"
                 columnNames="RECORD_ID, ATTRIBUTES_KEY"
                 schemaName="PUBLIC"
-                tableName="RECORD_ATTRIBUTES"/>
-        <createTable tableName="SEQUENCE" schemaName="PUBLIC" >
+                tableName="${instance}_RECORD_ATTRIBUTES"/>
+        <createTable tableName="${instance}_SEQUENCE" schemaName="PUBLIC" >
             <column name="NAME" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -141,18 +138,17 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createTable tableName="SUBJECT" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_SUBJECT" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="OWNER" type="VARCHAR(255)"/>
             <column name="NAME" type="VARCHAR(2000)"/>
             <column name="EMAILADDRESS" type="VARCHAR(256)"/>
             <column name="CREATIONTIMESTAMP" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createTable tableName="KEY" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_KEY" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -160,12 +156,11 @@
             <column name="USERNAME" type="VARCHAR(255)"/>
             <column name="PASSWORD" type="VARCHAR(255)"/>
             <column name="ROLES" type="VARCHAR(255)"/>
-            <column name="OWNER" type="VARCHAR(255)"/>
             <column name="CREATIONDATE" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createTable tableName="ACCESSLOG" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_ACCESSLOG" schemaName="PUBLIC" >
             <column name="USERNAME" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -173,19 +168,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-    </changeSet>
-    <changeSet author="jayblanc" id="2">
-        <loadData file="db/MODELENTRY.csv" separator="," tableName="MODELENTRY" schemaName="PUBLIC"/>
-        <loadData file="db/MODELVERSION.csv" separator="," tableName="MODELVERSION" schemaName="PUBLIC"/>
-        <loadData file="db/MODELVERSION_CONTENT.csv" separator="," tableName="MODELVERSION_CONTENT" schemaName="PUBLIC">
-            <column name="DATA" type="string"/>
-        </loadData>
-        <loadData file="db/SEQUENCE.csv" separator="," tableName="SEQUENCE" schemaName="PUBLIC"/>
-        <loadData file="db/SUBJECT.csv" separator="," tableName="SUBJECT" schemaName="PUBLIC"/>
-        <loadData file="db/RECORD.csv" separator="," tableName="RECORD" schemaName="PUBLIC"/>
-    </changeSet>
-    <changeSet author="jayblanc" id="3">
-        <createTable tableName="THINTOKEN" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_THINTOKEN" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -194,9 +177,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-    </changeSet>
-    <changeSet author="jayblanc" id="4">
-        <createTable tableName="INSTANCE" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_INSTANCE" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -204,16 +185,13 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-    </changeSet>
-    <changeSet author="jayblanc" id="5">
-        <createTable tableName="NOTIFICATIONREPORT" schemaName="PUBLIC" >
+        <createTable tableName="${instance}_NOTIFICATIONREPORT" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="VERSION" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="OWNER" type="VARCHAR(255)"/>
             <column name="TRANSACTION" type="VARCHAR(255)"/>
             <column name="CREATIONTIMESTAMP" type="BIGINT">
                 <constraints nullable="false"/>
@@ -222,5 +200,15 @@
             <column name="TYPE" type="VARCHAR(255)"/>
             <column name="EXPLANATION" type="VARCHAR(2500)"/>
         </createTable>
+    </changeSet>
+    <changeSet author="jayblanc" id="2" context="import">
+        <loadData file="db/MODELENTRY.csv" separator="," tableName="${instance}_MODELENTRY" schemaName="PUBLIC"/>
+        <loadData file="db/MODELVERSION.csv" separator="," tableName="${instance}_MODELVERSION" schemaName="PUBLIC"/>
+        <loadData file="db/MODELVERSION_CONTENT.csv" separator="," tableName="${instance}_MODELVERSION_CONTENT" schemaName="PUBLIC">
+            <column name="DATA" type="string"/>
+        </loadData>
+        <loadData file="db/SEQUENCE.csv" separator="," tableName="${instance}_SEQUENCE" schemaName="PUBLIC"/>
+        <loadData file="db/SUBJECT.csv" separator="," tableName="${instance}_SUBJECT" schemaName="PUBLIC"/>
+        <loadData file="db/RECORD.csv" separator="," tableName="${instance}_RECORD" schemaName="PUBLIC"/>
     </changeSet>
 </databaseChangeLog>

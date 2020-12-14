@@ -40,16 +40,15 @@
         </#if>
 
         <#-- Sensitive data -->
-        <#if elementContent.containsSensitiveData || elementContent.containsMedicalData>
+        <#if elementContent.containsSensitiveData>
             <div class="block-wrapper">
                 <h4><@readBundle "defaultSensitiveDataTitle"></@readBundle></h4>
 
                 <ul class="processing-body">
-                    <#if elementContent.containsSensitiveData>
-                        <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
-                    </#if>
                     <#if elementContent.containsMedicalData>
                         <li><span class="list-value"><@readBundle "containsMedicalData"></@readBundle></span></li>
+                    <#else>
+                        <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
                     </#if>
                 </ul>
             </div>
