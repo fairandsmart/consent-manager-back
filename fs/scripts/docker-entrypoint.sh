@@ -53,13 +53,16 @@ export FS_TOKEN_SECRET=${FS_TOKEN_SECRET:-eozaireeghie1aeD2phu}
 mkdir -p /data/home
 
 # SupportServiceConfig
-export FS_CORE_URL=${FS_CORE_URL:-}
-export FS_TSA_URL=${FS_TSA_URL:-http://timestamp:8580/tsr}
+export FS_CORE_URL=${FS_CORE_URL:-https://core.fairandsmart.com/api}
+export FS_TSA_URL=${FS_TSA_URL:-https://freetsa.org/tsr}
 
 # SerialConfig
 
 # KeystoreConfig
 export FS_KEYSTORE_PATH=${FS_KEYSTORE_PATH:-/data/keystore.jks}
+
+# CLientConfig
+export FS_GUI_URI=${FS_GUI_URI:-http://localhost}
 
 [[ -z "$FS_DEBUG" ]] || set -x
 
