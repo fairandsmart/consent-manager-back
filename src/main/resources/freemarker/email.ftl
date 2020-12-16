@@ -2,7 +2,7 @@
 <html lang="${language}">
 <head>
     <#include "macros/lang-macros.ftl">
-    <@fetchMultiLangContent data.model></@fetchMultiLangContent>
+    <#include "macros/elements-macros.ftl">
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,19 +11,15 @@
 
     <#include "style/common-style.ftl">
     <#include "style/email-style.ftl">
-    <#include "theme.ftl">
+    <#include "components/theme.ftl">
 
-    <title>${langContent.subject}</title>
+    <@fetchMultiLangContent data.model></@fetchMultiLangContent>
+    <#assign email=langContent>
+    <title>${email.subject}</title>
 </head>
 
 <body>
-<div class="fsc-opt-out-wrapper">
-    <h1 class="fsc-opt-out-title h2">${langContent.title}</h1>
-    <div class="fsc-opt-out-body">${langContent.body}</div>
-    <div class="fsc-opt-out-button">
-        <a id="form-url" class="btn btn-primary" href="${(data.url?has_content)?then(data.url, '#')}">${langContent.buttonLabel}</a> </div>
-    <div class="fsc-opt-out-footer">${langContent.footer}</div>
-    <div class="fsc-opt-out-signature">${langContent.signature}</div>
-</div>
+    <#assign url=data.url?has_content?then(data.url,"")>
+    <#include "components/email.ftl">
 </body>
 </html>

@@ -14,20 +14,24 @@
     <#if model.type=="basicinfo" || model.type=="processing" || model.type=="preference">
         <#include "../style/consent-style.ftl">
         <#include "../style/vertical-style.ftl">
-    </#if>
-    <#if model.type=="theme">
-        <#include "../style/consent-style.ftl">
-        <#if data.orientation=="horizontal">
-            <#include "../style/horizontal-style.ftl">
+    <#elseif model.type=="theme">
+        <#if data.previewType=="EMAIL">
+            <#include "../style/email-style.ftl">
         <#else>
-            <#include "../style/vertical-style.ftl">
+            <#include "../style/consent-style.ftl">
+            <#if data.orientation=="HORIZONTAL">
+                <#include "../style/horizontal-style.ftl">
+            <#else>
+                <#include "../style/vertical-style.ftl">
+            </#if>
+            <#if data.previewType=="RECEIPT">
+                <#include "../style/receipt-style.ftl">
+            </#if>
         </#if>
         <style>${model.css}</style>
-    </#if>
-    <#if model.type=="conditions">
+    <#elseif model.type=="conditions">
         <#include "../style/conditions-style.ftl">
-    </#if>
-    <#if model.type=="email">
+    <#elseif model.type=="email">
         <#include "../style/email-style.ftl">
     </#if>
 
@@ -38,46 +42,70 @@
 <#if model.type=="conditions">
     <div class="conditions-wrapper">
         <#assign conditions=model>
-        <#include "conditions.ftl">
+        <#include "../components/conditions.ftl">
     </div>
 <#elseif model.type=="email">
     <div>
         <#assign email=model>
-        <#include "email.ftl">
+        <#assign url=(email?is_hash && email.buttonLabel?has_content)?then("previewUrl","")>
+
+        <#if email?is_hash>
+            <div class="metadata-list">
+                <div class="metadata">
+                    <label class="metadata-label"><@readBundle "email_sender" "missingValue"></@readBundle></label>
+                    <div class="metadata-content"><@valueOrError email.sender "missingValue"></@valueOrError></div>
+                </div>
+                <div class="metadata">
+                    <label class="metadata-label"><@readBundle "email_subject" "missingValue"></@readBundle></label>
+                    <div class="metadata-content"><@valueOrError email.subject "missingValue"></@valueOrError></div>
+                </div>
+            </div>
+        </#if>
+
+        <#include "../components/email.ftl">
     </div>
+<#elseif model.type=="theme">
+    <#assign theme=model>
+    <#if data.previewType=="FORM">
+    <div class="consent-form">
+        <#if data.orientation=="HORIZONTAL">
+            <#include "theme-horizontal.ftl">
+        <#else>
+            <#include "theme-vertical.ftl">
+        </#if>
+    </div>
+    <#elseif data.previewType=="RECEIPT">
+        <div class="receipt">
+            <#include "theme-receipt.ftl">
+        </div>
+    <#elseif data.previewType=="EMAIL">
+        <#include "theme-email.ftl">
+    </#if>
 <#else>
     <div class="consent-form">
+
         <#if model.type=="basicinfo">
             <#assign info=model>
-            <#include "info-logo.ftl">
-            <div class="processing-list">
-                <#include "info-head.ftl">
-            </div>
+            <#assign infoIdentifier="infos">
             <#assign displayAcceptAll=false>
-            <#include "info-foot.ftl">
-        </#if>
-        <#if model.type=="processing">
             <div class="processing-list">
-                <#assign element_content=model>
+                <#include "../components/info-head.ftl">
+            </div>
+            <#include "../components/info-foot.ftl">
+        <#elseif model.type=="processing">
+            <div class="processing-list">
+                <#assign elementContent=model>
                 <#assign identifier="processing">
-                <#include "processing.ftl">
+                <#include "../components/processing.ftl">
             </div>
-        </#if>
-        <#if model.type=="preference">
+        <#elseif model.type=="preference">
             <div class="processing-list">
-                <#assign element_content=model>
+                <#assign elementContent=model>
                 <#assign identifier="preference">
-                <#include "preference.ftl">
+                <#include "../components/preference.ftl">
             </div>
         </#if>
-        <#if model.type=="theme">
-            <#assign theme=model>
-            <#if data.orientation=="horizontal">
-                <#include "theme-horizontal.ftl">
-            <#else>
-                <#include "theme-vertical.ftl">
-            </#if>
-        </#if>
+
     </div>
 </#if>
 

@@ -20,3 +20,11 @@
         </select>
     </label>
 </#macro>
+
+<#macro linkHref url isPreview>
+    <#if isPreview>
+        href='#' style='pointer-events: none;'
+    <#else>
+        href='${url}'
+    </#if>
+</#macro>

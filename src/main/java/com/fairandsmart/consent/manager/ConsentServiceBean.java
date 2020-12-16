@@ -920,8 +920,14 @@ public class ConsentServiceBean implements ConsentService {
 
                 if (ctx.getTheme() != null && ctx.getTheme().length() > 1) {
                     receipt.setTheme(ctx.getTheme());
-                    String[] themeParts = ctx.getTheme().split("/");
-                    receipt.setThemePath(config.publicUrl() + "/models/serials/" + themeParts[themeParts.length - 1] + "/data");
+                    ConsentElementIdentifier themeId = ConsentElementIdentifier.deserialize(ctx.getTheme());
+                    Theme theme = (Theme) ModelVersion.SystemHelper.findModelVersionForSerial(themeId.getSerial(), false).getData(ctx.getLanguage());
+                    if (theme.getLogoPath() != null && !theme.getLogoPath().isEmpty()) {
+                        receipt.setLogoPath(theme.getLogoPath());
+                        receipt.setLogoAltText(theme.getLogoAltText());
+                        receipt.setLogoPosition(theme.getLogoPosition().name());
+                    }
+                    receipt.setThemePath(config.publicUrl() + "/models/serials/" + themeId.getSerial() + "/data");
                 }
 
                 try {

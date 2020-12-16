@@ -2,9 +2,18 @@
 <html lang="${language}">
 <head>
     <#include "macros/lang-macros.ftl">
-    <title><@readBundle "receiptPageTitle" "missingValue"></@readBundle></title>
+
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Outil de gestion des consentements Fair&Smart">
+    <meta name="author" content="Fair&Smart">
+
+    <#include "style/common-style.ftl">
+    <#include "style/consent-style.ftl">
+    <#include "style/vertical-style.ftl">
     <#include "style/receipt-style.ftl">
+
+    <title><@readBundle "receiptPageTitle" "missingValue"></@readBundle></title>
 </head>
 
 <body>

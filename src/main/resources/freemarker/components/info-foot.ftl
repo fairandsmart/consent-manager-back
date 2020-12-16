@@ -26,6 +26,8 @@
     </#if>
 
     <div class="submit-container">
-        <button type="submit" class="submit" disabled style="pointer-events: none;"><@readBundle "submit" "missingValue"></@readBundle></button>
+        <button type="submit" class="submit" <#if data.preview>disabled style="pointer-events: none;"</#if>>
+            <@readBundle "submit" "missingValue"></@readBundle>
+        </button>
     </div>
 </div>

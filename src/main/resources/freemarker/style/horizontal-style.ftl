@@ -70,7 +70,6 @@
     /* Footer */
 
     .footer {
-        padding: 12px 0;
         border-top: 1px solid lightgray;
         margin: 0 36px;
     }
