@@ -17,7 +17,6 @@ FS_MAXHEAPSIZE=${FS_MAXHEAPSIZE:-1g}
 
 # HTTP config
 export FS_HTTP_PORT=${FS_HTTP_PORT:-8087}
-export FS_CORS_ORIGINS=${FS_CORS_ORIGINS:-}
 
 # OIDC config
 export FS_AUTH_BACK_URI=${FS_AUTH_BACK_URI:-http://keycloak:8080}
@@ -61,16 +60,14 @@ export FS_TSA_URL=${FS_TSA_URL:-https://freetsa.org/tsr}
 # KeystoreConfig
 export FS_KEYSTORE_PATH=${FS_KEYSTORE_PATH:-/data/keystore.jks}
 
-# CLientConfig
+# ClientConfig
 export FS_GUI_URI=${FS_GUI_URI:-http://localhost}
 
 [[ -z "$FS_DEBUG" ]] || set -x
 
 # sanity checks
 
-[[ -z "$FS_CORS_ORIGINS" ]] && fs_error "Please set FS_CORS_ORIGINS up"
 [[ -z "$FS_AUTH_FRONT_URI" ]] && fs_error "Please set FS_AUTH_FRONT_URI up"
-[[ -z "$FS_CORE_URL" ]] && fs_error "Please set FS_CORE_URL up"
 [[ -z "$FS_PUBLIC_URL" ]] && fs_error "Please set FS_PUBLIC_URL up"
 
 envsubst < /config/application-template.properties > /config/application.properties
