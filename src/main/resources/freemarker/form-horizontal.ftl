@@ -20,64 +20,70 @@
 <body>
 <#if data.preview>
 <div class="consent-form">
-<#else>
-<form method="post" id="consent" action="#" class="consent-form">
-    <input name="token" id="token" value="${data.token}" hidden/>
-</#if>
-
-    <#if data.info?? && data.info?has_content>
-        <@fetchMultiLangContent data.info></@fetchMultiLangContent>
-        <#assign info=langContent>
-        <#assign infoIdentifier=data.info.identifier>
     <#else>
-        <#assign info="">
-        <#assign infoIdentifier="infos">
-    </#if>
-    <#assign displayAcceptAll=(data.showAcceptAll && data.elements?size > 1)>
+    <form method="post" id="consent" action="#" class="consent-form">
+        <input name="token" id="token" value="${data.token}" hidden/>
+        </#if>
 
-    <div class="left">
-        <#include "components/logo.ftl">
-        <div class="content-fade"></div>
+        <#if data.info?? && data.info?has_content>
+            <@fetchMultiLangContent data.info></@fetchMultiLangContent>
+            <#assign info=langContent>
+            <#assign infoIdentifier=data.info.identifier>
+        <#else>
+            <#assign info="">
+            <#assign infoIdentifier="infos">
+        </#if>
+        <#assign displayAcceptAll=(data.showAcceptAll && data.elements?size > 1)>
 
-        <div class="left-content">
-            <#include "components/info-head.ftl">
+        <div class="left">
+            <#include "components/logo.ftl">
+            <div class="content-fade"></div>
+
+            <div class="left-content">
+                <#include "components/info-head.ftl">
+            </div>
+
+            <div class="content-fade fade-inverted"></div>
         </div>
 
-        <div class="content-fade fade-inverted"></div>
-    </div>
+        <div class="right">
+            <div class="content-fade"></div>
 
-    <div class="right">
-        <div class="content-fade"></div>
+            <div class="processing-list">
+                <#list data.elements as element>
+                    <@fetchMultiLangContent element></@fetchMultiLangContent>
+                    <#assign elementContent=langContent>
+                    <#assign identifier=element.identifier>
+                    <#include "components/" + element.entry.type + ".ftl">
+                </#list>
 
-        <div class="processing-list">
-            <#list data.elements as element>
-                <@fetchMultiLangContent element></@fetchMultiLangContent>
-                <#assign elementContent=langContent>
-                <#assign identifier=element.identifier>
-                <#include "components/" + element.entry.type + ".ftl">
-            </#list>
+                <#if !data.footerOnTop>
+                    <#include "components/info-foot.ftl">
+                </#if>
+            </div>
 
-            <#if !data.footerOnTop>
+            <#if data.footerOnTop>
                 <#include "components/info-foot.ftl">
             </#if>
         </div>
 
-        <#if data.footerOnTop>
-            <#include "components/info-foot.ftl">
-        </#if>
-    </div>
-
-<#if data.preview>
+        <#if data.preview>
 </div>
 <#else>
-</form>
+    </form>
 </#if>
 
-<script src="/assets/js/jquery/jquery-3.5.1.slim.min.js" crossorigin=""
-        integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs="></script>
-<script src="/assets/js/consent.js"></script>
-<script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js" crossorigin=""
-        integrity="sha256-uqJEaigsh7a1ncOLCy3CLi7FboUzLC6zNE5u5dRNVmI="></script>
+<script src="/assets/js/jquery/jquery-3.5.1.slim.min.js"
+        integrity="sha256-GKc/Ggw4TYpRFISB2sJfIOjWaFWhLlk1nbwJijGoY7o="
+        crossorigin="anonymous"></script>
+
+<script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js"
+        crossorigin="anonymous"
+        integrity="sha256-VnjX/dNthWqIpTji9AbZLghQx9fdOAw2t4nSgiWLxfM="></script>
+
+<script src="/assets/js/consent.js"
+        crossorigin=""
+        integrity="sha256-/Q/CTVceMarhOybuZBZSVURvvjfyFwfHv9Mg0wly0p8="></script>
 
 </body>
 </html>
