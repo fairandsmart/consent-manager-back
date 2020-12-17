@@ -18,7 +18,7 @@
         <#-- Retention -->
         <div class="item-wrapper">
             <p class="processing-body">
-                <@valueOrError elementContent.retentionLabel "missingValue"></@valueOrError> <@valueOrError elementContent.retentionValue "missingValue"></@valueOrError> <@readBundle elementContent.retentionUnit "missingValue"></@readBundle>.
+                <@valueOrError elementContent.retention.label "missingValue"></@valueOrError> <@valueOrError elementContent.retention.value "missingValue"></@valueOrError> <@readBundle elementContent.retention.unit "missingValue"></@readBundle>.
             </p>
         </div>
 
