@@ -62,6 +62,7 @@ import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
+import com.fairandsmart.consent.stats.StatisticsStore;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
@@ -133,6 +134,9 @@ public class ConsentServiceBean implements ConsentService {
     /* Keys are ModelEntries ids since only one version per entry can be previewed. It helps clearing the cache when an entry is deleted. */
     @Inject
     PreviewCache previewCache;
+
+    @Inject
+    StatisticsStore statisticsStore;
 
     @Inject
     BasicRecordStatusRuleChain recordStatusChain;
@@ -414,8 +418,7 @@ public class ConsentServiceBean implements ConsentService {
         }
         if (status.equals(ModelVersion.Status.DRAFT)) {
             throw new InvalidStatusException("Unable to update a version to DRAFT status");
-        }
-        if (status.equals(ModelVersion.Status.ACTIVE)) {
+        } else if (status.equals(ModelVersion.Status.ACTIVE)) {
             if (!version.status.equals(ModelVersion.Status.DRAFT)) {
                 throw new InvalidStatusException("Only DRAFT version can be set ACTIVE");
             } else {
@@ -424,6 +427,7 @@ public class ConsentServiceBean implements ConsentService {
                     parent.modificationDate = System.currentTimeMillis();
                     parent.status = ModelVersion.Status.ARCHIVED;
                     parent.persist();
+                    statisticsStore.remove("models", parent.entry.type, parent.creationDate);
                 }
                 version.status = ModelVersion.Status.ACTIVE;
                 version.modificationDate = System.currentTimeMillis();
@@ -431,9 +435,9 @@ public class ConsentServiceBean implements ConsentService {
                     version.counterparts = "";
                 }
                 version.persist();
+                statisticsStore.add("models", version.entry.type);
             }
-        }
-        if (status.equals(ModelVersion.Status.ARCHIVED)) {
+        } else if (status.equals(ModelVersion.Status.ARCHIVED)) {
             if (!version.status.equals(ModelVersion.Status.ACTIVE)) {
                 throw new InvalidStatusException("Only ACTIVE version can be set ARCHIVED");
             } else {
@@ -676,6 +680,7 @@ public class ConsentServiceBean implements ConsentService {
         subject.creationTimestamp = now.toEpochMilli();
         subject.emailAddress = subjectDto.getEmailAddress();
         subject.persist();
+        statisticsStore.add("subjects", "subjects");
         return subject;
     }
 
@@ -853,6 +858,7 @@ public class ConsentServiceBean implements ConsentService {
                 subject.name = ctx.getSubject();
                 subject.creationTimestamp = now.toEpochMilli();
                 Subject.persist(subject);
+                statisticsStore.add("subjects", "subjects");
             }
 
             String comment = "";
@@ -883,6 +889,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : authentication.getConnectedIdentifier();
                     record.comment = comment;
                     record.persist();
+                    statisticsStore.add("records", record.type);
                     records.add(record);
                 } catch (IllegalIdentifierException e) {
                     //
