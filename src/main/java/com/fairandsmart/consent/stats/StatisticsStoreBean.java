@@ -65,10 +65,6 @@ public class StatisticsStoreBean implements StatisticsStore {
         final List<String> entriesTypes = Arrays.asList(Processing.TYPE, Preference.TYPE, Conditions.TYPE);
 
         for (StatCalendar.TimeScale scale : StatCalendar.TimeScale.values()) {
-            new ModelsStatsBuilder().build(scale, entriesTypes, cache, "models");
-        }
-
-        for (StatCalendar.TimeScale scale : StatCalendar.TimeScale.values()) {
             new RecordsStatsBuilder().build(scale, entriesTypes, cache, "records");
         }
 
@@ -80,29 +76,12 @@ public class StatisticsStoreBean implements StatisticsStore {
     @Override
     public void add(String root, String type) {
         LOGGER.info("Incrementing stats : " + root + " " + type);
-        update(formatKey(Arrays.asList(root, "total")), 1);
-        update(formatKey(Arrays.asList(root, type, "total")), 1);
+        increment(formatKey(Arrays.asList(root, "total")));
+        increment(formatKey(Arrays.asList(root, type, "total")));
         for (StatCalendar.TimeScale scale : StatCalendar.TimeScale.values()) {
             String dateLabel = new StatCalendar(scale).formatDateForLabel();
-            update(formatKey(Arrays.asList(root, "all", scale.name(), dateLabel)), 1);
-            update(formatKey(Arrays.asList(root, type, scale.name(), dateLabel)), 1);
-        }
-    }
-
-    @Override
-    public void remove(String root, String type, long timestamp) {
-        LOGGER.info("Decrementing stats : " + root + " " + type);
-        update(formatKey(Arrays.asList(root, "total")), -1);
-        update(formatKey(Arrays.asList(root, type, "total")), -1);
-        for (StatCalendar.TimeScale scale : StatCalendar.TimeScale.values()) {
-            StatCalendar creationCalendar = new StatCalendar(scale, timestamp);
-            StatCalendar limitCalendar = new StatCalendar(scale);
-            limitCalendar.reset();
-            // TODO problem : ModelVersion statuses are not necessarily set to ACTIVE on their creation day
-            if (creationCalendar.getTimeInMillis() >= limitCalendar.getTimeInMillis()) {
-                update(formatKey(Arrays.asList(root, "all", scale.name(), creationCalendar.formatDateForLabel())), -1);
-                update(formatKey(Arrays.asList(root, type, scale.name(), creationCalendar.formatDateForLabel())), -1);
-            }
+            increment(formatKey(Arrays.asList(root, "all", scale.name(), dateLabel)));
+            increment(formatKey(Arrays.asList(root, type, scale.name(), dateLabel)));
         }
     }
 
@@ -115,14 +94,14 @@ public class StatisticsStoreBean implements StatisticsStore {
         }
     }
 
-    private void update(String key, int value) {
+    private void increment(String key) {
         Long previous;
         if (cache.containsKey(key)) {
             previous = cache.lookup(key);
         } else {
             previous = 0L;
         }
-        cache.put(key, previous + value);
+        cache.put(key, previous + 1);
     }
 
     private static String formatKey(List<String> parts) {

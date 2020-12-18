@@ -42,8 +42,6 @@ public interface StatisticsStore {
 
     void add(String root, String type);
 
-    void remove(String root, String type, long timestamp);
-
     Long read(String key);
 
 }

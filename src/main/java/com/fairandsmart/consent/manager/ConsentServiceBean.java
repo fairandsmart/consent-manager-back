@@ -183,8 +183,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Getting entry for id: " + id);
         authentication.ensureConnectedIdentifierIsOperator();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
-        ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
-        return entry;
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
     }
 
     @Override
@@ -316,11 +315,10 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ModelVersion getVersion(String id) throws EntityNotFoundException, AccessDeniedException {
+    public ModelVersion getVersion(String id) throws EntityNotFoundException {
         LOGGER.log(Level.INFO, "Finding version for id: " + id);
         Optional<ModelVersion> optional = ModelVersion.findByIdOptional(id);
-        ModelVersion version = optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for id: " + id));
-        return version;
+        return optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for id: " + id));
     }
 
     @Override
@@ -427,7 +425,6 @@ public class ConsentServiceBean implements ConsentService {
                     parent.modificationDate = System.currentTimeMillis();
                     parent.status = ModelVersion.Status.ARCHIVED;
                     parent.persist();
-                    statisticsStore.remove("models", parent.entry.type, parent.creationDate);
                 }
                 version.status = ModelVersion.Status.ACTIVE;
                 version.modificationDate = System.currentTimeMillis();
@@ -435,7 +432,6 @@ public class ConsentServiceBean implements ConsentService {
                     version.counterparts = "";
                 }
                 version.persist();
-                statisticsStore.add("models", version.entry.type);
             }
         } else if (status.equals(ModelVersion.Status.ARCHIVED)) {
             if (!version.status.equals(ModelVersion.Status.ACTIVE)) {
@@ -624,7 +620,7 @@ public class ConsentServiceBean implements ConsentService {
             String receiptId = this.saveConsent(ctx, valuesMap);
             ctx.setReceiptId(receiptId);
 
-            Event event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx);
+            Event<ConsentContext> event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx);
             this.notification.notify(event);
 
             return new ConsentTransaction(receiptId);

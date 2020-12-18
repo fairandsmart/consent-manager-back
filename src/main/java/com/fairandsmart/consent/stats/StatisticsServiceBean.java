@@ -70,12 +70,6 @@ public class StatisticsServiceBean implements StatisticsService {
         final List<String> entriesTypes = Arrays.asList(Processing.TYPE, Preference.TYPE, Conditions.TYPE);
         StatsBag bag = new StatsBag();
 
-        StatsChart modelsChart = new StatsChart();
-        for (StatCalendar.TimeScale scale : StatCalendar.TimeScale.values()) {
-            modelsChart.put(scale.name(), buildStats(scale, entriesTypes, store, "models"));
-        }
-        bag.put("models", modelsChart);
-
         StatsChart recordsChart = new StatsChart();
         for (StatCalendar.TimeScale scale : StatCalendar.TimeScale.values()) {
             recordsChart.put(scale.name(), buildStats(scale, entriesTypes, store, "records"));
