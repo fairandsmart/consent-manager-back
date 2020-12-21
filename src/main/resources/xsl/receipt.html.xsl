@@ -599,7 +599,7 @@
                                 </div>
                                 <div class="processing-info">
                                     <p><xsl:value-of select="current()/data"/></p>
-                                    <p><xsl:value-of select="current()/retention"/></p>
+                                    <p><xsl:value-of select="current()/retention/fullText"/></p>
                                     <p><xsl:value-of select="current()/usage"/></p>
                                 </div>
                                 <div class="purpose-container">

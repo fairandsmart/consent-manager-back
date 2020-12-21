@@ -48,9 +48,7 @@ public class Processing extends ModelData {
     // Main text
     private String title;
     private String data;
-    private String retentionLabel;
-    private int retentionValue;
-    private RetentionUnit retentionUnit;
+    private RetentionInfo retention;
     private String usage;
     private List<Purpose> purposes;
     // Sensitive data
@@ -95,45 +93,6 @@ public class Processing extends ModelData {
 
     public Processing withData(String data) {
         this.data = data;
-        return this;
-    }
-
-    public String getRetentionLabel() {
-        return retentionLabel;
-    }
-
-    public void setRetentionLabel(String retentionLabel) {
-        this.retentionLabel = retentionLabel;
-    }
-
-    public Processing withRetentionLabel(String retentionLabel) {
-        this.retentionLabel = retentionLabel;
-        return this;
-    }
-
-    public int getRetentionValue() {
-        return retentionValue;
-    }
-
-    public void setRetentionValue(int retentionValue) {
-        this.retentionValue = retentionValue;
-    }
-
-    public Processing withRetentionValue(int retentionValue) {
-        this.retentionValue = retentionValue;
-        return this;
-    }
-
-    public RetentionUnit getRetentionUnit() {
-        return retentionUnit;
-    }
-
-    public void setRetentionUnit(RetentionUnit retentionUnit) {
-        this.retentionUnit = retentionUnit;
-    }
-
-    public Processing withRetentionUnit(RetentionUnit retentionUnit) {
-        this.retentionUnit = retentionUnit;
         return this;
     }
 
@@ -272,10 +231,17 @@ public class Processing extends ModelData {
         return this;
     }
 
-    public enum RetentionUnit {
-        YEAR,
-        MONTH,
-        WEEK
+    public RetentionInfo getRetention() {
+        return this.retention;
+    }
+
+    public void setRetention(RetentionInfo retention) {
+        this.retention = retention;
+    }
+
+    public Processing withRetention(RetentionInfo retention) {
+        this.retention = retention;
+        return this;
     }
 
     public enum Purpose {
@@ -301,15 +267,13 @@ public class Processing extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Processing that = (Processing) o;
-        return retentionValue == that.retentionValue &&
+        return retention.equals(that.retention) &&
                 containsSensitiveData == that.containsSensitiveData &&
                 containsMedicalData == that.containsMedicalData &&
                 showDataController == that.showDataController &&
                 associatedWithPreferences == that.associatedWithPreferences &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(data, that.data) &&
-                Objects.equals(retentionLabel, that.retentionLabel) &&
-                retentionUnit == that.retentionUnit &&
                 Objects.equals(usage, that.usage) &&
                 Objects.equals(purposes, that.purposes) &&
                 Objects.equals(dataController, that.dataController) &&
@@ -319,7 +283,7 @@ public class Processing extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, data, retentionLabel, retentionValue, retentionUnit, usage, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties, associatedWithPreferences, associatedPreferences);
+        return Objects.hash(title, data, retention, usage, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties, associatedWithPreferences, associatedPreferences);
     }
 
     @Override
@@ -327,9 +291,7 @@ public class Processing extends ModelData {
         return "Processing{" +
                 "title='" + title + '\'' +
                 ", data='" + data + '\'' +
-                ", retention='" + retentionLabel + '\'' +
-                ", retentionValue=" + retentionValue +
-                ", retentionUnit=" + retentionUnit +
+                ", retention='" + retention + '\'' +
                 ", usage='" + usage + '\'' +
                 ", purposes=" + purposes +
                 ", containsSensitiveData=" + containsSensitiveData +
