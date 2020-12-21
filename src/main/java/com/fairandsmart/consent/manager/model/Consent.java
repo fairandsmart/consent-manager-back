@@ -44,9 +44,7 @@ public class Consent {
 
     private String serial;
     private String data;
-    private String retentionLabel;
-    private int retentionValue;
-    private String retentionUnit;
+    private RetentionInfo retention;
     private String title;
     private String usage;
     private Controller controller;
@@ -77,30 +75,6 @@ public class Consent {
 
     public void setData(String data) {
         this.data = data;
-    }
-
-    public String getRetentionLabel() {
-        return retentionLabel;
-    }
-
-    public void setRetentionLabel(String retentionLabel) {
-        this.retentionLabel = retentionLabel;
-    }
-
-    public int getRetentionValue() {
-        return retentionValue;
-    }
-
-    public void setRetentionValue(int retentionValue) {
-        this.retentionValue = retentionValue;
-    }
-
-    public String getRetentionUnit() {
-        return retentionUnit;
-    }
-
-    public void setRetentionUnit(String retentionUnit) {
-        this.retentionUnit = retentionUnit;
     }
 
     public String getUsage() {
@@ -165,5 +139,13 @@ public class Consent {
 
     public void setThirdParties(List<NameValuePair> thirdParties) {
         this.thirdParties = thirdParties;
+    }
+
+    public RetentionInfo getRetention() {
+        return retention;
+    }
+
+    public void setRetention(RetentionInfo retention) {
+        this.retention = retention;
     }
 }

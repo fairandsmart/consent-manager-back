@@ -17,7 +17,6 @@ FS_MAXHEAPSIZE=${FS_MAXHEAPSIZE:-1g}
 
 # HTTP config
 export FS_HTTP_PORT=${FS_HTTP_PORT:-8087}
-export FS_CORS_ORIGINS=${FS_CORS_ORIGINS:-}
 
 # OIDC config
 export FS_AUTH_BACK_URI=${FS_AUTH_BACK_URI:-http://keycloak:8080}
@@ -53,21 +52,22 @@ export FS_TOKEN_SECRET=${FS_TOKEN_SECRET:-eozaireeghie1aeD2phu}
 mkdir -p /data/home
 
 # SupportServiceConfig
-export FS_CORE_URL=${FS_CORE_URL:-}
-export FS_TSA_URL=${FS_TSA_URL:-http://timestamp:8580/tsr}
+export FS_CORE_URL=${FS_CORE_URL:-https://core.fairandsmart.com/api}
+export FS_TSA_URL=${FS_TSA_URL:-https://freetsa.org/tsr}
 
 # SerialConfig
 
 # KeystoreConfig
 export FS_KEYSTORE_PATH=${FS_KEYSTORE_PATH:-/data/keystore.jks}
 
+# ClientConfig
+export FS_GUI_URI=${FS_GUI_URI:-http://localhost}
+
 [[ -z "$FS_DEBUG" ]] || set -x
 
 # sanity checks
 
-[[ -z "$FS_CORS_ORIGINS" ]] && fs_error "Please set FS_CORS_ORIGINS up"
 [[ -z "$FS_AUTH_FRONT_URI" ]] && fs_error "Please set FS_AUTH_FRONT_URI up"
-[[ -z "$FS_CORE_URL" ]] && fs_error "Please set FS_CORE_URL up"
 [[ -z "$FS_PUBLIC_URL" ]] && fs_error "Please set FS_PUBLIC_URL up"
 
 envsubst < /config/application-template.properties > /config/application.properties

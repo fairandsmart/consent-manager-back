@@ -352,9 +352,7 @@ public class Receipt {
             Consent trecord = new Consent();
             trecord.setSerial(record.getValue().serial);
             trecord.setData(record.getKey().getData());
-            trecord.setRetentionLabel(record.getKey().getRetentionLabel());
-            trecord.setRetentionValue(record.getKey().getRetentionValue());
-            trecord.setRetentionUnit(record.getKey().getRetentionUnit().name());
+            trecord.setRetention(record.getKey().getRetention());
             trecord.setUsage(record.getKey().getUsage());
             trecord.setTitle(record.getKey().getTitle());
             trecord.setPurposes(record.getKey().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));

@@ -338,7 +338,7 @@
                         </fo:table>
 
                         <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt"><xsl:value-of select="current()/data"/></fo:block>
-                        <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt"><xsl:value-of select="current()/retention"/></fo:block>
+                        <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt"><xsl:value-of select="current()/retention/fullText"/></fo:block>
                         <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt"><xsl:value-of select="current()/usage"/></fo:block>
 
                         <xsl:for-each select="current()/purposes/purpose">

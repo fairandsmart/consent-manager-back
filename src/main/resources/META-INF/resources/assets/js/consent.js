@@ -107,25 +107,29 @@ if (hasAcceptAll) {
 const consentForm = $("#consent");
 if (consentForm.length > 0) {
     consentForm.submit(function (e) {
-        let valid = true;
+        let formValid = true;
         const values = consentForm.serializeArray();
         const preferencesAnswers = values.filter(entry => entry.name.startsWith("element/preference/") && !entry.name.endsWith("-optional"));
         values.filter(entry => entry.name.endsWith("-optional") && entry.value === "mandatory")
             .forEach(entry => {
-                const answered = preferencesAnswers.some(e => entry.name.includes(e.name));
+                let fieldValid = true;
+                const answerIndex = preferencesAnswers.findIndex(e => entry.name.includes(e.name));
+                const answer = preferencesAnswers[answerIndex];
+                const answered = answerIndex > -1;
                 /* Checking if the preference is mandatory and is dependent to a processing. If the processing is refused, the preference is not mandatory anymore */
                 const parent = $(formatSelector(entry.name)).parent();
                 if (parent && parent.hasClass("dependent") && $(formatSelector(parent.attr("data-dependent-to")) + "-refused").prop("selected") === true) {
                     return;
                 }
-                if (!answered) {
-                    valid = false;
+                if (!answered || (typeof answer.value === 'string' && answer.value.length === 0)) {
+                    formValid = false;
+                    fieldValid = false;
                 }
                 const missingSelector = formatSelector(entry.name.replace("-optional", "-missing"));
-                $(missingSelector).toggleClass("hidden", answered);
+                $(missingSelector).toggleClass("hidden", fieldValid);
             });
 
-        if (!valid) {
+        if (!formValid) {
             e.preventDefault();
         }
     });

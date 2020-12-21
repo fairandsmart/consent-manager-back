@@ -23,9 +23,12 @@
         <consent>
             <serial>U7GDy7u.U6EvTzw</serial>
             <data>Nous souhaiterions utiliser vos données de contact (email, téléphone, adresse postale) suivant votre préférence.</data>
-            <retentionLabel>Nous les conserverons pendant :</retentionLabel>
-            <retentionValue>1</retentionValue>
-            <retentionUnit>MONTH</retentionUnit>
+            <retention>
+                <label>Nous les conserverons pendant :</label>
+                <value>1</value>
+                <unit>MONTH</unit>
+                <fullText>Nous les conserverons pendant : 1 mois</fullText>
+            </retention>
             <title>Marketing direct</title>
             <usage>Ceci afin de pouvoir vous contacter pour vous proposer de nouveaux services adaptés à vos besoins.</usage>
             <controller>
