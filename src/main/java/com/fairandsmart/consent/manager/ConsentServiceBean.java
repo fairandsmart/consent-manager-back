@@ -831,6 +831,7 @@ public class ConsentServiceBean implements ConsentService {
                 .filter(key -> key.endsWith("-optional")).map(key -> key.replace("-optional", ""))
                 .filter(key -> !submittedElementValues.containsKey(key)).collect(Collectors.toList());
         ctx.setElements(ctx.getElements().stream().filter(e -> !ignoredElements.contains(e)).collect(Collectors.toList()));
+        values.keySet().removeIf(key -> key.endsWith("-optional"));
 
         if (!new HashSet<>(ctx.getElements()).equals(submittedElementValues.keySet())) {
             throw new InvalidConsentException("submitted elements incoherency");
