@@ -79,6 +79,7 @@ public class NotifyConsentWorker implements Runnable {
                 // - generate a token for accesing this page
                 // - provide a secret for accessing page
                 // - pass the username (email) allowing IdP account creation prefilled username...
+                ctx.setCollectionMethod(ConsentContext.CollectionMethod.USER_PAGE);
                 notification.setUrl(clientConfig.userPagePublicUrl().get());
             } else {
                 ctx.setCollectionMethod(ConsentContext.CollectionMethod.EMAIL);

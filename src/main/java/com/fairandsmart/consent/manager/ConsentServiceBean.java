@@ -915,8 +915,18 @@ public class ConsentServiceBean implements ConsentService {
                     receipt.setNotificationType("email");
                     receipt.setNotificationRecipient(ctx.getNotificationRecipient());
                 }
+
+                ctx.setCollectionMethod(ConsentContext.CollectionMethod.RECEIPT);
                 String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
+                try {
+                    BitMatrix bitMatrix = new QRCodeWriter().encode(receipt.getUpdateUrl(), BarcodeFormat.QR_CODE, 300, 300);
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    MatrixToImageWriter.writeToStream(bitMatrix, "png", out);
+                    receipt.setUpdateUrlQrCode("data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray()));
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Unable to generate QRCode for receipt", e);
+                }
 
                 if (ctx.getTheme() != null && ctx.getTheme().length() > 1) {
                     receipt.setTheme(ctx.getTheme());
@@ -930,14 +940,6 @@ public class ConsentServiceBean implements ConsentService {
                     receipt.setThemePath(config.publicUrl() + "/models/serials/" + themeId.getSerial() + "/data");
                 }
 
-                try {
-                    BitMatrix bitMatrix = new QRCodeWriter().encode(receipt.getUpdateUrl(), BarcodeFormat.QR_CODE, 300, 300);
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    MatrixToImageWriter.writeToStream(bitMatrix, "png", out);
-                    receipt.setUpdateUrlQrCode("data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray()));
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Unable to generate QRCode for receipt", e);
-                }
                 LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
                 //TODO Sign the receipt...
                 byte[] xml = receipt.toXmlBytes();

@@ -79,9 +79,9 @@
                 <value language="fr">Description de la finalité</value>
             </key>
             <key name="data_purpose">
-                <value language="default">Purpose category</value>
-                <value language="en">Purpose category</value>
-                <value language="fr">Catégorie de la finalité</value>
+                <value language="default">Purpose categories</value>
+                <value language="en">Purpose categories</value>
+                <value language="fr">Catégories de la finalité</value>
             </key>
             <key name="subject_consent">
                 <value language="default">Status</value>
@@ -97,11 +97,6 @@
                 <value language="default">PII Controller</value>
                 <value language="en">PII Controller</value>
                 <value language="fr">Responsable de traitement</value>
-            </key>
-            <key name="data_controller_details">
-                <value language="default">Controller Details</value>
-                <value language="en">Controller Details</value>
-                <value language="fr">Informations sur le responsable de traitement</value>
             </key>
             <key name="privacy_policy">
                 <value language="default">Privacy Notice</value>
@@ -123,12 +118,22 @@
                 <value language="en">Operator</value>
                 <value language="fr">Opérateur</value>
             </key>
-            <key name="update_url">
-                <value language="default">Change your consent</value>
-                <value language="en">Change your consent</value>
-                <value language="fr">Modifier votre consentement</value>
+            <key name="collection_method_EMAIL">
+                <value language="default">Modification link in the notification email</value>
+                <value language="en">Modification link in the notification email</value>
+                <value language="fr">Lien de modification de l'email de notification</value>
             </key>
-            <key name="update_url_link">
+            <key name="collection_method_RECEIPT">
+                <value language="default">Modification link in the receipt</value>
+                <value language="en">Modification link in the receipt</value>
+                <value language="fr">Lien de modification du reçu</value>
+            </key>
+            <key name="collection_method_USER_PAGE">
+                <value language="default">User interface</value>
+                <value language="en">User interface</value>
+                <value language="fr">Interface utilisateur</value>
+            </key>
+            <key name="update_url">
                 <value language="default">Click here to update your consent</value>
                 <value language="en">Click here to update your consent</value>
                 <value language="fr">Cliquer ici pour modifier votre consentement</value>
@@ -209,7 +214,7 @@
         <xsl:value-of select="concat($mm,'/', $dd, '/', $yyyy)" />
     </xsl:template>
 
-    <xsl:template match="/receipt" name="receipt" >
+    <xsl:template match="/receipt" name="receipt">
         <xsl:variable name="lang" select="language"/>
         <html>
             <head>
@@ -549,6 +554,12 @@
                                                 <xsl:with-param name="key">expires</xsl:with-param>
                                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                             </xsl:call-template>
+                                            <xsl:text>: </xsl:text>
+                                        </span>
+                                        <span class="list-value">
+                                            <xsl:call-template name="formatdate">
+                                                <xsl:with-param name="DateTimeStr" select="expirationDate"/>
+                                            </xsl:call-template>
                                         </span>
                                         <div>
                                             <xsl:call-template name="translate">
@@ -575,7 +586,7 @@
                                         <xsl:attribute name="href"><xsl:value-of select="updateUrl"/></xsl:attribute>
                                         <xsl:attribute name="class">privacy-policy-link</xsl:attribute>
                                         <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">update_url_link</xsl:with-param>
+                                            <xsl:with-param name="key">update_url</xsl:with-param>
                                             <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                     </xsl:element>
