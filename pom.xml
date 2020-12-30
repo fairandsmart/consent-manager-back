@@ -4,10 +4,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fairandsmart</groupId>
-    <artifactId>consent-manager-back</artifactId>
+    <artifactId>consent-manager-back-${quarkus.package.type}-${quarkus.datasource.db-kind}</artifactId>
     <version>0.3.0-SNAPSHOT</version>
     <name>FairAndSmart Consent Manager Backend</name>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <scm>
         <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
         <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}
@@ -128,6 +128,8 @@
         </license>
     </licenses>
     <properties>
+        <quarkus.datasource.db-kind>h2</quarkus.datasource.db-kind>
+        <quarkus.package.type>jar</quarkus.package.type>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.inceptionYear>2020</project.inceptionYear>
@@ -215,7 +217,6 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jdbc-h2</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -505,30 +506,54 @@
     </build>
     <profiles>
         <profile>
-            <id>postgresql</id>
-            <modules>
-                <module>pom-postgresql.xml</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>h2</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>pom-h2.xml</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>buildDockerImage</id>
+            <id>pg-storage</id>
             <activation>
                 <property>
-                    <name>buildDockerImage</name>
+                    <name>pg</name>
                 </property>
             </activation>
             <properties>
-                <skipTests>true</skipTests>
-                <quarkus.package.uber-jar>true</quarkus.package.uber-jar>
+                <quarkus.datasource.db-kind>pg</quarkus.datasource.db-kind>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-jdbc-postgresql</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>uber-jar-packaging</id>
+            <activation>
+                <property>
+                    <name>uber-jar</name>
+                </property>
+            </activation>
+            <properties>
+                <quarkus.package.type>uber-jar</quarkus.package.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>native-packaging</id>
+            <activation>
+                <property>
+                    <name>native</name>
+                </property>
+            </activation>
+            <properties>
+                <quarkus.package.type>native</quarkus.package.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>docker-packaging</id>
+            <activation>
+                <property>
+                    <name>docker</name>
+                </property>
+            </activation>
+            <properties>
+                <quarkus.package.type>uber-jar</quarkus.package.type>
+                <quarkus.datasource.db-kind>h2</quarkus.datasource.db-kind>
             </properties>
             <build>
                 <plugins>
