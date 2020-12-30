@@ -177,7 +177,7 @@ public class CollectWithEmailTest {
         postResponse.then().assertThat().statusCode(200);
 
         //PART 4
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         LOGGER.log(Level.INFO, "Checking email");
         assertTrue(mailbox.getTotalMessagesSent() > 0);
         List<Mail> sent = mailbox.getMessagesSentTo(recipient);
