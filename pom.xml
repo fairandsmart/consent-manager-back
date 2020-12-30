@@ -5,8 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fairandsmart</groupId>
     <artifactId>consent-manager-back</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <name>FairAndSmart Consent Manager Backend</name>
+    <packaging>pom</packaging>
     <scm>
         <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
         <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}
@@ -214,6 +215,7 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jdbc-h2</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -349,8 +351,6 @@
             <artifactId>xercesImpl</artifactId>
             <version>${version.xerces}</version>
         </dependency>
-
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
@@ -504,6 +504,21 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>postgresql</id>
+            <modules>
+                <module>pom-postgresql.xml</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>h2</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>pom-h2.xml</module>
+            </modules>
+        </profile>
         <profile>
             <id>buildDockerImage</id>
             <activation>
