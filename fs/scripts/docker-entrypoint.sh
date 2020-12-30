@@ -26,8 +26,13 @@ export FS_AUTH_REALM=${FS_AUTH_REALM:-FairAndSmart}
 
 # DB setup
 FS_CONSENTMANAGER_BACKEND="${FS_CONSENTMANAGER_BACKEND:-h2}"
-if [[ ${FS_CONSENTMANAGER_BACKEND} == "h2" ]]; then
-    export FS_DATABASE_DRIVER="h2"
+if [[ ${FS_CONSENTMANAGER_BACKEND} == "pg" ]]; then
+    export FS_DATABASE_KIND="pg"
+    export FS_DATABASE_LOGIN=${FS_POSTGRES_USER}
+    export FS_DATABASE_PASSWORD=${FS_POSTGRES_PASSWORD}
+    export FS_DATABASE_URI="jdbc:postgresql://${FS_POSTGRES_SERVERS}/${FS_POSTGRES_DATABASE}"
+else
+    export FS_DATABASE_KIND="h2"
     export FS_DATABASE_LOGIN="sa"
     export FS_DATABASE_PASSWORD="sa"
     export FS_DATABASE_URI="jdbc:h2:/data/database/consent-manager.h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
@@ -77,4 +82,4 @@ envsubst < /config/application-template.properties > /config/application.propert
 # shellcheck disable=SC2086
 read -r -a FS_JVM_ARGS_A <<< ${FS_JVM_ARGS}
 
-exec java "${FS_JVM_ARGS_A[@]}" "-Xmx$FS_MAXHEAPSIZE" -jar "/$FS_BACKEND_TYPE.jar"
+exec java "${FS_JVM_ARGS_A[@]}" "-Xmx$FS_MAXHEAPSIZE" -jar "/$FS_BACKEND_TYPE-$FS_DATABASE_KIND.jar"
