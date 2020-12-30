@@ -19,9 +19,9 @@ FS_MAXHEAPSIZE=${FS_MAXHEAPSIZE:-1g}
 export FS_HTTP_PORT=${FS_HTTP_PORT:-8087}
 
 # OIDC config
-export FS_AUTH_BACK_URI=${FS_AUTH_BACK_URI:-http://keycloak:8080}
+export FS_AUTH_BACK_URL=${FS_AUTH_BACK_URL:-http://keycloak:8080}
 export FS_AUTH_CLIENTID=${FS_AUTH_CLIENTID:-fsconsentmgr}
-export FS_AUTH_FRONT_URI=${FS_AUTH_FRONT_URI:-}
+export FS_AUTH_FRONT_URL=${FS_AUTH_FRONT_URL:-}
 export FS_AUTH_REALM=${FS_AUTH_REALM:-FairAndSmart}
 
 # DB setup
@@ -30,12 +30,12 @@ if [[ ${FS_CONSENTMANAGER_BACKEND} == "pg" ]]; then
     export FS_DATABASE_KIND="pg"
     export FS_DATABASE_LOGIN=${FS_POSTGRES_USER}
     export FS_DATABASE_PASSWORD=${FS_POSTGRES_PASSWORD}
-    export FS_DATABASE_URI="jdbc:postgresql://${FS_POSTGRES_SERVERS}/${FS_POSTGRES_DATABASE}"
+    export FS_DATABASE_URL="jdbc:postgresql://${FS_POSTGRES_SERVERS}/${FS_POSTGRES_DATABASE}"
 else
     export FS_DATABASE_KIND="h2"
     export FS_DATABASE_LOGIN="sa"
     export FS_DATABASE_PASSWORD="sa"
-    export FS_DATABASE_URI="jdbc:h2:/data/database/consent-manager.h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
+    export FS_DATABASE_URL="jdbc:h2:/data/database/consent-manager.h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
     mkdir -p /data/database
 fi
 
@@ -66,13 +66,13 @@ export FS_TSA_URL=${FS_TSA_URL:-https://freetsa.org/tsr}
 export FS_KEYSTORE_PATH=${FS_KEYSTORE_PATH:-/data/keystore.jks}
 
 # ClientConfig
-export FS_GUI_URI=${FS_GUI_URI:-http://localhost}
+export FS_GUI_URL=${FS_GUI_URL:-http://localhost}
 
 [[ -z "$FS_DEBUG" ]] || set -x
 
 # sanity checks
 
-[[ -z "$FS_AUTH_FRONT_URI" ]] && fs_error "Please set FS_AUTH_FRONT_URI up"
+[[ -z "$FS_AUTH_FRONT_URL" ]] && fs_error "Please set FS_AUTH_FRONT_URL up"
 [[ -z "$FS_PUBLIC_URL" ]] && fs_error "Please set FS_PUBLIC_URL up"
 
 envsubst < /config/application-template.properties > /config/application.properties
