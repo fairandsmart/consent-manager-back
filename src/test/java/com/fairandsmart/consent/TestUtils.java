@@ -114,8 +114,6 @@ public class TestUtils {
                 .withTitle("Title " + key)
                 .withHeader("Header " + key)
                 .withFooter("Footer " + key)
-                .withLogoPath("Logo path " + key)
-                .withLogoAltText("Logo alt text " + key)
                 .withPrivacyPolicyUrl("Privacy policy URL " + key)
                 .withDataController(generateDataController(key + "_dc"))
                 .withShowDataController(true)
@@ -127,18 +125,14 @@ public class TestUtils {
                 .withShowScope(true)
                 .withShortNoticeLink("Short notice " + key)
                 .withShowShortNoticeLink(true)
-                .withCustomPrivacyPolicyText("Privacy policy label " + key)
-                .withShowAcceptAll(true)
-                .withCustomAcceptAllText("Accept all " + key);
+                .withCustomPrivacyPolicyText("Privacy policy label " + key);
     }
 
     public static Processing generateProcessing(String key, List<String> associatedPreferences) {
         return new Processing()
                 .withTitle("Processing title " + key)
                 .withData("Data body " + key)
-                .withRetentionLabel("Retention body " + key)
-                .withRetentionValue(3)
-                .withRetentionUnit(Processing.RetentionUnit.MONTH)
+                .withRetention(new RetentionInfo("Retention body " + key, 3, RetentionInfo.RetentionUnit.MONTH, "Retention body " + key + " " + 3 + " months"))
                 .withUsage("Usage body " + key)
                 .withPurpose(Processing.Purpose.CONSENT_CORE_SERVICE)
                 .withPurpose(Processing.Purpose.CONSENT_THIRD_PART_SHARING)
@@ -171,7 +165,9 @@ public class TestUtils {
                 .withLabel("Label " + key)
                 .withDescription("Description " + key)
                 .withOptions(options)
-                .withValueType(Preference.ValueType.RADIO_BUTTONS);
+                .withValueType(Preference.ValueType.RADIO_BUTTONS)
+                .withIncludeDefault(true)
+                .withDefaultValues(Collections.singletonList("Option3"));
     }
 
     public static Conditions generateConditions(String key) {
@@ -198,7 +194,6 @@ public class TestUtils {
                 .withName("Name " + key)
                 .withPresentation("Presentation " + key)
                 .withIcon("Icon " + key)
-                .withTargetType(Theme.TargetType.FORM)
                 .withCss("CSS " + key);
     }
 

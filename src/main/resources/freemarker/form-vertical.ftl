@@ -12,31 +12,68 @@
     <#include "style/common-style.ftl">
     <#include "style/consent-style.ftl">
     <#include "style/vertical-style.ftl">
-    <#include "theme.ftl">
+    <#include "components/theme.ftl">
 
     <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
 </head>
 
 <body>
-<form method="post" id="consent" action="#" class="consent-form">
-    <input name="token" id="token" value="${data.token}" hidden/>
+<#if data.preview>
+<div class="consent-form">
+    <#else>
+    <form method="post" id="consent" action="#" class="consent-form">
+        <input name="token" id="token" value="${data.token}" hidden/>
+        </#if>
 
-    <#include "info-logo.ftl">
+        <#if data.info?? && data.info?has_content>
+            <@fetchMultiLangContent data.info></@fetchMultiLangContent>
+            <#assign info=langContent>
+            <#assign infoIdentifier=data.info.identifier>
+        <#else>
+            <#assign info="">
+            <#assign infoIdentifier="infos">
+        </#if>
+        <#assign displayAcceptAll=(data.showAcceptAll && data.elements?size > 1)>
 
-    <div class="processing-list">
-        <#include "info-head.ftl">
+        <#include "components/logo.ftl">
+        <div class="content-fade"></div>
 
-        <#list data.elements as element>
-            <#include element.entry.type + ".ftl">
-        </#list>
-    </div>
+        <div class="processing-list">
+            <#include "components/info-head.ftl">
 
-    <#include "info-foot.ftl">
-</form>
+            <#list data.elements as element>
+                <@fetchMultiLangContent element></@fetchMultiLangContent>
+                <#assign elementContent=langContent>
+                <#assign identifier=element.identifier>
+                <#include "components/" + element.entry.type + ".ftl">
+            </#list>
 
-<script src="/assets/js/consent.js"></script>
-<script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js" crossorigin=""
-        integrity="sha256-uqJEaigsh7a1ncOLCy3CLi7FboUzLC6zNE5u5dRNVmI="></script>
+            <#if !data.footerOnTop>
+                <#include "components/info-foot.ftl">
+            </#if>
+        </div>
+
+        <#if data.footerOnTop>
+            <#include "components/info-foot.ftl">
+        </#if>
+
+        <#if data.preview>
+</div>
+<#else>
+    </form>
+</#if>
+
+<script src="/assets/js/jquery/jquery-3.5.1.slim.min.js"
+        integrity="sha256-GKc/Ggw4TYpRFISB2sJfIOjWaFWhLlk1nbwJijGoY7o="
+        crossorigin="anonymous"></script>
+
+<script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js"
+        crossorigin="anonymous"
+        integrity="sha256-VnjX/dNthWqIpTji9AbZLghQx9fdOAw2t4nSgiWLxfM="></script>
+
+<script src="/assets/js/consent.js"
+        crossorigin=""
+        integrity="sha256-/Q/CTVceMarhOybuZBZSVURvvjfyFwfHv9Mg0wly0p8="></script>
 
 </body>
 </html>

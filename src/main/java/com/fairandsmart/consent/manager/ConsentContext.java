@@ -77,6 +77,9 @@ public class ConsentContext implements Tokenizable, Cloneable {
     private boolean iframe = false;
     private String theme;
     private String receiptId;
+    private boolean showAcceptAll = false;
+    private String acceptAllText;
+    private boolean footerOnTop = false;
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
@@ -129,11 +132,6 @@ public class ConsentContext implements Tokenizable, Cloneable {
 
     public ConsentContext setElements(List<String> elements) {
         this.elements = elements;
-        return this;
-    }
-
-    public ConsentContext addElement(String element) {
-        this.elements.add(element);
         return this;
     }
 
@@ -306,6 +304,33 @@ public class ConsentContext implements Tokenizable, Cloneable {
         return this;
     }
 
+    public boolean isShowAcceptAll() {
+        return showAcceptAll;
+    }
+
+    public ConsentContext setShowAcceptAll(boolean showAcceptAll) {
+        this.showAcceptAll = showAcceptAll;
+        return this;
+    }
+
+    public String getAcceptAllText() {
+        return acceptAllText;
+    }
+
+    public ConsentContext setAcceptAllText(String acceptAllText) {
+        this.acceptAllText = acceptAllText;
+        return this;
+    }
+
+    public boolean isFooterOnTop() {
+        return footerOnTop;
+    }
+
+    public ConsentContext setFooterOnTop(boolean footerOnTop) {
+        this.footerOnTop = footerOnTop;
+        return this;
+    }
+
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
@@ -361,6 +386,14 @@ public class ConsentContext implements Tokenizable, Cloneable {
         if (theme != null) {
             claims.put("theme", this.getTheme());
         }
+        if (receiptId != null) {
+            claims.put("receiptId", this.getReceiptId());
+        }
+        claims.put("showAcceptAll", Boolean.toString(this.isShowAcceptAll()));
+        if (acceptAllText != null) {
+            claims.put("acceptAllText", this.getAcceptAllText());
+        }
+        claims.put("footerOnTop", Boolean.toString(this.isFooterOnTop()));
         return claims;
     }
 
@@ -413,6 +446,18 @@ public class ConsentContext implements Tokenizable, Cloneable {
         }
         if (claims.containsKey("theme")) {
             this.setTheme(claims.get("theme"));
+        }
+        if (claims.containsKey("receiptId")) {
+            this.setReceiptId(claims.get("receiptId"));
+        }
+        if (claims.containsKey("showAcceptAll")) {
+            this.setShowAcceptAll(Boolean.parseBoolean(claims.get("showAcceptAll")));
+        }
+        if (claims.containsKey("acceptAllText")) {
+            this.setAcceptAllText(claims.get("acceptAllText"));
+        }
+        if (claims.containsKey("footerOnTop")) {
+            this.setFooterOnTop(Boolean.parseBoolean(claims.get("footerOnTop")));
         }
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
                 entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
@@ -498,20 +543,24 @@ public class ConsentContext implements Tokenizable, Cloneable {
                 ", elements=" + elements +
                 ", associatePreferences=" + associatePreferences +
                 ", callback='" + callback + '\'' +
-                ", validity='" + validity + '\'' +
                 ", language='" + language + '\'' +
+                ", validity='" + validity + '\'' +
                 ", formType=" + formType +
                 ", receiptDeliveryType=" + receiptDeliveryType +
                 ", receiptDisplayType=" + receiptDisplayType +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
-                ", notificationEmailModel='" + notificationModel + '\'' +
-                ", notificationEmailRecipient='" + notificationRecipient + '\'' +
+                ", notificationModel='" + notificationModel + '\'' +
+                ", notificationRecipient='" + notificationRecipient + '\'' +
                 ", collectionMethod=" + collectionMethod +
                 ", author='" + author + '\'' +
                 ", preview=" + preview +
                 ", iframe=" + iframe +
                 ", theme='" + theme + '\'' +
+                ", receiptId='" + receiptId + '\'' +
+                ", showAcceptAll=" + showAcceptAll +
+                ", acceptAllText='" + acceptAllText + '\'' +
+                ", footerOnTop=" + footerOnTop +
                 '}';
     }
 

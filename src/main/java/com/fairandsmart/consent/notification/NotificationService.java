@@ -34,9 +34,14 @@ package com.fairandsmart.consent.notification;
  */
 
 import com.fairandsmart.consent.notification.entity.Event;
+import com.fairandsmart.consent.notification.entity.NotificationReport;
+
+import java.util.List;
 
 public interface NotificationService {
 
     void notify(Event event);
+
+    List<NotificationReport> listReports(String transactionId);
 
 }

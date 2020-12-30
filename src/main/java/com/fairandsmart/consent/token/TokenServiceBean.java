@@ -69,18 +69,18 @@ public class TokenServiceBean implements TokenService {
     public void init() {
         LOGGER.log(Level.FINE, "Initializing Token Verifier");
         algorithm = Algorithm.HMAC256(config.secret());
-        verifier = JWT.require(algorithm).withIssuer(config.owner()).build();
+        verifier = JWT.require(algorithm).withIssuer(config.instance()).build();
     }
 
     @Override
     @Transactional
     public String generateToken(Tokenizable tokenizable, Date expirationDate) {
         LOGGER.log(Level.INFO, "Generating token");
-        JWTCreator.Builder builder = JWT.create().withIssuer(config.owner());
+        JWTCreator.Builder builder = JWT.create().withIssuer(config.instance());
         builder.withExpiresAt(expirationDate);
         builder.withSubject(tokenizable.getSubject());
         builder.withClaim("payloadClass", tokenizable.getClass().getName());
-        builder.withIssuer(config.owner());
+        builder.withIssuer(config.instance());
         tokenizable.getClaims().forEach(builder::withClaim);
         String token = builder.sign(algorithm);
         if (config.useThinToken()) {

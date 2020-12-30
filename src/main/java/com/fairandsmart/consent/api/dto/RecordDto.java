@@ -34,6 +34,9 @@ package com.fairandsmart.consent.api.dto;
  */
 
 import com.fairandsmart.consent.manager.entity.Record;
+import com.fairandsmart.consent.notification.entity.NotificationReport;
+
+import java.util.List;
 
 public class RecordDto {
 
@@ -49,8 +52,8 @@ public class RecordDto {
     private String statusExplanation;
     private String collectionMethod;
     private String comment;
-    private String mailRecipient;
     private String transaction;
+    private List<NotificationReport> notificationReports;
 
     public RecordDto() {
     }
@@ -151,20 +154,25 @@ public class RecordDto {
         this.comment = comment;
     }
 
-    public String getMailRecipient() {
-        return mailRecipient;
-    }
-
-    public void setMailRecipient(String mailRecipient) {
-        this.mailRecipient = mailRecipient;
-    }
-
     public String getTransaction() {
         return transaction;
     }
 
     public void setTransaction(String transaction) {
         this.transaction = transaction;
+    }
+
+    public List<NotificationReport> getNotificationReports() {
+        return notificationReports;
+    }
+
+    public void setNotificationReports(List<NotificationReport> notificationReports) {
+        this.notificationReports = notificationReports;
+    }
+
+    public RecordDto withNotificationReports(List<NotificationReport> notificationReports) {
+        this.notificationReports = notificationReports;
+        return this;
     }
 
     public static RecordDto fromRecord(Record record) {
@@ -181,7 +189,6 @@ public class RecordDto {
         dto.setStatus(record.status.toString());
         dto.setStatusExplanation(record.statusExplanation.toString());
         dto.setValue(record.value);
-        dto.setMailRecipient(record.mailRecipient);
         dto.setTransaction(record.transaction);
         return dto;
     }
@@ -201,8 +208,8 @@ public class RecordDto {
                 ", statusExplanation='" + statusExplanation + '\'' +
                 ", collectionMethod='" + collectionMethod + '\'' +
                 ", comment='" + comment + '\'' +
-                ", mailRecipient='" + mailRecipient + '\'' +
                 ", transaction='" + transaction + '\'' +
+                ", notificationReports=" + notificationReports +
                 '}';
     }
 }

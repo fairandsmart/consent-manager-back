@@ -3,15 +3,23 @@
 
     <div class="conditions">${conditions.body}</div>
 
+    <#if data.preview>
+        <#assign acceptOptions="disabled style='pointer-events: none;'">
+        <#assign refuseOptions="disabled style='pointer-events: none;'">
+    <#else>
+        <#assign acceptOptions="onclick='rejectConditions()'">
+        <#assign refuseOptions="onclick='acceptConditions()'">
+    </#if>
+
     <div class="buttons-wrapper">
-        <button type="button" class="submit reject" disabled style="pointer-events: none;">
+        <button type="button" class="submit reject" ${refuseOptions}>
             <#if conditions.rejectLabel?has_content>
                 ${conditions.rejectLabel}
             <#else>
                 <@readBundle "refuse" "missingValue"></@readBundle>
             </#if>
         </button>
-        <button type="button" class="submit accept" disabled style="pointer-events: none;">
+        <button type="button" class="submit accept" ${acceptOptions}>
             <#if conditions.acceptLabel?has_content>
                 ${conditions.acceptLabel}
             <#else>

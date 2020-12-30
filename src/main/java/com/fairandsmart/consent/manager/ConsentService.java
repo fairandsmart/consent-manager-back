@@ -117,7 +117,7 @@ public interface ConsentService {
 
     Map<String, Record> systemListContextValidRecords(ConsentContext ctx) throws AccessDeniedException;
 
-    List<Subject> findSubjectsWithRecords(String key, String value) throws AccessDeniedException, EntityNotFoundException;
+    Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException;
 
     /* Subjects */
 

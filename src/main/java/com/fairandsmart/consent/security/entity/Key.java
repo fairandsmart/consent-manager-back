@@ -72,8 +72,6 @@ public class Key extends PanacheEntityBase {
     @Roles
     @JsonIgnore
     public String roles;
-    @JsonIgnore
-    public String owner;
     @Transient
     @JsonProperty("password")
     public String secret;
@@ -81,9 +79,8 @@ public class Key extends PanacheEntityBase {
     @Transient
     public long lastAccessDate = -1;
 
-    public static Key create(String owner, String name, String roles) {
+    public static Key create(String name, String roles) {
         Key key = new Key();
-        key.owner = owner;
         key.persist();
         key.username = "k" + key.id.replaceAll("-", "").toLowerCase();
         key.name = name;

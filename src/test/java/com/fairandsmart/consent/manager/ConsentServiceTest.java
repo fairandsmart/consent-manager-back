@@ -55,6 +55,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -95,7 +96,6 @@ public class ConsentServiceTest {
         entry = service.findEntryForKey(key);
         LOGGER.info("Entry: " + entry);
         assertNotNull(entry.id);
-        assertNotNull(entry.owner);
         assertEquals(BasicInfo.TYPE, entry.type);
         assertEquals(key, entry.key);
         assertEquals("Entry First Name", entry.name);
@@ -793,6 +793,7 @@ public class ConsentServiceTest {
 
         LOGGER.info("Testing find subjects");
         List<Subject> subjects = service.findSubjects("e");
+        LOGGER.info("Subjects: " + subjects.stream().map(s -> s.name).collect(Collectors.joining(",")));
         assertEquals(3, subjects.size());
         assertTrue(subjects.stream().anyMatch(s -> "sheldon".equals(s.name)));
         assertTrue(subjects.stream().anyMatch(s -> "penny".equals(s.name)));
@@ -816,7 +817,6 @@ public class ConsentServiceTest {
         subjectDto.setEmailAddress("rajesh@localhost");
         Subject subject = service.createSubject(subjectDto);
         assertNotNull(subject.id);
-        assertNotNull(subject.owner);
         assertEquals("rajesh", subject.name);
         assertEquals("rajesh@localhost", subject.emailAddress);
         assertTrue(subject.creationTimestamp > 0);
@@ -828,7 +828,6 @@ public class ConsentServiceTest {
         LOGGER.info("Testing Get new subject");
         subject = service.getSubject("stuart");
         assertNull(subject.id);
-        assertNull(subject.owner);
         assertEquals("stuart", subject.name);
         assertNull(subject.emailAddress);
         assertEquals(0, subject.creationTimestamp);
@@ -836,7 +835,6 @@ public class ConsentServiceTest {
         LOGGER.info("Testing Get known subject");
         subject = service.getSubject("rajesh");
         assertNotNull(subject.id);
-        assertNotNull(subject.owner);
         assertEquals("rajesh", subject.name);
         assertEquals("rajesh@localhost", subject.emailAddress);
         assertTrue(subject.creationTimestamp > 0);
@@ -846,7 +844,6 @@ public class ConsentServiceTest {
         subjectDto.setEmailAddress("new.rajesh@localhost");
         subject = service.updateSubject(subjectId, subjectDto);
         assertNotNull(subject.id);
-        assertNotNull(subject.owner);
         assertEquals("rajesh", subject.name);
         assertEquals("new.rajesh@localhost", subject.emailAddress);
         assertTrue(subject.creationTimestamp > 0);
@@ -863,7 +860,7 @@ public class ConsentServiceTest {
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
     public void testSubjectRecords() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
-        LOGGER.info("#### Test subject lifecycle");
+        LOGGER.info("#### Test subject records");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
         types.add(Processing.TYPE);
@@ -980,22 +977,22 @@ public class ConsentServiceTest {
         //TODO Increase rule based records status by adding new consent submit and new models versions.
 
         LOGGER.info("Finding subjects with treatment t1 accepted");
-        List<Subject> subjects = service.findSubjectsWithRecords(t1Key, "accepted");
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user1")));
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user3")));
+        Map<Subject, Record> subjects = service.extractRecords(t1Key, "accepted", false);
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user1")));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user3")));
 
         LOGGER.info("Finding subjects with treatment t1 refused");
-        subjects = service.findSubjectsWithRecords(t1Key, "refused");
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user2")));
+        subjects = service.extractRecords(t1Key, "refused", false);
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user2")));
 
         LOGGER.info("Finding subjects with treatment t2 accepted");
-        subjects = service.findSubjectsWithRecords(t2Key, "accepted");
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user3")));
+        subjects = service.extractRecords(t2Key, "accepted", false);
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user3")));
 
         LOGGER.info("Finding subjects with treatment t2 refused");
-        subjects = service.findSubjectsWithRecords(t2Key, "refused");
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user1")));
-        assertTrue(subjects.stream().anyMatch(subject -> subject.name.equals("user2")));
+        subjects = service.extractRecords(t2Key, "refused", false);
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user1")));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user2")));
 
         //TODO Increase listing testing with rule based records status by adding new consent submit and new models versions.
     }

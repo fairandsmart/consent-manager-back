@@ -143,7 +143,8 @@ public class SimpleCollectTest {
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
                 .setReceiptDisplayType(ConsentContext.ReceiptDisplayType.HTML)
-                .setLanguage(language);
+                .setLanguage(language)
+                .setShowAcceptAll(true);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
@@ -166,7 +167,7 @@ public class SimpleCollectTest {
         //BasicInfo
         assertTrue(page.contains("Title " + biKey));
         assertTrue(page.contains("Header " + biKey));
-        assertTrue(page.contains("href=\"Privacy policy URL " + biKey + "\""));
+        assertTrue(page.contains("Privacy policy label " + biKey));
         assertTrue(page.contains("Footer " + biKey));
         assertTrue(page.contains("accept-all-switch"));
         //Processing 1
@@ -174,13 +175,13 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Data body " + t1Key));
         assertTrue(page.contains("Retention body " + t1Key));
         assertTrue(page.contains("Usage body " + t1Key));
-        assertTrue(page.contains("consent_core_service.png"));
+        assertTrue(page.contains("CONSENT_CORE_SERVICE.png"));
         //Processing 2
         assertTrue(page.contains("Processing title " + t2Key));
         assertTrue(page.contains("Data body " + t2Key));
         assertTrue(page.contains("Retention body " + t2Key));
         assertTrue(page.contains("Usage body " + t2Key));
-        assertTrue(page.contains("consent_third_part_sharing.png"));
+        assertTrue(page.contains("CONSENT_THIRD_PART_SHARING.png"));
 
         Document html = Jsoup.parse(page);
         Map<String, String> values = TestUtils.readFormInputs(html);
@@ -220,13 +221,16 @@ public class SimpleCollectTest {
         assertTrue(receiptPage.contains("RE&Ccedil;U"));
         assertTrue(receiptPage.contains("<title>RE&Ccedil;U DE CONSENTEMENT</title>"));
         assertTrue(receiptPage.contains("Fran&ccedil;ais (France)"));
-        assertTrue(receiptPage.contains("Formulaire Web"));
+        assertTrue(receiptPage.contains("Formulaire web"));
         assertTrue(receiptPage.contains("Data body " + t1Key));
         assertTrue(receiptPage.contains("Data body " + t2Key));
+        assertTrue(receiptPage.contains("<h3>Processing title " + t1Key + "</h3>"));
+        assertTrue(receiptPage.contains("<h3>Processing title " + t2Key + "</h3>"));
+        assertTrue(receiptPage.contains("<div class=\"processing-response accepted \">Accept&eacute;</div>"));
+        assertFalse(receiptPage.contains("<div class=\"processing-response accepted \">Refus&eacute;</div>"));
         assertTrue(receiptPage.contains("Accept&eacute;"));
         assertFalse(receiptPage.contains("Refus&eacute;"));
         assertTrue(receiptPage.contains(SUBJECT));
-        assertTrue(receiptPage.contains("Name " + biKey + "_dc"));
 
         //PART 3
         //Check previous values are loaded on new consent form
@@ -255,7 +259,8 @@ public class SimpleCollectTest {
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
                 .setReceiptDisplayType(ConsentContext.ReceiptDisplayType.XML)
-                .setLanguage(language);
+                .setLanguage(language)
+                .setShowAcceptAll(true);
         LOGGER.log(Level.INFO, "New context" + ctx.toString());
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
@@ -276,7 +281,7 @@ public class SimpleCollectTest {
         //BasicInfo
         assertTrue(page.contains("Title " + biKey));
         assertTrue(page.contains("Header " + biKey));
-        assertTrue(page.contains("href=\"Privacy policy URL " + biKey + "\""));
+        assertTrue(page.contains("Privacy policy label " + biKey));
         assertTrue(page.contains("Footer " + biKey));
         assertTrue(page.contains("accept-all-switch"));
         //Processing 1
@@ -284,13 +289,13 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Data body " + t1Key));
         assertTrue(page.contains("Retention body " + t1Key));
         assertTrue(page.contains("Usage body " + t1Key));
-        assertTrue(page.contains("consent_core_service.png"));
+        assertTrue(page.contains("CONSENT_CORE_SERVICE.png"));
         //Processing 2
         assertTrue(page.contains("Processing title " + t2Key));
         assertTrue(page.contains("Data body " + t2Key));
         assertTrue(page.contains("Retention body " + t2Key));
         assertTrue(page.contains("Usage body " + t2Key));
-        assertTrue(page.contains("consent_third_part_sharing.png"));
+        assertTrue(page.contains("CONSENT_THIRD_PART_SHARING.png"));
 
         html = Jsoup.parse(page);
         values = TestUtils.readFormInputs(html);
@@ -317,7 +322,7 @@ public class SimpleCollectTest {
         links = html.getElementsByTag("a");
         link = links.get(0).attr("href");
 
-        // Check that embed link redirect to the correct receipt display type (html)
+        // Check that embed link redirect to the correct receipt display type (xml)
         receiptResponse = given().contentType(ContentType.URLENC).when().get(link.replace("%2F", "/"));
         receiptPage = receiptResponse.asString();
         receiptResponse.then().contentType("application/xml").assertThat().statusCode(200);

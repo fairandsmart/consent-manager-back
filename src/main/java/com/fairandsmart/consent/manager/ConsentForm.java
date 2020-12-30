@@ -51,6 +51,10 @@ public class ConsentForm {
     private boolean preview = false;
     private ModelVersion theme;
     private ModelVersion notificationEmail;
+    private boolean showAcceptAll = false;
+    private String acceptAllText;
+    private boolean footerOnTop = false;
+    private Map<String, String> elementsDependencies;
 
     public ConsentForm() {
         elements = new ArrayList<>();
@@ -137,6 +141,30 @@ public class ConsentForm {
         this.notificationEmail = notificationEmail;
     }
 
+    public boolean isShowAcceptAll() {
+        return showAcceptAll;
+    }
+
+    public void setShowAcceptAll(boolean showAcceptAll) {
+        this.showAcceptAll = showAcceptAll;
+    }
+
+    public String getAcceptAllText() {
+        return acceptAllText;
+    }
+
+    public void setAcceptAllText(String acceptAllText) {
+        this.acceptAllText = acceptAllText;
+    }
+
+    public boolean isFooterOnTop() {
+        return footerOnTop;
+    }
+
+    public void setFooterOnTop(boolean footerOnTop) {
+        this.footerOnTop = footerOnTop;
+    }
+
     @Override
     public String toString() {
         return "ConsentForm{" +
@@ -149,7 +177,18 @@ public class ConsentForm {
                 ", preview=" + preview +
                 ", theme=" + theme +
                 ", notificationEmail=" + notificationEmail +
+                ", showAcceptAll=" + showAcceptAll +
+                ", acceptAllText='" + acceptAllText + '\'' +
+                ", footerOnTop=" + footerOnTop +
                 '}';
+    }
+
+    public Map<String, String> getElementsDependencies() {
+        return elementsDependencies;
+    }
+
+    public void setElementsDependencies(Map<String, String> elementsDependencies) {
+        this.elementsDependencies = elementsDependencies;
     }
 
     public enum Orientation {

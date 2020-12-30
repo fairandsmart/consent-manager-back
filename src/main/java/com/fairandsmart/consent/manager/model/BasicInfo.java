@@ -35,15 +35,15 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import javax.activation.MimeType;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.Objects;
 
 public class BasicInfo extends ModelData {
 
     public static final String TYPE = "basicinfo";
 
-    // Logo
-    private String logoPath;
-    private String logoAltText = "Logo";
     // Main text
     private String title;
     private String header;
@@ -62,38 +62,9 @@ public class BasicInfo extends ModelData {
     // Privacy policy
     private String privacyPolicyUrl;
     private String customPrivacyPolicyText;
-    // Validation options
-    private boolean showAcceptAll = false;
-    private String customAcceptAllText;
 
     public BasicInfo() {
         this.setType(TYPE);
-    }
-
-    public String getLogoPath() {
-        return logoPath;
-    }
-
-    public void setLogoPath(String logoPath) {
-        this.logoPath = logoPath;
-    }
-
-    public BasicInfo withLogoPath(String logoPath) {
-        this.logoPath = logoPath;
-        return this;
-    }
-
-    public String getLogoAltText() {
-        return logoAltText;
-    }
-
-    public void setLogoAltText(String logoAltText) {
-        this.logoAltText = logoAltText;
-    }
-
-    public BasicInfo withLogoAltText(String logoAltText) {
-        this.logoAltText = logoAltText;
-        return this;
     }
 
     public String getTitle() {
@@ -291,30 +262,14 @@ public class BasicInfo extends ModelData {
         return this;
     }
 
-    public boolean isShowAcceptAll() {
-        return showAcceptAll;
+    @Override
+    public String extractDataMimeType() {
+        return MediaType.APPLICATION_JSON;
     }
 
-    public void setShowAcceptAll(boolean showAcceptAll) {
-        this.showAcceptAll = showAcceptAll;
-    }
-
-    public BasicInfo withShowAcceptAll(boolean showAcceptAll) {
-        this.showAcceptAll = showAcceptAll;
-        return this;
-    }
-
-    public String getCustomAcceptAllText() {
-        return customAcceptAllText;
-    }
-
-    public void setCustomAcceptAllText(String customAcceptAllText) {
-        this.customAcceptAllText = customAcceptAllText;
-    }
-
-    public BasicInfo withCustomAcceptAllText(String customAcceptAllText) {
-        this.customAcceptAllText = customAcceptAllText;
-        return this;
+    @Override
+    public String toMimeContent() throws IOException {
+        return this.toJson();
     }
 
     @Override
@@ -327,9 +282,6 @@ public class BasicInfo extends ModelData {
                 showDataController == info.showDataController &&
                 showScope == info.showScope &&
                 showShortNoticeLink == info.showShortNoticeLink &&
-                showAcceptAll == info.showAcceptAll &&
-                Objects.equals(logoPath, info.logoPath) &&
-                Objects.equals(logoAltText, info.logoAltText) &&
                 Objects.equals(title, info.title) &&
                 Objects.equals(header, info.header) &&
                 Objects.equals(footer, info.footer) &&
@@ -339,20 +291,17 @@ public class BasicInfo extends ModelData {
                 Objects.equals(scope, info.scope) &&
                 Objects.equals(shortNoticeLink, info.shortNoticeLink) &&
                 Objects.equals(privacyPolicyUrl, info.privacyPolicyUrl) &&
-                Objects.equals(customPrivacyPolicyText, info.customPrivacyPolicyText) &&
-                Objects.equals(customAcceptAllText, info.customAcceptAllText);
+                Objects.equals(customPrivacyPolicyText, info.customPrivacyPolicyText);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(logoPath, logoAltText, title, header, footer, jurisdiction, showJurisdiction, collectionMethod, showCollectionMethod, dataController, showDataController, scope, showScope, shortNoticeLink, showShortNoticeLink, privacyPolicyUrl, customPrivacyPolicyText, showAcceptAll, customAcceptAllText);
+        return Objects.hash(title, header, footer, jurisdiction, showJurisdiction, collectionMethod, showCollectionMethod, dataController, showDataController, scope, showScope, shortNoticeLink, showShortNoticeLink, privacyPolicyUrl, customPrivacyPolicyText);
     }
 
     @Override
     public String toString() {
         return "BasicInfo{" +
-                "logoPath='" + logoPath + '\'' +
-                ", logoAltText='" + logoAltText + '\'' +
                 ", title='" + title + '\'' +
                 ", header='" + header + '\'' +
                 ", footer='" + footer + '\'' +
@@ -368,8 +317,6 @@ public class BasicInfo extends ModelData {
                 ", showShortNoticeLink=" + showShortNoticeLink +
                 ", privacyPolicyUrl='" + privacyPolicyUrl + '\'' +
                 ", customPrivacyPolicyText='" + customPrivacyPolicyText + '\'' +
-                ", showAcceptAll=" + showAcceptAll +
-                ", customAcceptAllText='" + customAcceptAllText + '\'' +
                 '}';
     }
 }

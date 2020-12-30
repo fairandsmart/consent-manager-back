@@ -1,13 +1,15 @@
-## Building the docker image
+## Building the docker image using maven (Dev style)
 
-Run "docker build . -t container-manager-back"
+`mvn clean install -DbuildDockerImage`
+
+## Building the docker image using docker (Ops style)
+
+`docker build . -f Dockerfile.dockerhub -t container-manager-back`
 
 ## Running the docker container
 
-Environment variables (no default) :
-* FS_AUTH_URI (default is http://127.0.0.1:8080)
-* FS_AUTH_REALM (default is FairAndSmart)
-* FS_AUTH_CLIENTID (default is fsconsentmgr)
-* FS_CONSENT_PROCESSOR (default is https://www.fairandsmart.com)
-* FS_UNAUTHENTICATED (default is anonymous)
-* FS_TSA_URL (default is https://127.0.0.1:8580/tsr)
+`docker run container-manager-back`
+
+## Environment variables
+
+see fs/scripts/docker-entrypoint.sh

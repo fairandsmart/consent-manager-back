@@ -66,11 +66,14 @@ public abstract class ModelData {
         this.type = type;
     }
 
+    public abstract String extractDataMimeType();
+
+    public abstract String toMimeContent() throws IOException;
+
     public String toJson() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         return mapper.writeValueAsString(this);
     }
-
 }

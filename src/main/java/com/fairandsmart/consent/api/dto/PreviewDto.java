@@ -41,6 +41,8 @@ public class PreviewDto {
     private String language;
     private ConsentForm.Orientation orientation;
     private ModelData data;
+    private PreviewType previewType = PreviewType.FORM;
+    private final boolean preview = true;
 
     public PreviewDto() {
     }
@@ -69,12 +71,32 @@ public class PreviewDto {
         this.data = data;
     }
 
+    public PreviewType getPreviewType() {
+        return previewType;
+    }
+
+    public void setPreviewType(PreviewType previewType) {
+        this.previewType = previewType;
+    }
+
+    public boolean isPreview() {
+        return preview;
+    }
+
+    public enum PreviewType {
+        FORM,
+        RECEIPT,
+        EMAIL
+    }
+
     @Override
     public String toString() {
         return "PreviewDto{" +
                 "language='" + language + '\'' +
                 ", orientation=" + orientation +
                 ", data=" + data +
+                ", previewType=" + previewType +
+                ", preview=" + preview +
                 '}';
     }
 

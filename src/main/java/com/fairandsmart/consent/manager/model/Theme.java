@@ -45,11 +45,14 @@ public class Theme extends ModelData {
     private String presentation;
     private String icon;
     private String css;
-    private TargetType targetType;
+    private String logoPath;
+    private String logoAltText = "Logo";
+    private LogoPosition logoPosition = LogoPosition.CENTER;
 
-    public enum TargetType {
-        FORM,
-        EMAIL
+    public enum LogoPosition {
+        LEFT,
+        CENTER,
+        RIGHT
     }
 
     public Theme() {
@@ -108,17 +111,53 @@ public class Theme extends ModelData {
         return this;
     }
 
-    public TargetType getTargetType() {
-        return targetType;
+    public String getLogoPath() {
+        return logoPath;
     }
 
-    public void setTargetType(TargetType targetType) {
-        this.targetType = targetType;
+    public void setLogoPath(String logoPath) {
+        this.logoPath = logoPath;
     }
 
-    public Theme withTargetType(TargetType targetType) {
-        this.targetType = targetType;
+    public Theme withLogoPath(String logoPath) {
+        this.logoPath = logoPath;
         return this;
+    }
+
+    public String getLogoAltText() {
+        return logoAltText;
+    }
+
+    public void setLogoAltText(String logoAltText) {
+        this.logoAltText = logoAltText;
+    }
+
+    public Theme withLogoAltText(String logoAltText) {
+        this.logoAltText = logoAltText;
+        return this;
+    }
+
+    public LogoPosition getLogoPosition() {
+        return logoPosition;
+    }
+
+    public void setLogoPosition(LogoPosition logoPosition) {
+        this.logoPosition = logoPosition;
+    }
+
+    public Theme withLogoPosition(LogoPosition logoPosition) {
+        this.logoPosition = logoPosition;
+        return this;
+    }
+
+    @Override
+    public String extractDataMimeType() {
+        return "text/css";
+    }
+
+    @Override
+    public String toMimeContent() {
+        return this.getCss();
     }
 
     @Override
@@ -130,12 +169,14 @@ public class Theme extends ModelData {
                 Objects.equals(presentation, theme.presentation) &&
                 Objects.equals(icon, theme.icon) &&
                 Objects.equals(css, theme.css) &&
-                targetType == theme.targetType;
+                Objects.equals(logoPath, theme.logoPath) &&
+                Objects.equals(logoAltText, theme.logoAltText) &&
+                Objects.equals(logoPosition, theme.logoPosition);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, presentation, icon, css, targetType);
+        return Objects.hash(name, presentation, icon, css, logoPath, logoAltText, logoPosition);
     }
 
     @Override
@@ -145,7 +186,9 @@ public class Theme extends ModelData {
                 ", presentation='" + presentation + '\'' +
                 ", icon='" + icon + '\'' +
                 ", css='" + css + '\'' +
-                ", targetType=" + targetType +
+                ", logoPath='" + logoPath + '\'' +
+                ", logoAltText='" + logoAltText + '\'' +
+                ", logoPosition=" + logoPosition +
                 '}';
     }
 }

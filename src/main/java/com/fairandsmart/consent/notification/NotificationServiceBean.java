@@ -34,10 +34,12 @@ package com.fairandsmart.consent.notification;
  */
 
 import com.fairandsmart.consent.notification.entity.Event;
+import com.fairandsmart.consent.notification.entity.NotificationReport;
 import io.vertx.mutiny.core.eventbus.EventBus;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,4 +57,8 @@ public class NotificationServiceBean implements NotificationService {
         bus.publish(event.getType(), event);
     }
 
+    @Override
+    public List<NotificationReport> listReports(String transaction) {
+        return NotificationReport.list("transaction = ?1", transaction);
+    }
 }

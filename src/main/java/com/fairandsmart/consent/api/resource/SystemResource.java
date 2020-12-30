@@ -33,7 +33,10 @@ package com.fairandsmart.consent.api.resource;
  * #L%
  */
 
+import com.fairandsmart.consent.api.dto.ClientConfigDto;
+import com.fairandsmart.consent.api.dto.SupportInfoDto;
 import com.fairandsmart.consent.api.dto.UserDto;
+import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.support.SupportServiceException;
 import com.fairandsmart.consent.support.SupportService;
@@ -57,6 +60,9 @@ public class SystemResource {
     @Inject
     SupportService supportService;
 
+    @Inject
+    ClientConfig config;
+
     @GET
     @Path("/users/me")
     @Produces(MediaType.APPLICATION_JSON)
@@ -71,11 +77,23 @@ public class SystemResource {
     }
 
     @GET
-    @Path("/support/version")
+    @Path("/support/infos")
     @Produces(MediaType.APPLICATION_JSON)
-    public String latestVersion() throws SupportServiceException {
-        LOGGER.log(Level.INFO, "GET /system/support/version");
-        return supportService.checkLatestVersion();
+    public SupportInfoDto supportInfos() throws SupportServiceException {
+        LOGGER.log(Level.INFO, "GET /system/support/infos");
+        SupportInfoDto dto = new SupportInfoDto();
+        dto.setStatus(supportService.getSupportStatus());
+        dto.setLatestVersion(supportService.getLatestVersion());
+        dto.setCurrentVersion(supportService.getCurrentVersion());
+        return dto;
+    }
+
+    @GET
+    @Path("/config")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ClientConfigDto getClientConfig() {
+        LOGGER.log(Level.INFO, "GET /system/config");
+        return ClientConfigDto.fromClientConfig(config);
     }
 
 }

@@ -33,17 +33,14 @@ package com.fairandsmart.consent.security;
  * #L%
  */
 
-import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.security.entity.AccessLog;
 import com.fairandsmart.consent.security.entity.Key;
 import io.quarkus.security.identity.SecurityIdentity;
-import org.hibernate.exception.ConstraintViolationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.LockModeType;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 import java.util.List;
@@ -63,8 +60,10 @@ public class AuthenticationServiceBean implements AuthenticationService {
     @Inject
     SecurityIdentity identity;
 
-    @Inject
-    MainConfig config;
+    @Override
+    public boolean isIdentified() {
+        return getConnectedIdentifier() != securityConfig.anonymousIdentifierName();
+    }
 
     @Override
     public String getConnectedIdentifier() {
@@ -118,8 +117,8 @@ public class AuthenticationServiceBean implements AuthenticationService {
     }
 
     @Override
-    @Transactional
-    public void logAccess(String username) {
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void logAccess() {
         long now = System.currentTimeMillis();
         Optional<AccessLog> optional = AccessLog.findByIdOptional(identity.getPrincipal().getName());
         if ( optional.isEmpty() ) {
@@ -129,7 +128,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
             try {
                 log.persistAndFlush();
                 LOGGER.log(Level.FINE, "AccessLog created: " + log);
-            } catch ( ConstraintViolationException e ) {
+            } catch ( PersistenceException e ) {
                 LOGGER.log(Level.FINE, "AccessLog already created concurrently, nothing to do");
             }
         } else {
@@ -146,7 +145,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
     public List<Key> listKeys() throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Listing all api keys");
         ensureConnectedIdentifierIsAdmin();
-        List<Key> keys = Key.list("owner = ?1", config.owner());
+        List<Key> keys = Key.listAll();
         keys.stream().forEach(key -> AccessLog.findByIdOptional(key.username).ifPresent(log -> key.lastAccessDate = ((AccessLog)log).timestamp));
         return keys;
     }
@@ -156,7 +155,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
     public Key createKey(String name) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Creating new API key");
         ensureConnectedIdentifierIsAdmin();
-        return Key.create(config.owner(), name, securityConfig.apiRoleName());
+        return Key.create(name, securityConfig.apiRoleName());
     }
 
     @Override
@@ -164,9 +163,6 @@ public class AuthenticationServiceBean implements AuthenticationService {
     public void dropKey(String id) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Dropping API key");
         ensureConnectedIdentifierIsAdmin();
-        Key key = Key.findById(id);
-        if (key != null && key.owner.equals(config.owner())) {
-            key.delete();
-        }
+        Key.deleteById(id);
     }
 }

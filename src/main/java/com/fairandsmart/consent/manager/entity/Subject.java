@@ -48,21 +48,19 @@ public class Subject extends PanacheEntityBase {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     public String id;
-    public String owner;
     @Column(length = 2000)
     public String name;
     public String emailAddress;
     public long creationTimestamp;
 
-    public static boolean existsForOwner(String owner, String name) {
-        return Subject.count("owner = ?1 and  name = ?2", owner, name) > 0;
+    public static boolean exists(String name) {
+        return Subject.count("name = ?1", name) > 0;
     }
 
     @Override
     public String toString() {
         return "Subject{" +
                 "id='" + id + '\'' +
-                ", owner='" + owner + '\'' +
                 ", name='" + name + '\'' +
                 ", emailAddress='" + emailAddress + '\'' +
                 ", creationTimestamp=" + creationTimestamp +
