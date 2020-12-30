@@ -7,7 +7,6 @@
     <artifactId>consent-manager-back-${quarkus.package.type}-${quarkus.datasource.db-kind}</artifactId>
     <version>0.3.0-SNAPSHOT</version>
     <name>FairAndSmart Consent Manager Backend (${quarkus.package.type} / ${quarkus.datasource.db-kind})</name>
-    <packaging>jar</packaging>
     <scm>
         <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
         <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}
@@ -153,11 +152,11 @@
         <version.maven-failsafe-plugin>2.22.0</version.maven-failsafe-plugin>
         <version.maven-install-plugin>3.0.0-M1</version.maven-install-plugin>
         <version.maven-jar-plugin>3.2.0</version.maven-jar-plugin>
-        <version.maven-quarkus-plugin>1.10.5.Final</version.maven-quarkus-plugin>
+        <version.maven-quarkus-plugin>1.9.2.Final</version.maven-quarkus-plugin>
         <version.maven-resources-plugin>3.2.0</version.maven-resources-plugin>
         <version.maven-site-plugin>3.9.1</version.maven-site-plugin>
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
-        <version.quarkus>1.10.5.Final</version.quarkus>
+        <version.quarkus>1.9.2.Final</version.quarkus>
         <version.resteasy-client>4.5.3.Final</version.resteasy-client>
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
