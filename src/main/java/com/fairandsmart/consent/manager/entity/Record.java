@@ -34,9 +34,7 @@ package com.fairandsmart.consent.manager.entity;
  */
 
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.filter.SortableFilter;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -131,29 +129,6 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     @Override
     public int compareTo(Record other) {
         return Long.compare(creationTimestamp, other.creationTimestamp);
-    }
-
-    public int compare(Record other, SortableFilter filter) {
-        int result = 0;
-        switch(filter.getOrder()) {
-            case "creationTimestamp":
-                result = Long.compare(creationTimestamp, other.creationTimestamp);
-                break;
-            case "expirationTimestamp":
-                result = Long.compare(expirationTimestamp, other.expirationTimestamp);
-                break;
-            case "type":
-                result = StringUtils.compare(type, other.type);
-                break;
-            case "value":
-                result = StringUtils.compare(value, other.value);
-                break;
-            case "bodyKey":
-            default:
-                result = StringUtils.compare(bodyKey, other.bodyKey);
-                break;
-        }
-        return "desc".equals(filter.getDirection()) ? -result : result;
     }
 
 }

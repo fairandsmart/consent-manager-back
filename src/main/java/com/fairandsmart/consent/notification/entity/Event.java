@@ -68,7 +68,7 @@ public class Event<T> {
         this.author = author;
     }
 
-    public Event withAuthor(String author) {
+    public Event<T> withAuthor(String author) {
         this.author = author;
         return this;
     }
@@ -81,7 +81,7 @@ public class Event<T> {
         this.type = type;
     }
 
-    public Event withType(String type) {
+    public Event<T> withType(String type) {
         this.type = type;
         return this;
     }
@@ -115,7 +115,7 @@ public class Event<T> {
         return this.args.containsKey(key);
     }
 
-    public Event withArg(String key, String value) {
+    public Event<T> withArg(String key, String value) {
         this.args.put(key, value);
         return this;
     }
