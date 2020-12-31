@@ -33,12 +33,10 @@ package com.fairandsmart.consent.manager.model;
  * #L%
  */
 
-import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.util.ZonedDateTimeAdapter;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
 
-import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -49,11 +47,9 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.Array;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

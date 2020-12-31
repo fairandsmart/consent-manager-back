@@ -362,6 +362,9 @@ public class ConsentServiceBean implements ConsentService {
         if (!version.child.isEmpty()) {
             throw new ConsentManagerException("Unable to update content for version that is not last one");
         }
+        if (!version.status.equals(ModelVersion.Status.DRAFT)) {
+            throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
+        }
         try {
             if (data.containsKey(defaultLanguage)) {
                 version.defaultLanguage = defaultLanguage;

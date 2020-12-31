@@ -213,12 +213,17 @@ public class ConsentServiceTest {
         LOGGER.info("Change version type for key " + key);
         service.updateVersionType(version.id, ModelVersion.Type.MAJOR);
 
+        LOGGER.info("Change version content for key " + key);
+        basicInfo.setTitle("New title");
+        service.updateVersion(version.id, language, Collections.singletonMap(language, basicInfo));
+
         LOGGER.info("Get version by id");
         version = service.getVersion(version.id);
         assertEquals(versions.get(0).id, version.id);
         assertEquals(ModelVersion.Status.DRAFT, version.status);
         assertEquals(ModelVersion.Type.MAJOR, version.type);
 
+        // ACTIVATE
         LOGGER.info("Activate version for key " + key);
         service.updateVersionStatus(version.id, ModelVersion.Status.ACTIVE);
 
@@ -227,14 +232,16 @@ public class ConsentServiceTest {
         assertEquals(versions.get(0).id, version.id);
         assertEquals(ModelVersion.Status.ACTIVE, version.status);
         assertEquals(ModelVersion.Type.MAJOR, version.type);
+        data = (BasicInfo) version.getData(language);
+        assertEquals("New title", data.getTitle());
 
         LOGGER.info("Check version type cannot be changed for a version which is not DRAFT");
         String versionId = version.id;
         assertThrows(ConsentManagerException.class, () -> service.updateVersionType(versionId, ModelVersion.Type.MINOR));
 
-        LOGGER.info("Change version content for key " + key);
+        LOGGER.info("Check version content cannot be changed for a version which is not DRAFT");
         basicInfo.setTitle("New title");
-        service.updateVersion(version.id, language, Collections.singletonMap(language, basicInfo));
+        assertThrows(ConsentManagerException.class, () -> service.updateVersion(versionId, language, Collections.singletonMap(language, basicInfo)));
 
         LOGGER.info("Check version content cannot be updated with a different type");
         assertThrows(ConsentManagerException.class, () -> service.updateVersion(versionId, language, Collections.singletonMap(language, TestUtils.generateConditions(key))));
@@ -246,10 +253,8 @@ public class ConsentServiceTest {
         version = service.findVersionForSerial(version.serial);
         assertEquals(versions.get(0).id, version.id);
         LOGGER.info(version.toString());
-        data = (BasicInfo) version.getData(language);
-        assertEquals("New title", data.getTitle());
 
-        // DELETE
+        //CREATE NEW VERSION
         LOGGER.info("Create new version for key " + key);
         basicInfo.setTitle("New version title");
         basicInfo.setHeader("New version header");
@@ -267,6 +272,7 @@ public class ConsentServiceTest {
         assertEquals(ModelVersion.Status.DRAFT, version.status);
         assertEquals(ModelVersion.Type.MINOR, version.type);
 
+        // DELETE DRAFT
         LOGGER.info("Delete DRAFT version");
         service.deleteVersion(version.id);
 
@@ -283,6 +289,7 @@ public class ConsentServiceTest {
         String oldVersionId = version.id;
         assertThrows(ConsentManagerException.class, () -> service.deleteVersion(oldVersionId));
 
+        // CREATE NEW VERSION
         LOGGER.info("Create last version for key " + key);
         basicInfo.setTitle("Last version title");
         basicInfo.setHeader("Last version header");
