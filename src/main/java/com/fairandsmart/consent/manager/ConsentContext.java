@@ -531,7 +531,9 @@ public class ConsentContext implements Tokenizable, Cloneable {
     public enum CollectionMethod {
         WEBFORM,
         OPERATOR,
-        EMAIL
+        EMAIL,
+        RECEIPT,
+        USER_PAGE
     }
 
     @Override

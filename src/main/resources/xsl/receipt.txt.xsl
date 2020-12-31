@@ -63,6 +63,11 @@
                 <value language="en">Consent Record ID</value>
                 <value language="fr">Identifiant du reçu</value>
             </key>
+            <key name="processing_title">
+                <value language="default">Processing title</value>
+                <value language="en">Processing title</value>
+                <value language="fr">Titre du traitement</value>
+            </key>
             <key name="data_collected">
                 <value language="default">PII Categories</value>
                 <value language="en">PII Categories</value>
@@ -73,35 +78,15 @@
                 <value language="en">Data Retention Duration</value>
                 <value language="fr">Durée de conservation des données</value>
             </key>
-            <key name="YEAR">
-                <value language="default">year(s)</value>
-                <value language="en">year(s)</value>
-                <value language="fr">an(s)</value>
-            </key>
-            <key name="MONTH">
-                <value language="default">month(s)</value>
-                <value language="en">month(s)</value>
-                <value language="fr">mois</value>
-            </key>
-            <key name="WEEK">
-                <value language="default">week(s)</value>
-                <value language="en">week(s)</value>
-                <value language="fr">semaine(s)</value>
-            </key>
-            <key name="purpose">
-                <value language="default">Purpose</value>
-                <value language="en">Purpose</value>
-                <value language="fr">Finalité</value>
-            </key>
             <key name="data_usage">
                 <value language="default">Purpose description</value>
                 <value language="en">Purpose description</value>
                 <value language="fr">Description de la finalité</value>
             </key>
             <key name="data_purpose">
-                <value language="default">Purpose category</value>
-                <value language="en">Purpose category</value>
-                <value language="fr">Catégorie de la finalité</value>
+                <value language="default">Purpose categories</value>
+                <value language="en">Purpose categories</value>
+                <value language="fr">Catégories de la finalité</value>
             </key>
             <key name="CONSENT_CORE_SERVICE">
                 <value language="default">Core service</value>
@@ -148,36 +133,71 @@
                 <value language="en">Privacy Notice</value>
                 <value language="fr">Politique de confidentialité</value>
             </key>
-            <key name="update_url">
-                <value language="default">Change your consent</value>
-                <value language="en">Change your consent</value>
-                <value language="fr">Modifier votre consentement</value>
-            </key>
             <key name="collection_method">
                 <value language="default">Collection Method</value>
                 <value language="en">Collection Method</value>
                 <value language="fr">Méthode de collecte</value>
             </key>
-            <key name="WEBFORM">
-                <value language="default">Webform</value>
-                <value language="en">Webform</value>
+            <key name="collection_method_WEBFORM">
+                <value language="default">Web form</value>
+                <value language="en">Web form</value>
                 <value language="fr">Formulaire Web</value>
             </key>
-            <key name="OPERATOR">
+            <key name="collection_method_OPERATOR">
                 <value language="default">Operator</value>
                 <value language="en">Operator</value>
                 <value language="fr">Opérateur</value>
             </key>
-            <key name="EMAIL">
-                <value language="default">Email</value>
-                <value language="en">Email</value>
-                <value language="fr">Email</value>
+            <key name="collection_method_EMAIL">
+                <value language="default">Modification link in the notification email</value>
+                <value language="en">Modification link in the notification email</value>
+                <value language="fr">Lien de modification de l'email de notification</value>
+            </key>
+            <key name="collection_method_RECEIPT">
+                <value language="default">Modification link in the receipt</value>
+                <value language="en">Modification link in the receipt</value>
+                <value language="fr">Lien de modification du reçu</value>
+            </key>
+            <key name="collection_method_USER_PAGE">
+                <value language="default">User interface</value>
+                <value language="en">User interface</value>
+                <value language="fr">Interface utilisateur</value>
+            </key>
+            <key name="update_url">
+                <value language="default">Change your consent</value>
+                <value language="en">Change your consent</value>
+                <value language="fr">Modifier votre consentement</value>
+            </key>
+            <key name="general_info">
+                <value language="default">Informations</value>
+                <value language="en">Informations</value>
+                <value language="fr">Informations générales</value>
+            </key>
+            <key name="sensitive_data">
+                <value language="default">About sensitive Data</value>
+                <value language="en">Sensitive Data</value>
+                <value language="fr">À propos des données sensibles</value>
+            </key>
+            <key name="contains_sensitive_data">
+                <value language="default">The transmitted information contains sensitive data.</value>
+                <value language="en">The transmitted information contains sensitive data.</value>
+                <value language="fr">Les informations transmises contiennent des données sensibles.</value>
+            </key>
+            <key name="contains_medical_data">
+                <value language="default">The transmitted information contains sensitive data, including medical data.</value>
+                <value language="en">The transmitted information contains sensitive data, including medical data.</value>
+                <value language="fr">Les informations transmises contiennent des données sensibles, dont des données de santé.</value>
+            </key>
+            <key name="third_parties">
+                <value language="default">These data will be shared with:</value>
+                <value language="en">These data will be shared with:</value>
+                <value language="fr">Ces données seront transmises à :</value>
             </key>
         </labels>
     </xsl:variable>
     <xsl:template name="translate">
-        <xsl:param name="key"></xsl:param>
-        <xsl:param name="language"></xsl:param>
+        <xsl:param name="key" />
+        <xsl:param name="language" />
         <xsl:choose>
             <xsl:when test="exslt:node-set($bundle)/labels/key[@name = $key]">
                 <xsl:choose>
@@ -202,6 +222,28 @@
         </xsl:choose>
     </xsl:template>
 
+    <xsl:template name="formatdate">
+        <xsl:param name="DateTimeStr" />
+
+        <xsl:variable name="datestr">
+            <xsl:value-of select="substring-before($DateTimeStr,'T')" />
+        </xsl:variable>
+
+        <xsl:variable name="mm">
+            <xsl:value-of select="substring($datestr,6,2)" />
+        </xsl:variable>
+
+        <xsl:variable name="dd">
+            <xsl:value-of select="substring($datestr,9,2)" />
+        </xsl:variable>
+
+        <xsl:variable name="yyyy">
+            <xsl:value-of select="substring($datestr,1,4)" />
+        </xsl:variable>
+
+        <xsl:value-of select="concat($mm,'/', $dd, '/', $yyyy)" />
+    </xsl:template>
+
     <xsl:template match="/receipt" name="receipt" >
         <xsl:variable name="lang" select="language"/>
         <xsl:call-template name="translate">
@@ -211,11 +253,9 @@
         <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:call-template name="translate">
-            <xsl:with-param name="key">receipt_id</xsl:with-param>
+            <xsl:with-param name="key">general_info</xsl:with-param>
             <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
         </xsl:call-template>
-        <xsl:text>: </xsl:text>
-        <xsl:value-of select="transaction"/>
         <xsl:text>&#10;</xsl:text>
         <xsl:call-template name="translate">
             <xsl:with-param name="key">subject_id</xsl:with-param>
@@ -240,32 +280,44 @@
         </xsl:call-template>
         <xsl:text>: </xsl:text>
         <xsl:call-template name="translate">
-            <xsl:with-param name="key"><xsl:value-of select="collectionMethod"/></xsl:with-param>
+            <xsl:with-param name="key">collection_method_<xsl:value-of select="collectionMethod"/></xsl:with-param>
             <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
         </xsl:call-template>
-        <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:call-template name="translate">
             <xsl:with-param name="key">date</xsl:with-param>
             <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
         </xsl:call-template>
-        <xsl:text>: </xsl:text><xsl:value-of select="date"/>
+        <xsl:text>: </xsl:text>
+        <xsl:call-template name="formatdate">
+            <xsl:with-param name="DateTimeStr" select="date"/>
+        </xsl:call-template>
         <xsl:text>&#10;</xsl:text>
         <xsl:call-template name="translate">
             <xsl:with-param name="key">expires</xsl:with-param>
             <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
         </xsl:call-template>
-        <xsl:text>: </xsl:text><xsl:value-of select="expirationDate"/>
+        <xsl:text>: </xsl:text>
+        <xsl:call-template name="formatdate">
+            <xsl:with-param name="DateTimeStr" select="expirationDate"/>
+        </xsl:call-template>
         <xsl:text>&#10;</xsl:text>
         <xsl:call-template name="translate">
             <xsl:with-param name="key">expires_explanation</xsl:with-param>
             <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
         </xsl:call-template>
         <xsl:text>&#10;</xsl:text>
+        <xsl:call-template name="translate">
+            <xsl:with-param name="key">receipt_id</xsl:with-param>
+            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+        </xsl:call-template>
+        <xsl:text>: </xsl:text>
+        <xsl:value-of select="transaction"/>
+        <xsl:text>&#10;</xsl:text>
         <xsl:text>&#10;</xsl:text>
         <xsl:for-each select="consents/consent">
             <xsl:call-template name="translate">
-                <xsl:with-param name="key">purpose</xsl:with-param>
+                <xsl:with-param name="key">processing_title</xsl:with-param>
                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
             </xsl:call-template>
             <xsl:text>: </xsl:text>
@@ -286,10 +338,6 @@
             <xsl:if test="current()/retention">
                 <xsl:value-of select="current()/retention/fullText"/><xsl:text> </xsl:text>
             </xsl:if>
-            <xsl:call-template name="translate">
-                <xsl:with-param name="key"><xsl:value-of select="current()/retentionUnit"/></xsl:with-param>
-                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-            </xsl:call-template><xsl:text>.</xsl:text>
             <xsl:text>&#10;</xsl:text>
             <xsl:call-template name="translate">
                 <xsl:with-param name="key">data_usage</xsl:with-param>
@@ -311,6 +359,40 @@
                 </xsl:call-template>
             </xsl:for-each>
             <xsl:text>&#10;</xsl:text>
+            <xsl:if test="current()/containsSensitiveData = 'true'">
+                <xsl:call-template name="translate">
+                    <xsl:with-param name="key">sensitive_data</xsl:with-param>
+                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                </xsl:call-template>
+                <xsl:text>: </xsl:text>
+                <xsl:if test="current()/containsMedicalData = 'false'">
+                    <xsl:call-template name="translate">
+                        <xsl:with-param name="key">contains_sensitive_data</xsl:with-param>
+                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                    </xsl:call-template>
+                </xsl:if>
+                <xsl:if test="current()/containsMedicalData = 'true'">
+                    <xsl:call-template name="translate">
+                        <xsl:with-param name="key">contains_medical_data</xsl:with-param>
+                        <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                    </xsl:call-template>
+                </xsl:if>
+                <xsl:text>&#10;</xsl:text>
+            </xsl:if>
+            <xsl:if test="current()/thirdParties">
+                <xsl:call-template name="translate">
+                    <xsl:with-param name="key">third_parties</xsl:with-param>
+                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                </xsl:call-template>
+                <xsl:text>&#10;</xsl:text>
+                <xsl:for-each select="current()/thirdParties/thirdParty">
+                    <xsl:text>- </xsl:text>
+                    <xsl:value-of select="current()/name" />
+                    <xsl:text>: </xsl:text>
+                    <xsl:value-of select="current()/value" />
+                    <xsl:text>&#10;</xsl:text>
+                </xsl:for-each>
+            </xsl:if>
             <xsl:call-template name="translate">
                 <xsl:with-param name="key">subject_consent</xsl:with-param>
                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
@@ -323,7 +405,6 @@
             <xsl:text>&#10;</xsl:text>
             <xsl:text>&#10;</xsl:text>
         </xsl:for-each>
-        <xsl:text>&#10;</xsl:text>
         <xsl:if test="dataController and dataController/company">
             <xsl:call-template name="translate">
                 <xsl:with-param name="key">data_controller_name</xsl:with-param>

@@ -78,9 +78,9 @@
                 <value language="fr">Description de la finalité</value>
             </key>
             <key name="data_purpose">
-                <value language="default">Purpose category</value>
-                <value language="en">Purpose category</value>
-                <value language="fr">Catégorie de la finalité</value>
+                <value language="default">Purpose categories</value>
+                <value language="en">Purpose categories</value>
+                <value language="fr">Catégories de la finalité</value>
             </key>
             <key name="subject_consent">
                 <value language="default">Status</value>
@@ -117,12 +117,22 @@
                 <value language="en">Operator</value>
                 <value language="fr">Opérateur</value>
             </key>
-            <key name="update_url">
-                <value language="default">Change your consent</value>
-                <value language="en">Change your consent</value>
-                <value language="fr">Modifier votre consentement</value>
+            <key name="collection_method_EMAIL">
+                <value language="default">Modification link in the notification email</value>
+                <value language="en">Modification link in the notification email</value>
+                <value language="fr">Lien de modification de l'email de notification</value>
             </key>
-            <key name="update_url_link">
+            <key name="collection_method_RECEIPT">
+                <value language="default">Modification link in the receipt</value>
+                <value language="en">Modification link in the receipt</value>
+                <value language="fr">Lien de modification du reçu</value>
+            </key>
+            <key name="collection_method_USER_PAGE">
+                <value language="default">User interface</value>
+                <value language="en">User interface</value>
+                <value language="fr">Interface utilisateur</value>
+            </key>
+            <key name="update_url">
                 <value language="default">Click here to update your consent</value>
                 <value language="en">Click here to update your consent</value>
                 <value language="fr">Cliquer ici pour modifier votre consentement</value>
@@ -226,6 +236,14 @@
                         <fo:block font-size="10pt" margin-top="10pt">
                             <fo:inline font-weight="bold">
                                 <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">general_info</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                            </fo:inline>
+                        </fo:block>
+                        <fo:block font-size="10pt" margin-top="10pt">
+                            <fo:inline font-weight="bold">
+                                <xsl:call-template name="translate">
                                     <xsl:with-param name="key">subject_id</xsl:with-param>
                                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                 </xsl:call-template>
@@ -307,7 +325,7 @@
                             <fo:basic-link color="grey" text-decoration="underline">
                                 <xsl:attribute name="external-destination"><xsl:value-of select="updateUrl"/></xsl:attribute>
                                 <xsl:call-template name="translate">
-                                    <xsl:with-param name="key">update_url_link</xsl:with-param>
+                                    <xsl:with-param name="key">update_url</xsl:with-param>
                                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                 </xsl:call-template>
                             </fo:basic-link>
