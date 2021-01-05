@@ -82,6 +82,31 @@
                 <value language="en">Purpose categories</value>
                 <value language="fr">Catégories de la finalité</value>
             </key>
+            <key name="CONSENT_CORE_SERVICE">
+                <value language="default">Core service</value>
+                <value language="en">Core service</value>
+                <value language="fr">Service principal</value>
+            </key>
+            <key name="CONSENT_IMPROVED_SERVICE">
+                <value language="default">Improved service</value>
+                <value language="en">Improved service</value>
+                <value language="fr">Service amélioré</value>
+            </key>
+            <key name="CONSENT_MARKETING">
+                <value language="default">Marketing</value>
+                <value language="en">Marketing</value>
+                <value language="fr">Marketing</value>
+            </key>
+            <key name="CONSENT_THIRD_PART_SHARING">
+                <value language="default">Sharing with third parties</value>
+                <value language="en">Sharing with third parties</value>
+                <value language="fr">Partage à des tierces-parties</value>
+            </key>
+            <key name="CONSENT_RESEARCH">
+                <value language="default">Research</value>
+                <value language="en">Research</value>
+                <value language="fr">Recherche</value>
+            </key>
             <key name="subject_consent">
                 <value language="default">Status</value>
                 <value language="en">Status</value>
@@ -358,18 +383,20 @@
                         <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt"><xsl:value-of select="current()/data"/></fo:block>
                         <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt"><xsl:value-of select="current()/retention/fullText"/></fo:block>
                         <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt"><xsl:value-of select="current()/usage"/></fo:block>
-
-                        <xsl:for-each select="current()/purposes/purpose">
-                            <fo:block>
-                                <fo:external-graphic>
-                                    <xsl:attribute name="src">
-                                        <xsl:text>url('assets/img/purpose/</xsl:text>
-                                        <xsl:value-of select="current()" />
-                                        <xsl:text>.png')</xsl:text>
-                                    </xsl:attribute>
-                                </fo:external-graphic>
-                            </fo:block>
-                        </xsl:for-each>
+                        <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt">
+                            <xsl:call-template name="translate">
+                                <xsl:with-param name="key">receipt_id</xsl:with-param>
+                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                            </xsl:call-template>
+                            <xsl:text>: </xsl:text>
+                            <xsl:for-each select="current()/purposes/purpose">
+                                <xsl:if test="position() > 1"><xsl:text>, </xsl:text></xsl:if>
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key"><xsl:value-of select="current()"/></xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                            </xsl:for-each>
+                        </fo:block>
 
                         <xsl:if test="current()/containsSensitiveData = 'true'">
                             <fo:block background-color="#f5f5f5" padding="10pt" margin="0 0 10pt 0" font-size="10pt">

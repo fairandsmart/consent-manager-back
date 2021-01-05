@@ -97,12 +97,10 @@
                 <p>
                     <@valueOrError consent.usage "missingValue"></@valueOrError>
                 </p>
-            </div>
-
-            <div class="purpose-container">
-                <#list consent.purposes as purpose>
-                    <img class="purpose" src="/assets/img/purpose/${purpose}.png" alt="${purpose}"/>
-                </#list>
+                <p>
+                    <span><@readBundle "purpose_title"></@readBundle></span>
+                    <span><#list consent.purposes as purpose><@readBundle purpose?lower_case></@readBundle><#sep>, </#list></span>
+                </p>
             </div>
 
             <#if consent.containsSensitiveData || consent.containsMedicalData>

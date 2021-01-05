@@ -83,6 +83,31 @@
                 <value language="en">Purpose categories</value>
                 <value language="fr">Catégories de la finalité</value>
             </key>
+            <key name="CONSENT_CORE_SERVICE">
+                <value language="default">Core service</value>
+                <value language="en">Core service</value>
+                <value language="fr">Service principal</value>
+            </key>
+            <key name="CONSENT_IMPROVED_SERVICE">
+                <value language="default">Improved service</value>
+                <value language="en">Improved service</value>
+                <value language="fr">Service amélioré</value>
+            </key>
+            <key name="CONSENT_MARKETING">
+                <value language="default">Marketing</value>
+                <value language="en">Marketing</value>
+                <value language="fr">Marketing</value>
+            </key>
+            <key name="CONSENT_THIRD_PART_SHARING">
+                <value language="default">Sharing with third parties</value>
+                <value language="en">Sharing with third parties</value>
+                <value language="fr">Partage à des tierces-parties</value>
+            </key>
+            <key name="CONSENT_RESEARCH">
+                <value language="default">Research</value>
+                <value language="en">Research</value>
+                <value language="fr">Recherche</value>
+            </key>
             <key name="subject_consent">
                 <value language="default">Status</value>
                 <value language="en">Status</value>
@@ -286,7 +311,7 @@
 
                     .processing-list {
                         overflow-y: auto;
-                        padding: 16px 24px;
+                        padding: 16px 24px 0 24px;
                         height: 100%;
                     }
 
@@ -612,14 +637,20 @@
                                     <p><xsl:value-of select="current()/data"/></p>
                                     <p><xsl:value-of select="current()/retention/fullText"/></p>
                                     <p><xsl:value-of select="current()/usage"/></p>
-                                </div>
-                                <div class="purpose-container">
-                                    <xsl:for-each select="current()/purposes/purpose">
-                                        <xsl:element name="img">
-                                            <xsl:attribute name="class">purpose</xsl:attribute>
-                                            <xsl:attribute name="src">/assets/img/purpose/<xsl:value-of select="current()" />.png</xsl:attribute>
-                                        </xsl:element>
-                                    </xsl:for-each>
+                                    <p>
+                                        <xsl:call-template name="translate">
+                                            <xsl:with-param name="key">receipt_id</xsl:with-param>
+                                            <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                        </xsl:call-template>
+                                        <xsl:text>: </xsl:text>
+                                        <xsl:for-each select="current()/purposes/purpose">
+                                            <xsl:if test="position() > 1"><xsl:text>, </xsl:text></xsl:if>
+                                            <xsl:call-template name="translate">
+                                                <xsl:with-param name="key"><xsl:value-of select="current()"/></xsl:with-param>
+                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                            </xsl:call-template>
+                                        </xsl:for-each>
+                                    </p>
                                 </div>
                                 <xsl:if test="current()/containsSensitiveData = 'true'">
                                     <div class="block-wrapper">

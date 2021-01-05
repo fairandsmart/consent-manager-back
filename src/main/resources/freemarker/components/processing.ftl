@@ -22,13 +22,16 @@
             </p>
         </div>
 
-        <#-- Usage & purposes -->
+        <#-- Usage -->
         <div class="item-wrapper">
             <p class="processing-body"><@valueOrError elementContent.usage "missingValue"></@valueOrError></p>
-            <p class="processing-body purpose-container">
-                <#list elementContent.purposes as purpose>
-                    <img class="purpose" src="/assets/img/purpose/${purpose}.png" alt="${purpose}"/>
-                </#list>
+        </div>
+
+        <#-- Purposes -->
+        <div class="item-wrapper">
+            <p class="processing-body">
+                <span><@readBundle "purpose_title"></@readBundle></span>
+                <span><#list elementContent.purposes as purpose><@readBundle purpose?lower_case></@readBundle><#sep>, </#list></span>
             </p>
         </div>
 
