@@ -620,6 +620,11 @@ public class ConsentServiceBean implements ConsentService {
             // (aka form is generated before a MAJOR RELEASE and submit after)
             // Maybe use a global referential hash that would be injected in token and which could be stored as a whole database integrity check
             // Any change in a entry would modify this hash and avoid checking each element but only a in memory or in database single value
+
+            //TODO Context is updated during saveConsent Method and it is not a good practice,
+            // We should clone the context, perform modifications for update link context, and only gsave consent after that
+            // Maybe the consent save and consent receipt generation should also be split into different operations
+            //
             String receiptId = this.saveConsent(ctx, valuesMap);
             ctx.setReceiptId(receiptId);
 
@@ -924,6 +929,10 @@ public class ConsentServiceBean implements ConsentService {
                 }
 
                 ctx.setCollectionMethod(ConsentContext.CollectionMethod.RECEIPT);
+                if (infoId == null) {
+                    //If consent is submitted without basic info, we populate it with the first one.
+                    ctx.setInfo(((ModelEntry)ModelEntry.find("type", BasicInfo.TYPE).firstResult()).key);
+                }
                 String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
                 try {
@@ -947,8 +956,7 @@ public class ConsentServiceBean implements ConsentService {
                     receipt.setThemePath(config.publicUrl() + "/models/serials/" + themeId.getSerial() + "/data");
                 }
 
-                LOGGER.log(Level.INFO, "Receipt XML: " + receipt.toXml());
-                //TODO Sign the receipt...
+                LOGGER.log(Level.FINE, "Receipt XML: " + receipt.toXml());
                 byte[] xml = receipt.toXmlBytes();
                 store.put(receipt.getTransaction(), xml);
             }

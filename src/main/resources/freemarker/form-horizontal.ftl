@@ -73,17 +73,9 @@
     </form>
 </#if>
 
-<script src="/assets/js/jquery/jquery-3.5.1.slim.min.js"
-        integrity="sha256-GKc/Ggw4TYpRFISB2sJfIOjWaFWhLlk1nbwJijGoY7o="
-        crossorigin="anonymous"></script>
-
-<script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js"
-        crossorigin="anonymous"
-        integrity="sha256-VnjX/dNthWqIpTji9AbZLghQx9fdOAw2t4nSgiWLxfM="></script>
-
-<script src="/assets/js/consent.js"
-        crossorigin=""
-        integrity="sha256-/Q/CTVceMarhOybuZBZSVURvvjfyFwfHv9Mg0wly0p8="></script>
+<script src="/assets/js/jquery/jquery-3.5.1.slim.min.js"></script>
+<script src="/assets/js/iframe-resizer-4.2.11/iframeResizer.contentWindow.min.js"></script>
+<script src="/assets/js/consent.js"></script>
 
 </body>
 </html>
