@@ -42,8 +42,10 @@ import com.fairandsmart.consent.manager.model.Preference;
 import com.fairandsmart.consent.manager.model.Processing;
 import com.fairandsmart.consent.stats.util.StatCalendar;
 import io.quarkus.runtime.Startup;
+import io.quarkus.runtime.StartupEvent;
 import io.quarkus.scheduler.Scheduled;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
@@ -58,8 +60,12 @@ public class StatisticsStoreBean implements StatisticsStore {
     @Inject
     StatisticsCache cache;
 
+    void startup(@Observes StartupEvent event) {
+        this.initStats();
+    }
+
     @Override
-    @Scheduled(cron="0 0 0 ? * *")
+    @Scheduled(cron = "0 0 0 ? * *")
     public void initStats() {
         LOGGER.info("Initializing stats");
         final List<String> entriesTypes = Arrays.asList(Processing.TYPE, Preference.TYPE, Conditions.TYPE);
@@ -79,9 +85,8 @@ public class StatisticsStoreBean implements StatisticsStore {
         increment(formatKey(Arrays.asList(root, "total")));
         increment(formatKey(Arrays.asList(root, type, "total")));
         for (StatCalendar.TimeScale scale : StatCalendar.TimeScale.values()) {
-            String dateLabel = new StatCalendar(scale).formatDateForLabel();
-            increment(formatKey(Arrays.asList(root, "all", scale.name(), dateLabel)));
-            increment(formatKey(Arrays.asList(root, type, scale.name(), dateLabel)));
+            increment(formatKey(Arrays.asList(root, "all", scale.name())));
+            increment(formatKey(Arrays.asList(root, type, scale.name(), new StatCalendar(scale).formatDateForLabel())));
         }
     }
 
@@ -118,14 +123,11 @@ public class StatisticsStoreBean implements StatisticsStore {
                 calendar.reset();
                 cache.put(String.join("/", Arrays.asList(root, element, "total")), compute(element, -1, -1));
                 for (int i = 0; i < calendar.getSize(); i++) {
-                    String timeKey;
-                    long after;
-                    long before;
                     calendar.forward();
-                    after = calendar.getTimeInMillis();
-                    timeKey = calendar.formatDateForLabel();
+                    long after = calendar.getTimeInMillis();
+                    String timeKey = calendar.formatDateForLabel();
                     calendar.forward();
-                    before = calendar.getTimeInMillis();
+                    long before = calendar.getTimeInMillis();
                     calendar.backward();
                     cache.put(formatKey(Arrays.asList(root, element, timeScale.name(), timeKey)), compute(element, after, before));
                 }

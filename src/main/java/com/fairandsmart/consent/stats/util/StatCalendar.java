@@ -82,7 +82,7 @@ public class StatCalendar {
                 calendar.set(Calendar.DAY_OF_MONTH, 1);
                 break;
         }
-        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -109,7 +109,7 @@ public class StatCalendar {
     }
 
     public String getTimeAsString() {
-        return new SimpleDateFormat("E dd-MM-yyyy").format(calendar.getTime());
+        return new SimpleDateFormat("E dd-MM-yyyy H:m:s").format(calendar.getTime());
     }
 
     public String formatDateForLabel() {
