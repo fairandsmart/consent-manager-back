@@ -61,7 +61,12 @@ public class StatisticsStoreBean implements StatisticsStore {
     StatisticsCache cache;
 
     void startup(@Observes StartupEvent event) {
-        this.initStats();
+        // TODO : check that the database has been initialized before calling initStats()
+        try {
+            this.initStats();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
