@@ -35,6 +35,7 @@ package com.fairandsmart.consent.stats;
 
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.manager.entity.Record;
+import com.fairandsmart.consent.manager.entity.Subject;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.stats.dto.*;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
@@ -85,7 +86,7 @@ public class StatisticsServiceBean implements StatisticsService {
         StatsChart totalChart = new StatsChart();
         totalChart.put("models", buildTotalStats(entriesTypes, store, "models"));
         totalChart.put("records", buildTotalStats(entriesTypes, store, "records"));
-        totalChart.put("subjects", buildTotalStats(Collections.singletonList("subjects"), store, "subjects"));
+        totalChart.put("subjects", buildSubjectsTotalStats(store));
         bag.put("total", totalChart);
 
         StatsChart topChart = new StatsChart();
@@ -138,6 +139,18 @@ public class StatisticsServiceBean implements StatisticsService {
         dataSet.setLabel("all");
         dataSet.addData(store.read(String.join("/", Arrays.asList(root, "total"))));
         dataSet.addData(store.read(String.join("/", Arrays.asList(root, "all", evolutionScale.name()))));
+        data.addDataset(dataSet);
+        return data;
+    }
+
+    private StatsData buildSubjectsTotalStats(StatisticsStore store) {
+        StatCalendar.TimeScale evolutionScale = StatCalendar.TimeScale.MONTHS;
+        StatsData data = new StatsData();
+        data.setLabels(Arrays.asList("total", "evolution"));
+        StatsDataSet<Long> dataSet = new StatsDataSet<>();
+        dataSet.setLabel("subjects");
+        dataSet.addData(store.read("subjects/subjects/total"));
+        dataSet.addData(Subject.count("creationTimestamp >= ?1", new StatCalendar(evolutionScale).getTimeInMillis()));
         data.addDataset(dataSet);
         return data;
     }
