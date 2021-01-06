@@ -161,11 +161,11 @@ public class StatisticsServiceBean implements StatisticsService {
         List<TopStat> top = new ArrayList<>();
         if (value != null) {
             for (ModelVersion version : processing) {
-                top.add(new TopStat(version.entry.key, Record.count("bodyKey = ?1 and value = ?2", version.entry.key, value)));
+                top.add(new TopStat(version.entry.name, Record.count("bodyKey = ?1 and value = ?2", version.entry.key, value)));
             }
         } else {
             for (ModelVersion version : processing) {
-                top.add(new TopStat(version.entry.key, Record.count("bodyKey = ?1", version.entry.key)));
+                top.add(new TopStat(version.entry.name, Record.count("bodyKey = ?1", version.entry.key)));
             }
         }
         top.sort(TopStat::compareDesc);

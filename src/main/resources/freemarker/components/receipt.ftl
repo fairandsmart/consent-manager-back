@@ -92,7 +92,7 @@
                     <@valueOrError consent.data "missingValue"></@valueOrError>
                 </p>
                 <p>
-                    <@valueOrError consent.retentionLabel "missingValue"></@valueOrError> <@valueOrError consent.retentionValue "missingValue"></@valueOrError> <@readBundle consent.retentionUnit "missingValue"></@readBundle>.
+                    <@valueOrError consent.retention.label "missingValue"></@valueOrError> <@valueOrError consent.retention.value "missingValue"></@valueOrError> <@readBundle consent.retention.unit "missingValue"></@readBundle>.
                 </p>
                 <p>
                     <@valueOrError consent.usage "missingValue"></@valueOrError>

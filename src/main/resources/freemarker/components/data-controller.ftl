@@ -4,16 +4,16 @@
     </h4>
 
     <ul id="${dataControllerId}" class="processing-body controller-hidden">
-        <#if dataController.name?has_content>
-            <li>
-                <span class="list-label"><@readBundle "controllerNameLabel"></@readBundle></span>
-                <span class="list-value">${dataController.name}</span>
-            </li>
-        </#if>
         <#if dataController.company?has_content>
             <li>
                 <span class="list-label"><@readBundle "controllerCompanyLabel"></@readBundle></span>
                 <span class="list-value">${dataController.company}</span>
+            </li>
+        </#if>
+        <#if dataController.info?has_content>
+            <li>
+                <span class="list-label"><@readBundle "controllerInfoLabel"></@readBundle></span>
+                <span class="list-value">${dataController.info}</span>
             </li>
         </#if>
         <#if dataController.address?has_content>
@@ -32,11 +32,6 @@
             <li>
                 <span class="list-label"><@readBundle "controllerPhoneLabel"></@readBundle></span>
                 <span class="list-value">${dataController.phone}</span>
-            </li>
-        </#if>
-        <#if dataController.actingBehalfCompany>
-            <li>
-                <span class="list-value"><@readBundle "controllerBehalfCompany"></@readBundle></span>
             </li>
         </#if>
     </ul>
