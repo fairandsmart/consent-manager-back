@@ -397,26 +397,42 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <version>${version.maven-license-plugin}</version>
                 <configuration>
-                    <licenseName>gpl_v3</licenseName>
+                    <copyrightOwners>Fair And Smart</copyrightOwners>
+                    <canUpdateDescription>false</canUpdateDescription> <!-- set to true to force description update-->
+                    <canUpdateCopyright>false</canUpdateCopyright> <!-- set to true to force copyright update-->
+                    <licenseName>fairandsmart</licenseName>
+                    <licenseResolver>${project.baseUri}/src/licenses</licenseResolver>
+                    <descriptionTemplate>${basedir}/src/licenses/fairandsmart/descriptionTemplate.ftl</descriptionTemplate>
                     <encoding>UTF-8</encoding>
                     <includes>
-                        <include>com/fairandsmart/consent/**/*.java</include>
+                        <include>main/**</include>
+                        <include>test/**</include>
                     </includes>
-                    <descriptionTemplate>${basedir}/src/etc/header.ftl</descriptionTemplate>
                     <offline>true</offline>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>update-headers</id>
+                        <id>update-file-header</id>
                         <goals>
                             <goal>update-file-header</goal>
                         </goals>
-                        <phase>process-sources</phase>
                     </execution>
                     <execution>
                         <id>download-licenses</id>
                         <goals>
                             <goal>download-licenses</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>update-project-license</id>
+                        <goals>
+                            <goal>update-project-license</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>add-third-party</id>
+                        <goals>
+                            <goal>add-third-party</goal>
                         </goals>
                     </execution>
                 </executions>
