@@ -42,6 +42,8 @@ public interface NotificationService {
 
     void notify(Event event);
 
+    void pushReport(NotificationReport report);
+
     List<NotificationReport> listReports(String transactionId);
 
 }

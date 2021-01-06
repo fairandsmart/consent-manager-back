@@ -40,6 +40,7 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,6 +56,24 @@ public class NotificationServiceBean implements NotificationService {
     public void notify(Event event) {
         LOGGER.log(Level.FINE, "Notify");
         bus.publish(event.getType(), event);
+    }
+
+    @Override
+    public void pushReport(NotificationReport report) {
+        Optional<NotificationReport> optionalReport = NotificationReport.find("transaction = ?1", report.transaction).firstResultOptional();
+        if (optionalReport.isPresent()) {
+            NotificationReport oldReport = optionalReport.get();
+            if (oldReport.status.canUpdate(report.status)) {
+                oldReport.version += 1;
+                oldReport.status = report.status;
+                oldReport.explanation = report.explanation;
+                oldReport.persist();
+            } else {
+                LOGGER.info("Could not update report for transaction " + report.transaction);
+            }
+        } else {
+            report.persist();
+        }
     }
 
     @Override

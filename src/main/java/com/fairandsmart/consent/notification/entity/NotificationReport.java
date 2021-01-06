@@ -39,7 +39,8 @@ public class NotificationReport extends PanacheEntityBase {
         SMS,
         EMAIL,
         FCM,
-        XMPP
+        XMPP,
+        NONE
     }
 
     public enum Status {
@@ -48,7 +49,21 @@ public class NotificationReport extends PanacheEntityBase {
         OPENED,
         INVALID_RECIPIENT,
         MAILBOX_FULL,
-        ERROR;
+        ERROR,
+        PENDING,
+        NONE;
+
+        public boolean canUpdate(Status status) {
+            if (this == SENT) {
+                return status == DELIVERED || status == OPENED || status == INVALID_RECIPIENT || status == MAILBOX_FULL;
+            } else if (this == DELIVERED) {
+                return status == OPENED;
+            } else if (this == PENDING) {
+                return status != NONE;
+            } else {
+                return false;
+            }
+        }
     }
 
 }

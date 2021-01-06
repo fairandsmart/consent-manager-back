@@ -59,6 +59,7 @@ import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
+import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
@@ -627,6 +628,14 @@ public class ConsentServiceBean implements ConsentService {
             //
             String receiptId = this.saveConsent(ctx, valuesMap);
             ctx.setReceiptId(receiptId);
+
+            NotificationReport report;
+            if (StringUtils.isNotEmpty(ctx.getNotificationRecipient()) && StringUtils.isNotEmpty(ctx.getNotificationModel())) {
+                report = new NotificationReport(ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.PENDING);
+            } else {
+                report = new NotificationReport(ctx.getReceiptId(), NotificationReport.Type.NONE, NotificationReport.Status.NONE);
+            }
+            this.notification.pushReport(report);
 
             Event<ConsentContext> event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx);
             this.notification.notify(event);
