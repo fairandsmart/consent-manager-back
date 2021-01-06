@@ -7,132 +7,14 @@
     <artifactId>consent-manager-back-${quarkus.package.type}-${quarkus.datasource.db-kind}</artifactId>
     <version>0.3.0-SNAPSHOT</version>
     <name>FairAndSmart Consent Manager Backend (${quarkus.package.type} / ${quarkus.datasource.db-kind})</name>
-    <scm>
-        <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
-        <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}
-        </developerConnection>
-        <url>https://gitlab.fairandsmart.tech/fairandsmart/${project.artifactId}</url>
-    </scm>
-    <distributionManagement>
-        <repository>
-            <id>fns-nexus</id>
-            <name>Fair And Smart Nexus Releases</name>
-            <url>https://repository.fairandsmart.tech/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>fns-nexus</id>
-            <name>Fair And Smart Nexus Snapshots</name>
-            <url>https://repository.fairandsmart.tech/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-    <developers>
-        <developer>
-            <id>xlefevbre</id>
-            <name>Xavier Lefevre</name>
-            <email>xavier.lefevre@fairandsmart.com</email>
-            <timezone>+1</timezone>
-            <organization>Fair And Smart</organization>
-            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
-            <roles>
-                <role>manager</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>abalbo</id>
-            <name>Alan Balbo</name>
-            <email>alan.balbo@fairandsmart.com</email>
-            <timezone>+1</timezone>
-            <organization>Fair And Smart</organization>
-            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>nrueff</id>
-            <name>Nicolas Rueff</name>
-            <email>nicolas.rueff@fairandsmart.com</email>
-            <timezone>+1</timezone>
-            <organization>Fair And Smart</organization>
-            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>fpierre</id>
-            <name>Frederic Pierre</name>
-            <email>frederic.pierre@fairandsmart.com</email>
-            <timezone>+1</timezone>
-            <organization>Fair And Smart</organization>
-            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>vguillaume</id>
-            <name>Victor Guillaume</name>
-            <email>victor.guillaume@fairandsmart.com</email>
-            <timezone>+1</timezone>
-            <organization>Fair And Smart</organization>
-            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>jblanchard</id>
-            <name>Jerome Blanchard</name>
-            <email>jerome.blanchard@fairandsmart.com</email>
-            <timezone>+1</timezone>
-            <organization>Fair And Smart</organization>
-            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>mstremplewski</id>
-            <name>Manon Stremplewski</name>
-            <email>manon.stremplewski@fairandsmart.com</email>
-            <timezone>+1</timezone>
-            <organization>Fair And Smart</organization>
-            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>pkullmann</id>
-            <name>Pauline Kullmann</name>
-            <email>pauline.kullmann@fairandsmart.com</email>
-            <timezone>+1</timezone>
-            <organization>Fair And Smart</organization>
-            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-    </developers>
-    <organization>
-        <name>Fair And Smart</name>
-        <url>https://fairandsmart.io/facogen/team-list.html</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>GPL (GNU General Public License) version 3</name>
-            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
     <properties>
-        <quarkus.datasource.db-kind>h2</quarkus.datasource.db-kind>
-        <quarkus.package.type>jar</quarkus.package.type>
         <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.inceptionYear>2020</project.inceptionYear>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <quarkus.datasource.db-kind>h2</quarkus.datasource.db-kind>
+        <quarkus.package.type>jar</quarkus.package.type>
+        <version.apache-fop>2.5</version.apache-fop>
         <version.bouncycastle>1.68</version.bouncycastle>
         <version.commons-codec>1.14</version.commons-codec>
         <version.dependency-check-maven>5.3.2</version.dependency-check-maven>
@@ -144,7 +26,6 @@
         <version.maven>3.6.2</version.maven>
         <version.maven-clean-plugin>3.1.0</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.8.1</version.maven-compiler-plugin>
-        <version.maven-license-plugin>2.0.0</version.maven-license-plugin>
         <version.maven-dependency-check-plugin>5.3.2</version.maven-dependency-check-plugin>
         <version.maven-deploy-plugin>3.0.0-M1</version.maven-deploy-plugin>
         <version.maven-enforcer-plugin>3.0.0-M3</version.maven-enforcer-plugin>
@@ -152,6 +33,7 @@
         <version.maven-failsafe-plugin>2.22.0</version.maven-failsafe-plugin>
         <version.maven-install-plugin>3.0.0-M1</version.maven-install-plugin>
         <version.maven-jar-plugin>3.2.0</version.maven-jar-plugin>
+        <version.maven-license-plugin>2.0.0</version.maven-license-plugin>
         <version.maven-quarkus-plugin>1.9.2.Final</version.maven-quarkus-plugin>
         <version.maven-resources-plugin>3.2.0</version.maven-resources-plugin>
         <version.maven-site-plugin>3.9.1</version.maven-site-plugin>
@@ -161,9 +43,8 @@
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
         <version.xades4j>1.5.1</version.xades4j>
-        <version.apache-fop>2.5</version.apache-fop>
-        <version.zxing>3.4.1</version.zxing>
         <version.xerces>2.12.0</version.xerces>
+        <version.zxing>3.4.1</version.zxing>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -280,8 +161,8 @@
             <version>${version.java-jwt}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>jackson-databind</artifactId>
                     <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -398,8 +279,10 @@
                 <version>${version.maven-license-plugin}</version>
                 <configuration>
                     <copyrightOwners>Fair And Smart</copyrightOwners>
-                    <canUpdateDescription>false</canUpdateDescription> <!-- set to true to force description update-->
-                    <canUpdateCopyright>false</canUpdateCopyright> <!-- set to true to force copyright update-->
+                    <canUpdateDescription>false</canUpdateDescription>
+                    <!-- set to true to force description update-->
+                    <canUpdateCopyright>false</canUpdateCopyright>
+                    <!-- set to true to force copyright update-->
                     <licenseName>fairandsmart</licenseName>
                     <licenseResolver>${project.baseUri}/src/licenses</licenseResolver>
                     <descriptionTemplate>${basedir}/src/licenses/fairandsmart/descriptionTemplate.ftl</descriptionTemplate>
@@ -495,6 +378,7 @@
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${version.maven-enforcer-plugin}</version>
+                <inherited>true</inherited>
                 <executions>
                     <execution>
                         <id>enforce maven version</id>
@@ -511,10 +395,127 @@
                         </configuration>
                     </execution>
                 </executions>
-                <inherited>true</inherited>
             </plugin>
         </plugins>
     </build>
+    <organization>
+        <name>Fair And Smart</name>
+        <url>https://fairandsmart.io/facogen/team-list.html</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>GPL (GNU General Public License) version 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>xlefevbre</id>
+            <name>Xavier Lefevre</name>
+            <email>xavier.lefevre@fairandsmart.com</email>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>manager</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>abalbo</id>
+            <name>Alan Balbo</name>
+            <email>alan.balbo@fairandsmart.com</email>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>nrueff</id>
+            <name>Nicolas Rueff</name>
+            <email>nicolas.rueff@fairandsmart.com</email>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>fpierre</id>
+            <name>Frederic Pierre</name>
+            <email>frederic.pierre@fairandsmart.com</email>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>vguillaume</id>
+            <name>Victor Guillaume</name>
+            <email>victor.guillaume@fairandsmart.com</email>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>jblanchard</id>
+            <name>Jerome Blanchard</name>
+            <email>jerome.blanchard@fairandsmart.com</email>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>mstremplewski</id>
+            <name>Manon Stremplewski</name>
+            <email>manon.stremplewski@fairandsmart.com</email>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <id>pkullmann</id>
+            <name>Pauline Kullmann</name>
+            <email>pauline.kullmann@fairandsmart.com</email>
+            <organization>Fair And Smart</organization>
+            <organizationUrl>https://www.fairandsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
+        <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</developerConnection>
+        <url>https://gitlab.fairandsmart.tech/fairandsmart/${project.artifactId}</url>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>fns-nexus</id>
+            <name>Fair And Smart Nexus Releases</name>
+            <url>https://repository.fairandsmart.tech/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>fns-nexus</id>
+            <name>Fair And Smart Nexus Snapshots</name>
+            <url>https://repository.fairandsmart.tech/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
     <profiles>
         <profile>
             <id>pg-storage</id>
@@ -570,13 +571,13 @@
                         <version>${version.versions-maven-plugin}</version>
                         <executions>
                             <execution>
-                                <phase>validate</phase>
                                 <goals>
                                     <goal>display-property-updates</goal>
                                     <goal>display-plugin-updates</goal>
                                     <goal>display-parent-updates</goal>
                                     <goal>display-dependency-updates</goal>
                                 </goals>
+                                <phase>validate</phase>
                                 <configuration>
                                     <processDependencyManagement>false</processDependencyManagement>
                                     <processPluginDependenciesInPluginManagement>false
@@ -589,14 +590,6 @@
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
                         <version>${version.dependency-check-maven}</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                         <configuration>
                             <enableRetired>true</enableRetired>
                             <enableExperimental>true</enableExperimental>
@@ -611,6 +604,14 @@
                             </suppressionFiles>
                             <failBuildOnCVSS>11</failBuildOnCVSS>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>com.amashchenko.maven.plugin</groupId>
