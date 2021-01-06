@@ -70,7 +70,7 @@
 
     .processing-list {
         overflow-y: auto;
-        padding: 16px 24px;
+        padding: 16px 24px 0 24px;
         height: 100%;
     }
 

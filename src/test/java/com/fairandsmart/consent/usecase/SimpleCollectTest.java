@@ -175,13 +175,13 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Data body " + t1Key));
         assertTrue(page.contains("Retention body " + t1Key));
         assertTrue(page.contains("Usage body " + t1Key));
-        assertTrue(page.contains("CONSENT_CORE_SERVICE.png"));
+        assertTrue(page.contains("Service principal"));
         //Processing 2
         assertTrue(page.contains("Processing title " + t2Key));
         assertTrue(page.contains("Data body " + t2Key));
         assertTrue(page.contains("Retention body " + t2Key));
         assertTrue(page.contains("Usage body " + t2Key));
-        assertTrue(page.contains("CONSENT_THIRD_PART_SHARING.png"));
+        assertTrue(page.contains("Partage à des tierces-parties"));
 
         Document html = Jsoup.parse(page);
         Map<String, String> values = TestUtils.readFormInputs(html);
@@ -289,13 +289,13 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Data body " + t1Key));
         assertTrue(page.contains("Retention body " + t1Key));
         assertTrue(page.contains("Usage body " + t1Key));
-        assertTrue(page.contains("CONSENT_CORE_SERVICE.png"));
+        assertTrue(page.contains("Service principal"));
         //Processing 2
         assertTrue(page.contains("Processing title " + t2Key));
         assertTrue(page.contains("Data body " + t2Key));
         assertTrue(page.contains("Retention body " + t2Key));
         assertTrue(page.contains("Usage body " + t2Key));
-        assertTrue(page.contains("CONSENT_THIRD_PART_SHARING.png"));
+        assertTrue(page.contains("Partage à des tierces-parties"));
 
         html = Jsoup.parse(page);
         values = TestUtils.readFormInputs(html);
