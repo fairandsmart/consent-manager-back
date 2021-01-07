@@ -44,6 +44,7 @@ import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -53,6 +54,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("consents")
+@Tag(name = "Consent", description = "Operations related to consent's collect")
 public class ConsentsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ConsentsResource.class.getName());

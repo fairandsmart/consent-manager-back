@@ -40,6 +40,7 @@ import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.support.SupportService;
 import com.fairandsmart.consent.support.SupportServiceException;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -50,6 +51,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/system")
+@Tag(name = "System", description = "System operations")
 public class SystemResource {
 
     private static final Logger LOGGER = Logger.getLogger(SystemResource.class.getName());
