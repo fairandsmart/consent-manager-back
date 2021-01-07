@@ -1,4 +1,4 @@
-Right Consent / A Consent Manager Platform
+Right Consents / A Consent Manager Platform
 
 Authors:
 

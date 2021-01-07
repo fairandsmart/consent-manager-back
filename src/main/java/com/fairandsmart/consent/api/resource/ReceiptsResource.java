@@ -41,6 +41,7 @@ import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenServiceException;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -52,6 +53,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/receipts")
+@Tag(name = "Receipt", description = "Operations related to Consent Receipts")
 public class ReceiptsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ReceiptsResource.class.getName());

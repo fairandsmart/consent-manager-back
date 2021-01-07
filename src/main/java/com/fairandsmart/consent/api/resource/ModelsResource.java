@@ -50,6 +50,7 @@ import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.template.TemplateServiceException;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -63,6 +64,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/models")
+@Tag(name = "Content Models", description = "Operations related to content models management")
 public class ModelsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ModelsResource.class.getName());

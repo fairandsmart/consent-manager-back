@@ -40,6 +40,7 @@ import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -57,6 +58,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Path("subjects")
+@Tag(name = "Subjects", description = "Operations related to all known subjects")
 public class SubjectsResource {
 
     private static final Logger LOGGER = Logger.getLogger(SubjectsResource.class.getName());

@@ -33,9 +33,13 @@ package com.fairandsmart.consent.api.resource;
  * #L%
  */
 
+import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.stats.StatisticsService;
 import com.fairandsmart.consent.stats.dto.StatsBag;
-import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -46,6 +50,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("stats")
+@Tag(name = "Statistics", description = "Operations related to statistics")
 public class StatisticsResource {
 
     private static final Logger LOGGER = Logger.getLogger(StatisticsResource.class.getName());
@@ -55,6 +60,10 @@ public class StatisticsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses( value = {
+        @APIResponse( responseCode = "401", description = "Access Denied (if you don't have 'admin' role)" ),
+        @APIResponse( responseCode = "200", description = "StatBag representation of all available statistics") })
+    @Operation( operationId = "getStats", summary = "Get all backend generated statistics")
     public StatsBag getStats() throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /stats");
         return statsService.getStats();

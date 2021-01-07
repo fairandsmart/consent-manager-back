@@ -7,6 +7,7 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.notification.NotificationService;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Path("records")
+@Tag(name = "Records", description = "Operations related to Consent Records")
 public class RecordsResource {
 
     private static final Logger LOGGER = Logger.getLogger(RecordsResource.class.getName());
