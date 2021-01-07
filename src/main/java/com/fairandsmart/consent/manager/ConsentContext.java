@@ -78,6 +78,7 @@ public class ConsentContext implements Tokenizable, Cloneable {
     private String theme;
     private String receiptId;
     private boolean showAcceptAll = false;
+    private boolean showValidity = true;
     private String acceptAllText;
     private boolean footerOnTop = false;
 
@@ -331,6 +332,16 @@ public class ConsentContext implements Tokenizable, Cloneable {
         return this;
     }
 
+    public boolean isShowValidity() {
+        return showValidity;
+    }
+
+    public ConsentContext setShowValidity(boolean showValidity) {
+        this.showValidity = showValidity;
+        return this;
+    }
+
+
     @Override
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
@@ -381,6 +392,7 @@ public class ConsentContext implements Tokenizable, Cloneable {
                 claims.put(ATTRIBUTES_PREFIX + entry.getKey(), entry.getValue());
             }
         }
+
         claims.put("preview", Boolean.toString(this.isPreview()));
         claims.put("iframe", Boolean.toString(this.isIframe()));
         if (theme != null) {
@@ -394,6 +406,7 @@ public class ConsentContext implements Tokenizable, Cloneable {
             claims.put("acceptAllText", this.getAcceptAllText());
         }
         claims.put("footerOnTop", Boolean.toString(this.isFooterOnTop()));
+        claims.put("showValidity", Boolean.toString(this.isShowValidity()));
         return claims;
     }
 
@@ -458,6 +471,9 @@ public class ConsentContext implements Tokenizable, Cloneable {
         }
         if (claims.containsKey("footerOnTop")) {
             this.setFooterOnTop(Boolean.parseBoolean(claims.get("footerOnTop")));
+        }
+        if (claims.containsKey("showValidity")) {
+            this.setShowValidity(Boolean.parseBoolean(claims.get("showValidity")));
         }
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
                 entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
@@ -561,6 +577,7 @@ public class ConsentContext implements Tokenizable, Cloneable {
                 ", theme='" + theme + '\'' +
                 ", receiptId='" + receiptId + '\'' +
                 ", showAcceptAll=" + showAcceptAll +
+                ", showValidity=" + showValidity +
                 ", acceptAllText='" + acceptAllText + '\'' +
                 ", footerOnTop=" + footerOnTop +
                 '}';

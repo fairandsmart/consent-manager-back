@@ -41,7 +41,7 @@
             <key name="expires_explanation">
                 <value language="default">(After this date, the data controller must collect your consent again)</value>
                 <value language="en">(After this date, the data controller must collect your consent again)</value>
-                <value language="fr">(une fois cette date expirée, le responsable de traitement devra collecter à nouveau votre consentement)</value>
+                <value language="fr">(Date jusqu'à laquelle vous pouvez accéder et modifier votre consentement)</value>
             </key>
             <key name="language">
                 <value language="default">Language</value>
@@ -252,236 +252,236 @@
                 <meta charset="UTF-8"/>
                 <style>
                     html {
-                        font-family: Arial, Helvetica, sans-serif;
+                    font-family: Arial, Helvetica, sans-serif;
                     }
 
                     .list-label {
-                        font-weight: bold;
+                    font-weight: bold;
                     }
 
                     body {
-                        margin: 0;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100vh;
                     }
 
                     .logo-wrapper {
-                        padding: 0 24px;
+                    padding: 0 24px;
                     }
 
                     .logo {
-                        max-height: 100px;
+                    max-height: 100px;
                     }
 
                     .header {
-                        margin: 24px;
+                    margin: 24px;
                     }
 
                     .header .header-title {
-                        margin-top: 0;
-                        margin-bottom: 8px;
+                    margin-top: 0;
+                    margin-bottom: 8px;
                     }
 
                     .header .header-body {
-                        color: rgba(0, 0, 0, 0.54);
-                        font-weight: bold;
+                    color: rgba(0, 0, 0, 0.54);
+                    font-weight: bold;
                     }
 
                     .privacy-policy-link-wrapper {
-                        margin: 8px 0;
-                        text-align: center;
+                    margin: 8px 0;
+                    text-align: center;
                     }
 
                     .privacy-policy-link {
-                        text-decoration: none;
-                        color: #2196F3;
+                    text-decoration: none;
+                    color: #2196F3;
                     }
 
                     .content-fade {
-                        background: linear-gradient(white, rgba(255, 255, 255, 0));
-                        height: 32px;
-                        margin: 0 16px -32px 16px;
-                        z-index: 10;
-                        overflow-y: hidden;
-                        pointer-events: none;
-                        flex-shrink: 0;
+                    background: linear-gradient(white, rgba(255, 255, 255, 0));
+                    height: 32px;
+                    margin: 0 16px -32px 16px;
+                    z-index: 10;
+                    overflow-y: hidden;
+                    pointer-events: none;
+                    flex-shrink: 0;
                     }
 
                     .processing-list {
-                        overflow-y: auto;
-                        padding: 16px 24px 0 24px;
-                        height: 100%;
+                    overflow-y: auto;
+                    padding: 16px 24px 0 24px;
+                    height: 100%;
                     }
 
                     .processing {
-                        padding: 6px 0 6px 12px;
+                    padding: 6px 0 6px 12px;
                     }
 
                     .processing-header {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-bottom: 8px;
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 8px;
                     }
 
                     .processing-header h3 {
-                        margin: 0;
+                    margin: 0;
                     }
 
                     .processing-body {
-                        color: rgba(0, 0, 0, 0.54);
+                    color: rgba(0, 0, 0, 0.54);
                     }
 
                     .processing-body li:first-of-type {
-                        margin-top: 8px;
+                    margin-top: 8px;
                     }
 
                     .block-wrapper {
-                        padding: 12px;
-                        margin: 12px 0;
-                        border-radius: 4px;
-                        background-color: #f5f5f5;
-                        text-align: left;
+                    padding: 12px;
+                    margin: 12px 0;
+                    border-radius: 4px;
+                    background-color: #f5f5f5;
+                    text-align: left;
                     }
 
                     .block-wrapper h4 {
-                        margin: 0;
+                    margin: 0;
                     }
 
                     .block-wrapper ul {
-                        margin: 0;
-                        padding-left: 16px;
-                        overflow: hidden;
+                    margin: 0;
+                    padding-left: 16px;
+                    overflow: hidden;
                     }
 
                     .controller-header {
-                        cursor: pointer;
-                        display: flex;
-                        justify-content: space-between;
+                    cursor: pointer;
+                    display: flex;
+                    justify-content: space-between;
                     }
 
                     .controller-hidden {
-                        max-height: 0;
-                        transition: .5s linear;
+                    max-height: 0;
+                    transition: .5s linear;
                     }
 
                     .controller-visible {
-                        max-height: 200px;
-                        transition: .5s linear;
+                    max-height: 200px;
+                    transition: .5s linear;
                     }
 
                     .item-wrapper {
-                        margin-bottom: 8px;
+                    margin-bottom: 8px;
                     }
 
                     .purpose-container {
-                        text-align: center;
-                        margin-top: 8px !important;
+                    text-align: center;
+                    margin-top: 8px !important;
                     }
 
                     .purpose {
-                        width: 32px;
-                        height: 32px;
+                    width: 32px;
+                    height: 32px;
                     }
                 </style>
                 <style>
                     .logo-wrapper {
-                        text-align: center;
-                        margin-top: 24px;
+                    text-align: center;
+                    margin-top: 24px;
                     }
 
                     .header {
-                        text-align: center;
-                        margin: 0 0 8px 12px;
-                        border-bottom: 1px solid #eee;
+                    text-align: center;
+                    margin: 0 0 8px 12px;
+                    border-bottom: 1px solid #eee;
                     }
                 </style>
                 <style>
                     .receipt {
-                        position: relative;
-                        display: flex;
-                        flex-direction: column;
-                        width: 100%;
-                        background-color: white;
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    width: 100%;
+                    background-color: white;
                     }
 
                     @media screen and (max-width: 800px) {
-                        .receipt {
-                            height: 100vh;
-                        }
+                    .receipt {
+                    height: 100vh;
+                    }
                     }
 
                     @media screen and (min-width: 800px) {
-                        .receipt {
-                            margin: auto;
-                            border: 1px solid #eeeeee;
-                            border-radius: 4px;
-                            box-shadow: 4px 4px 8px grey;
-                            max-height: 90vh;
-                            width: 800px;
-                        }
+                    .receipt {
+                    margin: auto;
+                    border: 1px solid #eeeeee;
+                    border-radius: 4px;
+                    box-shadow: 4px 4px 8px grey;
+                    max-height: 90vh;
+                    width: 800px;
+                    }
                     }
 
                     .receipt h4, .receipt p {
-                        margin: 4px 0;
+                    margin: 4px 0;
                     }
 
                     .header h2 {
-                        margin-top: 0;
-                        margin-bottom: 8px;
+                    margin-top: 0;
+                    margin-bottom: 8px;
                     }
 
                     .header-body {
-                        margin: 4px 0;
+                    margin: 4px 0;
                     }
 
                     .content-fade, .header, .qr-code, .privacy-policy-link-wrapper {
-                        flex-shrink: 0;
+                    flex-shrink: 0;
                     }
 
                     .processing-body {
-                        padding-left: 16px;
+                    padding-left: 16px;
                     }
 
                     .processing-response {
-                        display: block;
-                        position: relative;
-                        text-transform: uppercase;
-                        font-weight: 300;
+                    display: block;
+                    position: relative;
+                    text-transform: uppercase;
+                    font-weight: 300;
                     }
 
                     .processing-response.accepted:before {
-                        position: absolute;
-                        left: -24px;
-                        height: 15px;
-                        width: 15px;
-                        border-radius: 50%;
-                        background: #1B870BDD;
-                        content: "";
+                    position: absolute;
+                    left: -24px;
+                    height: 15px;
+                    width: 15px;
+                    border-radius: 50%;
+                    background: #1B870BDD;
+                    content: "";
                     }
 
                     .processing-response.refused:before {
-                        position: absolute;
-                        left: -24px;
-                        height: 15px;
-                        width: 15px;
-                        border-radius: 50%;
-                        background: #9C1A1ACC;
-                        content: "";
+                    position: absolute;
+                    left: -24px;
+                    height: 15px;
+                    width: 15px;
+                    border-radius: 50%;
+                    background: #9C1A1ACC;
+                    content: "";
                     }
 
                     .processing-info p {
-                        color: rgba(0, 0, 0, 0.74);
+                    color: rgba(0, 0, 0, 0.74);
                     }
 
                     .qr-code {
-                        text-align: center;
-                        border-bottom: 1px solid #eee;
+                    text-align: center;
+                    border-bottom: 1px solid #eee;
                     }
 
                     .qr-code img {
-                        width: 150px;
+                    width: 150px;
                     }
                 </style>
                 <xsl:if test="themePath">
@@ -573,26 +573,28 @@
                                             </xsl:call-template>
                                         </span>
                                     </li>
-                                    <li>
-                                        <span class="list-label">
-                                            <xsl:call-template name="translate">
-                                                <xsl:with-param name="key">expires</xsl:with-param>
-                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                            </xsl:call-template>
-                                            <xsl:text>: </xsl:text>
-                                        </span>
-                                        <span class="list-value">
-                                            <xsl:call-template name="formatdate">
-                                                <xsl:with-param name="DateTimeStr" select="expirationDate"/>
-                                            </xsl:call-template>
-                                        </span>
-                                        <div>
-                                            <xsl:call-template name="translate">
-                                                <xsl:with-param name="key">expires_explanation</xsl:with-param>
-                                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                                            </xsl:call-template>
-                                        </div>
-                                    </li>
+                                    <xsl:if test="expirationDate">
+                                        <li>
+                                            <span class="list-label">
+                                                <xsl:call-template name="translate">
+                                                    <xsl:with-param name="key">expires</xsl:with-param>
+                                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                                </xsl:call-template>
+                                                <xsl:text>: </xsl:text>
+                                            </span>
+                                            <span class="list-value">
+                                                <xsl:call-template name="formatdate">
+                                                    <xsl:with-param name="DateTimeStr" select="expirationDate"/>
+                                                </xsl:call-template>
+                                            </span>
+                                            <div>
+                                                <xsl:call-template name="translate">
+                                                    <xsl:with-param name="key">expires_explanation</xsl:with-param>
+                                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                                </xsl:call-template>
+                                            </div>
+                                        </li>
+                                    </xsl:if>
                                     <li>
                                         <span class="list-label">
                                             <xsl:call-template name="translate">
