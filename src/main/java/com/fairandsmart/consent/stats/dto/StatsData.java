@@ -33,9 +33,12 @@ package com.fairandsmart.consent.stats.dto;
  * #L%
  */
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Schema(name="StatsData", description="Map that holds all StatsCharts data.")
 public class StatsData {
 
     private List<StatsDataSet> datasets;

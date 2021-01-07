@@ -38,8 +38,8 @@ import com.fairandsmart.consent.api.dto.SupportInfoDto;
 import com.fairandsmart.consent.api.dto.UserDto;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.security.AuthenticationService;
-import com.fairandsmart.consent.support.SupportServiceException;
 import com.fairandsmart.consent.support.SupportService;
+import com.fairandsmart.consent.support.SupportServiceException;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;

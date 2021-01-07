@@ -33,7 +33,10 @@ package com.fairandsmart.consent.stats.dto;
  * #L%
  */
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import java.util.HashMap;
 
+@Schema(name="StatsChart", description="Map that contains all named StatsData.")
 public class StatsChart extends HashMap<String, StatsData> {
 }

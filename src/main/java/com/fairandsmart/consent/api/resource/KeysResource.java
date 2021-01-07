@@ -34,10 +34,18 @@ package com.fairandsmart.consent.api.resource;
  */
 
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.security.entity.Key;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -45,8 +53,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 @Path("/keys")
+@Tag(name = "Keys", description = "Operations related to API access keys")
 public class KeysResource {
 
     private static final Logger LOGGER = Logger.getLogger(KeysResource.class.getName());
@@ -56,6 +64,10 @@ public class KeysResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses( value = {
+        @APIResponse( responseCode = "401", description = "Access Denied (if you don't have 'admin' role)" ),
+        @APIResponse( responseCode = "200", description = "The list of all keys" ) })
+    @Operation( operationId = "listKeys", summary = "List of all available API access keys")
     public List<Key> listKeys() throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /keys");
         return authenticationService.listKeys();
@@ -64,6 +76,10 @@ public class KeysResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses( value = {
+        @APIResponse( responseCode = "401", description = "Access Denied (if you don't have 'admin' role)" ),
+        @APIResponse( responseCode = "200", description = "The key has been created") })
+    @Operation( operationId = "createKey", summary = "Create a new API access key")
     public Key createKey(Key key) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /users/key");
         return authenticationService.createKey(key.name);
@@ -71,7 +87,11 @@ public class KeysResource {
 
     @DELETE
     @Path("{id}")
-    public Response dropKey(@PathParam("id") String id) throws AccessDeniedException {
+    @APIResponses( value = {
+        @APIResponse( responseCode = "401", description = "Access Denied (if you don't have 'admin' role)" ),
+        @APIResponse( responseCode = "204", description = "The key has been deleted") })
+    @Operation( operationId = "deleteKey", summary = "Delete the key with that id")
+    public Response deleteKey ( @Parameter(name = "id", description = "The key UUID to delete", example = "6837d1cd-ad9f-4b62-a73f-731c78e8283b") @PathParam("id") @NotNull @NotEmpty @UUID String id) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "DELETE /users/key/" + id);
         authenticationService.dropKey(id);
         return Response.noContent().build();
