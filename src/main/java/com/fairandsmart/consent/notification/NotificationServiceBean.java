@@ -63,7 +63,7 @@ public class NotificationServiceBean implements NotificationService {
         Optional<NotificationReport> optionalReport = NotificationReport.find("transaction = ?1", report.transaction).firstResultOptional();
         if (optionalReport.isPresent()) {
             NotificationReport oldReport = optionalReport.get();
-            if (oldReport.status.canUpdate(report.status)) {
+            if (oldReport.status.isValidTransition(report.status)) {
                 oldReport.version += 1;
                 oldReport.status = report.status;
                 oldReport.explanation = report.explanation;
