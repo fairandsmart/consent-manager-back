@@ -3,9 +3,9 @@ package com.fairandsmart.consent.manager.render;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.manager.render;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -34,8 +34,8 @@ package com.fairandsmart.consent.manager.render;
  */
 
 import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.model.ThemeInfo;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.MediaType;
 import javax.xml.transform.Transformer;
@@ -58,14 +58,14 @@ public class TxtReceiptRenderer implements ReceiptRenderer {
     }
 
     @Override
-    public byte[] render(Receipt receipt) throws RenderingException {
+    public byte[] render(Receipt receipt, ThemeInfo themeInfo) throws RenderingException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream();
              InputStream style = this.getClass().getClassLoader().getResourceAsStream(STYLESHEET)) {
             Transformer transformer = FACTORY.newTransformer(new StreamSource(style));
             StreamSource xml = new StreamSource(new ByteArrayInputStream(receipt.toXmlBytes()));
             transformer.transform(xml, new StreamResult(output));
             return output.toByteArray();
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             throw new RenderingException("Unable to render receipt in " + MediaType.TEXT_PLAIN, e);
         }
     }

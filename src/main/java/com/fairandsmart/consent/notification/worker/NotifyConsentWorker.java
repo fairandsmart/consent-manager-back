@@ -94,7 +94,7 @@ public class NotifyConsentWorker implements Runnable {
             if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD) && StringUtils.isNotEmpty(ctx.getReceiptId())) {
                 notification.setReceiptName("receipt.pdf");
                 notification.setReceiptType("application/pdf");
-                notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getReceiptId(), "application/pdf"));
+                notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getReceiptId(), "application/pdf", ctx.getTheme()));
             }
 
             TemplateModel<ConsentNotification> model = new TemplateModel("email.ftl", notification, notification.getLanguage());

@@ -3,9 +3,9 @@ package com.fairandsmart.consent.manager.render;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.manager.render;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -36,10 +36,51 @@ package com.fairandsmart.consent.manager.render;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.model.ThemeInfo;
 
-public interface ReceiptRenderer {
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.ByteArrayOutputStream;
 
-    String format();
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class ThemedReceipt {
 
-    byte[] render(Receipt receipt, ThemeInfo themeInfo) throws RenderingException;
+    private Receipt receipt;
+    private ThemeInfo themeInfo;
 
+    public ThemedReceipt() {
+    }
+
+    public ThemedReceipt(Receipt receipt, ThemeInfo themeInfo) {
+        this.receipt = receipt;
+        this.themeInfo = themeInfo;
+    }
+
+    public Receipt getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(Receipt receipt) {
+        this.receipt = receipt;
+    }
+
+    public ThemeInfo getThemeInfo() {
+        return themeInfo;
+    }
+
+    public void setThemeInfo(ThemeInfo themeInfo) {
+        this.themeInfo = themeInfo;
+    }
+
+    public byte[] toXmlBytes() throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(ThemedReceipt.class);
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        marshaller.marshal(this, out);
+        return out.toByteArray();
+    }
 }

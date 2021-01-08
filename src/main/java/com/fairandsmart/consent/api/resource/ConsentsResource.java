@@ -105,6 +105,13 @@ public class ConsentsResource {
             templateData.setContext(ctx);
             if (ctx.getReceiptDisplayType() != null && ctx.getReceiptDisplayType() != ConsentContext.ReceiptDisplayType.NONE) {
                 uri.queryParam("format", ctx.getReceiptDisplayType());
+                if (StringUtils.isNotEmpty(ctx.getTheme())) {
+                    try {
+                        uri.queryParam("theme", ConsentElementIdentifier.deserialize(ctx.getTheme()).getKey());
+                    } catch (IllegalIdentifierException e) {
+                        LOGGER.info("Could not find theme for receipt");
+                    }
+                }
             }
             templateData.setReceiptURI(uri.build());
             return templateService.buildModel(templateData);
