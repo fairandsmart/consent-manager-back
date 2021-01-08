@@ -41,7 +41,7 @@
             <key name="expires_explanation">
                 <value language="default">(After this date, the data controller must collect your consent again)</value>
                 <value language="en">(After this date, the data controller must collect your consent again)</value>
-                <value language="fr">(une fois cette date expirée, le responsable de traitement devra collecter à nouveau votre consentement)</value>
+                <value language="fr">(Date jusqu'à laquelle vous pouvez accéder et modifier votre consentement)</value>
             </key>
             <key name="language">
                 <value language="default">Language</value>

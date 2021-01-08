@@ -956,6 +956,10 @@ public class ConsentServiceBean implements ConsentService {
                     receipt.setThemePath(config.publicUrl() + "/models/serials/" + themeId.getSerial() + "/data");
                 }
 
+                if (!ctx.isShowValidity()) {
+                    receipt.setExpirationDate(null);
+                }
+
                 LOGGER.log(Level.FINE, "Receipt XML: " + receipt.toXml());
                 byte[] xml = receipt.toXmlBytes();
                 store.put(receipt.getTransaction(), xml);
