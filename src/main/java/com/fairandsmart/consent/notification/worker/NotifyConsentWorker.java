@@ -7,6 +7,7 @@ import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.Email;
+import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
@@ -33,6 +34,9 @@ public class NotifyConsentWorker implements Runnable {
 
     @Inject
     Mailer mailer;
+
+    @Inject
+    NotificationService notificationService;
 
     @Inject
     TemplateService templateService;
@@ -122,6 +126,6 @@ public class NotifyConsentWorker implements Runnable {
             report.status = NotificationReport.Status.ERROR;
             report.explanation = e.getMessage();
         }
-        report.persist();
+        this.notificationService.pushReport(report);
     }
 }
