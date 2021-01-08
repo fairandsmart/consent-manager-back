@@ -22,6 +22,11 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -87,7 +92,8 @@ public class NotifyConsentWorker implements Runnable {
                 notification.setUrl(clientConfig.userPagePublicUrl().get());
             } else {
                 ctx.setCollectionMethod(ConsentContext.CollectionMethod.EMAIL);
-                notification.setToken(this.tokenService.generateToken(ctx));
+                notification.setToken(this.tokenService.generateToken(ctx,
+                        Date.from(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC")).plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS).toInstant())));
                 URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
                 notification.setUrl(notificationUri.toString());
             }
