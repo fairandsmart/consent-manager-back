@@ -77,6 +77,8 @@ import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -882,9 +884,9 @@ public class ConsentServiceBean implements ConsentService {
 
             List<Record> records = new ArrayList<>();
             List<String> recordsKeys = new ArrayList<>();
-            for (Map.Entry<String, String> value : values.entrySet()) {
+            for (String identifier: ctx.getElements()) {
                 try {
-                    ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(value.getKey());
+                    ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(identifier);
                     recordsKeys.add(bodyId.getKey());
                     Record record = new Record();
                     record.transaction = transaction;
@@ -895,7 +897,7 @@ public class ConsentServiceBean implements ConsentService {
                     record.infoKey = infoId != null ? infoId.getKey() : "";
                     record.bodyKey = bodyId.getKey();
                     record.serial = (record.infoSerial.isEmpty() ? "" : record.infoSerial + ".") + record.bodySerial;
-                    record.value = value.getValue();
+                    record.value = values.get(identifier);
                     record.creationTimestamp = now.toEpochMilli();
                     record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
                     record.state = Record.State.COMMITTED;
@@ -922,15 +924,19 @@ public class ConsentServiceBean implements ConsentService {
                     info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLanguage());
                     ctx.setInfo(infoId.getKey());
                 }
-                Map<Processing, Record> trecords = new HashMap<>();
-                records.stream().filter(r -> r.type.equals(Processing.TYPE)).forEach(r -> {
-                    try {
-                        Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLanguage());
-                        trecords.put(t, r);
-                    } catch (EntityNotFoundException | ModelDataSerializationException e) {
-                        //
+                List<Pair<Processing, Record>> trecords = new ArrayList<>();
+                for (String element : ctx.getElements()) {
+                    Optional<Record> optionalRecord = records.stream().filter(record -> record.bodyKey.equals(element) && record.type.equals(Processing.TYPE)).findFirst();
+                    if (optionalRecord.isPresent()) {
+                        Record r = optionalRecord.get();
+                        try {
+                            Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLanguage());
+                            trecords.add(new ImmutablePair<>(t, r));
+                        } catch (EntityNotFoundException | ModelDataSerializationException e) {
+                            //
+                        }
                     }
-                });
+                }
                 receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
                 if (ctx.getNotificationRecipient() != null && !ctx.getNotificationRecipient().isEmpty()) {
                     receipt.setNotificationType("email");

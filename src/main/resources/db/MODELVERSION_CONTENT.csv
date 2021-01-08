@@ -9,9 +9,8 @@ MODELVERSION_ID,CONTENT_KEY,AUTHOR,DATA,DATACLASS
   ""collectionMethod"" : ""Formulaire Web"",
   ""showCollectionMethod"" : false,
   ""dataController"" : {
-    ""actingBehalfCompany"" : true,
     ""company"" : ""Michel SARL"",
-    ""name"" : ""M. Michel"",
+    ""info"" : ""Service technique"",
     ""address"" : ""2, rue de Lorraine 75002 PARIS"",
     ""email"" : ""michel@michel.fr"",
     ""phoneNumber"" : ""0142424242""
@@ -39,9 +38,8 @@ fc83c53c-c3ca-475f-83d9-945cc111034c,fr,demo@localhost,"{
   ""containsSensitiveData"" : true,
   ""containsMedicalData"" : false,
   ""dataController"" : {
-    ""actingBehalfCompany"" : true,
     ""company"" : ""Michel SARL"",
-    ""name"" : ""M. Michel"",
+    ""info"" : ""Service technique"",
     ""address"" : ""2, rue de Lorraine, 75002 PARIS"",
     ""email"" : ""michel@michel.fr"",
     ""phoneNumber"" : ""0142424242""
@@ -141,33 +139,6 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
   ""footer"" : ""En espérant vous retrouver bientôt sur notre application!"",
   ""signature"" : ""Michel SARL  ""
 }",com.fairandsmart.consent.manager.model.Email
-94289da9-6223-4a61-9454-e7a1bc6cdc37,fr,demo@localhost,"{
-  ""type"" : ""processing"",
-  ""title"" : ""TODO"",
-  ""data"" : ""TODO"",
-  ""retention"": {
-      ""label"" : ""TODO"",
-      ""value"" : 1,
-      ""unit"" : ""MONTH"",
-      ""fullText"": ""TODO 1 mois""
-  },
-  ""usage"" : ""TODO"",
-  ""purposes"" : [ ""CONSENT_RESEARCH"" ],
-  ""containsSensitiveData"" : false,
-  ""containsMedicalData"" : false,
-  ""dataController"" : {
-    ""actingBehalfCompany"" : false,
-    ""company"" : """",
-    ""name"" : """",
-    ""address"" : """",
-    ""email"" : """",
-    ""phoneNumber"" : """"
-  },
-  ""showDataController"" : false,
-  ""thirdParties"" : [ ],
-  ""associatedWithPreferences"" : false,
-  ""associatedPreferences"" : [ ]
-}",com.fairandsmart.consent.manager.model.Processing
 d19a6ab2-34bd-4bfd-bdb9-822502a9a977,fr,demo@localhost,"{
   ""type"" : ""processing"",
   ""title"" : ""Transfert de données énergétiques"",
@@ -183,9 +154,8 @@ d19a6ab2-34bd-4bfd-bdb9-822502a9a977,fr,demo@localhost,"{
   ""containsSensitiveData"" : false,
   ""containsMedicalData"" : false,
   ""dataController"" : {
-    ""actingBehalfCompany"" : true,
     ""company"" : ""Michel SARL"",
-    ""name"" : ""M. Michel"",
+    ""info"" : ""Service technique"",
     ""address"" : ""2 rue de Lorraine 75012 PARIS"",
     ""email"" : ""michel@michel.fr"",
     ""phoneNumber"" : ""0100000000""
@@ -213,9 +183,8 @@ afda9ec0-f05e-43db-a986-b75c7c449d41,fr,demo@localhost,"{
   ""containsSensitiveData"" : true,
   ""containsMedicalData"" : false,
   ""dataController"" : {
-    ""actingBehalfCompany"" : false,
     ""company"" : """",
-    ""name"" : """",
+    ""info"" : """",
     ""address"" : """",
     ""email"" : """",
     ""phoneNumber"" : """"

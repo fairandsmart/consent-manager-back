@@ -199,12 +199,11 @@ public class TestUtils {
 
     private static Controller generateDataController(String key) {
         return new Controller()
-                .withName("Name " + key)
+                .withInfo("Info " + key)
                 .withCompany("Company " + key)
                 .withAddress("Address " + key)
                 .withEmail(key + "@email.com")
-                .withPhoneNumber("0123456789")
-                .withActingBehalfCompany(true);
+                .withPhoneNumber("0123456789");
     }
 
     public static Map<String, String> readFormInputs(Document html) {

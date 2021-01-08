@@ -24,6 +24,10 @@
         width: 100%;
     }
 
+    .logo {
+        max-height: 100px;
+    }
+
     .email-content {
         border: 1px solid black;
         padding: 16px;

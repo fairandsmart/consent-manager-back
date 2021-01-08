@@ -336,7 +336,7 @@ public class SimpleCollectTest {
         assertTrue(receiptPage.contains("<value>refused</value>"));
         assertFalse(receiptPage.contains("<value>accepted</value>"));
         assertTrue(receiptPage.contains("<subject>" + SUBJECT + "</subject>"));
-        assertTrue(receiptPage.contains("<name>Name " + biKey + "_dc</name>"));
+        assertTrue(receiptPage.contains("<info>Info " + biKey + "_dc</info>"));
     }
 
 }

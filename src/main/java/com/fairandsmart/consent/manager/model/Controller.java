@@ -37,27 +37,13 @@ import java.util.Objects;
 
 public class Controller {
 
-    private boolean actingBehalfCompany = false;
     private String company;
-    private String name;
+    private String info;
     private String address;
     private String email;
     private String phoneNumber;
 
     public Controller() {
-    }
-
-    public boolean isActingBehalfCompany() {
-        return actingBehalfCompany;
-    }
-
-    public void setActingBehalfCompany(boolean actingBehalfCompany) {
-        this.actingBehalfCompany = actingBehalfCompany;
-    }
-
-    public Controller withActingBehalfCompany(boolean actingBehalfCompany) {
-        this.actingBehalfCompany = actingBehalfCompany;
-        return this;
     }
 
     public String getCompany() {
@@ -73,16 +59,16 @@ public class Controller {
         return this;
     }
 
-    public String getName() {
-        return name;
+    public String getInfo() {
+        return info;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setInfo(String info) {
+        this.info = info;
     }
 
-    public Controller withName(String name) {
-        this.name = name;
+    public Controller withInfo(String info) {
+        this.info = info;
         return this;
     }
 
@@ -130,9 +116,8 @@ public class Controller {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Controller that = (Controller) o;
-        return actingBehalfCompany == that.actingBehalfCompany &&
-                Objects.equals(company, that.company) &&
-                Objects.equals(name, that.name) &&
+        return Objects.equals(company, that.company) &&
+                Objects.equals(info, that.info) &&
                 Objects.equals(address, that.address) &&
                 Objects.equals(email, that.email) &&
                 Objects.equals(phoneNumber, that.phoneNumber);
@@ -140,15 +125,14 @@ public class Controller {
 
     @Override
     public int hashCode() {
-        return Objects.hash(actingBehalfCompany, company, name, address, email, phoneNumber);
+        return Objects.hash(company, info, address, email, phoneNumber);
     }
 
     @Override
     public String toString() {
         return "Controller{" +
-                "actingBehalfCompany=" + actingBehalfCompany +
-                ", company='" + company + '\'' +
-                ", name='" + name + '\'' +
+                "company='" + company + '\'' +
+                ", name='" + info + '\'' +
                 ", address='" + address + '\'' +
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
