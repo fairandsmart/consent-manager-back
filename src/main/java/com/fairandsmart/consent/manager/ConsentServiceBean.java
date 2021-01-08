@@ -807,24 +807,24 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public byte[] renderReceipt(String token, String id, String format) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
-        LOGGER.log(Level.INFO, "Rendering receipt for id: " + id + " and format: " + format);
+    public byte[] renderReceipt(String token, String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException {
+        LOGGER.log(Level.INFO, "Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
         Receipt receipt = getReceipt(token, id);
         Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
         if (renderer.isPresent()) {
-            return renderer.get().render(receipt);
+            return renderer.get().render(receipt, buildThemeInfo(themeKey, receipt.getLanguage()));
         }
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
     }
 
     @Override
-    public byte[] systemRenderReceipt(String id, String format) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, RenderingException {
-        LOGGER.log(Level.INFO, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format);
+    public byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
         try {
             Receipt receipt = Receipt.build(IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name()));
             Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
             if (renderer.isPresent()) {
-                return renderer.get().render(receipt);
+                return renderer.get().render(receipt, buildThemeInfo(themeKey, receipt.getLanguage()));
 
             }
         } catch (IOException | JAXBException e) {
@@ -959,18 +959,6 @@ public class ConsentServiceBean implements ConsentService {
                     LOGGER.log(Level.SEVERE, "Unable to generate QRCode for receipt", e);
                 }
 
-                if (ctx.getTheme() != null && ctx.getTheme().length() > 1) {
-                    receipt.setTheme(ctx.getTheme());
-                    ConsentElementIdentifier themeId = ConsentElementIdentifier.deserialize(ctx.getTheme());
-                    Theme theme = (Theme) ModelVersion.SystemHelper.findModelVersionForSerial(themeId.getSerial(), false).getData(ctx.getLanguage());
-                    if (theme.getLogoPath() != null && !theme.getLogoPath().isEmpty()) {
-                        receipt.setLogoPath(theme.getLogoPath());
-                        receipt.setLogoAltText(theme.getLogoAltText());
-                        receipt.setLogoPosition(theme.getLogoPosition().name());
-                    }
-                    receipt.setThemePath(config.publicUrl() + "/models/serials/" + themeId.getSerial() + "/data");
-                }
-
                 if (!ctx.isShowValidity()) {
                     receipt.setExpirationDate(null);
                 }
@@ -983,6 +971,22 @@ public class ConsentServiceBean implements ConsentService {
         } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
+    }
+
+    private ThemeInfo buildThemeInfo(String themeKey, String language) throws EntityNotFoundException, ModelDataSerializationException {
+        ThemeInfo themeInfo = new ThemeInfo();
+        if (StringUtils.isNotEmpty(themeKey)) {
+            ModelVersion themeVersion = ModelVersion.SystemHelper.findActiveVersionByKey(themeKey);
+            Theme theme = (Theme) themeVersion.getData(language);
+            themeInfo.setThemeKey(themeKey);
+            if (theme.getLogoPath() != null && !theme.getLogoPath().isEmpty()) {
+                themeInfo.setLogoPath(theme.getLogoPath());
+                themeInfo.setLogoAltText(theme.getLogoAltText());
+                themeInfo.setLogoPosition(theme.getLogoPosition().name().toLowerCase());
+            }
+            themeInfo.setThemePath(config.publicUrl() + "/models/serials/" + themeVersion.serial + "/data");
+        }
+        return themeInfo;
     }
 
     protected void onStart(@Observes StartupEvent ev) throws IOException, URISyntaxException {

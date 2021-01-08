@@ -238,8 +238,8 @@
         <xsl:value-of select="concat($mm,'/', $dd, '/', $yyyy)" />
     </xsl:template>
 
-    <xsl:template match="/receipt" name="receipt">
-        <xsl:variable name="lang" select="language"/>
+    <xsl:template match="/themedReceipt" name="receipt">
+        <xsl:variable name="lang" select="receipt/language"/>
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
             <fo:layout-master-set>
                 <fo:simple-page-master master-name="receipt" page-height="29.7cm" page-width="21cm" margin-top="2cm" margin-bottom="1cm" margin-left="2.5cm" margin-right="2.5cm">
@@ -258,7 +258,7 @@
                         </xsl:call-template>
                     </fo:block>
                     <fo:block background-color="#f5f5f5" margin="20pt 0 10pt 0" padding="10pt">
-                        <fo:block font-size="10pt" margin-top="10pt">
+                        <fo:block font-size="10pt">
                             <fo:inline font-weight="bold">
                                 <xsl:call-template name="translate">
                                     <xsl:with-param name="key">general_info</xsl:with-param>
@@ -274,7 +274,7 @@
                                 </xsl:call-template>
                             </fo:inline>
                             <xsl:text>: </xsl:text>
-                            <xsl:value-of select="subject"/>
+                            <xsl:value-of select="receipt/subject"/>
                         </fo:block>
                         <fo:block font-size="10pt">
                             <fo:inline font-weight="bold">
@@ -298,7 +298,7 @@
                             </fo:inline>
                             <xsl:text>: </xsl:text>
                             <xsl:call-template name="translate">
-                                <xsl:with-param name="key">collection_method_<xsl:value-of select="collectionMethod"/></xsl:with-param>
+                                <xsl:with-param name="key">collection_method_<xsl:value-of select="receipt/collectionMethod"/></xsl:with-param>
                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                             </xsl:call-template>
                         </fo:block>
@@ -311,7 +311,7 @@
                             </fo:inline>
                             <xsl:text>: </xsl:text>
                             <xsl:call-template name="formatdate">
-                                <xsl:with-param name="DateTimeStr" select="date"/>
+                                <xsl:with-param name="DateTimeStr" select="receipt/date"/>
                             </xsl:call-template>
                         </fo:block>
                         <fo:block font-size="10pt">
@@ -323,7 +323,7 @@
                             </fo:inline>
                             <xsl:text>: </xsl:text>
                             <xsl:call-template name="formatdate">
-                                <xsl:with-param name="DateTimeStr" select="expirationDate"/>
+                                <xsl:with-param name="DateTimeStr" select="receipt/expirationDate"/>
                             </xsl:call-template>
                         </fo:block>
                         <fo:block font-size="10pt">
@@ -340,15 +340,14 @@
                                 </xsl:call-template>
                             </fo:inline>
                             <xsl:text>: </xsl:text>
-                            <xsl:value-of select="transaction"/>
+                            <xsl:value-of select="receipt/transaction"/>
                         </fo:block>
                     </fo:block>
 
-
-                    <xsl:if test="updateUrl">
+                    <xsl:if test="receipt/updateUrl">
                         <fo:block font-size="10pt" margin-top="5pt" text-align="center">
                             <fo:basic-link color="grey" text-decoration="underline">
-                                <xsl:attribute name="external-destination"><xsl:value-of select="updateUrl"/></xsl:attribute>
+                                <xsl:attribute name="external-destination"><xsl:value-of select="receipt/updateUrl"/></xsl:attribute>
                                 <xsl:call-template name="translate">
                                     <xsl:with-param name="key">update_url</xsl:with-param>
                                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
@@ -357,7 +356,7 @@
                         </fo:block>
                     </xsl:if>
 
-                    <xsl:for-each select="consents/consent">
+                    <xsl:for-each select="receipt/consents/consent">
                         <fo:table table-layout="fixed" width="100%" margin="10pt 0">
                             <fo:table-column column-width="proportional-column-width(1)"/>
                             <fo:table-column column-width="proportional-column-width(1)"/>
@@ -385,7 +384,7 @@
                         <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt"><xsl:value-of select="current()/usage"/></fo:block>
                         <fo:block color="#3F3F3F" font-size="10pt" margin-bottom="5pt">
                             <xsl:call-template name="translate">
-                                <xsl:with-param name="key">receipt_id</xsl:with-param>
+                                <xsl:with-param name="key">data_purpose</xsl:with-param>
                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                             </xsl:call-template>
                             <xsl:text>: </xsl:text>
@@ -454,24 +453,25 @@
 <!--                        </fo:block>-->
 <!--                    </xsl:if>-->
 
-                    <xsl:if test="dataController and dataController/company">
+                    <xsl:if test="receipt/dataController and receipt/dataController/company">
                         <fo:block font-size="10pt" margin-top="10pt">
                             <xsl:call-template name="translate">
                                 <xsl:with-param name="key">data_controller_name</xsl:with-param>
                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                             </xsl:call-template>
                             <xsl:text>: </xsl:text>
-                            <xsl:value-of select="dataController/company"/>
+                            <xsl:value-of select="receipt/dataController/company"/>
                         </fo:block>
                     </xsl:if>
-                    <xsl:if test="privacyPolicyUrl">
+                    <xsl:if test="receipt/privacyPolicyUrl">
                         <fo:block font-size="10pt" margin-top="10pt">
-                            <xsl:call-template name="translate">
-                                <xsl:with-param name="key">privacy_policy</xsl:with-param>
-                                <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
-                            </xsl:call-template>
-                            <xsl:text>: </xsl:text>
-                            <xsl:value-of select="privacyPolicyUrl"/>
+                            <fo:basic-link color="grey" text-decoration="underline">
+                                <xsl:attribute name="external-destination"><xsl:value-of select="receipt/privacyPolicyUrl"/></xsl:attribute>
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">privacy_policy</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                            </fo:basic-link>
                         </fo:block>
                     </xsl:if>
                 </fo:flow>

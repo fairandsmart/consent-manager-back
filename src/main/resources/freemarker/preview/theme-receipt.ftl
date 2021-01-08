@@ -2,9 +2,11 @@
     "transaction": "A1b2c3",
     "jurisdiction": "Sed sit",
     "language": "en",
-    "logoPath": theme.logoPath,
-    "logoAltText": theme.logoAltText,
-    "logoPosition": theme.logoPosition,
+    "themeInfo": {
+        "logoPath": theme.logoPath,
+        "logoAltText": theme.logoAltText,
+        "logoPosition": theme.logoPosition
+    },
     "date": "2020-12-07T13:22:18.624151Z[UTC]",
     "expirationDate": "2021-06-06T13:22:18.624151Z[UTC]",
     "processor": "Nam in mauris volutpat",

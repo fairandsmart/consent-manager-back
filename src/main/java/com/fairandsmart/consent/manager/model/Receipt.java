@@ -61,9 +61,6 @@ public class Receipt {
     private String transaction;
     private String jurisdiction;
     private String language;
-    private String logoPath;
-    private String logoAltText;
-    private String logoPosition;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
     private ZonedDateTime date;
     @XmlJavaTypeAdapter(ZonedDateTimeAdapter.class)
@@ -89,8 +86,6 @@ public class Receipt {
     private ConsentContext.CollectionMethod collectionMethod;
     private String updateUrl;
     private String updateUrlQrCode;
-    private String theme;
-    private String themePath;
     private String notificationType;
     private String notificationRecipient;
 
@@ -243,46 +238,6 @@ public class Receipt {
 
     public void setUpdateUrlQrCode(String updateUrlQrCode) {
         this.updateUrlQrCode = updateUrlQrCode;
-    }
-
-    public String getLogoPath() {
-        return logoPath;
-    }
-
-    public void setLogoPath(String logoPath) {
-        this.logoPath = logoPath;
-    }
-
-    public String getLogoAltText() {
-        return logoAltText;
-    }
-
-    public void setLogoAltText(String logoAltText) {
-        this.logoAltText = logoAltText;
-    }
-
-    public String getLogoPosition() {
-        return logoPosition;
-    }
-
-    public void setLogoPosition(String logoPosition) {
-        this.logoPosition = logoPosition;
-    }
-
-    public String getTheme() {
-        return theme;
-    }
-
-    public void setTheme(String theme) {
-        this.theme = theme;
-    }
-
-    public String getThemePath() {
-        return themePath;
-    }
-
-    public void setThemePath(String themePath) {
-        this.themePath = themePath;
     }
 
     public String getNotificationType() {

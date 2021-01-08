@@ -239,8 +239,8 @@
         <xsl:value-of select="concat($mm,'/', $dd, '/', $yyyy)" />
     </xsl:template>
 
-    <xsl:template match="/receipt" name="receipt">
-        <xsl:variable name="lang" select="language"/>
+    <xsl:template match="/themedReceipt" name="receipt">
+        <xsl:variable name="lang" select="receipt/language"/>
         <html>
             <head>
                 <title>
@@ -384,8 +384,7 @@
                     width: 32px;
                     height: 32px;
                     }
-                </style>
-                <style>
+
                     .logo-wrapper {
                     text-align: center;
                     margin-top: 24px;
@@ -396,8 +395,7 @@
                     margin: 0 0 8px 12px;
                     border-bottom: 1px solid #eee;
                     }
-                </style>
-                <style>
+
                     .receipt {
                     position: relative;
                     display: flex;
@@ -484,23 +482,26 @@
                     width: 150px;
                     }
                 </style>
-                <xsl:if test="themePath">
+                <xsl:if test="themeInfo and themeInfo/themePath">
                     <link rel="stylesheet" type="text/css">
-                        <xsl:attribute name="href"><xsl:value-of select="themePath"/></xsl:attribute>
+                        <xsl:attribute name="href"><xsl:value-of select="themeInfo/themePath"/></xsl:attribute>
                     </link>
                 </xsl:if>
             </head>
             <body>
                 <div class="receipt">
-                    <xsl:if test="logoPath">
-                        <div class="logo-wrapper">
+                    <xsl:if test="themeInfo and themeInfo/logoPath">
+                        <xsl:element name="div">
+                            <xsl:attribute name="class">logo-wrapper</xsl:attribute>
+                            <xsl:attribute name="style">text-align: <xsl:value-of select="themeInfo/logoPosition"/></xsl:attribute>
                             <xsl:element name="img">
-                                <xsl:attribute name="src"><xsl:value-of select="logoPath"/></xsl:attribute>
-                                <xsl:if test="logoAltText">
-                                    <xsl:attribute name="alt"><xsl:value-of select="logoAltText"/></xsl:attribute>
+                                <xsl:attribute name="class">logo</xsl:attribute>
+                                <xsl:attribute name="src"><xsl:value-of select="themeInfo/logoPath"/></xsl:attribute>
+                                <xsl:if test="themeInfo/logoAltText">
+                                    <xsl:attribute name="alt"><xsl:value-of select="themeInfo/logoAltText"/></xsl:attribute>
                                 </xsl:if>
                             </xsl:element>
-                        </div>
+                        </xsl:element>
                     </xsl:if>
                     <div class="processing-list">
                         <div class="header">
@@ -527,7 +528,7 @@
                                             </xsl:call-template>
                                             <xsl:text>: </xsl:text>
                                         </span>
-                                        <span class="list-value"><xsl:value-of select="subject"/></span>
+                                        <span class="list-value"><xsl:value-of select="receipt/subject"/></span>
                                     </li>
                                     <li>
                                         <span class="list-label">
@@ -554,7 +555,7 @@
                                         </span>
                                         <span class="list-value">
                                             <xsl:call-template name="translate">
-                                                <xsl:with-param name="key">collection_method_<xsl:value-of select="collectionMethod"/></xsl:with-param>
+                                                <xsl:with-param name="key">collection_method_<xsl:value-of select="receipt/collectionMethod"/></xsl:with-param>
                                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                             </xsl:call-template>
                                         </span>
@@ -569,11 +570,11 @@
                                         </span>
                                         <span class="list-value">
                                             <xsl:call-template name="formatdate">
-                                                <xsl:with-param name="DateTimeStr" select="date"/>
+                                                <xsl:with-param name="DateTimeStr" select="receipt/date"/>
                                             </xsl:call-template>
                                         </span>
                                     </li>
-                                    <xsl:if test="expirationDate">
+                                    <xsl:if test="receipt/expirationDate">
                                         <li>
                                             <span class="list-label">
                                                 <xsl:call-template name="translate">
@@ -603,14 +604,14 @@
                                             </xsl:call-template>
                                             <xsl:text>: </xsl:text>
                                         </span>
-                                        <span class="list-value"><xsl:value-of select="transaction"/></span>
+                                        <span class="list-value"><xsl:value-of select="receipt/transaction"/></span>
                                     </li>
                                 </ul>
                             </div>
-                            <xsl:if test="updateUrl">
+                            <xsl:if test="receipt/updateUrl">
                                 <div class="privacy-policy-link-wrapper">
                                     <xsl:element name="a" >
-                                        <xsl:attribute name="href"><xsl:value-of select="updateUrl"/></xsl:attribute>
+                                        <xsl:attribute name="href"><xsl:value-of select="receipt/updateUrl"/></xsl:attribute>
                                         <xsl:attribute name="class">privacy-policy-link</xsl:attribute>
                                         <xsl:call-template name="translate">
                                             <xsl:with-param name="key">update_url</xsl:with-param>
@@ -620,7 +621,7 @@
                                 </div>
                             </xsl:if>
                         </div>
-                        <xsl:for-each select="consents/consent">
+                        <xsl:for-each select="receipt/consents/consent">
                             <div class="processing">
                                 <div class="processing-header">
                                     <h3><xsl:value-of select="current()/title"/></h3>
@@ -708,30 +709,30 @@
                         </xsl:for-each>
                     </div>
                     <div class="qr-code">
-                        <xsl:if test="updateUrlQrCode">
+                        <xsl:if test="receipt/updateUrlQrCode">
                             <div>
                                 <img>
                                     <xsl:attribute name="src">
-                                        <xsl:value-of select="updateUrlQrCode"/>
+                                        <xsl:value-of select="receipt/updateUrlQrCode"/>
                                     </xsl:attribute>
                                 </img>
                             </div>
                         </xsl:if>
                     </div>
                     <div class="privacy-policy-link-wrapper">
-                        <xsl:if test="dataController and dataController/company">
+                        <xsl:if test="receipt/dataController and receipt/dataController/company">
                             <p>
                                 <xsl:call-template name="translate">
                                     <xsl:with-param name="key">data_controller_name</xsl:with-param>
                                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                 </xsl:call-template>
                                 <xsl:text>: </xsl:text>
-                                <xsl:value-of select="dataController/company"/>
+                                <xsl:value-of select="receipt/dataController/company"/>
                             </p>
                         </xsl:if>
                         <p>
                             <a class="privacy-policy-link">
-                                <xsl:attribute name="href"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>
+                                <xsl:attribute name="href"><xsl:value-of select="receipt/privacyPolicyUrl"/></xsl:attribute>
                                 <xsl:call-template name="translate">
                                     <xsl:with-param name="key">privacy_policy</xsl:with-param>
                                     <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>

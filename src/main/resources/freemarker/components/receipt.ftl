@@ -1,3 +1,4 @@
+<#assign theme=receipt.themeInfo>
 <#include "logo.ftl">
 
 <div class="processing-list">
