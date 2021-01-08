@@ -42,10 +42,8 @@ import com.fairandsmart.consent.manager.model.Preference;
 import com.fairandsmart.consent.manager.model.Processing;
 import com.fairandsmart.consent.stats.util.StatCalendar;
 import io.quarkus.runtime.Startup;
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.scheduler.Scheduled;
 
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
@@ -59,15 +57,6 @@ public class StatisticsStoreBean implements StatisticsStore {
 
     @Inject
     StatisticsCache cache;
-
-    void startup(@Observes StartupEvent event) {
-        // TODO : check that the database has been initialized before calling initStats()
-        try {
-            this.initStats();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     @Scheduled(cron = "0 0 0 ? * *")

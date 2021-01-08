@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.bootstrap;
 
 import com.fairandsmart.consent.common.config.MainConfig;
+import com.fairandsmart.consent.stats.StatisticsStore;
 import com.fairandsmart.consent.support.SupportService;
 import io.quarkus.liquibase.LiquibaseFactory;
 import io.quarkus.runtime.StartupEvent;
@@ -12,7 +13,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BootstrapService {
@@ -28,6 +28,9 @@ public class BootstrapService {
     @Inject
     SupportService supportService;
 
+    @Inject
+    StatisticsStore statisticsStore;
+
     protected void onStart(@Observes StartupEvent ev) throws Exception {
         LOGGER.log(Level.INFO, "Application is starting, migrating database");
         try (Liquibase liquibase = liquibaseFactory.createLiquibase()) {
@@ -39,6 +42,7 @@ public class BootstrapService {
             }
             liquibase.update(ctx, liquibaseFactory.createLabels());
             //List<ChangeSetStatus> status = liquibase.getChangeSetStatuses(liquibaseFactory.createContexts(), liquibaseFactory.createLabels());
+            statisticsStore.initStats();
         }
         supportService.checkLatestVersion();
     }
