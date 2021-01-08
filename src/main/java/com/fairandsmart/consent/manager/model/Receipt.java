@@ -36,6 +36,7 @@ package com.fairandsmart.consent.manager.model;
 import com.fairandsmart.consent.common.util.ZonedDateTimeAdapter;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -51,7 +52,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @XmlRootElement
@@ -326,7 +326,7 @@ public class Receipt {
         return (Receipt) unmarshaller.unmarshal(new StringReader(xml));
     }
 
-    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, Map<Processing, Record> records) throws DatatypeConfigurationException {
+    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, List<Pair<Processing, Record>> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
         receipt.setLanguage(ctx.getLanguage());
@@ -344,20 +344,21 @@ public class Receipt {
             receipt.setFooterNotice(info.getFooter());
         }
         receipt.setCollectionMethod(ctx.getCollectionMethod());
-        for ( Map.Entry<Processing, Record> record : records.entrySet() ) {
+
+        for (Pair<Processing, Record> pair : records) {
             Consent trecord = new Consent();
-            trecord.setSerial(record.getValue().serial);
-            trecord.setData(record.getKey().getData());
-            trecord.setRetention(record.getKey().getRetention());
-            trecord.setUsage(record.getKey().getUsage());
-            trecord.setTitle(record.getKey().getTitle());
-            trecord.setPurposes(record.getKey().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
-            trecord.setController(record.getKey().getDataController());
-            trecord.setContainsSensitiveData(record.getKey().isContainsSensitiveData());
-            trecord.setContainsMedicalData(record.getKey().isContainsMedicalData());
-            trecord.setValue(record.getValue().value);
-            if (record.getKey().getThirdParties() != null && record.getKey().getThirdParties().size() > 0) {
-                trecord.setThirdParties(record.getKey().getThirdParties());
+            trecord.setSerial(pair.getRight().serial);
+            trecord.setData(pair.getLeft().getData());
+            trecord.setRetention(pair.getLeft().getRetention());
+            trecord.setUsage(pair.getLeft().getUsage());
+            trecord.setTitle(pair.getLeft().getTitle());
+            trecord.setPurposes(pair.getLeft().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
+            trecord.setController(pair.getLeft().getDataController());
+            trecord.setContainsSensitiveData(pair.getLeft().isContainsSensitiveData());
+            trecord.setContainsMedicalData(pair.getLeft().isContainsMedicalData());
+            trecord.setValue(pair.getRight().value);
+            if (pair.getLeft().getThirdParties() != null && pair.getLeft().getThirdParties().size() > 0) {
+                trecord.setThirdParties(pair.getLeft().getThirdParties());
             }
             receipt.getConsents().add(trecord);
         }
