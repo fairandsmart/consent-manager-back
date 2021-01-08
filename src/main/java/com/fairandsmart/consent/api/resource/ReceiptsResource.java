@@ -34,7 +34,9 @@ package com.fairandsmart.consent.api.resource;
  */
 
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentService;
+import com.fairandsmart.consent.manager.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
@@ -63,10 +65,10 @@ public class ReceiptsResource {
 
     @GET
     @Path("{tid}")
-    public Response getReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token, @QueryParam("format") String format) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException {
+    public Response getReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token, @QueryParam("format") String format, @QueryParam("theme") String theme) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
         String mimeType = format != null ? format : "text/html";
-        byte[] receipt = consentService.renderReceipt(token, transaction, mimeType);
+        byte[] receipt = consentService.renderReceipt(token, transaction, mimeType, theme);
         return Response.ok(receipt, mimeType).build();
     }
 
