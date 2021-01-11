@@ -165,5 +165,16 @@ public class ApiError {
             this.title = title;
         }
 
+        public int getStatus() {
+            return status;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getTitle() {
+            return title;
+        }
     }
 }

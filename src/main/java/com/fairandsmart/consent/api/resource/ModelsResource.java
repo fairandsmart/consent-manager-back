@@ -64,7 +64,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/models")
-@Tag(name = "Content Models", description = "Operations related to content models management")
+@Tag(name = "Models", description = "Operations related to content models management")
 public class ModelsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ModelsResource.class.getName());

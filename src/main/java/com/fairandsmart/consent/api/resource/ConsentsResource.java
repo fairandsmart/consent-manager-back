@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -72,7 +73,7 @@ public class ConsentsResource {
     @Path("token")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String generateToken(ConsentContext ctx) throws AccessDeniedException {
+    public String generateToken(@Valid ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /consents/token");
         return consentService.buildToken(ctx);
     }

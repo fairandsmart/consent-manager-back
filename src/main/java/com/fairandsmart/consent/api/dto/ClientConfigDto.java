@@ -1,14 +1,18 @@
 package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.common.config.ClientConfig;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Schema(name="ClientConfig", description="A representation of the client configuration")
 public class ClientConfigDto {
 
+    @Schema(description = "Is user page need to be available", readOnly = true)
     private boolean userPageEnabled;
+    @Schema(description = "Elements (processing, preferences, ...) that are available on user page", readOnly = true)
     private List<String> userPageElements;
 
     public ClientConfigDto() {

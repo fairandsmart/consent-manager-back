@@ -40,6 +40,9 @@ import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.support.SupportService;
 import com.fairandsmart.consent.support.SupportServiceException;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
@@ -68,6 +71,8 @@ public class SystemResource {
     @GET
     @Path("/users/me")
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponse( responseCode = "200", description = "Information for the connected user")
+    @Operation( operationId = "me", summary = "Get the connected user information")
     public UserDto me() {
         LOGGER.log(Level.INFO, "GET /system/users/me");
         UserDto user = new UserDto();
@@ -81,6 +86,10 @@ public class SystemResource {
     @GET
     @Path("/support/infos")
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses( value = {
+            @APIResponse( responseCode = "204", description = "Support service is disabled" ),
+            @APIResponse( responseCode = "200", description = "Support service information") })
+    @Operation( operationId = "supportInfos", summary = "Get available service information (for now, only latest version is operational)")
     public SupportInfoDto supportInfos() throws SupportServiceException {
         LOGGER.log(Level.INFO, "GET /system/support/infos");
         SupportInfoDto dto = new SupportInfoDto();
@@ -93,6 +102,8 @@ public class SystemResource {
     @GET
     @Path("/config")
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponse( responseCode = "200", description = "Configuration for GUI")
+    @Operation( operationId = "getClientConfig", summary = "Get the GUI configuration")
     public ClientConfigDto getClientConfig() {
         LOGGER.log(Level.INFO, "GET /system/config");
         return ClientConfigDto.fromClientConfig(config);

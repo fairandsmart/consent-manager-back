@@ -33,13 +33,20 @@ package com.fairandsmart.consent.api.dto;
  * #L%
  */
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import java.util.Set;
 
+@Schema(name="User", description="A representation of connected user information")
 public class UserDto {
 
+    @Schema(description = "The username", readOnly = true)
     private String username;
+    @Schema(description = "Is user in 'admin' group ?", readOnly = true)
     private boolean admin;
+    @Schema(description = "Is user in 'operator' group ?", readOnly = true)
     private boolean operator;
+    @Schema(description = "The list of all user roles (admin, operator, user)", readOnly = true)
     private Set<String> roles;
 
     public UserDto() {
