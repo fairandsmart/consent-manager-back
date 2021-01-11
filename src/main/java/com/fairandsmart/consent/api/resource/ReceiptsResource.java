@@ -84,8 +84,8 @@ public class ReceiptsResource {
             @QueryParam("t") @NotEmpty String token,
             @Parameter(name = "format", description = "The desired receipt format (a valid and supported mimetype)", example = "application/pdf", required = true)
             @QueryParam("format") @NotEmpty String format,
-            @Parameter(name = "theme", description = "The desired receipt theme (a valid and active theme key)", required = true)
-            @QueryParam("theme") @NotEmpty String theme) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
+            @Parameter(name = "theme", description = "The desired receipt theme (a valid and active theme key)", required = false)
+            @QueryParam("theme") String theme) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
         String mimeType = format != null ? format : "text/html";
         byte[] receipt = consentService.renderReceipt(token, transaction, mimeType, theme);
