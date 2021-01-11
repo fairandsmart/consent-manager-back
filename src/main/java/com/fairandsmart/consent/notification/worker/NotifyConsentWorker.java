@@ -6,6 +6,7 @@ import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.NotificationReport;

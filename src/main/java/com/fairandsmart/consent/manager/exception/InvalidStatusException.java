@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.manager;
+package com.fairandsmart.consent.manager.exception;
 
 /*-
  * #%L

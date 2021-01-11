@@ -7,10 +7,14 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.notification.NotificationService;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -33,6 +37,10 @@ public class RecordsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses( value = {
+            @APIResponse( responseCode = "401", description = "Access denied (you must be either the subject or an operator)"),
+            @APIResponse( responseCode = "200", description = "A Map of all subject Records ordered by element key") })
+    @Operation( operationId = "listSubjectRecords", summary = "List all subject Records ordered by element key and chronological order. Records status is evaluated at runtime.")
     public Map<String, List<RecordDto>> listSubjectRecords(@QueryParam("subject") String subject) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /records");
         Map<String, List<Record>> records = consentService.listSubjectRecords(subject);
@@ -43,7 +51,11 @@ public class RecordsResource {
     @Path("extraction")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ExtractionResultDto> extractRecords(@Valid ExtractionConfigDto dto) throws AccessDeniedException {
+    @APIResponses( value = {
+            @APIResponse( responseCode = "401", description = "Access denied (you must be either the subject or an operator)"),
+            @APIResponse( responseCode = "200", description = "A List of all Records that matches the extraction config") })
+    @Operation( operationId = "extractRecords", summary = "Extract records according to the specific provided config")
+    public List<ExtractionResultDto> extractRecords(@NotEmpty @Valid ExtractionConfigDto dto) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /records/extraction");
         return consentService.extractRecords(dto.getCondition().getKey(), dto.getCondition().getValue(), dto.getCondition().isRegexpValue()).entrySet().stream().map(ExtractionResultDto::build).collect(Collectors.toList());
     }
@@ -52,7 +64,11 @@ public class RecordsResource {
     @Path("extraction")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces("text/csv")
-    public List<ExtractionResultDto> extractRecordsCsv(@Valid ExtractionConfigDto dto) throws AccessDeniedException {
+    @APIResponses( value = {
+            @APIResponse( responseCode = "401", description = "Access denied (you must be either the subject or an operator)"),
+            @APIResponse( responseCode = "200", description = "A List of all Records that matches the extraction config") })
+    @Operation( operationId = "extractRecords", summary = "Extract records according to the specific provided config")
+    public List<ExtractionResultDto> extractRecordsCsv(@NotEmpty @Valid ExtractionConfigDto dto) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /records/extraction");
         return consentService.extractRecords(dto.getCondition().getKey(), dto.getCondition().getValue(), dto.getCondition().isRegexpValue()).entrySet().stream().map(ExtractionResultDto::build).collect(Collectors.toList());
     }

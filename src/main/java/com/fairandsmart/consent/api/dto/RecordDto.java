@@ -35,24 +35,40 @@ package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.notification.entity.NotificationReport;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.List;
 
+@Schema(name="Record", description="A Record holds a single user consent or choice")
 public class RecordDto {
 
+    @Schema(description = "The record serial composed of info and body serial", readOnly = true)
     private String serial;
+    @Schema(description = "The information model key", readOnly = true)
     private String infoKey;
+    @Schema(description = "The body model key (can be a processing, a preference or a condition", readOnly = true)
     private String bodyKey;
+    @Schema(description = "The subject id that record belong to", readOnly = true)
     private String subject;
+    @Schema(description = "The creation timestamp", readOnly = true)
     private long creationTimestamp;
+    @Schema(description = "The expiration timestamp", readOnly = true)
     private long expirationTimestamp;
+    @Schema(description = "The record type", readOnly = true)
     private String type;
+    @Schema(description = "The user value", readOnly = true)
     private String value;
+    @Schema(description = "The record status after evaluation", readOnly = true)
     private String status;
+    @Schema(description = "The record evaluation explanation", readOnly = true)
     private String statusExplanation;
+    @Schema(description = "The collection method of that record", readOnly = true)
     private String collectionMethod;
+    @Schema(description = "A comment added to the record", readOnly = true)
     private String comment;
+    @Schema(description = "The record transaction id (used also as the receipt id)", readOnly = true)
     private String transaction;
+    @Schema(description = "A list of NotificationReport holding notification status", readOnly = true)
     private List<NotificationReport> notificationReports;
 
     public RecordDto() {

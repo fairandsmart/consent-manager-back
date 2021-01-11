@@ -140,6 +140,8 @@ public class ApiError {
     public enum Type {
 
         ACCESS_DENIED(HttpStatus.SC_UNAUTHORIZED,"access-denied", "Access Denied"),
+        INVALID_TOKEN(HttpStatus.SC_UNAUTHORIZED, "invalid-token", "Invalid Token"),
+        TOKEN_EXPIRED(HttpStatus.SC_UNAUTHORIZED, "expired-token", "Expired Token"),
 
         ENTITY_ALREADY_EXISTS(HttpStatus.SC_CONFLICT, "already-exists", "Entity Already Exists"),
 
@@ -147,10 +149,9 @@ public class ApiError {
         RECEIPT_NOT_FOUND(HttpStatus.SC_NOT_FOUND, "receipt-not-found", "Receipt Not Found"),
         RENDERER_NOT_FOUND(HttpStatus.SC_NOT_FOUND, "renderer-not-found", "Renderer Not Found"),
 
-        INVALID_TOKEN(HttpStatus.SC_BAD_REQUEST, "token-invalid", "Invalid Token"),
-        TOKEN_EXPIRED(HttpStatus.SC_BAD_REQUEST, "token-expired", "Expired Token"),
-
         SUPPORT_SERVICE_ERROR(HttpStatus.SC_NO_CONTENT, "support-error", "Unable to contact support service"),
+
+        MODEL_DATA_SERIALIZATION_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Data Serialization Error"),
         RENDERER_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Renderer Error"),
         TOKEN_SERVICE_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Token Exception"),
         UNEXPECTED_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Consent Exception");

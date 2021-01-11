@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.api.mapper;
+package com.fairandsmart.consent.manager.exception;
 
 /*-
  * #%L
@@ -33,24 +33,12 @@ package com.fairandsmart.consent.api.mapper;
  * #L%
  */
 
-import com.fairandsmart.consent.api.error.ApiError;
-import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.manager.exception.ConsentServiceException;
+public class InvalidConsentException extends Exception {
+    public InvalidConsentException(String s) {
+        super(s);
+    }
 
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-
-@Provider
-public class ConsentServiceExceptionMapper implements ExceptionMapper<ConsentServiceException> {
-
-    @Inject
-    MainConfig config;
-
-    @Override
-    public Response toResponse(ConsentServiceException exception) {
-        ApiError error = new ApiError(ApiError.Type.UNEXPECTED_ERROR).withInstance(config.instance()).withException(exception);
-        return Response.status(error.getStatus()).entity(error).build();
+    public InvalidConsentException(String s, Throwable throwable) {
+        super(s, throwable);
     }
 }

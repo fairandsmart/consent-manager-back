@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.manager;
+package com.fairandsmart.consent.manager.exception;
 
 /*-
  * #%L
@@ -33,12 +33,12 @@ package com.fairandsmart.consent.manager;
  * #L%
  */
 
-public class ModelDataSerializationException extends Exception {
-    public ModelDataSerializationException(String s) {
+public class IllegalIdentifierException extends Exception {
+    public IllegalIdentifierException(String s) {
         super(s);
     }
 
-    public ModelDataSerializationException(String s, Throwable throwable) {
+    public IllegalIdentifierException(String s, Throwable throwable) {
         super(s, throwable);
     }
 }

@@ -45,7 +45,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -91,7 +90,7 @@ public class KeysResource {
         @APIResponse( responseCode = "401", description = "Access Denied (if you don't have 'admin' role)" ),
         @APIResponse( responseCode = "204", description = "The key has been deleted") })
     @Operation( operationId = "deleteKey", summary = "Delete the key with that id")
-    public Response deleteKey ( @Parameter(name = "id", description = "The key UUID to delete", example = "6837d1cd-ad9f-4b62-a73f-731c78e8283b") @PathParam("id") @NotNull @NotEmpty @UUID String id) throws AccessDeniedException {
+    public Response deleteKey ( @Parameter(name = "id", description = "The key UUID to delete", example = "6837d1cd-ad9f-4b62-a73f-731c78e8283b") @PathParam("id") @NotEmpty @UUID String id) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "DELETE /users/key/" + id);
         authenticationService.dropKey(id);
         return Response.noContent().build();

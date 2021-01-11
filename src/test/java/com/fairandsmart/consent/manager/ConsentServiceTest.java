@@ -40,6 +40,10 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.*;
+import com.fairandsmart.consent.manager.exception.ConsentServiceException;
+import com.fairandsmart.consent.manager.exception.InvalidConsentException;
+import com.fairandsmart.consent.manager.exception.InvalidStatusException;
+import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.token.InvalidTokenException;
@@ -47,7 +51,6 @@ import com.fairandsmart.consent.token.TokenExpiredException;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.Test;
-import org.slf4j.spi.LocationAwareLogger;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;

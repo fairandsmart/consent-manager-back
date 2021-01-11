@@ -36,16 +36,22 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentService;
-import com.fairandsmart.consent.manager.ModelDataSerializationException;
+import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenServiceException;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotEmpty;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -65,7 +71,21 @@ public class ReceiptsResource {
 
     @GET
     @Path("{tid}")
-    public Response getReceipt(@PathParam("tid") String transaction, @QueryParam("t") String token, @QueryParam("format") String format, @QueryParam("theme") String theme) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
+    @APIResponses( value = {
+            @APIResponse( responseCode = "500", description = "Something unexpected occurred" ),
+            @APIResponse( responseCode = "404", description = "Unable to find the receipt due to un-existing transaction, format renderer or theme" ),
+            @APIResponse( responseCode = "401", description = "Access denied (bad token)"),
+            @APIResponse( responseCode = "200", description = "The receipt in the desired format") })
+    @Operation( operationId = "getReceipt", summary = "Get a representation of a receipt according to the desired format and theme")
+    public Response getReceipt(
+            @Parameter(name = "tid", description = "The transaction id of the receipt", example = "1b1a256a-9f5b-4171-a54b-ff762889d1d1")
+            @PathParam("tid") String transaction,
+            @Parameter(name = "t", description = "The receipt access token", required = true)
+            @QueryParam("t") @NotEmpty String token,
+            @Parameter(name = "format", description = "The desired receipt format (a valid and supported mimetype)", example = "application/pdf", required = true)
+            @QueryParam("format") @NotEmpty String format,
+            @Parameter(name = "theme", description = "The desired receipt theme (a valid and active theme key)", required = true)
+            @QueryParam("theme") @NotEmpty String theme) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /receipts/" + transaction);
         String mimeType = format != null ? format : "text/html";
         byte[] receipt = consentService.renderReceipt(token, transaction, mimeType, theme);

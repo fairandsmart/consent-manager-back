@@ -33,6 +33,8 @@ package com.fairandsmart.consent.manager;
  * #L%
  */
 
+import com.fairandsmart.consent.manager.exception.IllegalIdentifierException;
+
 public class ConsentElementIdentifier {
 
     public static final String prefix = "element";
