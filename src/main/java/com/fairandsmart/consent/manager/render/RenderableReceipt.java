@@ -1,11 +1,11 @@
-package com.fairandsmart.consent.manager.store;
+package com.fairandsmart.consent.manager.render;
 
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.manager.store;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -35,16 +35,30 @@ package com.fairandsmart.consent.manager.store;
 
 import com.fairandsmart.consent.manager.model.Receipt;
 
-public interface ReceiptStore {
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-    boolean exists(String id) throws ReceiptStoreException;
+@XmlRootElement(name = "receipt")
+@XmlAccessorType(XmlAccessType.FIELD)
+public class RenderableReceipt extends Receipt {
 
-    void put(Receipt receipt) throws ReceiptStoreException, ReceiptAlreadyExistsException;
+    private RenderingLayout layout;
 
-    long size(String id) throws ReceiptStoreException, ReceiptNotFoundException;
+    public RenderableReceipt() {
+    }
 
-    Receipt get(String id) throws ReceiptStoreException, ReceiptNotFoundException;
+    public RenderableReceipt(Receipt receipt, RenderingLayout layout) {
+        super(receipt);
+        this.layout = layout;
+    }
 
-    void delete(String id) throws ReceiptStoreException, ReceiptNotFoundException;
+    public RenderingLayout getLayout() {
+        return layout;
+    }
+
+    public void setLayout(RenderingLayout layout) {
+        this.layout = layout;
+    }
 
 }

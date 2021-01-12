@@ -33,13 +33,23 @@ package com.fairandsmart.consent.manager.render;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.ThemeInfo;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 
-public interface ReceiptRenderer {
+public abstract class ReceiptRenderer {
 
-    String format();
+    protected static JAXBContext jaxbContext;
 
-    byte[] render(Receipt receipt, ThemeInfo themeInfo) throws RenderingException;
+    static {
+        try {
+            jaxbContext = JAXBContext.newInstance(RenderableReceipt.class);
+        } catch (JAXBException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    abstract public String format();
+
+    abstract public byte[] render(RenderableReceipt receipt) throws RenderingException;
 
 }

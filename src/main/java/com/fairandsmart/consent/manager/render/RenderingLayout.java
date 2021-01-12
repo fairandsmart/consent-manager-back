@@ -33,54 +33,72 @@ package com.fairandsmart.consent.manager.render;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.ThemeInfo;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.ByteArrayOutputStream;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ThemedReceipt {
+public class RenderingLayout {
 
-    private Receipt receipt;
-    private ThemeInfo themeInfo;
+    private String themeKey;
+    private String themePath;
+    private String logoPath;
+    private String logoAltText;
+    private String logoPosition;
 
-    public ThemedReceipt() {
+    public RenderingLayout() {
     }
 
-    public ThemedReceipt(Receipt receipt, ThemeInfo themeInfo) {
-        this.receipt = receipt;
-        this.themeInfo = themeInfo;
+    public String getThemeKey() {
+        return themeKey;
     }
 
-    public Receipt getReceipt() {
-        return receipt;
+    public void setThemeKey(String themeKey) {
+        this.themeKey = themeKey;
     }
 
-    public void setReceipt(Receipt receipt) {
-        this.receipt = receipt;
+    public String getThemePath() {
+        return themePath;
     }
 
-    public ThemeInfo getThemeInfo() {
-        return themeInfo;
+    public void setThemePath(String themePath) {
+        this.themePath = themePath;
     }
 
-    public void setThemeInfo(ThemeInfo themeInfo) {
-        this.themeInfo = themeInfo;
+    public String getLogoPath() {
+        return logoPath;
     }
 
-    public byte[] toXmlBytes() throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(ThemedReceipt.class);
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        marshaller.marshal(this, out);
-        return out.toByteArray();
+    public void setLogoPath(String logoPath) {
+        this.logoPath = logoPath;
     }
+
+    public String getLogoAltText() {
+        return logoAltText;
+    }
+
+    public void setLogoAltText(String logoAltText) {
+        this.logoAltText = logoAltText;
+    }
+
+    public String getLogoPosition() {
+        return logoPosition;
+    }
+
+    public void setLogoPosition(String logoPosition) {
+        this.logoPosition = logoPosition;
+    }
+
+    @Override
+    public String toString() {
+        return "RenderingLayout{" +
+                "themeKey='" + themeKey + '\'' +
+                ", themePath='" + themePath + '\'' +
+                ", logoPath='" + logoPath + '\'' +
+                ", logoAltText='" + logoAltText + '\'' +
+                ", logoPosition='" + logoPosition + '\'' +
+                '}';
+    }
+
 }

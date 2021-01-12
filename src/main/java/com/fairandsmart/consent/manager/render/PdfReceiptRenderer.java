@@ -33,27 +33,28 @@ package com.fairandsmart.consent.manager.render;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.ThemeInfo;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.xmlgraphics.util.MimeConstants;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.xml.bind.util.JAXBSource;
 import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
-public class PdfReceiptRenderer implements ReceiptRenderer {
+public class PdfReceiptRenderer extends ReceiptRenderer {
 
+    private static final Logger LOGGER = Logger.getLogger(PdfReceiptRenderer.class.getName());
     private static final TransformerFactory FACTORY = TransformerFactory.newInstance();
     private static final FopFactory FOP_FACTORY = FopFactory.newInstance(new File(".").toURI());
     private static final String STYLESHEET = "xsl/receipt.pdf.xsl";
@@ -64,16 +65,18 @@ public class PdfReceiptRenderer implements ReceiptRenderer {
     }
 
     @Override
-    public byte[] render(Receipt receipt, ThemeInfo themeInfo) throws RenderingException {
+    public byte[] render(RenderableReceipt receipt) throws RenderingException {
+        LOGGER.log(Level.FINE,  "Starting rendering");
         try (ByteArrayOutputStream output = new ByteArrayOutputStream();
-             InputStream style = this.getClass().getClassLoader().getResourceAsStream(STYLESHEET)) {
+            InputStream style = this.getClass().getClassLoader().getResourceAsStream(STYLESHEET)) {
             FOUserAgent foUserAgent = FOP_FACTORY.newFOUserAgent();
             Fop fop = FOP_FACTORY.newFop(MimeConstants.MIME_PDF, foUserAgent, output);
             Transformer transformer = FACTORY.newTransformer(new StreamSource(style));
             transformer.setParameter("versionParam", "2.0");
-            StreamSource xml = new StreamSource(new ByteArrayInputStream(new ThemedReceipt(receipt, themeInfo).toXmlBytes()));
+            JAXBSource source = new JAXBSource(jaxbContext, receipt);
+            LOGGER.log(Level.FINE, source.toString());
             Result res = new SAXResult(fop.getDefaultHandler());
-            transformer.transform(xml, res);
+            transformer.transform(source, res);
             return output.toByteArray();
         } catch (Exception e) {
             throw new RenderingException("Unable to render receipt in application/pdf", e);

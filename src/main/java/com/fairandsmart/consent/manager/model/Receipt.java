@@ -96,6 +96,29 @@ public class Receipt {
         attachments = new ArrayList<>();
     }
 
+    public Receipt(Receipt receipt) {
+        this.transaction = receipt.transaction;
+        this.jurisdiction = receipt.jurisdiction;
+        this.language = receipt.language;
+        this.date = receipt.date;
+        this.expirationDate = receipt.expirationDate;
+        this.processor = receipt.processor;
+        this.subject = receipt.subject;
+        this.subjectDetails = receipt.subjectDetails;
+        this.dataController = receipt.dataController;
+        this.headerNotice = receipt.headerNotice;
+        this.consents = receipt.consents;
+        this.footerNotice = receipt.footerNotice;
+        this.attributes = receipt.attributes;
+        this.attachments = receipt.attachments;
+        this.privacyPolicyUrl = receipt.privacyPolicyUrl;
+        this.collectionMethod = receipt.collectionMethod;
+        this.updateUrl = receipt.updateUrl;
+        this.updateUrlQrCode = receipt.updateUrlQrCode;
+        this.notificationType = receipt.notificationType;
+        this.notificationRecipient = receipt.notificationRecipient;
+    }
+
     public String getTransaction() {
         return transaction;
     }
@@ -254,31 +277,6 @@ public class Receipt {
 
     public void setNotificationRecipient(String notificationRecipient) {
         this.notificationRecipient = notificationRecipient;
-    }
-
-    public String toXml() throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        StringWriter writer = new StringWriter();
-        marshaller.marshal(this, writer);
-        writer.flush();
-        return writer.toString();
-    }
-
-    public byte[] toXmlBytes() throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        marshaller.marshal(this, out);
-        return out.toByteArray();
-    }
-
-    public static Receipt build(String xml) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        return (Receipt) unmarshaller.unmarshal(new StringReader(xml));
     }
 
     public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, List<Pair<Processing, Record>> records) throws DatatypeConfigurationException {

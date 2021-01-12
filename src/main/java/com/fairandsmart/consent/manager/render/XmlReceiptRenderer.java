@@ -33,14 +33,17 @@ package com.fairandsmart.consent.manager.render;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.ThemeInfo;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.Marshaller;
+import java.io.ByteArrayOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
-public class XmlReceiptRenderer implements ReceiptRenderer {
+public class XmlReceiptRenderer extends ReceiptRenderer {
+
+    private static final Logger LOGGER = Logger.getLogger(XmlReceiptRenderer.class.getName());
 
     @Override
     public String format() {
@@ -48,9 +51,14 @@ public class XmlReceiptRenderer implements ReceiptRenderer {
     }
 
     @Override
-    public byte[] render(Receipt receipt, ThemeInfo themeInfo) throws RenderingException {
+    public byte[] render(RenderableReceipt receipt) throws RenderingException {
+        LOGGER.log(Level.FINE,  "Starting rendering");
         try {
-            return receipt.toXmlBytes();
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            marshaller.marshal(receipt, out);
+            return out.toByteArray();
         } catch (Exception e) {
             throw new RenderingException("Unable to render receipt as XML", e);
         }

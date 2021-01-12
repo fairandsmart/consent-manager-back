@@ -50,11 +50,9 @@ import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.*;
-import com.fairandsmart.consent.manager.render.ReceiptRenderer;
-import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
-import com.fairandsmart.consent.manager.render.RenderingException;
+import com.fairandsmart.consent.manager.render.*;
 import com.fairandsmart.consent.manager.rule.BasicRecordStatusRuleChain;
-import com.fairandsmart.consent.manager.store.LocalReceiptStore;
+import com.fairandsmart.consent.manager.store.LocalFolderReceiptStore;
 import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
@@ -76,7 +74,6 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -87,18 +84,16 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -127,7 +122,7 @@ public class ConsentServiceBean implements ConsentService {
     TokenService tokenService;
 
     @Inject
-    LocalReceiptStore store;
+    LocalFolderReceiptStore store;
 
     @Inject
     NotificationService notification;
@@ -789,8 +784,7 @@ public class ConsentServiceBean implements ConsentService {
     public Receipt getReceipt(String token, String id) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "Getting receipt for id: " + id);
         try {
-            String xml = IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name());
-            Receipt receipt = Receipt.build(xml);
+            Receipt receipt = store.get(id);
             if (!authentication.getConnectedIdentifier().equals(receipt.getSubject()) && !authentication.isConnectedIdentifierOperator()) {
                 if (StringUtils.isNotEmpty(token)) {
                     ConsentTransaction tx = (ConsentTransaction) tokenService.readToken(token);
@@ -802,7 +796,7 @@ public class ConsentServiceBean implements ConsentService {
                 }
             }
             return receipt;
-        } catch (IOException | ReceiptStoreException | JAXBException e) {
+        } catch (ReceiptStoreException e) {
             throw new ConsentManagerException("Unable to read receipt from store", e);
         }
     }
@@ -811,25 +805,21 @@ public class ConsentServiceBean implements ConsentService {
     public byte[] renderReceipt(String token, String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
         Receipt receipt = getReceipt(token, id);
-        Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
-        if (renderer.isPresent()) {
-            return renderer.get().render(receipt, buildThemeInfo(themeKey, receipt.getLanguage()));
-        }
-        throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
+        return this.internalRenderReceipt(receipt, format, themeKey);
     }
 
     @Override
     public byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
-        try {
-            Receipt receipt = Receipt.build(IOUtils.toString(store.get(id), StandardCharsets.UTF_8.name()));
-            Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
-            if (renderer.isPresent()) {
-                return renderer.get().render(receipt, buildThemeInfo(themeKey, receipt.getLanguage()));
+        Receipt receipt = store.get(id);
+        return this.internalRenderReceipt(receipt, format, themeKey);
+    }
 
-            }
-        } catch (IOException | JAXBException e) {
-            throw new RenderingException("unable to render receipt", e);
+    private byte[] internalRenderReceipt(Receipt receipt, String format, String themeKey) throws ModelDataSerializationException, EntityNotFoundException, RenderingException, ReceiptRendererNotFoundException {
+        Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
+        if (renderer.isPresent()) {
+            RenderableReceipt rreceipt = new RenderableReceipt(receipt, buildThemeInfo(themeKey, receipt.getLanguage()));
+            return renderer.get().render(rreceipt);
         }
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
     }
@@ -964,30 +954,28 @@ public class ConsentServiceBean implements ConsentService {
                     receipt.setExpirationDate(null);
                 }
 
-                LOGGER.log(Level.FINE, "Receipt XML: " + receipt.toXml());
-                byte[] xml = receipt.toXmlBytes();
-                store.put(receipt.getTransaction(), xml);
+                store.put(receipt);
             }
             return receipt.getTransaction();
-        } catch (EntityNotFoundException | ModelDataSerializationException | JAXBException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
+        } catch (EntityNotFoundException | ModelDataSerializationException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
     }
 
-    private ThemeInfo buildThemeInfo(String themeKey, String language) throws EntityNotFoundException, ModelDataSerializationException {
-        ThemeInfo themeInfo = new ThemeInfo();
+    private RenderingLayout buildThemeInfo(String themeKey, String language) throws EntityNotFoundException, ModelDataSerializationException {
+        RenderingLayout renderingLayout = new RenderingLayout();
         if (StringUtils.isNotEmpty(themeKey)) {
             ModelVersion themeVersion = ModelVersion.SystemHelper.findActiveVersionByKey(themeKey);
             Theme theme = (Theme) themeVersion.getData(language);
-            themeInfo.setThemeKey(themeKey);
+            renderingLayout.setThemeKey(themeKey);
             if (theme.getLogoPath() != null && !theme.getLogoPath().isEmpty()) {
-                themeInfo.setLogoPath(theme.getLogoPath());
-                themeInfo.setLogoAltText(theme.getLogoAltText());
-                themeInfo.setLogoPosition(theme.getLogoPosition().name().toLowerCase());
+                renderingLayout.setLogoPath(theme.getLogoPath());
+                renderingLayout.setLogoAltText(theme.getLogoAltText());
+                renderingLayout.setLogoPosition(theme.getLogoPosition().name().toLowerCase());
             }
-            themeInfo.setThemePath(config.publicUrl() + "/models/serials/" + themeVersion.serial + "/data");
+            renderingLayout.setThemePath(config.publicUrl() + "/models/serials/" + themeVersion.serial + "/data");
         }
-        return themeInfo;
+        return renderingLayout;
     }
 
     protected void onStart(@Observes StartupEvent ev) throws IOException, URISyntaxException {
@@ -1000,18 +988,20 @@ public class ConsentServiceBean implements ConsentService {
                 fs = FileSystems.newFileSystem(receipts.toURI(), Collections.emptyMap());
             }
             Files.walk(Path.of(receipts.toURI()))
-                    .filter(Files::isRegularFile)
-                    .forEach(path -> {
-                        try (InputStream inputStream = Files.newInputStream(path)) {
-                            String fileName = path.getFileName().toString();
-                            LOGGER.log(Level.INFO, "Importing receipt " + fileName);
-                            this.store.put(fileName, inputStream);
-                        } catch (IOException | ReceiptStoreException e) {
-                            LOGGER.log(Level.SEVERE, "Unable to import receipt: " + e.getMessage(), e);
-                        } catch (ReceiptAlreadyExistsException e) {
-                            LOGGER.log(Level.INFO, "Receipt already imported");
-                        }
-                    });
+                .filter(Files::isRegularFile)
+                .forEach(path -> {
+                    try (InputStream inputStream = Files.newInputStream(path)) {
+                        String fileName = path.getFileName().toString();
+                        LOGGER.log(Level.INFO, "Importing receipt file: " + fileName);
+                        JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
+                        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                        this.store.put((Receipt) unmarshaller.unmarshal(inputStream));
+                    } catch (IOException | ReceiptStoreException | JAXBException e) {
+                        LOGGER.log(Level.SEVERE, "Unable to import receipt: " + e.getMessage(), e);
+                    } catch (ReceiptAlreadyExistsException e) {
+                        LOGGER.log(Level.INFO, "Receipt already imported");
+                    }
+                });
             if (fs != null) {
                 fs.close();
             }

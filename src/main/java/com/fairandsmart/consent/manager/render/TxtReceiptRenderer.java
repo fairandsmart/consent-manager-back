@@ -33,22 +33,22 @@ package com.fairandsmart.consent.manager.render;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.ThemeInfo;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.util.JAXBSource;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
-public class TxtReceiptRenderer implements ReceiptRenderer {
+public class TxtReceiptRenderer extends ReceiptRenderer {
 
+    private static final Logger LOGGER = Logger.getLogger(TxtReceiptRenderer.class.getName());
     private static final TransformerFactory FACTORY = TransformerFactory.newInstance();
     private static final String STYLESHEET = "xsl/receipt.txt.xsl";
 
@@ -58,12 +58,13 @@ public class TxtReceiptRenderer implements ReceiptRenderer {
     }
 
     @Override
-    public byte[] render(Receipt receipt, ThemeInfo themeInfo) throws RenderingException {
+    public byte[] render(RenderableReceipt receipt) throws RenderingException {
+        LOGGER.log(Level.FINE,  "Starting rendering");
         try (ByteArrayOutputStream output = new ByteArrayOutputStream();
-             InputStream style = this.getClass().getClassLoader().getResourceAsStream(STYLESHEET)) {
+            InputStream style = this.getClass().getClassLoader().getResourceAsStream(STYLESHEET)) {
             Transformer transformer = FACTORY.newTransformer(new StreamSource(style));
-            StreamSource xml = new StreamSource(new ByteArrayInputStream(receipt.toXmlBytes()));
-            transformer.transform(xml, new StreamResult(output));
+            JAXBSource source = new JAXBSource(jaxbContext, receipt);
+            transformer.transform(source, new StreamResult(output));
             return output.toByteArray();
         } catch (Exception e) {
             throw new RenderingException("Unable to render receipt in " + MediaType.TEXT_PLAIN, e);
