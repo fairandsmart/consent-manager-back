@@ -466,7 +466,7 @@ public class ConsentServiceTest {
         String readToken = service.buildToken(readCtx);
 
         LOGGER.info("Reading consent records before submit");
-        Map<String, Record> records = service.systemListContextValidRecords(readCtx);
+        Map<String, Record> records = service.systemListValidRecords(readCtx.getSubject(), readCtx.getInfo(), readCtx.getElements());
         assertEquals(0, records.size());
 
         LOGGER.info("First consent form");
@@ -482,7 +482,7 @@ public class ConsentServiceTest {
         service.submitConsent(form.getToken(), values);
 
         LOGGER.info("Reading consent records after submit");
-        records = service.systemListContextValidRecords(readCtx);
+        records = service.systemListValidRecords(readCtx.getSubject(), readCtx.getInfo(), readCtx.getElements());
         assertEquals(2, records.size());
         assertTrue(records.containsKey(et1.key));
         Record record = records.get(et1.key);
@@ -510,7 +510,7 @@ public class ConsentServiceTest {
         service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.info("Reading consent records after new version MINOR (no effect)");
-        records = service.systemListContextValidRecords(readCtx);
+        records = service.systemListValidRecords(readCtx.getSubject(), readCtx.getInfo(), readCtx.getElements());
         assertEquals(2, records.size());
         assertTrue(records.containsKey(et1.key));
         record = records.get(et1.key);
@@ -531,7 +531,7 @@ public class ConsentServiceTest {
         service.updateVersionStatus(v3t2.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.info("Reading consent records after new version MAJOR (no more value for t2)");
-        records = service.systemListContextValidRecords(readCtx);
+        records = service.systemListValidRecords(readCtx.getSubject(), readCtx.getInfo(), readCtx.getElements());
         assertEquals(1, records.size());
         assertTrue(records.containsKey(et1.key));
         record = records.get(et1.key);
@@ -633,21 +633,21 @@ public class ConsentServiceTest {
         String t1Key = UUID.randomUUID().toString();
         ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
         assertNotNull(et1);
-        ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key, Collections.singletonList(p1Key))));
+        ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key)));
         service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
 
         // Creating Processing entry n.2
         String t2Key = UUID.randomUUID().toString();
         ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
         assertNotNull(et2);
-        ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key, Collections.singletonList(p2Key))));
+        ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
 
         // Creating Processing entry n.3
         String t3Key = UUID.randomUUID().toString();
         ModelEntry et3 = service.createEntry(t3Key, "Name " + t3Key, "Description " + t3Key, Processing.TYPE);
         assertNotNull(et3);
-        ModelVersion v1t3 = service.createVersion(et3.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t3Key, Collections.singletonList(p3Key))));
+        ModelVersion v1t3 = service.createVersion(et3.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t3Key)));
         service.updateVersionStatus(v1t3.id, ModelVersion.Status.ACTIVE);
 
         // Checking that the entries have been created
@@ -660,7 +660,7 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key, p1Key))
+                .setElements(Arrays.asList(t1Key, t2Key, p2Key, p1Key))
                 .setLanguage(language)
                 .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM)
                 .setFormType(ConsentContext.FormType.FULL)
@@ -690,7 +690,7 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key, p1Key, t3Key))
+                .setElements(Arrays.asList(t1Key, t2Key, p1Key, p2Key, t3Key, p3Key))
                 .setLanguage(language)
                 .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM)
                 .setFormType(ConsentContext.FormType.PARTIAL)

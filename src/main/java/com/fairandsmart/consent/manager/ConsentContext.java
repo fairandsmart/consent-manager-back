@@ -43,7 +43,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
 
-public class ConsentContext implements Tokenizable, Cloneable {
+public class ConsentContext implements Tokenizable {
 
     private static final String DEFAULT_VALIDITY = "P6M";
     private static final FormType DEFAULT_FORM_TYPE = FormType.FULL;
@@ -583,8 +583,4 @@ public class ConsentContext implements Tokenizable, Cloneable {
                 '}';
     }
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
 }

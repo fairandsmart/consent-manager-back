@@ -45,29 +45,21 @@ public class Processing extends ModelData {
 
     public static final String TYPE = "processing";
 
-    // Main text
     private String title;
     private String data;
     private RetentionInfo retention;
     private String usage;
     private List<Purpose> purposes;
-    // Sensitive data
     private boolean containsSensitiveData = false;
     private boolean containsMedicalData = false;
-    // Data controller
     private Controller dataController;
     private boolean showDataController = true;
-    // Third parties
     private List<NameValuePair> thirdParties;
-    // Associated preferences
-    private boolean associatedWithPreferences = false;
-    private List<String> associatedPreferences;
 
     public Processing() {
         this.setType(TYPE);
         this.setPurposes(new ArrayList<>());
         this.setThirdParties(new ArrayList<>());
-        this.setAssociatedPreferences(new ArrayList<>());
     }
 
     public String getTitle() {
@@ -205,32 +197,6 @@ public class Processing extends ModelData {
         return this;
     }
 
-    public boolean isAssociatedWithPreferences() {
-        return associatedWithPreferences;
-    }
-
-    public void setAssociatedWithPreferences(boolean associatedWithPreferences) {
-        this.associatedWithPreferences = associatedWithPreferences;
-    }
-
-    public Processing withAssociatedWithPreferences(boolean associatedWithPreferences) {
-        this.associatedWithPreferences = associatedWithPreferences;
-        return this;
-    }
-
-    public List<String> getAssociatedPreferences() {
-        return associatedPreferences;
-    }
-
-    public void setAssociatedPreferences(List<String> associatedPreferences) {
-        this.associatedPreferences = associatedPreferences;
-    }
-
-    public Processing withAssociatedPreferences(List<String> associatedPreferences) {
-        this.associatedPreferences = associatedPreferences;
-        return this;
-    }
-
     public RetentionInfo getRetention() {
         return this.retention;
     }
@@ -271,19 +237,17 @@ public class Processing extends ModelData {
                 containsSensitiveData == that.containsSensitiveData &&
                 containsMedicalData == that.containsMedicalData &&
                 showDataController == that.showDataController &&
-                associatedWithPreferences == that.associatedWithPreferences &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(data, that.data) &&
                 Objects.equals(usage, that.usage) &&
                 Objects.equals(purposes, that.purposes) &&
                 Objects.equals(dataController, that.dataController) &&
-                Objects.equals(thirdParties, that.thirdParties) &&
-                Objects.equals(associatedPreferences, that.associatedPreferences);
+                Objects.equals(thirdParties, that.thirdParties);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, data, retention, usage, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties, associatedWithPreferences, associatedPreferences);
+        return Objects.hash(title, data, retention, usage, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties);
     }
 
     @Override
@@ -299,8 +263,6 @@ public class Processing extends ModelData {
                 ", dataController=" + dataController +
                 ", showDataController=" + showDataController +
                 ", thirdParties=" + thirdParties +
-                ", associatedWithPreferences=" + associatedWithPreferences +
-                ", associatedPreferences=" + associatedPreferences +
                 '}';
     }
 }

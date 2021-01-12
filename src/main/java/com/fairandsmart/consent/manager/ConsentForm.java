@@ -54,11 +54,20 @@ public class ConsentForm {
     private boolean showAcceptAll = false;
     private String acceptAllText;
     private boolean footerOnTop = false;
-    private Map<String, String> elementsDependencies;
 
     public ConsentForm() {
         elements = new ArrayList<>();
         previousValues = new HashMap<>();
+    }
+
+    public ConsentForm(ConsentContext ctx) {
+        this();
+        this.language = ctx.getLanguage();
+        this.orientation = ctx.getOrientation();
+        this.preview = ctx.isPreview();
+        this.showAcceptAll = ctx.isShowAcceptAll();
+        this.acceptAllText = ctx.getAcceptAllText();
+        this.footerOnTop = ctx.isFooterOnTop();
     }
 
     public String getToken() {
@@ -181,14 +190,6 @@ public class ConsentForm {
                 ", acceptAllText='" + acceptAllText + '\'' +
                 ", footerOnTop=" + footerOnTop +
                 '}';
-    }
-
-    public Map<String, String> getElementsDependencies() {
-        return elementsDependencies;
-    }
-
-    public void setElementsDependencies(Map<String, String> elementsDependencies) {
-        this.elementsDependencies = elementsDependencies;
     }
 
     public enum Orientation {

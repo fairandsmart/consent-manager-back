@@ -1,5 +1,4 @@
-<#assign hasDependency=data.elementsDependencies?? && data.elementsDependencies[element.serial]?has_content>
-<div class="processing <#if hasDependency>dependent</#if>" <#if hasDependency>data-dependent-to="${data.elementsDependencies[element.serial]}"</#if>>
+<div class="processing">
     <#assign hasPreviousValues=!data.preview && data.previousValues[element.serial]?has_content>
     <#assign hasDefaultValues=elementContent.includeDefault && elementContent.defaultValues?has_content>
     <#assign previousValues=hasPreviousValues?then(data.previousValues[element.serial]?split(","),[])>

@@ -128,7 +128,7 @@ public class TestUtils {
                 .withCustomPrivacyPolicyText("Privacy policy label " + key);
     }
 
-    public static Processing generateProcessing(String key, List<String> associatedPreferences) {
+    public static Processing generateProcessing(String key) {
         return new Processing()
                 .withTitle("Processing title " + key)
                 .withData("Data body " + key)
@@ -147,13 +147,7 @@ public class TestUtils {
                 .withThirdParty(
                         new NameValuePair(
                                 "Third party 2 name " + key,
-                                "Third party 2 description " + key))
-                .withAssociatedWithPreferences(associatedPreferences != null && associatedPreferences.size() > 0)
-                .withAssociatedPreferences(associatedPreferences);
-    }
-
-    public static Processing generateProcessing(String key) {
-        return generateProcessing(key, Collections.emptyList());
+                                "Third party 2 description " + key));
     }
 
     public static Preference generatePreference(String key) {

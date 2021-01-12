@@ -508,94 +508,38 @@ public class ConsentServiceBean implements ConsentService {
         try {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
 
-            // Initialize form
-            ConsentForm form = new ConsentForm();
-            form.setLanguage(ctx.getLanguage());
-            form.setOrientation(ctx.getOrientation());
-            form.setPreview(ctx.isPreview());
-            form.setShowAcceptAll(ctx.isShowAcceptAll());
-            form.setAcceptAllText(ctx.getAcceptAllText());
-            form.setFooterOnTop(ctx.isFooterOnTop());
+            //Initialise form using context
+            ConsentForm form = new ConsentForm(ctx);
 
             // Fetch elements from context
-            List<String> elementsKeys = new ArrayList<>();
-            List<ModelVersion> elementsVersions = new ArrayList<>();
-            Map<String, String> elementsDependencies = new HashMap<>();
-            for (String element : ctx.getElements()) {
-                String key = (ConsentElementIdentifier.isValid(element)) ? ConsentElementIdentifier.deserialize(element).getKey() : element;
-                elementsKeys.add(key);
-                elementsVersions.add(ModelVersion.SystemHelper.findActiveVersionByKey(key));
-            }
-
-            // Fetch preferences associated to processing
-            if (ctx.isAssociatePreferences()) {
-                int processingIndex = elementsVersions.size() - 1;
-                while (processingIndex >= 0) {
-                    if (Processing.TYPE.equals(elementsVersions.get(processingIndex).entry.type)) {
-                        Processing processing = ((Processing) elementsVersions.get(processingIndex).content.get(ctx.getLanguage()).getDataObject());
-                        List<String> preferences = processing.getAssociatedPreferences().stream().filter(key -> !elementsKeys.contains(key)).collect(Collectors.toList());
-                        for (String key : preferences) {
-                            elementsKeys.add(processingIndex + 1, key);
-                            ModelVersion version = ModelVersion.SystemHelper.findActiveVersionByKey(key);
-                            elementsDependencies.put(version.serial, elementsVersions.get(processingIndex).getIdentifier().toString());
-                            elementsVersions.add(processingIndex + 1, version);
-                        }
-                    }
-                    processingIndex--;
-                }
-            }
-
-            form.setElementsDependencies(elementsDependencies);
+            List<String> elementsKeys = this.extractElementsKeys(ctx.getElements());
+            List<ModelVersion> elementsVersions = ModelVersion.SystemHelper.findActiveVersionsForKeys(elementsKeys);
 
             // Fetch previous records
-            Map<String, Record> previousRecords = new HashMap<>();
             if (!ctx.isPreview()) {
-                ctx.setElements(elementsKeys);
-                previousRecords = systemListContextValidRecords(ctx);
+                final Map<String, Record>  previousRecords = systemListValidRecords(ctx.getSubject(), ctx.getInfo(), elementsKeys);
+                form.setPreviousValues(elementsVersions.stream().filter(version -> previousRecords.containsKey(version.entry.key)).collect(Collectors.toMap((v) -> v.serial, (v) -> previousRecords.get(v.entry.key).value)));
             }
 
-            // Update form with previous values and update form & context with elements
-            List<String> elementsIdentifiers = new ArrayList<>();
-            for (int elementIndex = 0; elementIndex < elementsKeys.size(); elementIndex++) {
-                String key = elementsKeys.get(elementIndex);
-                ModelVersion version = elementsVersions.get(elementIndex);
-                if (previousRecords.containsKey(key)) {
-                    form.addPreviousValue(version.serial, previousRecords.get(key).value);
-                }
-                if (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(version.serial)) {
-                    form.addElement(version);
-                    elementsIdentifiers.add(version.getIdentifier().serialize());
-                }
-            }
-            ctx.setElements(elementsIdentifiers);
-
-            // Update form & context with basic infos
+            // Update form and context elements, infos, theme and notification
+            form.setElements(elementsVersions.stream().filter(version -> (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(version.serial))).collect(Collectors.toList()));
+            ctx.setElements(form.getElements().stream().map(version -> version.getIdentifier().serialize()).collect(Collectors.toList()));
             if (!StringUtils.isEmpty(ctx.getInfo())) {
-                String key = (ConsentElementIdentifier.isValid(ctx.getInfo())) ? ConsentElementIdentifier.deserialize(ctx.getInfo()).getKey() : ctx.getInfo();
-                ModelVersion info = ModelVersion.SystemHelper.findActiveVersionByKey(key);
-                form.setInfo(info);
-                ctx.setInfo(info.getIdentifier().serialize());
+                form.setInfo(ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getInfo())));
+                ctx.setInfo(form.getInfo().getIdentifier().serialize());
             }
-
-            // Update form & context with theme
             if (!StringUtils.isEmpty(ctx.getTheme())) {
-                String key = (ConsentElementIdentifier.isValid(ctx.getTheme())) ? ConsentElementIdentifier.deserialize(ctx.getTheme()).getKey() : ctx.getTheme();
-                ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(key);
-                form.setTheme(theme);
-                ctx.setTheme(theme.getIdentifier().serialize());
+                form.setTheme(ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getTheme())));
+                ctx.setTheme(form.getTheme().getIdentifier().serialize());
             }
-
-            // Update form & context with notification model
             if (!StringUtils.isEmpty(ctx.getNotificationModel())) {
-                String key = (ConsentElementIdentifier.isValid(ctx.getNotificationModel())) ? ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getKey() : ctx.getNotificationModel();
-                ModelVersion notification = ModelVersion.SystemHelper.findActiveVersionByKey(key);
+                ModelVersion notification = ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getNotificationModel()));
                 ctx.setNotificationModel(notification.getIdentifier().serialize());
             }
 
-            // Update form token
             form.setToken(this.tokenService.generateToken(ctx));
             return form;
-        } catch (TokenServiceException | IllegalIdentifierException | ModelDataSerializationException e) {
+        } catch (TokenServiceException | IllegalIdentifierException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
         }
     }
@@ -624,7 +568,113 @@ public class ConsentServiceBean implements ConsentService {
             // We should clone the context, perform modifications for update link context, and only gsave consent after that
             // Maybe the consent save and consent receipt generation should also be split into different operations
             //
-            String receiptId = this.saveConsent(ctx, valuesMap);
+
+            this.checkValuesCoherency(ctx, valuesMap);
+            String transaction = Base58.encodeUUID(UUID.randomUUID().toString());
+            Instant now = Instant.now();
+
+            ConsentElementIdentifier infoId = null;
+            if (!StringUtils.isEmpty(ctx.getInfo())) {
+                infoId = ConsentElementIdentifier.deserialize(ctx.getInfo());
+            }
+
+            if (!Subject.exists(ctx.getSubject())) {
+                Subject subject = new Subject();
+                subject.name = ctx.getSubject();
+                subject.creationTimestamp = now.toEpochMilli();
+                Subject.persist(subject);
+                statisticsStore.add("subjects", "subjects");
+            }
+
+            String comment = "";
+            if (values.containsKey("comment")) {
+                comment = valuesMap.get("comment");
+            }
+
+            List<Record> records = new ArrayList<>();
+            List<String> recordsKeys = new ArrayList<>();
+            for (String identifier: ctx.getElements()) {
+                try {
+                    ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(identifier);
+                    recordsKeys.add(bodyId.getKey());
+                    Record record = new Record();
+                    record.transaction = transaction;
+                    record.subject = ctx.getSubject();
+                    record.type = bodyId.getType();
+                    record.infoSerial = infoId != null ? infoId.getSerial() : "";
+                    record.bodySerial = bodyId.getSerial();
+                    record.infoKey = infoId != null ? infoId.getKey() : "";
+                    record.bodyKey = bodyId.getKey();
+                    record.serial = (record.infoSerial.isEmpty() ? "" : record.infoSerial + ".") + record.bodySerial;
+                    record.value = valuesMap.get(identifier);
+                    record.creationTimestamp = now.toEpochMilli();
+                    record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
+                    record.state = Record.State.COMMITTED;
+                    record.collectionMethod = ctx.getCollectionMethod();
+                    record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : authentication.getConnectedIdentifier();
+                    record.comment = comment;
+                    record.persist();
+                    statisticsStore.add("records", record.type);
+                    records.add(record);
+                } catch (IllegalIdentifierException e) {
+                    //
+                }
+            }
+            ctx.setElements(recordsKeys);
+            LOGGER.log(Level.FINE, "records: " + records);
+
+            Receipt receipt;
+            if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
+                receipt = new Receipt();
+                receipt.setLanguage(ctx.getLanguage());
+            } else {
+                BasicInfo info = null;
+                if (infoId != null) {
+                    info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLanguage());
+                    ctx.setInfo(infoId.getKey());
+                }
+                List<Pair<Processing, Record>> trecords = new ArrayList<>();
+                for (String element : ctx.getElements()) {
+                    Optional<Record> optionalRecord = records.stream().filter(record -> record.bodyKey.equals(element) && record.type.equals(Processing.TYPE)).findFirst();
+                    if (optionalRecord.isPresent()) {
+                        Record r = optionalRecord.get();
+                        try {
+                            Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLanguage());
+                            trecords.add(new ImmutablePair<>(t, r));
+                        } catch (EntityNotFoundException | ModelDataSerializationException e) {
+                            //
+                        }
+                    }
+                }
+                receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
+                if (ctx.getNotificationRecipient() != null && !ctx.getNotificationRecipient().isEmpty()) {
+                    receipt.setNotificationType("email");
+                    receipt.setNotificationRecipient(ctx.getNotificationRecipient());
+                }
+
+                ctx.setCollectionMethod(ConsentContext.CollectionMethod.RECEIPT);
+                if (infoId == null) {
+                    //If consent is submitted without basic info, we populate it with the first one.
+                    ctx.setInfo(((ModelEntry)ModelEntry.find("type", BasicInfo.TYPE).firstResult()).key);
+                }
+                String updateToken = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
+                receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
+                try {
+                    BitMatrix bitMatrix = new QRCodeWriter().encode(receipt.getUpdateUrl(), BarcodeFormat.QR_CODE, 300, 300);
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    MatrixToImageWriter.writeToStream(bitMatrix, "png", out);
+                    receipt.setUpdateUrlQrCode("data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray()));
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Unable to generate QRCode for receipt", e);
+                }
+
+                if (!ctx.isShowValidity()) {
+                    receipt.setExpirationDate(null);
+                }
+
+                store.put(receipt);
+            }
+            String receiptId = receipt.getTransaction();
             ctx.setReceiptId(receiptId);
 
             NotificationReport report;
@@ -639,7 +689,7 @@ public class ConsentServiceBean implements ConsentService {
             this.notification.notify(event);
 
             return new ConsentTransaction(receiptId);
-        } catch (TokenServiceException | ConsentServiceException e) {
+        } catch (TokenServiceException | ConsentServiceException | EntityNotFoundException | DatatypeConfigurationException | ReceiptStoreException | ReceiptAlreadyExistsException | IllegalIdentifierException | ModelDataSerializationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
     }
@@ -727,23 +777,18 @@ public class ConsentServiceBean implements ConsentService {
         Map<String, List<Record>> result = records.collect(Collectors.groupingBy(record -> record.bodyKey));
         result.forEach((key, value) -> recordStatusChain.apply(value));
         return result;
-        //TODO We could create a subject based record cache avoiding checking all of that each request
-        //  cache will be invalidated :
-        //  - when a consent is submitted for the subject
-        //  - when a model is modified
-        //  Maybe it should be included in a PRO version
     }
 
     @Override
-    public Map<String, Record> systemListContextValidRecords(ConsentContext ctx) {
-        LOGGER.log(Level.INFO, "Listing records");
+    public Map<String, Record> systemListValidRecords(String subject, String infoKey, List<String> elementsKeys) {
+        LOGGER.log(Level.INFO, "Listing valid records");
         RecordFilter filter = new RecordFilter();
-        filter.setSubject(ctx.getSubject());
+        filter.setSubject(subject);
         filter.setState(Record.State.COMMITTED);
-        if (ctx.getInfo() != null && !ctx.getInfo().isEmpty()) {
-            filter.setInfos(ModelVersion.SystemHelper.findActiveSerialsForKey(ctx.getInfo()));
+        if (infoKey != null && !infoKey.isEmpty()) {
+            filter.setInfos(ModelVersion.SystemHelper.findActiveSerialsForKey(infoKey));
         }
-        filter.setElements(ctx.getElements().stream().flatMap(e -> ModelVersion.SystemHelper.findActiveSerialsForKey(e).stream()).collect(Collectors.toList()));
+        filter.setElements(elementsKeys.stream().flatMap(e -> ModelVersion.SystemHelper.findActiveSerialsForKey(e).stream()).collect(Collectors.toList()));
         Stream<Record> allRecords = Record.stream(filter.getQueryString(), filter.getQueryParams());
         Map<String, List<Record>> result = allRecords.collect(Collectors.groupingBy(record -> record.bodyKey));
         result.forEach((key, value) -> recordStatusChain.apply(value));
@@ -815,6 +860,8 @@ public class ConsentServiceBean implements ConsentService {
         return this.internalRenderReceipt(receipt, format, themeKey);
     }
 
+    /* INTERNAL */
+
     private byte[] internalRenderReceipt(Receipt receipt, String format, String themeKey) throws ModelDataSerializationException, EntityNotFoundException, RenderingException, ReceiptRendererNotFoundException {
         Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
         if (renderer.isPresent()) {
@@ -824,7 +871,22 @@ public class ConsentServiceBean implements ConsentService {
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
     }
 
-    /* INTERNAL */
+    /* Extract keys from context elements whatever it is a full element identifier or a single key*/
+    private List<String> extractElementsKeys(List<String> elements) throws IllegalIdentifierException {
+        List<String> elementsKeys = new ArrayList<>();
+        for (String element : elements) {
+            elementsKeys.add(extractElementKey(element));
+        }
+        return elementsKeys;
+    }
+
+    private String extractElementKey(String element) throws IllegalIdentifierException {
+        if (!StringUtils.isEmpty(element)) {
+            return (ConsentElementIdentifier.isValid(element)) ? ConsentElementIdentifier.deserialize(element).getKey() : element;
+        } else {
+            return null;
+        }
+    }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
         if (ctx.getInfo() == null && values.containsKey("info")) {
@@ -846,119 +908,6 @@ public class ConsentServiceBean implements ConsentService {
 
         if (!new HashSet<>(ctx.getElements()).equals(submittedElementValues.keySet())) {
             throw new InvalidConsentException("submitted elements incoherency");
-        }
-    }
-
-    private String saveConsent(ConsentContext ctx, Map<String, String> values) throws ConsentServiceException, InvalidConsentException {
-        try {
-            this.checkValuesCoherency(ctx, values);
-            String transaction = Base58.encodeUUID(UUID.randomUUID().toString());
-            Instant now = Instant.now();
-
-            ConsentElementIdentifier infoId = null;
-            if (!StringUtils.isEmpty(ctx.getInfo())) {
-                infoId = ConsentElementIdentifier.deserialize(ctx.getInfo());
-            }
-
-            if (!Subject.exists(ctx.getSubject())) {
-                Subject subject = new Subject();
-                subject.name = ctx.getSubject();
-                subject.creationTimestamp = now.toEpochMilli();
-                Subject.persist(subject);
-                statisticsStore.add("subjects", "subjects");
-            }
-
-            String comment = "";
-            if (values.containsKey("comment")) {
-                comment = values.get("comment");
-            }
-
-            List<Record> records = new ArrayList<>();
-            List<String> recordsKeys = new ArrayList<>();
-            for (String identifier: ctx.getElements()) {
-                try {
-                    ConsentElementIdentifier bodyId = ConsentElementIdentifier.deserialize(identifier);
-                    recordsKeys.add(bodyId.getKey());
-                    Record record = new Record();
-                    record.transaction = transaction;
-                    record.subject = ctx.getSubject();
-                    record.type = bodyId.getType();
-                    record.infoSerial = infoId != null ? infoId.getSerial() : "";
-                    record.bodySerial = bodyId.getSerial();
-                    record.infoKey = infoId != null ? infoId.getKey() : "";
-                    record.bodyKey = bodyId.getKey();
-                    record.serial = (record.infoSerial.isEmpty() ? "" : record.infoSerial + ".") + record.bodySerial;
-                    record.value = values.get(identifier);
-                    record.creationTimestamp = now.toEpochMilli();
-                    record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
-                    record.state = Record.State.COMMITTED;
-                    record.collectionMethod = ctx.getCollectionMethod();
-                    record.author = !StringUtils.isEmpty(ctx.getAuthor()) ? ctx.getAuthor() : authentication.getConnectedIdentifier();
-                    record.comment = comment;
-                    record.persist();
-                    statisticsStore.add("records", record.type);
-                    records.add(record);
-                } catch (IllegalIdentifierException e) {
-                    //
-                }
-            }
-            ctx.setElements(recordsKeys);
-            LOGGER.log(Level.FINE, "records: " + records);
-
-            Receipt receipt;
-            if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.NONE)) {
-                receipt = new Receipt();
-                receipt.setLanguage(ctx.getLanguage());
-            } else {
-                BasicInfo info = null;
-                if (infoId != null) {
-                    info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLanguage());
-                    ctx.setInfo(infoId.getKey());
-                }
-                List<Pair<Processing, Record>> trecords = new ArrayList<>();
-                for (String element : ctx.getElements()) {
-                    Optional<Record> optionalRecord = records.stream().filter(record -> record.bodyKey.equals(element) && record.type.equals(Processing.TYPE)).findFirst();
-                    if (optionalRecord.isPresent()) {
-                        Record r = optionalRecord.get();
-                        try {
-                            Processing t = (Processing) ModelVersion.SystemHelper.findModelVersionForSerial(r.bodySerial, false).getData(ctx.getLanguage());
-                            trecords.add(new ImmutablePair<>(t, r));
-                        } catch (EntityNotFoundException | ModelDataSerializationException e) {
-                            //
-                        }
-                    }
-                }
-                receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
-                if (ctx.getNotificationRecipient() != null && !ctx.getNotificationRecipient().isEmpty()) {
-                    receipt.setNotificationType("email");
-                    receipt.setNotificationRecipient(ctx.getNotificationRecipient());
-                }
-
-                ctx.setCollectionMethod(ConsentContext.CollectionMethod.RECEIPT);
-                if (infoId == null) {
-                    //If consent is submitted without basic info, we populate it with the first one.
-                    ctx.setInfo(((ModelEntry)ModelEntry.find("type", BasicInfo.TYPE).firstResult()).key);
-                }
-                String token = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
-                receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
-                try {
-                    BitMatrix bitMatrix = new QRCodeWriter().encode(receipt.getUpdateUrl(), BarcodeFormat.QR_CODE, 300, 300);
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    MatrixToImageWriter.writeToStream(bitMatrix, "png", out);
-                    receipt.setUpdateUrlQrCode("data:image/png;base64," + Base64.getEncoder().encodeToString(out.toByteArray()));
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Unable to generate QRCode for receipt", e);
-                }
-
-                if (!ctx.isShowValidity()) {
-                    receipt.setExpirationDate(null);
-                }
-
-                store.put(receipt);
-            }
-            return receipt.getTransaction();
-        } catch (EntityNotFoundException | ModelDataSerializationException | ReceiptAlreadyExistsException | ReceiptStoreException | IllegalIdentifierException | DatatypeConfigurationException e) {
-            throw new ConsentServiceException("Unable to submit consent", e);
         }
     }
 

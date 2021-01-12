@@ -187,6 +187,15 @@ public class ModelVersion extends PanacheEntityBase {
 
     public static class SystemHelper {
 
+        public static List<ModelVersion> findActiveVersionsForKeys(List<String> keys) throws EntityNotFoundException {
+            List<ModelVersion> versions = new ArrayList<>();
+            for (String key: keys) {
+                Optional<ModelVersion> optional = ModelVersion.find("entry.key = ?1 and status = ?2", key, ModelVersion.Status.ACTIVE).singleResultOptional();
+                versions.add(optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key)));
+            }
+            return versions;
+        }
+
         public static ModelVersion findActiveVersionByKey(String key) throws EntityNotFoundException {
             Optional<ModelVersion> optional = ModelVersion.find("entry.key = ?1 and status = ?2", key, ModelVersion.Status.ACTIVE).singleResultOptional();
             return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an active version for entry with key: " + key));
