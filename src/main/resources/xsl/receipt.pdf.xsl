@@ -249,8 +249,36 @@
                 </fo:simple-page-master>
             </fo:layout-master-set>
 
+            <fo:declarations>
+                <x:xmpmeta xmlns:x="adobe:ns:meta/">
+                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                        <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
+                            <dc:title>
+                                <xsl:call-template name="translate">
+                                    <xsl:with-param name="key">title</xsl:with-param>
+                                    <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
+                                </xsl:call-template>
+                            </dc:title>
+                        </rdf:Description>
+                    </rdf:RDF>
+                </x:xmpmeta>
+            </fo:declarations>
+
             <fo:page-sequence master-reference="receipt">
                 <fo:flow flow-name="xsl-region-body">
+                    <xsl:if test="themeInfo/logoPath">
+                        <fo:block margin-bottom="10pt">
+                            <xsl:attribute name="text-align">
+                                <xsl:value-of select="layout/logoPosition"/>
+                            </xsl:attribute>
+                            <fo:external-graphic max-height="100px" content-height="scale-to-fit">
+                                <xsl:attribute name="src">
+                                    <xsl:value-of select="layout/logoPath"/>
+                                </xsl:attribute>
+                            </fo:external-graphic>
+                        </fo:block>
+                    </xsl:if>
+
                     <fo:block font-size="20pt" font-weight="bold" text-align="center">
                         <xsl:call-template name="translate">
                             <xsl:with-param name="key">title</xsl:with-param>
@@ -354,6 +382,7 @@
                                 </xsl:call-template>
                             </fo:basic-link>
                         </fo:block>
+                        <fo:block width="100%" border-bottom="1px solid #CCC" margin-top="5pt" margin-bottom="10pt"/>
                     </xsl:if>
 
                     <xsl:for-each select="consents/consent">
@@ -361,13 +390,14 @@
                             <fo:table-column column-width="proportional-column-width(1)"/>
                             <fo:table-column column-width="proportional-column-width(1)"/>
                             <fo:table-body>
-                                <fo:table-row>
+                                <fo:table-row font-size="14pt">
                                     <fo:table-cell column-number="1">
-                                        <fo:block font-size="14pt" font-weight="bold">
+                                        <fo:block font-weight="bold">
                                             <xsl:value-of select="current()/title"/>
                                         </fo:block>
                                     </fo:table-cell>
-                                    <fo:table-cell column-number="2" text-align="right" letter-spacing=".5pt" text-transform="uppercase" font-weight="300">
+                                    <fo:table-cell column-number="2" text-align="right" letter-spacing=".5pt"
+                                                   text-transform="uppercase" font-weight="300" width="80px">
                                         <fo:block>
                                             <xsl:call-template name="translate">
                                                 <xsl:with-param name="key"><xsl:value-of select="current()/value"/></xsl:with-param>
@@ -443,18 +473,18 @@
                         <fo:block width="100%" border-bottom="1px solid #CCC" margin-bottom="5pt"/>
                     </xsl:for-each>
 
-<!--                    <xsl:if test="updateUrlQrCode">-->
-<!--                        <fo:block margin-top="10pt">-->
-<!--                            <fo:external-graphic>-->
-<!--                                <xsl:attribute name="src">-->
-<!--                                    <xsl:value-of select="updateUrlQrCode"/>-->
-<!--                                </xsl:attribute>-->
-<!--                            </fo:external-graphic>-->
-<!--                        </fo:block>-->
-<!--                    </xsl:if>-->
+                    <xsl:if test="receipt/updateUrlQrCode">
+                        <fo:block margin-top="10pt" text-align="center">
+                            <fo:external-graphic width="200px" content-width="scale-to-fit">
+                                <xsl:attribute name="src">
+                                    <xsl:value-of select="receipt/updateUrlQrCode"/>
+                                </xsl:attribute>
+                            </fo:external-graphic>
+                        </fo:block>
+                    </xsl:if>
 
                     <xsl:if test="dataController and dataController/company">
-                        <fo:block font-size="10pt" margin-top="10pt">
+                        <fo:block font-size="10pt" margin-top="10pt" text-align="center">
                             <xsl:call-template name="translate">
                                 <xsl:with-param name="key">data_controller_name</xsl:with-param>
                                 <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
@@ -464,7 +494,7 @@
                         </fo:block>
                     </xsl:if>
                     <xsl:if test="privacyPolicyUrl">
-                        <fo:block font-size="10pt" margin-top="10pt">
+                        <fo:block font-size="10pt" margin-top="10pt" text-align="center">
                             <fo:basic-link color="grey" text-decoration="underline">
                                 <xsl:attribute name="external-destination"><xsl:value-of select="privacyPolicyUrl"/></xsl:attribute>
                                 <xsl:call-template name="translate">
