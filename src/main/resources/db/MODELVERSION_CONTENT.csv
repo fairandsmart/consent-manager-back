@@ -69,30 +69,20 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
   ""type"" : ""preference"",
   ""label"" : ""Mode d'affichage"",
   ""description"" : ""Vous pouvez choisir un thème d'affichage lumineux ou sombre suivant votre usage."",
-  ""options"" : [ ""Jour"", ""Nuit"" ],
+  ""options"" : [ ""jour"", ""nuit"" ],
   ""valueType"" : ""TOGGLE"",
   ""includeDefault"" : true,
-  ""defaultValues"" : [ ""Jour"" ],
+  ""defaultValues"" : [ ""jour"" ],
   ""optional"" : true
 }",com.fairandsmart.consent.manager.model.Preference
 7da0ca6b-50a5-4128-8f2b-f874ed8d214d,fr,demo@localhost,"{
   ""type"" : ""preference"",
   ""label"" : ""Canaux de communication"",
   ""description"" : ""Vous pouvez choisir vos canaux de communication préférés."",
-  ""options"" : [ ""Email"", ""SMS"", ""Téléphone"", ""Courrier postal"", ""Porte-à-porte"" ],
+  ""options"" : [ ""email"", ""sms"", ""téléphone"", ""courrier postal"", ""porte-à-porte"" ],
   ""valueType"" : ""CHECKBOXES"",
   ""includeDefault"" : true,
-  ""defaultValues"" : [ ""Email"", ""SMS"" ],
-  ""optional"" : true
-}",com.fairandsmart.consent.manager.model.Preference
-873fd0f0-6123-49e8-9414-5c36c98bb021,fr,demo@localhost,"{
-  ""type"" : ""preference"",
-  ""label"" : ""Fréquence de contact"",
-  ""description"" : ""Vous pouvez choisir la fréquence à laquelle vous souhaitez être contacté."",
-  ""options"" : [ ""Quotidien"", ""Hebdomadaire"", ""Mensuel"", ""Annuel"" ],
-  ""valueType"" : ""RADIO_BUTTONS"",
-  ""includeDefault"" : true,
-  ""defaultValues"" : [ ""Mensuel"" ],
+  ""defaultValues"" : [ ""email"", ""sms"" ],
   ""optional"" : true
 }",com.fairandsmart.consent.manager.model.Preference
 6afd6983-6ead-4ed6-8a11-32a1d2acf32a,fr,demo@localhost,"{
@@ -105,35 +95,15 @@ bfadbad3-4a82-4943-8929-5ff595114687,fr,demo@localhost,"{
   ""defaultValues"" : [ ],
   ""optional"" : true
 }",com.fairandsmart.consent.manager.model.Preference
-5985a954-bfe2-4af3-a142-991adc0572d1,fr,demo@localhost,"{
-  ""type"" : ""email"",
-  ""sender"" : ""Michel SARL <michelsarl@fairandsmart.tech>"",
-  ""subject"" : ""Votre consentement"",
-  ""title"" : ""Merci pour votre confiance"",
-  ""body"" : ""Nous tenions à vous remercier de votre confiance. Selon la préférence que vous avez sélectionnée, nous vous recontacterons prochainement pour vous présenter nos nouveautés. "",
-  ""buttonLabel"" : ""Accéder à mon reçu"",
-  ""footer"" : ""En espérant vous retrouver bientôt sur notre application!"",
-  ""signature"" : ""Michel SARL""
-}",com.fairandsmart.consent.manager.model.Email
-20f8f70c-9eea-4410-9742-3a0f926715a8,fr,demo@localhost,"{
-  ""type"" : ""email"",
-  ""sender"" : ""Michel SARL <michelsarl@fairandsmart.tech>"",
-  ""subject"" : ""Votre consentement"",
-  ""title"" : ""Merci pour votre confiance"",
-  ""body"" : ""Nous tenions à vous remercier de votre confiance. Selon la préférence que vous avez sélectionnée, nous vous recontacterons prochainement pour vous présenter nos nouveautés. "",
-  ""buttonLabel"" : ""Accéder à mon reçu"",
-  ""footer"" : ""En espérant vous retrouver bientôt sur notre application!"",
-  ""signature"" : ""Michel SARL ""
-}",com.fairandsmart.consent.manager.model.Email
 6413e879-ae98-4f2e-b912-f82a02997d2b,fr,demo@localhost,"{
   ""type"" : ""email"",
-  ""sender"" : ""Michel SARL <michelsarl@fairandsmart.tech>"",
+  ""sender"" : ""michelsarl@fairandsmart.tech"",
   ""subject"" : ""Votre consentement"",
   ""title"" : ""Merci pour votre confiance"",
-  ""body"" : ""Nous tenions à vous remercier de votre confiance. Selon la préférence que vous avez sélectionnée, nous vous recontacterons prochainement pour vous présenter nos nouveautés. "",
-  ""buttonLabel"" : ""Accéder à mon reçu"",
-  ""footer"" : ""En espérant vous retrouver bientôt sur notre application!"",
-  ""signature"" : ""Michel SARL  ""
+  ""body"" : ""Nous tenions à vous remercier de votre confiance. Selon la préférence que vous avez sélectionnée, nous vous recontacterons prochainement pour vous présenter nos nouveautés."",
+  ""buttonLabel"" : ""Modifier mon consentement"",
+  ""footer"" : ""En espérant vous retrouver bientôt sur notre application !"",
+  ""signature"" : ""Michel SARL""
 }",com.fairandsmart.consent.manager.model.Email
 d19a6ab2-34bd-4bfd-bdb9-822502a9a977,fr,demo@localhost,"{
   ""type"" : ""processing"",

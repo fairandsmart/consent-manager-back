@@ -1001,7 +1001,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"key\": \"Market.1\",\n    \"value\": \"accepted\"\n}"
+							"raw": "{\n    \"key\": \"processing.1\",\n    \"value\": \"accepted\"\n}"
 						},
 						"url": {
 							"raw": "{{apihost}}/subjects",
@@ -1041,7 +1041,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"key\": \"Market.1\",\n    \"value\": \"accepted\"\n}"
+							"raw": "{\n    \"key\": \"processing.1\",\n    \"value\": \"accepted\"\n}"
 						},
 						"url": {
 							"raw": "{{apihost}}/subjects",
@@ -1338,7 +1338,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"condition\": {\n        \"key\": \"Market.1\",\n        \"value\": \"accepted\",\n        \"regexpValue\": false \n    }\n}"
+							"raw": "{\n    \"condition\": {\n        \"key\": \"processing.1\",\n        \"value\": \"accepted\",\n        \"regexpValue\": false \n    }\n}"
 						},
 						"url": {
 							"raw": "{{apihost}}/records/extraction",
@@ -1376,7 +1376,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"condition\": {\n        \"key\": \"Market.1\",\n        \"value\": \"accepted\",\n        \"regexpValue\": false \n    }\n}"
+							"raw": "{\n    \"condition\": {\n        \"key\": \"processing.1\",\n        \"value\": \"accepted\",\n        \"regexpValue\": false \n    }\n}"
 						},
 						"url": {
 							"raw": "{{apihost}}/records/extraction",

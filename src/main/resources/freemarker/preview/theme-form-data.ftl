@@ -41,9 +41,7 @@
         "containsMedicalData": false,
         "dataController": {},
         "showDataController": false,
-        "thirdParties": [],
-        "associatedWithPreferences": false,
-        "associatedPreferences": []
+        "thirdParties": []
     },
     {
         "type": "processing",
@@ -72,9 +70,7 @@
                 "name": "Nibh nec metus",
                 "value": "vitae in lectus"
             }
-        ],
-        "associatedWithPreferences": false,
-        "associatedPreferences": []
+        ]
     },
     {
         "type": "preference",

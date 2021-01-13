@@ -2,6 +2,7 @@
     .metadata-list {
         border: 1px solid black;
         border-bottom: none;
+        word-break: break-word;
     }
 
     .metadata {
@@ -11,7 +12,7 @@
 
     .metadata-label {
         border: 1px solid black;
-        padding: 8px 16px 8px 8px;
+        padding: 8px;
         margin: 2px;
         width: 140px;
         background-color: lightgrey;
@@ -31,6 +32,7 @@
     .email-content {
         border: 1px solid black;
         padding: 16px;
+        word-break: break-word;
     }
 
     .email-button-wrapper {

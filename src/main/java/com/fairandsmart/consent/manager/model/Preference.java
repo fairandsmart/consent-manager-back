@@ -148,7 +148,6 @@ public class Preference extends ModelData {
     }
 
     public enum ValueType {
-        NONE,
         TOGGLE,
         CHECKBOXES,
         RADIO_BUTTONS,

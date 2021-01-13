@@ -663,8 +663,7 @@ public class ConsentServiceTest {
                 .setElements(Arrays.asList(t1Key, t2Key, p2Key, p1Key))
                 .setLanguage(language)
                 .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM)
-                .setFormType(ConsentContext.FormType.FULL)
-                .setAssociatePreferences(true);
+                .setFormType(ConsentContext.FormType.FULL);
         String readToken = service.buildToken(readCtx);
 
         LOGGER.info("First consent form");
@@ -693,8 +692,7 @@ public class ConsentServiceTest {
                 .setElements(Arrays.asList(t1Key, t2Key, p1Key, p2Key, t3Key, p3Key))
                 .setLanguage(language)
                 .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM)
-                .setFormType(ConsentContext.FormType.PARTIAL)
-                .setAssociatePreferences(true);
+                .setFormType(ConsentContext.FormType.PARTIAL);
         readToken = service.buildToken(readCtx);
 
         LOGGER.info("Second consent form");

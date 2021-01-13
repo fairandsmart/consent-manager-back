@@ -101,10 +101,6 @@
                     <input type="text" id="${identifier}" name="${identifier}" value="${previousInputValue}">
                 </#if>
 
-                <#if elementContent.valueType=="NONE">
-                    <input type="hidden" id="${identifier}" name="${identifier}" value="">
-                </#if>
-
             </div>
         </#if>
 

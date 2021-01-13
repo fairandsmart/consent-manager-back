@@ -60,7 +60,6 @@ public class ConsentContext implements Tokenizable {
     @NotNull
     @NotEmpty
     private List<String> elements;
-    private boolean associatePreferences = false;
     private String callback;
     private String language;
     private String validity;
@@ -133,15 +132,6 @@ public class ConsentContext implements Tokenizable {
 
     public ConsentContext setElements(List<String> elements) {
         this.elements = elements;
-        return this;
-    }
-
-    public boolean isAssociatePreferences() {
-        return associatePreferences;
-    }
-
-    public ConsentContext setAssociatePreferences(boolean associatePreferences) {
-        this.associatePreferences = associatePreferences;
         return this;
     }
 
@@ -351,7 +341,6 @@ public class ConsentContext implements Tokenizable {
         if (elements != null && !elements.isEmpty()) {
             claims.put("elements", this.getElementsString());
         }
-        claims.put("associatePreferences", Boolean.toString(this.isAssociatePreferences()));
         if (language != null) {
             claims.put("language", this.getLanguage());
         }
@@ -417,9 +406,6 @@ public class ConsentContext implements Tokenizable {
         }
         if (claims.containsKey("elements")) {
             this.setElementsString(claims.get("elements"));
-        }
-        if (claims.containsKey("associatePreferences")) {
-            this.setAssociatePreferences(Boolean.parseBoolean(claims.get("associatePreferences")));
         }
         if (claims.containsKey("language")) {
             this.setLanguage(claims.get("language"));
@@ -559,7 +545,6 @@ public class ConsentContext implements Tokenizable {
                 ", orientation=" + orientation +
                 ", info='" + info + '\'' +
                 ", elements=" + elements +
-                ", associatePreferences=" + associatePreferences +
                 ", callback='" + callback + '\'' +
                 ", language='" + language + '\'' +
                 ", validity='" + validity + '\'' +
