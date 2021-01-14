@@ -264,8 +264,7 @@
                     <!-- set to true to force copyright update -->
                     <canUpdateCopyright>false</canUpdateCopyright>
                     <licenseName>fairandsmart</licenseName>
-                    <licenseResolver>${project.baseUri}/src/licenses</licenseResolver>
-                    <descriptionTemplate>${basedir}/src/licenses/fairandsmart/descriptionTemplate.ftl</descriptionTemplate>
+                    <licenseResolver>${project.baseUri}/src/license</licenseResolver>
                     <encoding>UTF-8</encoding>
                     <includes>
                         <include>main/**</include>
@@ -302,12 +301,6 @@
                         <id>update-project-license</id>
                         <goals>
                             <goal>update-project-license</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>add-third-party</id>
-                        <goals>
-                            <goal>add-third-party</goal>
                         </goals>
                     </execution>
                 </executions>
