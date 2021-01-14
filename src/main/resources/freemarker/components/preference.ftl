@@ -1,4 +1,4 @@
-<div class="processing">
+<div class="element">
     <#assign hasPreviousValues=!data.preview && data.previousValues[element.serial]?has_content>
     <#assign hasDefaultValues=elementContent.includeDefault && elementContent.defaultValues?has_content>
     <#assign previousValues=hasPreviousValues?then(data.previousValues[element.serial]?split(","),[])>
@@ -11,8 +11,8 @@
         </#if>
 
         <#-- Header -->
-        <div class="processing-header">
-            <h3><@valueOrError elementContent.label?html "missingValue"></@valueOrError></h3>
+        <div class="element-header">
+            <h3 class="element-title"><@valueOrError elementContent.label?html "missingValue"></@valueOrError></h3>
 
             <#if elementContent.valueType=="TOGGLE">
                 <#if hasPreviousValues>
@@ -29,13 +29,13 @@
 
         <#-- Data -->
         <#if elementContent.description?has_content>
-            <div class="item-wrapper">
-                <p class="processing-body">${elementContent.description?html}</p>
+            <div class="item-container">
+                <p class="item-body">${elementContent.description?html}</p>
             </div>
         </#if>
 
         <#if elementContent.valueType!="TOGGLE">
-            <div class="item-wrapper">
+            <div class="item-container">
 
                 <#if elementContent.valueType=="CHECKBOXES">
                     <ul style="list-style-type: none;">
@@ -98,14 +98,14 @@
                     <#else>
                         <#assign previousInputValue="">
                     </#if>
-                    <input type="text" id="${identifier?html}" name="${identifier?html}" value="${previousInputValue}">
+                    <input type="text" id="${identifier?html}" name="${identifier?html}" value="${previousInputValue?html}">
                 </#if>
 
             </div>
         </#if>
 
         <#if !elementContent.optional>
-            <div class="item-wrapper preference-error hidden" id="${identifier}-missing">
+            <div class="item-container preference-error hidden" id="${identifier}-missing">
                 <@readBundle "missingPreference" "missingValue"></@readBundle>
             </div>
         </#if>

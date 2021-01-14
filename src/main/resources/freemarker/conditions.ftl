@@ -15,7 +15,7 @@
     <@fetchMultiLangContent data.elements[0]></@fetchMultiLangContent>
     <#assign conditions=langContent>
     <#if conditions?is_hash>
-        <title>${conditions.title}</title>
+        <title>${conditions.title?html}</title>
     <#else>
         <title><@readBundle "conditionsPageTitle" "missingValue"></@readBundle></title>
     </#if>
@@ -23,7 +23,7 @@
 
 <body>
 <#if conditions?is_hash>
-    <form method="post" id="consent" name="consent" action="#" class="conditions-wrapper">
+    <form method="post" id="consent" name="consent" action="#" class="conditions-container">
         <#if !data.preview>
             <input name="token" id="token" value="${data.token}" hidden/>
             <input name="${data.elements[0].identifier}" id="choice" value="refused" hidden/>
@@ -33,7 +33,7 @@
         <#include "components/conditions.ftl">
     </form>
 <#else>
-    <div class="conditions-wrapper">
+    <div class="conditions-container">
         <h1><@writeError "missingValue"></@writeError></h1>
     </div>
 </#if>

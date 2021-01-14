@@ -55,16 +55,16 @@
         content: "";
     }
 
-    .processing-info p {
+    .element .item-body {
         color: rgba(0, 0, 0, 0.74);
     }
 
-    .qr-code {
+    .qr-code-container {
         text-align: center;
         border-bottom: 1px solid #eee;
     }
 
-    .qr-code img {
+    .qr-code {
         width: 150px;
     }
 </style>

@@ -266,7 +266,7 @@
 
             <fo:page-sequence master-reference="receipt">
                 <fo:flow flow-name="xsl-region-body">
-                    <xsl:if test="themeInfo/logoPath">
+                    <xsl:if test="layout/logoPath">
                         <fo:block margin-bottom="10pt">
                             <xsl:attribute name="text-align">
                                 <xsl:value-of select="layout/logoPosition"/>
@@ -473,11 +473,11 @@
                         <fo:block width="100%" border-bottom="1px solid #CCC" margin-bottom="5pt"/>
                     </xsl:for-each>
 
-                    <xsl:if test="receipt/updateUrlQrCode">
+                    <xsl:if test="updateUrlQrCode">
                         <fo:block margin-top="10pt" text-align="center">
                             <fo:external-graphic width="200px" content-width="scale-to-fit">
                                 <xsl:attribute name="src">
-                                    <xsl:value-of select="receipt/updateUrlQrCode"/>
+                                    <xsl:value-of select="updateUrlQrCode"/>
                                 </xsl:attribute>
                             </fo:external-graphic>
                         </fo:block>

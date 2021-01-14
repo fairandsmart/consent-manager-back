@@ -25,17 +25,13 @@
         width: 100%;
     }
 
-    .logo {
-        max-height: 100px;
-    }
-
     .email-content {
         border: 1px solid black;
         padding: 16px;
         word-break: break-word;
     }
 
-    .email-button-wrapper {
+    .email-button-container {
         text-align: center;
         margin: 16px auto;
     }

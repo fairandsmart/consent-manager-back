@@ -2,19 +2,11 @@
 
 <div class="left">
     <#include "../components/logo.ftl">
-    <div class="content-fade"></div>
-
-    <div class="left-content">
-        <#include "../components/info-head.ftl">
-    </div>
-
-    <div class="content-fade fade-inverted"></div>
+    <#include "../components/info-head.ftl">
 </div>
 
 <div class="right">
-    <div class="content-fade"></div>
-
-    <div class="processing-list">
+    <div class="elements-list">
         <#list elements as element>
             <#assign elementContent=element>
             <#assign identifier="element/" + element.type + "/" + element?index>

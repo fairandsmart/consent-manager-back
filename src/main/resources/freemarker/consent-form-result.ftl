@@ -23,9 +23,9 @@
         <p><@readBundle "changesAcknowledged" "missingValue"></@readBundle></p>
     </div>
     <#if data.receiptURI?has_content>
-        <div class="footer">
+        <div class="info-footer">
             <div class="submit-container">
-                <a href="${data.receiptURI}" target="_self"><button type="submit" class="submit"><@readBundle "receiptButton" "missingValue"></@readBundle></button></a>
+                <a href="${data.receiptURI}" target="_self"><button type="submit" class="submit-button"><@readBundle "receiptButton" "missingValue"></@readBundle></button></a>
             </div>
         </div>
     </#if>

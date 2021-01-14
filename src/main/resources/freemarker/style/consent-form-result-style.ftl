@@ -23,18 +23,18 @@
         color: rgba(0, 0, 0, 0.54);
     }
 
-    .footer a {
+    .info-footer a {
         text-decoration: none;
         color: inherit;
     }
 
-    .footer {
+    .info-footer {
         padding: 1em;
         text-align: center;
         background-color: #eeeeee;
     }
 
-    .submit {
+    .submit-button {
         padding: 4px 1em;
         min-width: 100px;
         height: 32px;

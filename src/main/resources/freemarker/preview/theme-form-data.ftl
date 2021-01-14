@@ -55,7 +55,7 @@
         },
         "usage": "Quisque consectetur metus lorem. In lobortis pharetra nibh. Aenean dui dui, vulputate non arcu ut, dignissim aliquet metus. Ut luctus lacus eu eros consequat, vel efficitur odio gravida.",
         "purposes": [ "CONSENT_THIRD_PART_SHARING" ],
-        "containsSensitiveData": true,
+        "containsSensitiveData": false,
         "containsMedicalData": false,
         "dataController": {
             "company": "Duis efficitur",

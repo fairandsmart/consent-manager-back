@@ -36,9 +36,8 @@
         <#assign displayAcceptAll=(data.showAcceptAll && data.elements?size > 1)>
 
         <#include "components/logo.ftl">
-        <div class="content-fade"></div>
 
-        <div class="processing-list">
+        <div class="elements-list">
             <#include "components/info-head.ftl">
 
             <#list data.elements as element>

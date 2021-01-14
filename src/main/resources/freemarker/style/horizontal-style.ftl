@@ -11,6 +11,7 @@
         width: 40%;
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
     }
 
     .right {
@@ -42,34 +43,21 @@
 
     /* Header */
 
-    .logo-wrapper {
+    .logo-container {
         margin: 24px 24px 0;
-    }
-
-    .left-content {
-        overflow-y: auto;
-    }
-
-    .fade-inverted {
-        background: linear-gradient(rgba(255, 255, 255, 0), white);
-        margin: -32px 0 0 0 !important;
     }
 
 
     /* Content */
 
-    .right .content-fade {
-        background: linear-gradient(#eeeeee, rgba(238, 238, 238, 0));
-    }
-
-    .right .block-wrapper {
+    .right .block-container {
         background-color: #e0e0e0;
     }
 
 
     /* Footer */
 
-    .footer {
+    .info-footer {
         border-top: 1px solid lightgray;
         margin: 0 36px;
     }

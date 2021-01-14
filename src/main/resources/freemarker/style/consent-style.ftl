@@ -20,89 +20,74 @@
 
     /* Logo */
 
-    .logo-wrapper {
+    .logo-container {
         padding: 0 24px;
-    }
-
-    .logo {
-        max-height: 100px;
     }
 
 
     /* Header */
 
-    .header {
+    .info-header {
         margin: 24px;
     }
 
-    .header .header-title {
+    .header-title {
         margin-top: 0;
         margin-bottom: 8px;
     }
 
-    .header .header-body {
+    .header-body {
         color: rgba(0, 0, 0, 0.54);
         font-weight: bold;
     }
 
-    .privacy-policy-link-wrapper {
+    .privacy-policy-container {
         margin: 8px 0;
         text-align: center;
     }
 
-    .privacy-policy-link {
+    .privacy-policy {
         text-decoration: none;
         color: #2196F3;
     }
 
-    .content-fade {
-        background: linear-gradient(white, rgba(255, 255, 255, 0));
-        height: 32px;
-        margin: 0 16px -32px 16px;
-        z-index: 10;
-        overflow-y: hidden;
-        pointer-events: none;
-        flex-shrink: 0;
-    }
-
-
     /* Content */
 
-    .processing-list {
+    .elements-list {
         overflow-y: auto;
         padding: 16px 24px 0 24px;
         height: 100%;
     }
 
-    .processing {
+    .element {
         padding: 6px 0 6px 12px;
     }
 
-    .processing.disabled {
+    .element.disabled {
         filter: grayscale(50%);
         opacity: .3;
         cursor: not-allowed;
     }
 
-    .processing-header {
+    .element-header {
         display: flex;
         justify-content: space-between;
         margin-bottom: 8px;
     }
 
-    .processing-header h3 {
+    .element-header .element-title {
         margin: 0;
     }
 
-    .processing-body {
+    .item-body, .block-body {
         color: rgba(0, 0, 0, 0.54);
     }
 
-    .processing-body li:first-of-type {
+    .block-body li:first-of-type {
         margin-top: 8px;
     }
 
-    .block-wrapper {
+    .block-container {
         padding: 12px;
         margin: 12px 0;
         border-radius: 4px;
@@ -110,44 +95,35 @@
         text-align: left;
     }
 
-    .block-wrapper h4 {
+    .block-container .block-title {
         margin: 0;
     }
 
-    .block-wrapper ul {
+    .block-container .block-body {
         margin: 0;
         padding-left: 16px;
         overflow: hidden;
+        word-break: break-word;
     }
 
-    .controller-header {
+    .accordion-header {
         cursor: pointer;
         display: flex;
         justify-content: space-between;
     }
 
-    .controller-hidden {
+    .accordion-hidden {
         max-height: 0;
         transition: .5s linear;
     }
 
-    .controller-visible {
+    .accordion-visible {
         max-height: 200px;
         transition: .5s linear;
     }
 
-    .item-wrapper {
+    .item-container {
         margin-bottom: 8px;
-    }
-
-    .purpose-container {
-        text-align: center;
-        margin-top: 8px !important;
-    }
-
-    .purpose {
-        width: 32px;
-        height: 32px;
     }
 
     .preference-error {
@@ -162,11 +138,11 @@
 
     /* Footer */
 
-    .footer {
+    .info-footer {
         padding: 12px 24px;
     }
 
-    .processing-list .footer {
+    .elements-list .info-footer {
         margin-left: -24px;
         margin-right: -24px;
     }
@@ -192,7 +168,7 @@
         margin: 8px 0 4px 0;
     }
 
-    .submit {
+    .submit-button {
         padding: 4px 8px;
         width: 200px;
         height: 32px;
