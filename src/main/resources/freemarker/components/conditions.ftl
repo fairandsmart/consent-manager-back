@@ -1,5 +1,5 @@
 <#if conditions?is_hash>
-    <h1>${conditions.title}</h1>
+    <h1>${conditions.title?html}</h1>
 
     <div class="conditions">${conditions.body}</div>
 
@@ -14,14 +14,14 @@
     <div class="buttons-wrapper">
         <button type="button" class="submit reject" ${refuseOptions}>
             <#if conditions.rejectLabel?has_content>
-                ${conditions.rejectLabel}
+                ${conditions.rejectLabel?html}
             <#else>
                 <@readBundle "refuse" "missingValue"></@readBundle>
             </#if>
         </button>
         <button type="button" class="submit accept" ${acceptOptions}>
             <#if conditions.acceptLabel?has_content>
-                ${conditions.acceptLabel}
+                ${conditions.acceptLabel?html}
             <#else>
                 <@readBundle "accept" "missingValue"></@readBundle>
             </#if>

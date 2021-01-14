@@ -20,7 +20,7 @@
                         <@readBundle "subject_id" "missingValue"></@readBundle> :
                     </span>
                     <span class="list-value">
-                        <@valueOrError receipt.subject "missingValue"></@valueOrError>
+                        <@valueOrError receipt.subject?html "missingValue"></@valueOrError>
                     </span>
                 </li>
                 <li>
@@ -81,22 +81,22 @@
         <div class="processing">
             <div class="processing-header">
                 <h3>
-                    <@valueOrError consent.title "missingValue"></@valueOrError>
+                    <@valueOrError consent.title?html "missingValue"></@valueOrError>
                 </h3>
                 <div class="processing-response ${consent.value}">
-                    <@readBundle consent.value "missingValue"></@readBundle>
+                    <@readBundle consent.value?html "missingValue"></@readBundle>
                 </div>
             </div>
 
             <div class="processing-info">
                 <p>
-                    <@valueOrError consent.data "missingValue"></@valueOrError>
+                    <@valueOrError consent.data?html "missingValue"></@valueOrError>
                 </p>
                 <p>
-                    <@valueOrError consent.retention.label "missingValue"></@valueOrError> <@valueOrError consent.retention.value "missingValue"></@valueOrError> <@readBundle consent.retention.unit "missingValue"></@readBundle>.
+                    <@valueOrError consent.retention.label?html "missingValue"></@valueOrError> <@valueOrError consent.retention.value "missingValue"></@valueOrError> <@readBundle consent.retention.unit "missingValue"></@readBundle>.
                 </p>
                 <p>
-                    <@valueOrError consent.usage "missingValue"></@valueOrError>
+                    <@valueOrError consent.usage?html "missingValue"></@valueOrError>
                 </p>
                 <p>
                     <span><@readBundle "purpose_title"></@readBundle></span>
@@ -132,8 +132,8 @@
                     <ul class="processing-body">
                         <#list consent.thirdParties as thirdParty>
                             <li>
-                                <span class="list-label">${thirdParty.name} :</span>
-                                <span class="list-value">${thirdParty.value}</span>
+                                <span class="list-label">${thirdParty.name?html} :</span>
+                                <span class="list-value">${thirdParty.value?html}</span>
                             </li>
                         </#list>
                     </ul>
@@ -154,11 +154,11 @@
     <#if receipt.dataController?? && receipt.dataController.company?has_content>
         <p>
             <@readBundle "data_controller_name" "missingValue"></@readBundle> :
-            <@valueOrError receipt.dataController.company "missingValue"></@valueOrError>
+            <@valueOrError receipt.dataController.company?html "missingValue"></@valueOrError>
         </p>
     </#if>
     <p>
-        <a class="privacy-policy-link" <@linkHref receipt.privacyPolicyUrl data.preview></@linkHref>>
+        <a class="privacy-policy-link" <@linkHref receipt.privacyPolicyUrl?html data.preview></@linkHref>>
             <@readBundle "privacy_policy" "missingValue"></@readBundle>
         </a>
     </p>

@@ -2,7 +2,7 @@
     <#if info?is_hash>
         <#if info.footer?has_content>
             <div class="footer-body">
-                ${info.footer}
+                ${info.footer?html}
             </div>
         </#if>
     <#else>
@@ -15,7 +15,7 @@
         <div class="accept-all-container">
             <div class="accept-all-text">
                 <#if data.acceptAllText?has_content>
-                    ${data.acceptAllText}
+                    ${data.acceptAllText?html}
                 <#else>
                     <@readBundle "acceptAll" "missingValue"></@readBundle>
                 </#if>
