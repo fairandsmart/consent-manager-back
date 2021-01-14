@@ -532,6 +532,7 @@
                 <dependency>
                     <groupId>io.quarkus</groupId>
                     <artifactId>quarkus-jdbc-postgresql</artifactId>
+                    <version>${version.quarkus}</version>
                 </dependency>
             </dependencies>
         </profile>
