@@ -12,7 +12,7 @@
 
         <#-- Header -->
         <div class="processing-header">
-            <h3><@valueOrError elementContent.label "missingValue"></@valueOrError></h3>
+            <h3><@valueOrError elementContent.label?html "missingValue"></@valueOrError></h3>
 
             <#if elementContent.valueType=="TOGGLE">
                 <#if hasPreviousValues>
@@ -30,7 +30,7 @@
         <#-- Data -->
         <#if elementContent.description?has_content>
             <div class="item-wrapper">
-                <p class="processing-body">${elementContent.description}</p>
+                <p class="processing-body">${elementContent.description?html}</p>
             </div>
         </#if>
 
@@ -50,8 +50,8 @@
                                     <#assign isChecked=false>
                                 </#if>
                                 <input type="checkbox" <#if isChecked>checked</#if>
-                                       id="${option}" value="${option}" name="${identifier}">
-                                <label for="${option}">${option}</label>
+                                       id="${option?html}" value="${option?html}" name="${identifier?html}">
+                                <label for="${option?html}">${option?html}</label>
                             </li>
                         </#list>
                     </ul>
@@ -69,8 +69,8 @@
                                 <#else>
                                     <#assign isChecked=false>
                                 </#if>
-                                <input type="radio" <#if isChecked>checked</#if> id="${option}" value="${option}" name="${identifier}">
-                                <label for="${option}">${option}</label>
+                                <input type="radio" <#if isChecked>checked</#if> id="${option?html}" value="${option?html}" name="${identifier?html}">
+                                <label for="${option?html}">${option?html}</label>
                             </li>
                         </#list>
                     </ul>
@@ -87,7 +87,7 @@
                             <#else>
                                 <#assign isChecked=false>
                             </#if>
-                            <option value="${option}" <#if isChecked>selected</#if>>${option}</option>
+                            <option value="${option?html}" <#if isChecked>selected</#if>>${option?html}</option>
                         </#list>
                     </select>
                 </#if>
@@ -98,7 +98,7 @@
                     <#else>
                         <#assign previousInputValue="">
                     </#if>
-                    <input type="text" id="${identifier}" name="${identifier}" value="${previousInputValue}">
+                    <input type="text" id="${identifier?html}" name="${identifier?html}" value="${previousInputValue}">
                 </#if>
 
             </div>

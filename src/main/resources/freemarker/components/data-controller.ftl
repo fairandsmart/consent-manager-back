@@ -7,31 +7,31 @@
         <#if dataController.company?has_content>
             <li>
                 <span class="list-label"><@readBundle "controllerCompanyLabel"></@readBundle></span>
-                <span class="list-value">${dataController.company}</span>
+                <span class="list-value">${dataController.company?html}</span>
             </li>
         </#if>
         <#if dataController.info?has_content>
             <li>
                 <span class="list-label"><@readBundle "controllerInfoLabel"></@readBundle></span>
-                <span class="list-value">${dataController.info}</span>
+                <span class="list-value">${dataController.info?html}</span>
             </li>
         </#if>
         <#if dataController.address?has_content>
             <li>
                 <span class="list-label"><@readBundle "controllerAddressLabel"></@readBundle></span>
-                <span class="list-value">${dataController.address}</span>
+                <span class="list-value">${dataController.address?html}</span>
             </li>
         </#if>
         <#if dataController.email?has_content>
             <li>
                 <span class="list-label"><@readBundle "controllerEmailLabel"></@readBundle></span>
-                <span class="list-value">${dataController.email}</span>
+                <span class="list-value">${dataController.email?html}</span>
             </li>
         </#if>
         <#if dataController.phone?has_content>
             <li>
                 <span class="list-label"><@readBundle "controllerPhoneLabel"></@readBundle></span>
-                <span class="list-value">${dataController.phone}</span>
+                <span class="list-value">${dataController.phone?html}</span>
             </li>
         </#if>
     </ul>

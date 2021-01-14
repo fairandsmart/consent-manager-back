@@ -6,6 +6,6 @@
 
 <div class="logo-wrapper" style="text-align: ${position};">
     <#if theme?? && theme?is_hash && theme.logoPath?has_content>
-        <img class="logo" src="${theme.logoPath}" alt="${theme.logoAltText}">
+        <img class="logo" src="${theme.logoPath?html}" alt="${theme.logoAltText?html}">
     </#if>
 </div>
