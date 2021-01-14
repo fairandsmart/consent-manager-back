@@ -1,4 +1,4 @@
-<div class="footer">
+<div class="info-footer">
     <#if info?is_hash>
         <#if info.footer?has_content>
             <div class="footer-body">
@@ -26,7 +26,7 @@
     </#if>
 
     <div class="submit-container">
-        <button type="submit" class="submit" <#if data.preview>disabled style="pointer-events: none;"</#if>>
+        <button type="submit" class="submit-button" <#if data.preview>disabled style="pointer-events: none !important;"</#if>>
             <@readBundle "submit" "missingValue"></@readBundle>
         </button>
     </div>

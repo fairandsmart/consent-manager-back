@@ -5,6 +5,10 @@
         font-family: Arial, Helvetica, sans-serif;
     }
 
+    .logo {
+        max-height: 100px;
+    }
+
     .list-label {
         font-weight: bold;
     }
@@ -34,7 +38,7 @@
         height: 0;
     }
 
-    .slider {
+    .switch .switch-slider {
         position: absolute;
         cursor: pointer;
         top: 0;
@@ -48,7 +52,7 @@
         box-shadow: gray 2px 2px 6px;
     }
 
-    .slider:before {
+    .switch .switch-slider:before {
         position: absolute;
         content: "";
         height: 20px;
@@ -61,46 +65,46 @@
         border-radius: 50%;
     }
 
-    input:checked + .slider {
+    .switch input:checked + .switch-slider {
         background-color: #2196F3;
     }
 
-    input:focus + .slider {
+    .switch input:focus + .switch-slider {
         box-shadow: 0 0 1px #2196F3;
     }
 
-    input:checked + .slider:before {
+    .switch input:checked + .switch-slider:before {
         -webkit-transform: translateX(24px);
         -ms-transform: translateX(24px);
         transform: translateX(24px);
     }
 
-    .switch .text {
+    .switch .switch-text {
         margin-top: 8px;
         text-align: center;
         font-size: small;
         width: 48px;
     }
 
-    .switch .text.accept {
+    .switch .switch-text.accept {
         display: none;
         color: #2196F3;
     }
 
-    .switch .text.refuse {
+    .switch .switch-text.refuse {
         display: block;
         color: #888888;
     }
 
-    .switch input:checked ~ .text.refuse {
+    .switch input:checked ~ .switch-text.refuse {
         display: none;
     }
 
-    .switch input:checked ~ .text.accept {
+    .switch input:checked ~ .switch-text.accept {
         display: block;
     }
 
-    .switch-select {
+    .switch .switch-select {
         display: none;
     }
 </style>

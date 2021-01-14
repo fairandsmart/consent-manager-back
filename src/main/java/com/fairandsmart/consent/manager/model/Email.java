@@ -34,6 +34,8 @@ package com.fairandsmart.consent.manager.model;
  */
 
 import com.fairandsmart.consent.manager.entity.ModelData;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -86,11 +88,11 @@ public class Email extends ModelData {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = Jsoup.clean(title, Whitelist.relaxed());
     }
 
     public Email withTitle(String title) {
-        this.title = title;
+        this.title = Jsoup.clean(title, Whitelist.relaxed());
         return this;
     }
 
@@ -99,11 +101,11 @@ public class Email extends ModelData {
     }
 
     public void setBody(String body) {
-        this.body = body;
+        this.body = Jsoup.clean(body, Whitelist.relaxed());
     }
 
     public Email withBody(String body) {
-        this.body = body;
+        this.body = Jsoup.clean(body, Whitelist.relaxed());
         return this;
     }
 
@@ -125,11 +127,11 @@ public class Email extends ModelData {
     }
 
     public void setFooter(String footer) {
-        this.footer = footer;
+        this.footer = Jsoup.clean(footer, Whitelist.relaxed());
     }
 
     public Email withFooter(String footer) {
-        this.footer = footer;
+        this.footer = Jsoup.clean(footer, Whitelist.relaxed());
         return this;
     }
 
@@ -138,11 +140,11 @@ public class Email extends ModelData {
     }
 
     public void setSignature(String signature) {
-        this.signature = signature;
+        this.signature = Jsoup.clean(signature, Whitelist.relaxed());
     }
 
     public Email withSignature(String signature) {
-        this.signature = signature;
+        this.signature = Jsoup.clean(signature, Whitelist.relaxed());
         return this;
     }
 

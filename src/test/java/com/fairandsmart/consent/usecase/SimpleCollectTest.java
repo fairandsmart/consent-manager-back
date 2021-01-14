@@ -224,12 +224,10 @@ public class SimpleCollectTest {
         assertTrue(receiptPage.contains("Formulaire web"));
         assertTrue(receiptPage.contains("Data body " + t1Key));
         assertTrue(receiptPage.contains("Data body " + t2Key));
-        assertTrue(receiptPage.contains("<h3>Processing title " + t1Key + "</h3>"));
-        assertTrue(receiptPage.contains("<h3>Processing title " + t2Key + "</h3>"));
-        assertTrue(receiptPage.contains("<div class=\"processing-response accepted \">Accept&eacute;</div>"));
-        assertFalse(receiptPage.contains("<div class=\"processing-response accepted \">Refus&eacute;</div>"));
-        assertTrue(receiptPage.contains("Accept&eacute;"));
-        assertFalse(receiptPage.contains("Refus&eacute;"));
+        assertTrue(receiptPage.contains("<h3 class=\"element-title\">Processing title " + t1Key + "</h3>"));
+        assertTrue(receiptPage.contains("<h3 class=\"element-title\">Processing title " + t2Key + "</h3>"));
+        assertTrue(receiptPage.contains("<div class=\"processing-response accepted\">Accept&eacute;</div>"));
+        assertFalse(receiptPage.contains("<div class=\"processing-response accepted\">Refus&eacute;</div>"));
         assertTrue(receiptPage.contains(SUBJECT));
 
         //PART 3

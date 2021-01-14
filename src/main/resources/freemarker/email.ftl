@@ -15,11 +15,11 @@
 
     <@fetchMultiLangContent data.model></@fetchMultiLangContent>
     <#assign email=langContent>
-    <title>${email.subject}</title>
+    <title>${email.subject?html}</title>
 </head>
 
 <body>
-    <#assign url=data.url?has_content?then(data.url,"")>
+    <#assign url=data.url?has_content?then(data.url?html,"")>
     <#include "components/email.ftl">
 </body>
 </html>

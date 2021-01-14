@@ -34,6 +34,8 @@ package com.fairandsmart.consent.manager.model;
  */
 
 import com.fairandsmart.consent.manager.entity.ModelData;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -70,11 +72,11 @@ public class Conditions extends ModelData {
     }
 
     public void setBody(String body) {
-        this.body = body;
+        this.body = Jsoup.clean(body, Whitelist.relaxed());
     }
 
     public Conditions withBody(String body) {
-        this.body = body;
+        this.body = Jsoup.clean(body, Whitelist.relaxed());
         return this;
     }
 

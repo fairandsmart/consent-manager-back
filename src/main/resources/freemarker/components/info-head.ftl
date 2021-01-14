@@ -3,7 +3,7 @@
         <input name="info" value="${infoIdentifier}" hidden/>
     </#if>
 
-    <div class="header">
+    <div class="info-header">
         <h2 class="header-title"><@valueOrError info.title?html "missingValue"></@valueOrError></h2>
 
         <p class="header-body"><@valueOrError info.header?html "missingValue"></@valueOrError></p>
@@ -17,12 +17,12 @@
 
         <#-- Other header data -->
         <#if info.showJurisdiction || info.showCollectionMethod || info.showScope || info.showShortNoticeLink>
-            <div class="block-wrapper">
-                <h4 class="controller-header" onclick="toggleAccordion('header-infos')">
+            <div class="block-container information-container">
+                <h4 class="block-title accordion-header" onclick="toggleAccordion('header-infos')">
                     <@readBundle "defaultAdditionalInfoTitle"></@readBundle> <span>+</span>
                 </h4>
 
-                <ul id="header-infos" class="processing-body controller-hidden">
+                <ul id="header-infos" class="block-body accordion-hidden">
                     <#if info.showJurisdiction>
                         <li>
                             <span class="list-label"><@readBundle "jurisdictionLabel"></@readBundle></span>
@@ -45,7 +45,7 @@
                         <#if info.shortNoticeLink?has_content>
                             <li>
                                 <span class="list-label">
-                                    <a <@linkHref info.privacyPolicyUrl data.preview?html></@linkHref>>
+                                    <a <@linkHref info.shortNoticeLink?html data.preview></@linkHref>>
                                         <@readBundle "shortNoticeLinkLabel"></@readBundle>
                                     </a>
                                 </span>
@@ -62,8 +62,8 @@
         </#if>
 
         <#if info.privacyPolicyUrl?has_content>
-            <div class="privacy-policy-link-wrapper">
-                <a class="privacy-policy-link" <@linkHref info.privacyPolicyUrl data.preview></@linkHref>>
+            <div class="privacy-policy-container">
+                <a class="privacy-policy" <@linkHref info.privacyPolicyUrl?html data.preview></@linkHref>>
                     <#if info.customPrivacyPolicyText?has_content>
                         ${info.customPrivacyPolicyText?html}
                     <#else>
@@ -74,7 +74,7 @@
         </#if>
     </div>
 <#else>
-    <div class="header">
+    <div class="info-header">
         <p><@writeError "missingLanguage"></@writeError></p>
     </div>
 </#if>

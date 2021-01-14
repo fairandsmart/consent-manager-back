@@ -28,12 +28,12 @@
 
     /* Header */
 
-    .logo-wrapper {
+    .logo-container {
         text-align: center;
         margin-top: 24px;
     }
 
-    .header {
+    .info-header {
         text-align: center;
         margin: 0 0 8px 12px;
         border-bottom: 1px solid #eee;
@@ -42,7 +42,7 @@
 
     /* Footer */
 
-    .footer {
+    .info-footer {
         background-color: #eeeeee;
     }
 

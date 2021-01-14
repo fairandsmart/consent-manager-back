@@ -1,9 +1,9 @@
-<div class="block-wrapper">
-    <h4 class="controller-header" onclick="toggleAccordion('${dataControllerId}')">
+<div class="block-container controller-container">
+    <h4 class="block-title accordion-header" onclick="toggleAccordion('${dataControllerId}')">
         <@readBundle "defaultDataControllerTitle"></@readBundle> <span>+</span>
     </h4>
 
-    <ul id="${dataControllerId}" class="processing-body controller-hidden">
+    <ul id="${dataControllerId}" class="block-body accordion-hidden">
         <#if dataController.company?has_content>
             <li>
                 <span class="list-label"><@readBundle "controllerCompanyLabel"></@readBundle></span>

@@ -37,19 +37,11 @@
 
         <div class="left">
             <#include "components/logo.ftl">
-            <div class="content-fade"></div>
-
-            <div class="left-content">
-                <#include "components/info-head.ftl">
-            </div>
-
-            <div class="content-fade fade-inverted"></div>
+            <#include "components/info-head.ftl">
         </div>
 
         <div class="right">
-            <div class="content-fade"></div>
-
-            <div class="processing-list">
+            <div class="elements-list">
                 <#list data.elements as element>
                     <@fetchMultiLangContent element></@fetchMultiLangContent>
                     <#assign elementContent=langContent>

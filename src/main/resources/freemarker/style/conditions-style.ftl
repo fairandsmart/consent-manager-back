@@ -7,7 +7,7 @@
         height: 100vh;
     }
 
-    .conditions-wrapper {
+    .conditions-container {
         position: relative;
         display: flex;
         flex-direction: column;
@@ -16,13 +16,13 @@
     }
 
     @media screen and (max-width: 800px) {
-        .conditions-wrapper {
+        .conditions-container {
             height: 100vh;
         }
     }
 
     @media screen and (min-width: 800px) {
-        .conditions-wrapper {
+        .conditions-container {
             margin: auto;
             border: 1px solid #eeeeee;
             border-radius: 4px;
@@ -43,12 +43,12 @@
         height: 100%;
     }
 
-    .buttons-wrapper {
+    .buttons-container {
         text-align: center;
         margin: 24px 0;
     }
 
-    .submit {
+    .submit-button {
         padding: 4px 8px;
         min-width: 100px;
         height: 32px;

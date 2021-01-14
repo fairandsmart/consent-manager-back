@@ -1,8 +1,8 @@
-<div class="processing">
+<div class="element">
     <#if elementContent?is_hash>
         <#-- Header -->
-        <div class="processing-header">
-            <h3><@valueOrError elementContent.title?html "missingValue"></@valueOrError></h3>
+        <div class="element-header">
+            <h3 class="element-title"><@valueOrError elementContent.title?html "missingValue"></@valueOrError></h3>
 
             <#if !data.preview>
                 <#assign isChecked=!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted">
@@ -11,25 +11,25 @@
         </div>
 
         <#-- Data -->
-        <div class="item-wrapper">
-            <p class="processing-body"><@valueOrError elementContent.data?html "missingValue"></@valueOrError></p>
+        <div class="item-container">
+            <p class="item-body"><@valueOrError elementContent.data?html "missingValue"></@valueOrError></p>
         </div>
 
         <#-- Retention -->
-        <div class="item-wrapper">
-            <p class="processing-body">
-                <@valueOrError elementContent.retention.label?html "missingValue"></@valueOrError> <@valueOrError elementContent.retention.value "missingValue"></@valueOrError> <@readBundle elementContent.retention.unit "missingValue"></@readBundle>.
+        <div class="item-container">
+            <p class="item-body">
+                <@valueOrError elementContent.retention.label?html "missingValue"></@valueOrError> <@valueOrError elementContent.retention.value?html "missingValue"></@valueOrError> <@readBundle elementContent.retention.unit?html "missingValue"></@readBundle>.
             </p>
         </div>
 
         <#-- Usage -->
-        <div class="item-wrapper">
-            <p class="processing-body"><@valueOrError elementContent.usage?html "missingValue"></@valueOrError></p>
+        <div class="item-container">
+            <p class="item-body"><@valueOrError elementContent.usage?html "missingValue"></@valueOrError></p>
         </div>
 
         <#-- Purposes -->
-        <div class="item-wrapper">
-            <p class="processing-body">
+        <div class="item-container">
+            <p class="item-body">
                 <span><@readBundle "purpose_title"></@readBundle></span>
                 <span><#list elementContent.purposes as purpose><@readBundle purpose?lower_case></@readBundle><#sep>, </#list></span>
             </p>
@@ -37,32 +37,34 @@
 
         <#-- Data controller -->
         <#if elementContent.showDataController && elementContent.dataController?has_content>
-            <#assign dataController=elementContent.dataController?html>
+            <#assign dataController=elementContent.dataController>
             <#assign dataControllerId=identifier + "-controller">
             <#include "data-controller.ftl">
         </#if>
 
         <#-- Sensitive data -->
         <#if elementContent.containsSensitiveData>
-            <div class="block-wrapper">
-                <h4><@readBundle "defaultSensitiveDataTitle"></@readBundle></h4>
+            <div class="block-container sensitive-container">
+                <h4 class="block-title"><@readBundle "defaultSensitiveDataTitle"></@readBundle></h4>
 
-                <ul class="processing-body">
-                    <#if elementContent.containsMedicalData>
-                        <li><span class="list-value"><@readBundle "containsMedicalData"></@readBundle></span></li>
-                    <#else>
-                        <li><span class="list-value"><@readBundle "containsSensitiveData"></@readBundle></span></li>
-                    </#if>
+                <ul class="block-body">
+                    <li><span class="list-value">
+                        <#if elementContent.containsMedicalData>
+                            <@readBundle "containsMedicalData"></@readBundle>
+                        <#else>
+                            <@readBundle "containsSensitiveData"></@readBundle>
+                        </#if>
+                    </span></li>
                 </ul>
             </div>
         </#if>
 
         <#-- Third parties -->
         <#if elementContent.thirdParties?has_content>
-            <div class="block-wrapper">
-                <h4><@readBundle "defaultThirdPartiesTitle"></@readBundle></h4>
+            <div class="block-container third-parties-container">
+                <h4 class="block-title"><@readBundle "defaultThirdPartiesTitle"></@readBundle></h4>
 
-                <ul class="processing-body">
+                <ul class="block-body">
                     <#list elementContent.thirdParties as thirdParty>
                         <li>
                             <span class="list-label">${thirdParty.name?html} :</span>

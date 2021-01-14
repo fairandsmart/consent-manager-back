@@ -2,19 +2,19 @@
     <div class="email-content">
         <#include "logo.ftl">
 
-        <h1 class="email-title"><@valueOrError email.title "missingValue"></@valueOrError></h1>
-        <div class="email-body"><@valueOrError email.body "missingValue"></@valueOrError></div>
-        <div class="email-button-wrapper">
+        <h1 class="email-title">${email.title}</h1>
+        <div class="email-body">${email.body}</div>
+        <div class="email-button-container">
             <#if url?has_content && email.buttonLabel?has_content>
                 <div class="email-button">
-                    <a id="form-url" class="email-button-content" <@linkHref url data.preview></@linkHref>>
-                        <@valueOrError email.buttonLabel "missingValue"></@valueOrError>
+                    <a id="form-url" class="email-button-content" <@linkHref url?html data.preview></@linkHref>>
+                        <@valueOrError email.buttonLabel?html "missingValue"></@valueOrError>
                     </a>
                 </div>
             </#if>
         </div>
-        <div class="email-footer"><@valueOrError email.footer "missingValue"></@valueOrError></div>
-        <div class="email-signature"><@valueOrError email.signature "missingValue"></@valueOrError></div>
+        <div class="email-footer">${email.footer}</div>
+        <div class="email-signature">${email.signature}</div>
     </div>
 <#else>
     <div>
