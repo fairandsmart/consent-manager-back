@@ -481,16 +481,12 @@ public class ConsentContext implements Tokenizable {
 
     /**
      * NONE no receipt is generated
-     * GENERATE receipt is generated and stored server side, nothing is returned to caller
      * DISPLAY receipt html template is rendered to user with options to store or download
-     * STORE receipt is stored in a cookie or local storage of the caller browser
      * DOWNLOAD receipt is forced to download by the caller
      */
     public enum ReceiptDeliveryType {
         NONE,
-        GENERATE,
         DISPLAY,
-        STORE,
         DOWNLOAD
     }
 
