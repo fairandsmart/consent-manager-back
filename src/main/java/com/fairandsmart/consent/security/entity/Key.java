@@ -33,6 +33,7 @@ package com.fairandsmart.consent.security.entity;
  * #L%
  */
 
+import com.fairandsmart.consent.common.util.Base58;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -49,7 +50,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Transient;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 @Entity
 @UserDefinition
@@ -63,13 +66,13 @@ public class Key extends PanacheEntityBase {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Schema(description = "The key id", readOnly = true)
+    @Schema(description = "The key unique id", readOnly = true)
     public String id;
-    @Schema(required = true, example = "Demo KEY")
+    @Schema(description = "The key name", example = "Demo KEY")
     public String name;
     @Username
-    @JsonProperty("key")
-    @Schema(description = "The key login part to use in HttpBasic Auth", readOnly = true)
+    @JsonIgnore
+    @Schema(hidden = true)
     public String username;
     @Password
     @JsonIgnore
@@ -77,11 +80,11 @@ public class Key extends PanacheEntityBase {
     public String password;
     @Roles
     @JsonIgnore
-    @Schema(description = "The roles associated with that key", readOnly = true, defaultValue = "api", hidden = true)
+    @Schema(hidden = true)
     public String roles;
     @Transient
-    @JsonProperty("password")
-    @Schema(description = "The key password part to use in HttpBasic Auth (only visible at creation)", readOnly = true, name="password")
+    @JsonProperty("key")
+    @Schema(description = "The key to use in HttpBasic Auth (only visible at creation)", readOnly = true, name="password")
     public String secret;
     @Schema(description = "The key creation timestamp", readOnly = true)
     public long creationDate;
@@ -92,10 +95,11 @@ public class Key extends PanacheEntityBase {
     public static Key create(String name, String roles) {
         Key key = new Key();
         key.persist();
-        key.username = "k" + key.id.replaceAll("-", "").toLowerCase();
+        key.username = Base58.encodeUUID(key.id);
         key.name = name;
-        key.secret = generate(24);
+        key.secret = generate(13);
         key.password = BcryptUtil.bcryptHash(key.secret);
+        key.secret = Base64.getEncoder().encodeToString(key.username.concat(":").concat(key.secret).getBytes(StandardCharsets.UTF_8));
         key.roles = roles;
         key.creationDate = System.currentTimeMillis();
         key.persist();
