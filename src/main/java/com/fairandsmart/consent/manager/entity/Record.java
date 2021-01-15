@@ -34,11 +34,18 @@ package com.fairandsmart.consent.manager.entity;
  */
 
 import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.ConsentElementIdentifier;
+import com.fairandsmart.consent.manager.model.Conditions;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
+import javax.xml.datatype.DatatypeConfigurationException;
+import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @Entity
 public class Record extends PanacheEntityBase implements Comparable<Record> {
@@ -97,6 +104,26 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         INFO_SERIAL_ARCHIVED,
         BODY_SERIAL_ARCHIVED,
         NOT_COMMITTED
+    }
+
+    public static Record build(ConsentContext ctx, String transaction, String defaultAuthor, Instant now, Optional<ConsentElementIdentifier> info, ConsentElementIdentifier body, String value, String comment) {
+        Record record = new Record();
+        record.transaction = transaction;
+        record.subject = ctx.getSubject();
+        record.type = body.getType();
+        record.infoSerial = info.isPresent() ? info.get().getSerial() : "";
+        record.bodySerial = body.getSerial();
+        record.infoKey = info.isPresent() ? info.get().getKey() : "";
+        record.bodyKey = body.getKey();
+        record.serial = (record.infoSerial.isEmpty() ? "" : record.infoSerial + ".") + record.bodySerial;
+        record.value = value;
+        record.creationTimestamp = now.toEpochMilli();
+        record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
+        record.state = Record.State.COMMITTED;
+        record.collectionMethod = ctx.getCollectionMethod();
+        record.author = StringUtils.isNotEmpty(ctx.getAuthor()) ? ctx.getAuthor() : defaultAuthor;
+        record.comment = comment;
+        return record;
     }
 
     @Override

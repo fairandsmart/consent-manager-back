@@ -38,16 +38,9 @@ import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -284,7 +277,11 @@ public class Receipt {
         receipt.setTransaction(transaction);
         receipt.setLanguage(ctx.getLanguage());
         receipt.setDate(date);
-        receipt.setExpirationDate(date.plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS));
+        if (!ctx.isValidityVisible()) {
+            receipt.setExpirationDate(null);
+        } else {
+            receipt.setExpirationDate(date.plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS));
+        }
         receipt.setProcessor(processor);
         receipt.setSubject(ctx.getSubject());
         receipt.setSubjectDetails(ctx.getUserinfos().entrySet().stream().map(entry -> new NameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList()));
@@ -315,6 +312,12 @@ public class Receipt {
             }
             receipt.getConsents().add(trecord);
         }
+
+        if (ctx.getNotificationRecipient() != null && !ctx.getNotificationRecipient().isEmpty()) {
+            receipt.setNotificationType("email");
+            receipt.setNotificationRecipient(ctx.getNotificationRecipient());
+        }
+
         return receipt;
     }
 }

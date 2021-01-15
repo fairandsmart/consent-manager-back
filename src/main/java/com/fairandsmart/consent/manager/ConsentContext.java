@@ -46,8 +46,8 @@ import java.util.*;
 public class ConsentContext implements Tokenizable {
 
     private static final String DEFAULT_VALIDITY = "P6M";
+    private static final long DEFAULT_VALIDITY_MILLIS = 15778800000l;
     private static final FormType DEFAULT_FORM_TYPE = FormType.FULL;
-    private static final ReceiptDeliveryType DEFAULT_RECEIPT_DELIVERY = ReceiptDeliveryType.DISPLAY;
     private static final CollectionMethod DEFAULT_COLLECTION_METHOD = CollectionMethod.WEBFORM;
     private static final String USERINFOS_PREFIX = "userinfos_";
     private static final String ATTRIBUTES_PREFIX = "attributes_";
@@ -64,7 +64,6 @@ public class ConsentContext implements Tokenizable {
     private String language;
     private String validity;
     private FormType formType;
-    private ReceiptDeliveryType receiptDeliveryType;
     private ReceiptDisplayType receiptDisplayType;
     private Map<String, String> userinfos;
     private Map<String, String> attributes;
@@ -76,8 +75,8 @@ public class ConsentContext implements Tokenizable {
     private boolean iframe = false;
     private String theme;
     private String receiptId;
-    private boolean showAcceptAll = false;
-    private boolean showValidity = true;
+    private boolean acceptAllVisible = false;
+    private boolean validityVisible = true;
     private String acceptAllText;
     private boolean footerOnTop = false;
 
@@ -87,7 +86,6 @@ public class ConsentContext implements Tokenizable {
         this.attributes = new HashMap<>();
         this.validity = DEFAULT_VALIDITY;
         this.formType  = DEFAULT_FORM_TYPE;
-        this.receiptDeliveryType = DEFAULT_RECEIPT_DELIVERY;
         this.collectionMethod = DEFAULT_COLLECTION_METHOD;
     }
 
@@ -175,8 +173,12 @@ public class ConsentContext implements Tokenizable {
     }
 
     @JsonIgnore
-    public long getValidityInMillis() throws DatatypeConfigurationException {
-        return DatatypeFactory.newInstance().newDuration(validity).getTimeInMillis(new Date(0));
+    public long getValidityInMillis() {
+        try {
+            return DatatypeFactory.newInstance().newDuration(validity).getTimeInMillis(new Date(0));
+        } catch (DatatypeConfigurationException e) {
+            return DEFAULT_VALIDITY_MILLIS;
+        }
     }
 
     public FormType getFormType() {
@@ -185,15 +187,6 @@ public class ConsentContext implements Tokenizable {
 
     public ConsentContext setFormType(FormType formType) {
         this.formType = formType;
-        return this;
-    }
-
-    public ReceiptDeliveryType getReceiptDeliveryType() {
-        return receiptDeliveryType;
-    }
-
-    public ConsentContext setReceiptDeliveryType(ReceiptDeliveryType receiptDeliveryType) {
-        this.receiptDeliveryType = receiptDeliveryType;
         return this;
     }
 
@@ -295,12 +288,12 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public boolean isShowAcceptAll() {
-        return showAcceptAll;
+    public boolean isAcceptAllVisible() {
+        return acceptAllVisible;
     }
 
-    public ConsentContext setShowAcceptAll(boolean showAcceptAll) {
-        this.showAcceptAll = showAcceptAll;
+    public ConsentContext setAcceptAllVisible(boolean acceptAllVisible) {
+        this.acceptAllVisible = acceptAllVisible;
         return this;
     }
 
@@ -322,12 +315,12 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public boolean isShowValidity() {
-        return showValidity;
+    public boolean isValidityVisible() {
+        return validityVisible;
     }
 
-    public ConsentContext setShowValidity(boolean showValidity) {
-        this.showValidity = showValidity;
+    public ConsentContext setValidityVisible(boolean validityVisible) {
+        this.validityVisible = validityVisible;
         return this;
     }
 
@@ -356,9 +349,6 @@ public class ConsentContext implements Tokenizable {
         if (formType != null) {
             claims.put("formType", this.getFormType().name());
         }
-        if (receiptDeliveryType != null) {
-            claims.put("receiptDeliveryType", this.getReceiptDeliveryType().name());
-        }
         if (receiptDisplayType != null) {
             claims.put("receiptDisplayType", this.getReceiptDisplayType().toString());
         }
@@ -371,6 +361,15 @@ public class ConsentContext implements Tokenizable {
         if (collectionMethod != null) {
             claims.put("collectionMethod", this.getCollectionMethod().name());
         }
+        if (theme != null) {
+            claims.put("theme", this.getTheme());
+        }
+        if (receiptId != null) {
+            claims.put("receiptId", this.getReceiptId());
+        }
+        if (acceptAllText != null) {
+            claims.put("acceptAllText", this.getAcceptAllText());
+        }
         if (userinfos != null && !userinfos.isEmpty()) {
             for (Map.Entry<String, String> entry : userinfos.entrySet()) {
                 claims.put(USERINFOS_PREFIX + entry.getKey(), entry.getValue());
@@ -381,21 +380,11 @@ public class ConsentContext implements Tokenizable {
                 claims.put(ATTRIBUTES_PREFIX + entry.getKey(), entry.getValue());
             }
         }
-
+        claims.put("acceptAllVisible", Boolean.toString(this.isAcceptAllVisible()));
         claims.put("preview", Boolean.toString(this.isPreview()));
         claims.put("iframe", Boolean.toString(this.isIframe()));
-        if (theme != null) {
-            claims.put("theme", this.getTheme());
-        }
-        if (receiptId != null) {
-            claims.put("receiptId", this.getReceiptId());
-        }
-        claims.put("showAcceptAll", Boolean.toString(this.isShowAcceptAll()));
-        if (acceptAllText != null) {
-            claims.put("acceptAllText", this.getAcceptAllText());
-        }
         claims.put("footerOnTop", Boolean.toString(this.isFooterOnTop()));
-        claims.put("showValidity", Boolean.toString(this.isShowValidity()));
+        claims.put("validityVisible", Boolean.toString(this.isValidityVisible()));
         return claims;
     }
 
@@ -422,9 +411,6 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("formType")) {
             this.setFormType(FormType.valueOf(claims.get("formType")));
         }
-        if (claims.containsKey("receiptDeliveryType")) {
-            this.setReceiptDeliveryType(ReceiptDeliveryType.valueOf(claims.get("receiptDeliveryType")));
-        }
         if (claims.containsKey("receiptDisplayType")) {
             this.setReceiptDisplayType(ReceiptDisplayType.valueOfName(claims.get("receiptDisplayType")));
         }
@@ -449,8 +435,8 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("receiptId")) {
             this.setReceiptId(claims.get("receiptId"));
         }
-        if (claims.containsKey("showAcceptAll")) {
-            this.setShowAcceptAll(Boolean.parseBoolean(claims.get("showAcceptAll")));
+        if (claims.containsKey("acceptAllVisible")) {
+            this.setAcceptAllVisible(Boolean.parseBoolean(claims.get("acceptAllVisible")));
         }
         if (claims.containsKey("acceptAllText")) {
             this.setAcceptAllText(claims.get("acceptAllText"));
@@ -458,8 +444,8 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("footerOnTop")) {
             this.setFooterOnTop(Boolean.parseBoolean(claims.get("footerOnTop")));
         }
-        if (claims.containsKey("showValidity")) {
-            this.setShowValidity(Boolean.parseBoolean(claims.get("showValidity")));
+        if (claims.containsKey("validityVisible")) {
+            this.setValidityVisible(Boolean.parseBoolean(claims.get("validityVisible")));
         }
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
                 entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
@@ -477,17 +463,6 @@ public class ConsentContext implements Tokenizable {
     public enum FormType {
         PARTIAL,
         FULL
-    }
-
-    /**
-     * NONE no receipt is generated
-     * DISPLAY receipt html template is rendered to user with options to store or download
-     * DOWNLOAD receipt is forced to download by the caller
-     */
-    public enum ReceiptDeliveryType {
-        NONE,
-        DISPLAY,
-        DOWNLOAD
     }
 
     public enum ReceiptDisplayType {
@@ -545,7 +520,6 @@ public class ConsentContext implements Tokenizable {
                 ", language='" + language + '\'' +
                 ", validity='" + validity + '\'' +
                 ", formType=" + formType +
-                ", receiptDeliveryType=" + receiptDeliveryType +
                 ", receiptDisplayType=" + receiptDisplayType +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
@@ -557,8 +531,8 @@ public class ConsentContext implements Tokenizable {
                 ", iframe=" + iframe +
                 ", theme='" + theme + '\'' +
                 ", receiptId='" + receiptId + '\'' +
-                ", showAcceptAll=" + showAcceptAll +
-                ", showValidity=" + showValidity +
+                ", showAcceptAll=" + acceptAllVisible +
+                ", showValidity=" + validityVisible +
                 ", acceptAllText='" + acceptAllText + '\'' +
                 ", footerOnTop=" + footerOnTop +
                 '}';

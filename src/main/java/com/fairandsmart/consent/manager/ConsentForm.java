@@ -51,7 +51,7 @@ public class ConsentForm {
     private boolean preview = false;
     private ModelVersion theme;
     private ModelVersion notificationEmail;
-    private boolean showAcceptAll = false;
+    private boolean acceptAllVisible = false;
     private String acceptAllText;
     private boolean footerOnTop = false;
 
@@ -65,7 +65,7 @@ public class ConsentForm {
         this.language = ctx.getLanguage();
         this.orientation = ctx.getOrientation();
         this.preview = ctx.isPreview();
-        this.showAcceptAll = ctx.isShowAcceptAll();
+        this.acceptAllVisible = ctx.isAcceptAllVisible();
         this.acceptAllText = ctx.getAcceptAllText();
         this.footerOnTop = ctx.isFooterOnTop();
     }
@@ -150,12 +150,12 @@ public class ConsentForm {
         this.notificationEmail = notificationEmail;
     }
 
-    public boolean isShowAcceptAll() {
-        return showAcceptAll;
+    public boolean isAcceptAllVisible() {
+        return acceptAllVisible;
     }
 
-    public void setShowAcceptAll(boolean showAcceptAll) {
-        this.showAcceptAll = showAcceptAll;
+    public void setAcceptAllVisible(boolean acceptAllVisible) {
+        this.acceptAllVisible = acceptAllVisible;
     }
 
     public String getAcceptAllText() {
@@ -186,7 +186,7 @@ public class ConsentForm {
                 ", preview=" + preview +
                 ", theme=" + theme +
                 ", notificationEmail=" + notificationEmail +
-                ", showAcceptAll=" + showAcceptAll +
+                ", acceptAllVisible=" + acceptAllVisible +
                 ", acceptAllText='" + acceptAllText + '\'' +
                 ", footerOnTop=" + footerOnTop +
                 '}';

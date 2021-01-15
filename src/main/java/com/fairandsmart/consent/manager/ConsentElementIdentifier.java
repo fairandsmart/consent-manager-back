@@ -33,7 +33,9 @@ package com.fairandsmart.consent.manager;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.exception.IllegalIdentifierException;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
 
 public class ConsentElementIdentifier {
 
@@ -74,12 +76,15 @@ public class ConsentElementIdentifier {
         this.serial = serial;
     }
 
-    public static ConsentElementIdentifier deserialize(String serializedIdentifier) throws IllegalIdentifierException {
-        String[] parts = serializedIdentifier.split(String.valueOf(separator));
-        if (parts.length != 4 || !parts[0].equals(prefix) ) {
-            throw new IllegalIdentifierException(serializedIdentifier);
+    public static Optional<ConsentElementIdentifier> deserialize(String serializedIdentifier) {
+        if (StringUtils.isNotEmpty(serializedIdentifier)) {
+            String[] parts = serializedIdentifier.split(String.valueOf(separator));
+            if (parts.length != 4 || !parts[0].equals(prefix)) {
+                return Optional.empty();
+            }
+            return Optional.of(new ConsentElementIdentifier(parts[1], parts[2], parts[3]));
         }
-        return new ConsentElementIdentifier(parts[1], parts[2], parts[3]);
+        return Optional.empty();
     }
 
     public String serialize() {

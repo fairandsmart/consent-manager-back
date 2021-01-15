@@ -110,15 +110,15 @@ public class NotifyConsentWorker implements Runnable {
             ConsentNotification notification = new ConsentNotification();
             notification.setLanguage(ctx.getLanguage());
             notification.setRecipient(ctx.getNotificationRecipient());
-            ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).getSerial(), true);
+            ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).get().getSerial(), true);
             notification.setModel(notificationModel);
-            if (!StringUtils.isEmpty(ctx.getTheme())) {
-                ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).getSerial(), true);
+            if (StringUtils.isNotEmpty(ctx.getTheme())) {
+                ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).get().getSerial(), true);
                 notification.setTheme(theme);
             }
             if (clientConfig.isUserPageEnabled() && clientConfig.userPagePublicUrl().isPresent()) {
                 //TODO There is no pre authentication info on this link, we have to think about
-                // - generate a token for accesing this page
+                // - generate a token for accessing this page
                 // - provide a secret for accessing page
                 // - pass the username (email) allowing IdP account creation prefilled username...
                 ctx.setCollectionMethod(ConsentContext.CollectionMethod.USER_PAGE);
@@ -130,11 +130,9 @@ public class NotifyConsentWorker implements Runnable {
                 URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
                 notification.setUrl(notificationUri.toString());
             }
-            if (ctx.getReceiptDeliveryType().equals(ConsentContext.ReceiptDeliveryType.DOWNLOAD) && StringUtils.isNotEmpty(ctx.getReceiptId())) {
-                notification.setReceiptName("receipt.pdf");
-                notification.setReceiptType("application/pdf");
-                notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getReceiptId(), "application/pdf", ctx.getTheme()));
-            }
+            notification.setReceiptName("receipt.pdf");
+            notification.setReceiptType("application/pdf");
+            notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getReceiptId(), "application/pdf", ctx.getTheme()));
 
             TemplateModel<ConsentNotification> model = new TemplateModel("email.ftl", notification, notification.getLanguage());
             ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));

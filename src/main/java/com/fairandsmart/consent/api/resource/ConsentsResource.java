@@ -54,6 +54,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,7 +92,7 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentForm getFormJson(@HeaderParam("TOKEN") @NotNull String token) throws TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
+    public ConsentForm getFormJson(@QueryParam("t") @NotNull String token) throws TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException {
         LOGGER.log(Level.INFO, "GET /consents (json)");
         return consentService.generateForm(token);
     }
@@ -109,12 +110,9 @@ public class ConsentsResource {
             templateData.setContext(ctx);
             if (ctx.getReceiptDisplayType() != null && ctx.getReceiptDisplayType() != ConsentContext.ReceiptDisplayType.NONE) {
                 uri.queryParam("format", ctx.getReceiptDisplayType());
-                if (StringUtils.isNotEmpty(ctx.getTheme())) {
-                    try {
-                        uri.queryParam("theme", ConsentElementIdentifier.deserialize(ctx.getTheme()).getKey());
-                    } catch (IllegalIdentifierException e) {
-                        LOGGER.info("Could not find theme for receipt");
-                    }
+                Optional<ConsentElementIdentifier> themeId = ConsentElementIdentifier.deserialize(ctx.getTheme());
+                if (themeId.isPresent()) {
+                    uri.queryParam("theme", themeId.get().getKey());
                 }
             }
             templateData.setReceiptURI(uri.build());

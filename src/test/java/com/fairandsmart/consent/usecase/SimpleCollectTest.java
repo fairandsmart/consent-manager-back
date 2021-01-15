@@ -144,7 +144,7 @@ public class SimpleCollectTest {
                 .setElements(Arrays.asList(t1Key, t2Key))
                 .setReceiptDisplayType(ConsentContext.ReceiptDisplayType.HTML)
                 .setLanguage(language)
-                .setShowAcceptAll(true);
+                .setAcceptAllVisible(true);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
@@ -258,7 +258,7 @@ public class SimpleCollectTest {
                 .setElements(Arrays.asList(t1Key, t2Key))
                 .setReceiptDisplayType(ConsentContext.ReceiptDisplayType.XML)
                 .setLanguage(language)
-                .setShowAcceptAll(true);
+                .setAcceptAllVisible(true);
         LOGGER.log(Level.INFO, "New context" + ctx.toString());
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 

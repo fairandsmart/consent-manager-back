@@ -151,7 +151,6 @@ public class CollectWithEmailTest {
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setReceiptDeliveryType(ConsentContext.ReceiptDeliveryType.DOWNLOAD)
                 .setNotificationModel(eKey)
                 .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());

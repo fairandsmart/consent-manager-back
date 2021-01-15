@@ -33,7 +33,7 @@
             <#assign info="">
             <#assign infoIdentifier="infos">
         </#if>
-        <#assign displayAcceptAll=(data.showAcceptAll && data.elements?size > 1)>
+        <#assign displayAcceptAll=(data.acceptAllVisible && data.elements?size > 1)>
 
         <#include "components/logo.ftl">
 

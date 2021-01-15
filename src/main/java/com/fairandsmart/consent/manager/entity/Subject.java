@@ -40,6 +40,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Entity
 public class Subject extends PanacheEntityBase {
@@ -52,6 +54,13 @@ public class Subject extends PanacheEntityBase {
     public String name;
     public String emailAddress;
     public long creationTimestamp;
+
+    public static Subject create(String name) {
+        Subject created = new Subject();
+        created.name = name;
+        created.creationTimestamp = System.currentTimeMillis();
+        return created;
+    }
 
     public static boolean exists(String name) {
         return Subject.count("name = ?1", name) > 0;
