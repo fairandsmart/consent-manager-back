@@ -122,7 +122,7 @@ public class TokenServiceBean implements TokenService {
         if (token.length() < 25) {
             LOGGER.log(Level.FINE, "Token is a thin one");
             Optional<ThinToken> entry = ThinToken.findByIdOptional(token);
-            fullToken = entry.map(e -> e.value).orElseThrow(() -> new TokenExpiredException("Unable to find a thin token with key: " + token));
+            fullToken = entry.map(e -> e.value).orElseThrow(() -> new InvalidTokenException("Unable to find a thin token with key: " + token));
         }
         DecodedJWT decodedJWT = getDecodedToken(fullToken);
 
@@ -154,11 +154,9 @@ public class TokenServiceBean implements TokenService {
                 DecodedJWT decodedJWT = verifier.verify(token);
                 LOGGER.log(Level.FINE, "Decoded token expiration: " + decodedJWT.getExpiresAt());
                 LOGGER.log(Level.FINE, "Decoded token subject: " + decodedJWT.getSubject());
-                if (decodedJWT.getExpiresAt().after(new Date())) {
-                    return decodedJWT;
-                } else {
-                    throw new TokenExpiredException("Token expires on : " + decodedJWT.getExpiresAt().toString());
-                }
+                return decodedJWT;
+            } catch (com.auth0.jwt.exceptions.TokenExpiredException ex) {
+                throw new TokenExpiredException(ex.getMessage());
             } catch (JWTDecodeException ex) {
                 throw new InvalidTokenException(ex);
             }
