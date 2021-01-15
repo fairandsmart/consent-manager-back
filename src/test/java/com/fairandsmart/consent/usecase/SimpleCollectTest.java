@@ -154,7 +154,7 @@ public class SimpleCollectTest {
 
         //PART 1
         //Check consent form
-        Response response = given().accept(ContentType.JSON).header("TOKEN", token).when().get("/consents");
+        Response response = given().accept(ContentType.JSON).queryParam("t", token).when().get("/consents");
         response.then().contentType("application/json").assertThat().statusCode(200);
 
         response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
