@@ -1,5 +1,5 @@
 <#if conditions?is_hash>
-    <h1>${conditions.title?html}</h1>
+    <h1><@valueOrError conditions.title "missingValue"></@valueOrError></h1>
 
     <div class="conditions">${conditions.body}</div>
 
@@ -28,6 +28,5 @@
         </button>
     </div>
 <#else>
-        <h1><@writeError "missingValue"></@writeError></h1>
-    </div>
+    <h1><@writeError "missingValue"></@writeError></h1>
 </#if>

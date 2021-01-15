@@ -12,7 +12,7 @@
 
         <#-- Header -->
         <div class="element-header">
-            <h3 class="element-title"><@valueOrError elementContent.label?html "missingValue"></@valueOrError></h3>
+            <h3 class="element-title"><@valueOrError elementContent.label "missingValue"></@valueOrError></h3>
 
             <#if elementContent.valueType=="TOGGLE">
                 <#if hasPreviousValues>

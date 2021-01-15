@@ -53,11 +53,11 @@
             <div class="metadata-list">
                 <div class="metadata">
                     <label class="metadata-label"><@readBundle "email_sender" "missingValue"></@readBundle></label>
-                    <div class="metadata-content"><@valueOrError email.sender?html "missingValue"></@valueOrError></div>
+                    <div class="metadata-content"><@valueOrError email.sender "missingValue"></@valueOrError></div>
                 </div>
                 <div class="metadata">
                     <label class="metadata-label"><@readBundle "email_subject" "missingValue"></@readBundle></label>
-                    <div class="metadata-content"><@valueOrError email.subject?html "missingValue"></@valueOrError></div>
+                    <div class="metadata-content"><@valueOrError email.subject "missingValue"></@valueOrError></div>
                 </div>
             </div>
         </#if>

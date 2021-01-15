@@ -2,7 +2,7 @@
     <#if elementContent?is_hash>
         <#-- Header -->
         <div class="element-header">
-            <h3 class="element-title"><@valueOrError elementContent.title?html "missingValue"></@valueOrError></h3>
+            <h3 class="element-title"><@valueOrError elementContent.title "missingValue"></@valueOrError></h3>
 
             <#if !data.preview>
                 <#assign isChecked=!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted">
@@ -12,19 +12,19 @@
 
         <#-- Data -->
         <div class="item-container">
-            <p class="item-body"><@valueOrError elementContent.data?html "missingValue"></@valueOrError></p>
+            <p class="item-body"><@valueOrError elementContent.data "missingValue"></@valueOrError></p>
         </div>
 
         <#-- Retention -->
         <div class="item-container">
             <p class="item-body">
-                <@valueOrError elementContent.retention.label?html "missingValue"></@valueOrError> <@valueOrError elementContent.retention.value?html "missingValue"></@valueOrError> <@readBundle elementContent.retention.unit?html "missingValue"></@readBundle>.
+                <@valueOrError elementContent.retention.label "missingValue"></@valueOrError> <@valueOrError elementContent.retention.value "missingValue"></@valueOrError> <@readBundle elementContent.retention.unit?html "missingValue"></@readBundle>.
             </p>
         </div>
 
         <#-- Usage -->
         <div class="item-container">
-            <p class="item-body"><@valueOrError elementContent.usage?html "missingValue"></@valueOrError></p>
+            <p class="item-body"><@valueOrError elementContent.usage "missingValue"></@valueOrError></p>
         </div>
 
         <#-- Purposes -->
@@ -67,8 +67,8 @@
                 <ul class="block-body">
                     <#list elementContent.thirdParties as thirdParty>
                         <li>
-                            <span class="list-label">${thirdParty.name?html} :</span>
-                            <span class="list-value">${thirdParty.value?html}</span>
+                            <span class="list-label"><@valueOrError thirdParty.name></@valueOrError> :</span>
+                            <span class="list-value"><@valueOrError thirdParty.value></@valueOrError></span>
                         </li>
                     </#list>
                 </ul>

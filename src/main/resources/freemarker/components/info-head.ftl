@@ -4,9 +4,9 @@
     </#if>
 
     <div class="info-header">
-        <h2 class="header-title"><@valueOrError info.title?html "missingValue"></@valueOrError></h2>
+        <h2 class="header-title"><@valueOrError info.title "missingValue"></@valueOrError></h2>
 
-        <p class="header-body"><@valueOrError info.header?html "missingValue"></@valueOrError></p>
+        <p class="header-body"><@valueOrError info.header "missingValue"></@valueOrError></p>
 
         <#-- Data controller -->
         <#if info.showDataController && info.dataController?has_content>
@@ -26,19 +26,19 @@
                     <#if info.showJurisdiction>
                         <li>
                             <span class="list-label"><@readBundle "jurisdictionLabel"></@readBundle></span>
-                            <span class="list-value"><@valueOrError info.jurisdiction?html "missingValue"></@valueOrError></span>
+                            <span class="list-value"><@valueOrError info.jurisdiction "missingValue"></@valueOrError></span>
                         </li>
                     </#if>
                     <#if info.showCollectionMethod>
                         <li>
                             <span class="list-label"><@readBundle "collectionMethodLabel"></@readBundle></span>
-                            <span class="list-value"><@valueOrError info.collectionMethod?html "missingValue"></@valueOrError></span>
+                            <span class="list-value"><@valueOrError info.collectionMethod "missingValue"></@valueOrError></span>
                         </li>
                     </#if>
                     <#if info.showScope>
                         <li>
                             <span class="list-label"><@readBundle "scopeLabel"></@readBundle></span>
-                            <span class="list-value"><@valueOrError info.scope?html "missingValue"></@valueOrError></span>
+                            <span class="list-value"><@valueOrError info.scope "missingValue"></@valueOrError></span>
                         </li>
                     </#if>
                     <#if info.showShortNoticeLink>
