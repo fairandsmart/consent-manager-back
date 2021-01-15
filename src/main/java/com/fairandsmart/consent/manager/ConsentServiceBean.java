@@ -483,10 +483,13 @@ public class ConsentServiceBean implements ConsentService {
         if (!version.status.equals(ModelVersion.Status.DRAFT)) {
             throw new ConsentManagerException("Unable to delete version that is not DRAFT");
         }
-        ModelVersion parent = ModelVersion.findById(version.parent);
-        parent.child = "";
+        Optional<ModelVersion> optionalParent = ModelVersion.findByIdOptional(version.parent);
+        if (optionalParent.isPresent()) {
+            ModelVersion parent = optionalParent.get();
+            parent.child = "";
+            parent.persist();
+        }
         version.delete();
-        parent.persist();
     }
 
     /* CONSENT MANAGEMENT */
@@ -834,7 +837,7 @@ public class ConsentServiceBean implements ConsentService {
                 if (StringUtils.isNotEmpty(token)) {
                     ConsentTransaction tx = (ConsentTransaction) tokenService.readToken(token);
                     if (!tx.getTransaction().equals(receipt.getTransaction())) {
-                        throw new AccessDeniedException("Token transaction is not the same than receipt");
+                        throw new AccessDeniedException("Token transaction is not the same as receipt");
                     }
                 } else {
                     throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
