@@ -33,18 +33,17 @@ package com.fairandsmart.consent.stats.util;
  * #L%
  */
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.logging.Logger;
 
 public class StatCalendar {
 
-    private static final Logger LOGGER = Logger.getLogger(StatCalendar.class.getName());
-
-    private final SimpleDateFormat FORMAT_DAYS = new SimpleDateFormat("u");
-    private final SimpleDateFormat FORMAT_WEEKS = new SimpleDateFormat("w");
-    private final SimpleDateFormat FORMAT_MONTHS = new SimpleDateFormat("M");
+    private final DateTimeFormatter FORMAT_DAYS = DateTimeFormatter.ofPattern("e");
+    private final DateTimeFormatter FORMAT_WEEKS = DateTimeFormatter.ofPattern("w");
+    private final DateTimeFormatter FORMAT_MONTHS = DateTimeFormatter.ofPattern("M");
 
     private final TimeScale timeScale;
     private final Calendar calendar;
@@ -52,33 +51,47 @@ public class StatCalendar {
     private final int size;
 
     public enum TimeScale {
-        DAYS,
-        WEEKS,
-        MONTHS
+        DAYS(7),
+        WEEKS(10),
+        MONTHS(12);
+
+        private int defaultSize;
+
+        TimeScale(int defaultSize) {
+            this.defaultSize = defaultSize;
+        }
+
+        public int getDefaultSize() {
+            return defaultSize;
+        }
+
+        public void setDefaultSize(int defaultSize) {
+            this.defaultSize = defaultSize;
+        }
     }
 
-    public StatCalendar(TimeScale timeScale) {
-        this(timeScale, System.currentTimeMillis());
+    public StatCalendar(TimeScale timeScale, int size) {
+        this(timeScale, size, System.currentTimeMillis());
     }
 
-    public StatCalendar(TimeScale timeScale, long start) {
+    public StatCalendar(TimeScale timeScale, int size, long start) {
         this.timeScale = timeScale;
         calendar = Calendar.getInstance();
         calendar.setTimeInMillis(start);
         switch (timeScale) {
             case DAYS:
                 calendarScale = Calendar.DAY_OF_YEAR;
-                size = 7;
+                this.size = size;
                 break;
             case WEEKS:
                 calendarScale = Calendar.WEEK_OF_YEAR;
-                size = 10;
+                this.size = size;
                 calendar.set(Calendar.DAY_OF_WEEK, 2);
                 break;
             case MONTHS:
             default:
                 calendarScale = Calendar.MONTH;
-                size = 12;
+                this.size = size;
                 calendar.set(Calendar.DAY_OF_MONTH, 1);
                 break;
         }
@@ -96,37 +109,50 @@ public class StatCalendar {
         calendar.add(calendarScale, -size);
     }
 
-    public void forward() {
+    public StatInterval nextInterval() {
+        StatInterval interval = new StatInterval();
         calendar.add(calendarScale, 1);
+        interval.after = this.getTimeInMillis();
+        interval.label = this.formatDateForLabel();
+        calendar.add(calendarScale, 1);
+        interval.before = this.getTimeInMillis();
+        calendar.add(calendarScale, -1);
+        return interval;
     }
 
-    public void backward() {
-        calendar.add(calendarScale, -1);
+    public String getTimeAsString() {
+        return DateTimeFormatter.ofPattern("E d-M-y HH:mm:ss").format(this.getTimeAsLocalDateTime());
     }
 
     public long getTimeInMillis() {
         return calendar.getTimeInMillis();
     }
 
-    public String getTimeAsString() {
-        return new SimpleDateFormat("E dd-MM-yyyy H:m:s").format(calendar.getTime());
+    private LocalDateTime getTimeAsLocalDateTime() {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(calendar.getTimeInMillis()), ZoneId.systemDefault());
     }
 
     public String formatDateForLabel() {
-        Date time = calendar.getTime();
+        LocalDateTime date = this.getTimeAsLocalDateTime();
         String formatted;
         switch (timeScale) {
             case DAYS:
-                formatted = FORMAT_DAYS.format(time);
+                formatted = FORMAT_DAYS.format(date);
                 break;
             case WEEKS:
-                formatted = FORMAT_WEEKS.format(time);
+                formatted = FORMAT_WEEKS.format(date);
                 break;
             case MONTHS:
             default:
-                formatted = FORMAT_MONTHS.format(time);
+                formatted = FORMAT_MONTHS.format(date);
                 break;
         }
         return formatted;
+    }
+
+    public static class StatInterval {
+        public long after;
+        public long before;
+        public String label;
     }
 }

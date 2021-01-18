@@ -41,8 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import javax.transaction.Transactional;
-import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -106,14 +104,14 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         NOT_COMMITTED
     }
 
-    public static Record build(ConsentContext ctx, String transaction, String defaultAuthor, Instant now, Optional<ConsentElementIdentifier> info, ConsentElementIdentifier body, String value, String comment) {
+    public static Record build(ConsentContext ctx, String transaction, String defaultAuthor, Instant now, ConsentElementIdentifier info, ConsentElementIdentifier body, String value, String comment) {
         Record record = new Record();
         record.transaction = transaction;
         record.subject = ctx.getSubject();
         record.type = body.getType();
-        record.infoSerial = info.isPresent() ? info.get().getSerial() : "";
+        record.infoSerial = info.getSerial();
         record.bodySerial = body.getSerial();
-        record.infoKey = info.isPresent() ? info.get().getKey() : "";
+        record.infoKey = info.getKey();
         record.bodyKey = body.getKey();
         record.serial = (record.infoSerial.isEmpty() ? "" : record.infoSerial + ".") + record.bodySerial;
         record.value = value;

@@ -39,7 +39,4 @@ public class ReceiptAlreadyExistsException extends Exception {
         super(s);
     }
 
-    public ReceiptAlreadyExistsException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
 }

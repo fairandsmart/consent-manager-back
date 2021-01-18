@@ -35,7 +35,6 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
-import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
@@ -46,10 +45,16 @@ import com.fairandsmart.consent.common.util.PageUtil;
 import com.fairandsmart.consent.common.util.SortUtil;
 import com.fairandsmart.consent.manager.cache.PreviewCache;
 import com.fairandsmart.consent.manager.entity.*;
-import com.fairandsmart.consent.manager.exception.*;
+import com.fairandsmart.consent.manager.exception.ConsentServiceException;
+import com.fairandsmart.consent.manager.exception.InvalidConsentException;
+import com.fairandsmart.consent.manager.exception.InvalidStatusException;
+import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.model.*;
+import com.fairandsmart.consent.manager.model.BasicInfo;
+import com.fairandsmart.consent.manager.model.Processing;
+import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.model.Theme;
 import com.fairandsmart.consent.manager.render.*;
 import com.fairandsmart.consent.manager.rule.BasicRecordStatusRuleChain;
 import com.fairandsmart.consent.manager.store.LocalFolderReceiptStore;
@@ -62,7 +67,6 @@ import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
 import com.fairandsmart.consent.serial.SerialGeneratorException;
-import com.fairandsmart.consent.stats.StatisticsStore;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
@@ -93,7 +97,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -133,9 +140,6 @@ public class ConsentServiceBean implements ConsentService {
     /* Keys are ModelEntries ids since only one version per entry can be previewed. It helps clearing the cache when an entry is deleted. */
     @Inject
     PreviewCache previewCache;
-
-    @Inject
-    StatisticsStore statisticsStore;
 
     @Inject
     BasicRecordStatusRuleChain recordStatusChain;
@@ -574,10 +578,10 @@ public class ConsentServiceBean implements ConsentService {
             }
             String comment = values.containsKey("comment") ? valuesMap.get("comment") : "";
 
-            List<Record> records = ctx.getElements().stream().map(element -> ConsentElementIdentifier.deserialize(element)).filter(opt -> opt.isPresent()).map(
-                    opt -> Record.build(ctx, transaction, authentication.getConnectedIdentifier(), now, infoId, opt.get(), valuesMap.get(opt.get().serialize()), comment)
+            List<Record> records = ctx.getElements().stream().map(ConsentElementIdentifier::deserialize).filter(opt -> opt.isPresent()).map(
+                    opt -> Record.build(ctx, transaction, authentication.getConnectedIdentifier(), now, infoId.orElseGet(() -> ConsentElementIdentifier.buildEmptyConsentElementIdentifier()), opt.get(), valuesMap.get(opt.get().serialize()), comment)
             ).collect(Collectors.toList());
-            records.stream().forEach(record -> record.persist());
+            records.forEach(record -> record.persist());
 
             BasicInfo info = null;
             if (infoId.isPresent()) {
@@ -594,7 +598,7 @@ public class ConsentServiceBean implements ConsentService {
             });
             Receipt receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
             ctx.setCollectionMethod(ConsentContext.CollectionMethod.RECEIPT);
-            if (infoId == null) {
+            if (infoId.isEmpty()) {
                 //If consent is submitted without basic info, we populate it with the first one.
                 ctx.setInfo(((ModelEntry) ModelEntry.find("type", BasicInfo.TYPE).firstResult()).key);
             }
@@ -652,41 +656,37 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Subject createSubject(SubjectDto subjectDto) throws ConsentManagerException, EntityAlreadyExistsException {
-        LOGGER.log(Level.INFO, "Creating subject with name: " + subjectDto.getName());
+    public Subject createSubject(String name, String email) throws ConsentManagerException, EntityAlreadyExistsException {
+        LOGGER.log(Level.INFO, "Creating subject with name: " + name);
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to create subjects");
         }
-        if (StringUtils.isEmpty(subjectDto.getName())) {
+        if (StringUtils.isEmpty(name)) {
             throw new ConsentManagerException("Subject name cannot be empty");
         }
-        Optional<Subject> optional = Subject.find("name = ?1", subjectDto.getName()).singleResultOptional();
+        Optional<Subject> optional = Subject.find("name = ?1", name).singleResultOptional();
         if (optional.isPresent()) {
             throw new EntityAlreadyExistsException("This subject name already exists");
         }
         Instant now = Instant.now();
         Subject subject = new Subject();
-        subject.name = subjectDto.getName();
+        subject.name = name;
         subject.creationTimestamp = now.toEpochMilli();
-        subject.emailAddress = subjectDto.getEmailAddress();
+        subject.emailAddress = email;
         subject.persist();
-        statisticsStore.add("subjects", "subjects");
         return subject;
     }
 
     @Override
     @Transactional
-    public Subject updateSubject(String subjectId, SubjectDto subjectDto) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Updating subject with id: " + subjectId);
+    public Subject updateSubject(String id, String email) throws EntityNotFoundException, AccessDeniedException {
+        LOGGER.log(Level.INFO, "Updating subject with id: " + id);
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to update subjects");
         }
-        Optional<Subject> optional = Subject.findByIdOptional(subjectId);
-        Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("Unable to find a subject for id: " + subjectId));
-        if (!subject.name.equals(subjectDto.getName())) {
-            throw new ConsentManagerException("Subject name cannot be changed");
-        }
-        subject.emailAddress = subjectDto.getEmailAddress();
+        Optional<Subject> optional = Subject.findByIdOptional(id);
+        Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("Unable to find a subject for id: " + id));
+        subject.emailAddress = email;
         subject.persist();
         return subject;
     }

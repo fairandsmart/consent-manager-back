@@ -84,8 +84,6 @@ public class TokenServiceBean implements TokenService {
         tokenizable.getClaims().forEach(builder::withClaim);
         String token = builder.sign(algorithm);
         if (config.useThinToken()) {
-            //TODO If uuid distribution is uniform, find a close uuid may be possible
-            //   - maybe change to a random number generator with storage existence check and generation retry
             String key = Base58.encodeUUID(UUID.randomUUID().toString());
             LOGGER.log(Level.FINE, "Storing short token with key: " + key);
             ThinToken thinToken = new ThinToken();

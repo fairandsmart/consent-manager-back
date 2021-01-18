@@ -33,7 +33,6 @@ package com.fairandsmart.consent.template;
  * #L%
  */
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class TemplateModel<T> {

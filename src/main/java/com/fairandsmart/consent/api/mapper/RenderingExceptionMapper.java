@@ -36,9 +36,7 @@ package com.fairandsmart.consent.api.mapper;
 import com.fairandsmart.consent.api.error.ApiError;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.render.RenderingException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;

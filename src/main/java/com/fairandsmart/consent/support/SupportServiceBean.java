@@ -37,14 +37,11 @@ import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.config.SupportConfig;
 import com.fairandsmart.consent.support.entity.Instance;
 import io.quarkus.runtime.Startup;
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.scheduler.Scheduled;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.transaction.Transactional;
 import javax.transaction.UserTransaction;
 import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
@@ -61,9 +58,9 @@ public class SupportServiceBean implements SupportService {
 
     private static final Logger LOGGER = Logger.getLogger(SupportService.class.getName());
 
-    private static Instance instance;
-    private static String supportStatus;
-    private static String latestVersion;
+    private Instance instance;
+    private String supportStatus;
+    private String latestVersion;
 
     @Inject
     MainConfig mainConfig;
@@ -77,6 +74,11 @@ public class SupportServiceBean implements SupportService {
     @Inject
     @RestClient
     RemoteSupportService remoteSupportService;
+
+    @Override
+    public Instance getInstance() {
+        return instance;
+    }
 
     @Override
     public String getSupportStatus() {
@@ -111,23 +113,25 @@ public class SupportServiceBean implements SupportService {
 
     @Override
     @Scheduled(cron="0 0 0 ? * MON")
-    public void checkLatestVersion() {
+    public void refresh() {
         if (config.isEnabled()) {
             try {
-                SupportServiceBean.latestVersion = this.remoteCheckLatestVersion();
+                this.latestVersion = this.remoteCheckLatestVersion();
             } catch (SupportServiceException e) {
                 LOGGER.log(Level.WARNING, "Error while checking latest version available", e);
-                SupportServiceBean.supportStatus = e.getMessage();
+                this.supportStatus = e.getMessage();
             }
         }
     }
 
-    private String remoteCheckLatestVersion() throws SupportServiceException {
-        LOGGER.log(Level.INFO, "Loading instance");
+    @Override
+    public void init() throws SupportServiceException {
+        LOGGER.log(Level.INFO, "Initialising support service");
         Optional<Instance> dbInstance = Instance.findByIdOptional(mainConfig.instance());
-        if (!dbInstance.isPresent()) {
+        if (dbInstance.isEmpty()) {
             Instance instance = new Instance();
             instance.id = mainConfig.instance();
+            instance.language = mainConfig.language();
             instance.key = UUID.randomUUID().toString();
             try {
                 transaction.begin();
@@ -145,8 +149,15 @@ public class SupportServiceBean implements SupportService {
         } else {
             this.instance = dbInstance.get();
         }
+    }
+
+    private String remoteCheckLatestVersion() throws SupportServiceException {
+        LOGGER.log(Level.INFO, "Checking remote instance");
+        if ( instance == null ) {
+            throw new SupportServiceException("Unable to find instance, initialisation problem");
+        }
         try {
-            String latestVersion = remoteSupportService.getAvailableVersion(instance.key);
+            String latestVersion = remoteSupportService.getAvailableVersion(instance.key, instance.language);
             LOGGER.log(Level.INFO, "Latest version available: " + latestVersion);
             return latestVersion;
         } catch (WebApplicationException e) {

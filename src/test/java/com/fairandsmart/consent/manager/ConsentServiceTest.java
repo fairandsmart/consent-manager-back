@@ -823,7 +823,7 @@ public class ConsentServiceTest {
         SubjectDto subjectDto = new SubjectDto();
         subjectDto.setName("rajesh");
         subjectDto.setEmailAddress("rajesh@localhost");
-        Subject subject = service.createSubject(subjectDto);
+        Subject subject = service.createSubject(subjectDto.getName(), subjectDto.getEmailAddress());
         assertNotNull(subject.id);
         assertEquals("rajesh", subject.name);
         assertEquals("rajesh@localhost", subject.emailAddress);
@@ -831,7 +831,7 @@ public class ConsentServiceTest {
 
         LOGGER.info("Testing Create subject with name already taken");
         subjectDto.setEmailAddress("duplicate@localhost");
-        assertThrows(EntityAlreadyExistsException.class, () -> service.createSubject(subjectDto));
+        assertThrows(EntityAlreadyExistsException.class, () -> service.createSubject(subjectDto.getName(),subjectDto.getEmailAddress()));
 
         LOGGER.info("Testing Get new subject");
         subject = service.getSubject("stuart");
@@ -850,18 +850,14 @@ public class ConsentServiceTest {
 
         LOGGER.info("Testing Update subject");
         subjectDto.setEmailAddress("new.rajesh@localhost");
-        subject = service.updateSubject(subjectId, subjectDto);
+        subject = service.updateSubject(subjectId, subjectDto.getEmailAddress());
         assertNotNull(subject.id);
         assertEquals("rajesh", subject.name);
         assertEquals("new.rajesh@localhost", subject.emailAddress);
         assertTrue(subject.creationTimestamp > 0);
 
-        LOGGER.info("Testing Update subject with name changed");
-        subjectDto.setName("stuart");
-        assertThrows(ConsentManagerException.class, () -> service.updateSubject(subjectId, subjectDto));
-
         LOGGER.info("Testing Update subject with unknown id");
-        assertThrows(EntityNotFoundException.class, () -> service.updateSubject(UUID.randomUUID().toString(), subjectDto));
+        assertThrows(EntityNotFoundException.class, () -> service.updateSubject(UUID.randomUUID().toString(), subjectDto.getEmailAddress()));
     }
 
     @Test
@@ -955,7 +951,7 @@ public class ConsentServiceTest {
         LOGGER.info("Create subject user4 (no records)");
         SubjectDto subjectDto = new SubjectDto();
         subjectDto.setName("user4");
-        service.createSubject(subjectDto);
+        service.createSubject(subjectDto.getName(), subjectDto.getEmailAddress());
 
         LOGGER.info("Listing user1 records");
         Map<String, List<Record>> records = service.listSubjectRecords("user1");

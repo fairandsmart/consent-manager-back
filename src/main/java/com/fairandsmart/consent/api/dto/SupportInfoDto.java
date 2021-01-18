@@ -71,4 +71,13 @@ public class SupportInfoDto {
     public void setCurrentVersion(String currentVersion) {
         this.currentVersion = currentVersion;
     }
+
+    @Override
+    public String toString() {
+        return "SupportInfoDto{" +
+                "status='" + status + '\'' +
+                ", latestVersion='" + latestVersion + '\'' +
+                ", currentVersion='" + currentVersion + '\'' +
+                '}';
+    }
 }

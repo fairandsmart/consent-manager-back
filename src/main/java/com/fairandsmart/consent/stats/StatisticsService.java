@@ -38,6 +38,8 @@ import com.fairandsmart.consent.stats.dto.StatsBag;
 
 public interface StatisticsService {
 
-    StatsBag getStats() throws AccessDeniedException;
+    StatsBag get() throws AccessDeniedException;
+
+    void init();
 
 }

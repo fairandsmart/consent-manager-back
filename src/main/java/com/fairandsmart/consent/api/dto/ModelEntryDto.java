@@ -34,9 +34,9 @@ package com.fairandsmart.consent.api.dto;
  */
 
 import com.fairandsmart.consent.common.validation.ModelKey;
-import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

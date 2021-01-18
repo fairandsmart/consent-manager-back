@@ -46,7 +46,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
         },
         info = @Info(
                 title="RightConsent API",
-                version = "0.2.0",
+                version = "0.3.0",
                 contact = @Contact(
                         name = "Right Consent API Community Support",
                         url = "http://exampleurl.com/contact",

@@ -40,8 +40,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.transaction.Transactional;
-import java.util.Optional;
 
 @Entity
 public class Subject extends PanacheEntityBase {

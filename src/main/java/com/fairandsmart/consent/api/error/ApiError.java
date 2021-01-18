@@ -35,7 +35,6 @@ package com.fairandsmart.consent.api.error;
 
 import org.apache.http.HttpStatus;
 
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 

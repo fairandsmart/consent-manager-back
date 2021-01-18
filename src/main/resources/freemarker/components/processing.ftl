@@ -36,7 +36,7 @@
         </div>
 
         <#-- Data controller -->
-        <#if elementContent.showDataController && elementContent.dataController?has_content>
+        <#if elementContent.dataControllerVisible && elementContent.dataController?has_content>
             <#assign dataController=elementContent.dataController>
             <#assign dataControllerId=identifier + "-controller">
             <#include "data-controller.ftl">

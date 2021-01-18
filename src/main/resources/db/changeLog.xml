@@ -184,6 +184,9 @@
             <column name="KEY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="LANGUAGE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
         <createTable tableName="${instance}_NOTIFICATIONREPORT" schemaName="PUBLIC" >
             <column name="ID" type="VARCHAR(255)">
@@ -201,14 +204,30 @@
             <column name="EXPLANATION" type="VARCHAR(2500)"/>
         </createTable>
     </changeSet>
-    <changeSet author="jayblanc" id="2" context="import">
-        <loadData file="db/MODELENTRY.csv" separator="," tableName="${instance}_MODELENTRY" schemaName="PUBLIC"/>
-        <loadData file="db/MODELVERSION.csv" separator="," tableName="${instance}_MODELVERSION" schemaName="PUBLIC"/>
-        <loadData file="db/MODELVERSION_CONTENT.csv" separator="," tableName="${instance}_MODELVERSION_CONTENT" schemaName="PUBLIC">
+    <changeSet author="jayblanc" id="2" context="import_fr">
+        <preConditions onFail="MARK_RAN">
+            <not><changeSetExecuted id="3" author="jayblanc"/></not>
+        </preConditions>
+        <loadData file="db/FR_MODELENTRY.csv" separator="," tableName="${instance}_MODELENTRY" schemaName="PUBLIC"/>
+        <loadData file="db/FR_MODELVERSION.csv" separator="," tableName="${instance}_MODELVERSION" schemaName="PUBLIC"/>
+        <loadData file="db/FR_MODELVERSION_CONTENT.csv" separator="," tableName="${instance}_MODELVERSION_CONTENT" schemaName="PUBLIC">
             <column name="DATA" type="string"/>
         </loadData>
-        <loadData file="db/SEQUENCE.csv" separator="," tableName="${instance}_SEQUENCE" schemaName="PUBLIC"/>
-        <loadData file="db/SUBJECT.csv" separator="," tableName="${instance}_SUBJECT" schemaName="PUBLIC"/>
-        <loadData file="db/RECORD.csv" separator="," tableName="${instance}_RECORD" schemaName="PUBLIC"/>
+        <loadData file="db/FR_SEQUENCE.csv" separator="," tableName="${instance}_SEQUENCE" schemaName="PUBLIC"/>
+        <loadData file="db/FR_SUBJECT.csv" separator="," tableName="${instance}_SUBJECT" schemaName="PUBLIC"/>
+        <loadData file="db/FR_RECORD.csv" separator="," tableName="${instance}_RECORD" schemaName="PUBLIC"/>
+    </changeSet>
+    <changeSet author="jayblanc" id="3" context="import_en">
+        <preConditions onFail="MARK_RAN">
+            <not><changeSetExecuted id="2" author="jayblanc"/></not>
+        </preConditions>
+        <loadData file="db/EN_MODELENTRY.csv" separator="," tableName="${instance}_MODELENTRY" schemaName="PUBLIC"/>
+        <loadData file="db/EN_MODELVERSION.csv" separator="," tableName="${instance}_MODELVERSION" schemaName="PUBLIC"/>
+        <loadData file="db/EN_MODELVERSION_CONTENT.csv" separator="," tableName="${instance}_MODELVERSION_CONTENT" schemaName="PUBLIC">
+            <column name="DATA" type="string"/>
+        </loadData>
+        <loadData file="db/EN_SEQUENCE.csv" separator="," tableName="${instance}_SEQUENCE" schemaName="PUBLIC"/>
+        <loadData file="db/EN_SUBJECT.csv" separator="," tableName="${instance}_SUBJECT" schemaName="PUBLIC"/>
+        <loadData file="db/EN_RECORD.csv" separator="," tableName="${instance}_RECORD" schemaName="PUBLIC"/>
     </changeSet>
 </databaseChangeLog>

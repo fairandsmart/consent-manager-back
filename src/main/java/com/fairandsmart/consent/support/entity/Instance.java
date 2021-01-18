@@ -33,6 +33,7 @@ package com.fairandsmart.consent.support.entity;
  * #L%
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.Entity;
@@ -42,7 +43,9 @@ import javax.persistence.Id;
 public class Instance extends PanacheEntityBase {
 
     @Id
+    @JsonIgnore
     public String id;
     public String key;
+    public String language;
 
 }

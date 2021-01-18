@@ -33,8 +33,8 @@ package com.fairandsmart.consent.api.dto;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 
 import java.util.Arrays;
 import java.util.List;

@@ -4,9 +4,9 @@
     "header": "In tempus ligula non velit lobortis dignissim. Integer ultrices lectus dui, nec bibendum lectus egestas sed. Proin congue quam dapibus, fermentum nulla nec, hendrerit ligula.",
     "footer": "Etiam auctor cursus sem ut gravida. Mauris quam metus, dictum a ante quis, iaculis tempor dolor. Sed interdum vitae urna id ullamcorper.",
     "jurisdiction": "Aliquam",
-    "showJurisdiction": true,
+    "jurisdictionVisible": true,
     "collectionMethod": "",
-    "showCollectionMethod": false,
+    "collectionMethodVisible": false,
     "dataController": {
         "company": "Duis efficitur",
         "info": "Donec vitae dignissim",
@@ -14,11 +14,11 @@
         "email": "sed.non@justo.com",
         "phoneNumber": "01 23 45 67 89"
     },
-    "showDataController": true,
+    "dataControllerVisible": true,
     "scope": "",
-    "showScope": false,
+    "scopeVisible": false,
     "shortNoticeLink": "previewUrlShort",
-    "showShortNoticeLink": true,
+    "shortNoticeLinkVisible": true,
     "privacyPolicyUrl": "previewUrl",
     "customPrivacyPolicyText": ""
 }>
@@ -40,7 +40,7 @@
         "containsSensitiveData": true,
         "containsMedicalData": false,
         "dataController": {},
-        "showDataController": false,
+        "dataControllerVisible": false,
         "thirdParties": []
     },
     {
@@ -64,7 +64,7 @@
             "email": "non.sed@justo.com",
             "phoneNumber": "98 76 54 32 10"
         },
-        "showDataController": false,
+        "dataControllerVisible": false,
         "thirdParties": [
             {
                 "name": "Nibh nec metus",

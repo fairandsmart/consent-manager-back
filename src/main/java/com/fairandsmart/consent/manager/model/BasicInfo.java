@@ -35,7 +35,6 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
-import javax.activation.MimeType;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Objects;
@@ -50,15 +49,15 @@ public class BasicInfo extends ModelData {
     private String footer;
     // Consent parameters
     private String jurisdiction;
-    private boolean showJurisdiction = false;
+    private boolean jurisdictionVisible = false;
     private String collectionMethod;
-    private boolean showCollectionMethod = false;
+    private boolean collectionMethodVisible = false;
     private Controller dataController;
-    private boolean showDataController = false;
+    private boolean dataControllerVisible = false;
     private String scope;
-    private boolean showScope = false;
+    private boolean scopeVisible = false;
     private String shortNoticeLink;
-    private boolean showShortNoticeLink = false;
+    private boolean shortNoticeLinkVisible = false;
     // Privacy policy
     private String privacyPolicyUrl;
     private String customPrivacyPolicyText;
@@ -119,16 +118,16 @@ public class BasicInfo extends ModelData {
         return this;
     }
 
-    public boolean isShowJurisdiction() {
-        return showJurisdiction;
+    public boolean isJurisdictionVisible() {
+        return jurisdictionVisible;
     }
 
-    public void setShowJurisdiction(boolean showJurisdiction) {
-        this.showJurisdiction = showJurisdiction;
+    public void setJurisdictionVisible(boolean jurisdictionVisible) {
+        this.jurisdictionVisible = jurisdictionVisible;
     }
 
     public BasicInfo withShowJurisdiction(boolean showJurisdiction) {
-        this.showJurisdiction = showJurisdiction;
+        this.jurisdictionVisible = showJurisdiction;
         return this;
     }
 
@@ -145,16 +144,16 @@ public class BasicInfo extends ModelData {
         return this;
     }
 
-    public boolean isShowCollectionMethod() {
-        return showCollectionMethod;
+    public boolean isCollectionMethodVisible() {
+        return collectionMethodVisible;
     }
 
-    public void setShowCollectionMethod(boolean showCollectionMethod) {
-        this.showCollectionMethod = showCollectionMethod;
+    public void setCollectionMethodVisible(boolean collectionMethodVisible) {
+        this.collectionMethodVisible = collectionMethodVisible;
     }
 
     public BasicInfo withShowCollectionMethod(boolean showCollectionMethod) {
-        this.showCollectionMethod = showCollectionMethod;
+        this.collectionMethodVisible = showCollectionMethod;
         return this;
     }
 
@@ -171,16 +170,16 @@ public class BasicInfo extends ModelData {
         return this;
     }
 
-    public boolean isShowDataController() {
-        return showDataController;
+    public boolean isDataControllerVisible() {
+        return dataControllerVisible;
     }
 
-    public void setShowDataController(boolean showDataController) {
-        this.showDataController = showDataController;
+    public void setDataControllerVisible(boolean dataControllerVisible) {
+        this.dataControllerVisible = dataControllerVisible;
     }
 
     public BasicInfo withShowDataController(boolean showDataController) {
-        this.showDataController = showDataController;
+        this.dataControllerVisible = showDataController;
         return this;
     }
 
@@ -197,16 +196,16 @@ public class BasicInfo extends ModelData {
         return this;
     }
 
-    public boolean isShowScope() {
-        return showScope;
+    public boolean isScopeVisible() {
+        return scopeVisible;
     }
 
-    public void setShowScope(boolean showScope) {
-        this.showScope = showScope;
+    public void setScopeVisible(boolean scopeVisible) {
+        this.scopeVisible = scopeVisible;
     }
 
     public BasicInfo withShowScope(boolean showScope) {
-        this.showScope = showScope;
+        this.scopeVisible = showScope;
         return this;
     }
 
@@ -223,16 +222,16 @@ public class BasicInfo extends ModelData {
         return this;
     }
 
-    public boolean isShowShortNoticeLink() {
-        return showShortNoticeLink;
+    public boolean isShortNoticeLinkVisible() {
+        return shortNoticeLinkVisible;
     }
 
-    public void setShowShortNoticeLink(boolean showShortNoticeLink) {
-        this.showShortNoticeLink = showShortNoticeLink;
+    public void setShortNoticeLinkVisible(boolean shortNoticeLinkVisible) {
+        this.shortNoticeLinkVisible = shortNoticeLinkVisible;
     }
 
     public BasicInfo withShowShortNoticeLink(boolean showShortNoticeLink) {
-        this.showShortNoticeLink = showShortNoticeLink;
+        this.shortNoticeLinkVisible = showShortNoticeLink;
         return this;
     }
 
@@ -277,11 +276,11 @@ public class BasicInfo extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BasicInfo info = (BasicInfo) o;
-        return showJurisdiction == info.showJurisdiction &&
-                showCollectionMethod == info.showCollectionMethod &&
-                showDataController == info.showDataController &&
-                showScope == info.showScope &&
-                showShortNoticeLink == info.showShortNoticeLink &&
+        return jurisdictionVisible == info.jurisdictionVisible &&
+                collectionMethodVisible == info.collectionMethodVisible &&
+                dataControllerVisible == info.dataControllerVisible &&
+                scopeVisible == info.scopeVisible &&
+                shortNoticeLinkVisible == info.shortNoticeLinkVisible &&
                 Objects.equals(title, info.title) &&
                 Objects.equals(header, info.header) &&
                 Objects.equals(footer, info.footer) &&
@@ -296,25 +295,25 @@ public class BasicInfo extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, header, footer, jurisdiction, showJurisdiction, collectionMethod, showCollectionMethod, dataController, showDataController, scope, showScope, shortNoticeLink, showShortNoticeLink, privacyPolicyUrl, customPrivacyPolicyText);
+        return Objects.hash(title, header, footer, jurisdiction, jurisdictionVisible, collectionMethod, collectionMethodVisible, dataController, dataControllerVisible, scope, scopeVisible, shortNoticeLink, shortNoticeLinkVisible, privacyPolicyUrl, customPrivacyPolicyText);
     }
 
     @Override
     public String toString() {
         return "BasicInfo{" +
-                ", title='" + title + '\'' +
+                "title='" + title + '\'' +
                 ", header='" + header + '\'' +
                 ", footer='" + footer + '\'' +
                 ", jurisdiction='" + jurisdiction + '\'' +
-                ", showJurisdiction=" + showJurisdiction +
+                ", jurisdictionVisible=" + jurisdictionVisible +
                 ", collectionMethod='" + collectionMethod + '\'' +
-                ", showCollectionMethod=" + showCollectionMethod +
+                ", collectionMethodVisible=" + collectionMethodVisible +
                 ", dataController=" + dataController +
-                ", showDataController=" + showDataController +
+                ", dataControllerVisible=" + dataControllerVisible +
                 ", scope='" + scope + '\'' +
-                ", showScope=" + showScope +
+                ", scopeVisible=" + scopeVisible +
                 ", shortNoticeLink='" + shortNoticeLink + '\'' +
-                ", showShortNoticeLink=" + showShortNoticeLink +
+                ", shortNoticeLinkVisible=" + shortNoticeLinkVisible +
                 ", privacyPolicyUrl='" + privacyPolicyUrl + '\'' +
                 ", customPrivacyPolicyText='" + customPrivacyPolicyText + '\'' +
                 '}';

@@ -34,6 +34,7 @@ package com.fairandsmart.consent.manager.exception;
  */
 
 public class ModelDataSerializationException extends Exception {
+
     public ModelDataSerializationException(String s) {
         super(s);
     }
@@ -41,4 +42,5 @@ public class ModelDataSerializationException extends Exception {
     public ModelDataSerializationException(String s, Throwable throwable) {
         super(s, throwable);
     }
+
 }

@@ -39,7 +39,4 @@ public class ReceiptNotFoundException extends Exception {
         super(s);
     }
 
-    public ReceiptNotFoundException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
 }

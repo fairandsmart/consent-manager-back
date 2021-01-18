@@ -1,4 +1,3 @@
-<#-- Crée un toggle switch -->
 <#macro toggleSwitch key isChecked=false acceptText="" refuseText="">
     <label class="switch" id="${key}-switch">
         <input class="consent-checkbox" type="checkbox" id="${key}" <#if isChecked>checked</#if>>
