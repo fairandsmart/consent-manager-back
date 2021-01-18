@@ -4,8 +4,8 @@
     <#assign position="center">
 </#if>
 
-<div class="logo-container" style="text-align: ${position};">
-    <#if theme?? && theme?is_hash && theme.logoPath?has_content>
+<#if theme?? && theme?is_hash && theme.logoPath?has_content>
+    <div class="logo-container" style="text-align: ${position};">
         <img class="logo" src="${theme.logoPath?html}" alt="${theme.logoAltText?html}">
-    </#if>
-</div>
+    </div>
+</#if>
