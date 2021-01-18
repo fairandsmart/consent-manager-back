@@ -62,7 +62,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("/receipts")
-@Tag(name = "Receipt", description = "Operations related to Consent Receipts")
+@Tag(name = "Receipt")
 public class ReceiptsResource {
 
     private static final Logger LOGGER = Logger.getLogger(ReceiptsResource.class.getName());

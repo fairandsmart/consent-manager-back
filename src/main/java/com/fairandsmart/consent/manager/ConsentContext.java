@@ -35,7 +35,9 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.token.Tokenizable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.vertx.core.cli.annotations.Hidden;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -53,32 +55,48 @@ public class ConsentContext implements Tokenizable {
     private static final String ATTRIBUTES_PREFIX = "attributes_";
 
     @NotNull
+    @Schema(description = "The customer unique ID", example = "")
     private String subject;
     @NotNull
     private ConsentForm.Orientation orientation;
+    @Schema(description = "The identifier of the consent form heading to use", example = "basicinfo.1")
     private String info;
     @NotNull
     @NotEmpty
+    @Schema(description = "UUIDs of processings included in the form", example = "[\"processing.1\"]")
     private List<String> elements;
+    @Schema(description = "URL to redirect user to after consent is given / receipt is displayed", example = "https://www.fairandsmart.com")
     private String callback;
+    @Schema(description = "Language to use when displaying form", example = "fr")
     private String language;
+    @Schema(description = "The consent lifetime", example = "P6M") // TODO : explain the format
     private String validity;
     private FormType formType;
     private ReceiptDisplayType receiptDisplayType;
-    private Map<String, String> userinfos;
-    private Map<String, String> attributes;
+    @Schema(example = "{}")
+    private Map<String, String> userinfos; // TODO : doc this
+    @Schema(example = "{}")
+    private Map<String, String> attributes; // TODO : doc this
+    @Schema(description = "the reference of the email model to use when email notification is wanted", example = "email.1")
     private String notificationModel;
+    @Schema(description = "the email recipient to use when email notification is wanted", example = "nobody@example.com")
     private String notificationRecipient;
     private CollectionMethod collectionMethod;
-    private String author;
-    private boolean preview = false;
+    @Schema(example = "")
+    private String author; // TODO : doc this
+    private boolean preview = false; // TODO : doc this
+    @Schema(description = "include iFrameResizer.js in consent page")
     private boolean iframe = false;
+    @Schema(description = "The identifier of the consent form theme to use", example = "")
     private String theme;
-    private String receiptId;
+    @Schema(example = "")
+    private String receiptId; // TODO : doc this
     private boolean acceptAllVisible = false;
+    @Schema(description = "shall we show an \"accept all\" button ?")
     private boolean validityVisible = true;
+    @Schema(description = "display label for the \"accept all\" button", example = "accept all")
     private String acceptAllText;
-    private boolean footerOnTop = false;
+    private boolean footerOnTop = false; // TODO : doc this
 
     public ConsentContext() {
         this.elements = new ArrayList<>();
@@ -120,10 +138,12 @@ public class ConsentContext implements Tokenizable {
         return elements;
     }
 
+    @Schema(hidden = true)
     public String getElementsString() {
         return String.join(",", elements);
     }
 
+    @Schema(hidden = true)
     public void setElementsString(String elements) {
         this.setElements(Arrays.asList(elements.split(",")));
     }
@@ -324,8 +344,8 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-
     @Override
+    @Schema(hidden = true)
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
         if (info != null) {
@@ -389,6 +409,7 @@ public class ConsentContext implements Tokenizable {
     }
 
     @Override
+    @Schema(hidden = true)
     public Tokenizable setClaims(Map<String, String> claims) {
         if (claims.containsKey("info")) {
             this.setInfo(claims.get("info"));
@@ -456,10 +477,10 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    /**
-     * PARTIAL form will only display elements that have no previous record
-     * FULL form will display all elements
-     */
+    @Schema(description =
+        "- PARTIAL form will only display elements that have no previous record;\n" +
+        "- FULL form will display all elements;"
+    )
     public enum FormType {
         PARTIAL,
         FULL
@@ -497,11 +518,11 @@ public class ConsentContext implements Tokenizable {
         }
     }
 
-    /**
-     * WEBFORM the user filled in a form
-     * OPERATOR an operator created the record based on an interaction with the user
-     */
-    public enum CollectionMethod {
+    @Schema(description =
+        "- WEBFORM the user filled in a form;\n" +
+        "- OPERATOR an operator created the record based on an interaction with the user;\n"
+    ) // TODO : others need to be documented
+     public enum CollectionMethod {
         WEBFORM,
         OPERATOR,
         EMAIL,

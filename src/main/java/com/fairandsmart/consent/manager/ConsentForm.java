@@ -34,6 +34,7 @@ package com.fairandsmart.consent.manager;
  */
 
 import com.fairandsmart.consent.manager.entity.ModelVersion;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -192,6 +193,7 @@ public class ConsentForm {
                 '}';
     }
 
+    @Schema(description = "display layout to use")
     public enum Orientation {
         HORIZONTAL,
         VERTICAL
