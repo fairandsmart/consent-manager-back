@@ -270,22 +270,7 @@ public class ConsentServiceBean implements ConsentService {
                 latest.persist();
                 latest = newversion;
             }
-            if (data.containsKey(defaultLanguage)) {
-                latest.defaultLanguage = defaultLanguage;
-            } else {
-                throw new ConsentManagerException("Default language does not exist in content languages");
-            }
-            latest.availableLanguages = String.join(",", data.keySet());
-            latest.content.clear();
-            for (Map.Entry<String, ModelData> e : data.entrySet()) {
-                latest.content.put(e.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(e.getValue()));
-            }
-            latest.modificationDate = now;
-            latest.persist();
-            if (previewCache.containsKey(latest.entry.id)) {
-                previewCache.put(latest.entry.id, latest);
-            }
-            return latest;
+            return this.updateVersionContent(latest, data, defaultLanguage, connectedIdentifier);
         } catch (SerialGeneratorException | ModelDataSerializationException ex) {
             throw new ConsentManagerException("unable to create new version", ex);
         }
@@ -369,22 +354,7 @@ public class ConsentServiceBean implements ConsentService {
             throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
         }
         try {
-            if (data.containsKey(defaultLanguage)) {
-                version.defaultLanguage = defaultLanguage;
-            } else {
-                throw new ConsentManagerException("Default language does not exist in content languages");
-            }
-            version.availableLanguages = String.join(",", data.keySet());
-            version.content.clear();
-            for (Map.Entry<String, ModelData> entry : data.entrySet()) {
-                version.content.put(entry.getKey(), new ModelContent().withAuthor(connectedIdentifier).withDataObject(entry.getValue()));
-            }
-            version.modificationDate = System.currentTimeMillis();
-            version.persist();
-            if (previewCache.containsKey(version.entry.id)) {
-                previewCache.put(version.entry.id, version);
-            }
-            return version;
+            return this.updateVersionContent(version, data, defaultLanguage, connectedIdentifier);
         } catch (ModelDataSerializationException ex) {
             throw new ConsentManagerException("Unable to serialise data", ex);
         }
@@ -571,23 +541,31 @@ public class ConsentServiceBean implements ConsentService {
             String transaction = Base58.encodeUUID(UUID.randomUUID().toString());
             Instant now = Instant.now();
 
-            Optional<ConsentElementIdentifier> infoId = ConsentElementIdentifier.deserialize(ctx.getInfo());
+            Optional<ConsentElementIdentifier> infoIdOpt = ConsentElementIdentifier.deserialize(ctx.getInfo());
+            ConsentElementIdentifier infoId;
+            BasicInfo info;
+            if (infoIdOpt.isPresent()) {
+                infoId = infoIdOpt.get();
+                info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLanguage());
+            } else {
+                //If consent is submitted without basic info, we populate it with the first one.
+                ModelEntry infoEntry = ModelEntry.find("type", BasicInfo.TYPE).firstResult();
+                ModelVersion infoVersion = ModelVersion.SystemHelper.findActiveVersionByEntryId(infoEntry.id);
+                infoId = infoVersion.getIdentifier();
+                info = (BasicInfo) infoVersion.getData(ctx.getLanguage());
+            }
+            ctx.setInfo(infoId.getKey());
 
             if (!Subject.exists(ctx.getSubject())) {
                 Subject.create(ctx.getSubject()).persist();
             }
             String comment = values.containsKey("comment") ? valuesMap.get("comment") : "";
 
-            List<Record> records = ctx.getElements().stream().map(ConsentElementIdentifier::deserialize).filter(opt -> opt.isPresent()).map(
-                    opt -> Record.build(ctx, transaction, authentication.getConnectedIdentifier(), now, infoId.orElseGet(() -> ConsentElementIdentifier.buildEmptyConsentElementIdentifier()), opt.get(), valuesMap.get(opt.get().serialize()), comment)
+            List<Record> records = ctx.getElements().stream().map(ConsentElementIdentifier::deserialize).filter(Optional::isPresent).map(
+                    opt -> Record.build(ctx, transaction, authentication.getConnectedIdentifier(), now, infoId, opt.get(), valuesMap.get(opt.get().serialize()), comment)
             ).collect(Collectors.toList());
             records.forEach(record -> record.persist());
 
-            BasicInfo info = null;
-            if (infoId.isPresent()) {
-                info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.get().getSerial(), false).getData(ctx.getLanguage());
-                ctx.setInfo(infoId.get().getKey());
-            }
             List<Pair<Processing, Record>> trecords = new ArrayList<>();
             records.stream().filter(record -> record.type.equals(Processing.TYPE)).forEach(record -> {
                 try {
@@ -598,10 +576,6 @@ public class ConsentServiceBean implements ConsentService {
             });
             Receipt receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
             ctx.setCollectionMethod(ConsentContext.CollectionMethod.RECEIPT);
-            if (infoId.isEmpty()) {
-                //If consent is submitted without basic info, we populate it with the first one.
-                ctx.setInfo(((ModelEntry) ModelEntry.find("type", BasicInfo.TYPE).firstResult()).key);
-            }
             String updateToken = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
             receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
             receipt.setUpdateUrlQrCode(generateQRCode(receipt.getUpdateUrl()));
@@ -702,10 +676,7 @@ public class ConsentServiceBean implements ConsentService {
         RecordFilter filter = new RecordFilter();
         filter.setState(Record.State.COMMITTED);
         filter.setSubject(subject);
-        Stream<Record> records = Record.stream(filter.getQueryString(), filter.getQueryParams());
-        Map<String, List<Record>> result = records.collect(Collectors.groupingBy(record -> record.bodyKey));
-        result.forEach((key, value) -> recordStatusChain.apply(value));
-        return result;
+        return this.listRecordsWithStatus(filter);
     }
 
     @Override
@@ -718,9 +689,7 @@ public class ConsentServiceBean implements ConsentService {
             filter.setInfos(ModelVersion.SystemHelper.findActiveSerialsForKey(infoKey));
         }
         filter.setElements(elementsKeys.stream().flatMap(e -> ModelVersion.SystemHelper.findActiveSerialsForKey(e).stream()).collect(Collectors.toList()));
-        Stream<Record> allRecords = Record.stream(filter.getQueryString(), filter.getQueryParams());
-        Map<String, List<Record>> result = allRecords.collect(Collectors.groupingBy(record -> record.bodyKey));
-        result.forEach((key, value) -> recordStatusChain.apply(value));
+        Map<String, List<Record>> result = this.listRecordsWithStatus(filter);
         return result.entrySet().stream().filter(entry -> entry.getValue().stream().anyMatch(record -> record.status.equals(Record.Status.VALID)))
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(record -> record.status.equals(Record.Status.VALID)).findFirst().get()));
     }
@@ -901,4 +870,29 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
+    private ModelVersion updateVersionContent(ModelVersion version, Map<String, ModelData> data, String defaultLanguage, String author) throws ConsentManagerException, ModelDataSerializationException {
+        if (data.containsKey(defaultLanguage)) {
+            version.defaultLanguage = defaultLanguage;
+        } else {
+            throw new ConsentManagerException("Default language does not exist in content languages");
+        }
+        version.availableLanguages = String.join(",", data.keySet());
+        version.content.clear();
+        for (Map.Entry<String, ModelData> entry : data.entrySet()) {
+            version.content.put(entry.getKey(), new ModelContent().withAuthor(author).withDataObject(entry.getValue()));
+        }
+        version.modificationDate = System.currentTimeMillis();
+        version.persist();
+        if (previewCache.containsKey(version.entry.id)) {
+            previewCache.put(version.entry.id, version);
+        }
+        return version;
+    }
+
+    private Map<String, List<Record>> listRecordsWithStatus(RecordFilter filter) {
+        Stream<Record> records = Record.stream(filter.getQueryString(), filter.getQueryParams());
+        Map<String, List<Record>> result = records.collect(Collectors.groupingBy(record -> record.bodyKey));
+        result.forEach((key, value) -> recordStatusChain.apply(value));
+        return result;
+    }
 }

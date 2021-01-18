@@ -91,10 +91,6 @@ public class ConsentElementIdentifier {
         return prefix + separator + type + separator + key + separator + serial;
     }
 
-    public static ConsentElementIdentifier buildEmptyConsentElementIdentifier() {
-        return new ConsentElementIdentifier("","","");
-    }
-
     @Override
     public String toString() {
         return serialize();
