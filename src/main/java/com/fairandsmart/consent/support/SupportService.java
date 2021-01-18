@@ -33,9 +33,12 @@ package com.fairandsmart.consent.support;
  * #L%
  */
 
+import com.fairandsmart.consent.support.entity.Instance;
 import io.quarkus.scheduler.Scheduled;
 
 public interface SupportService {
+
+    Instance getInstance();
 
     String getSupportStatus();
 
@@ -43,6 +46,8 @@ public interface SupportService {
 
     String getCurrentVersion() throws SupportServiceException;
 
+    void init() throws SupportServiceException;
+
     @Scheduled(cron="0 0 0 ? * MON")
-    void checkLatestVersion();
+    void refresh();
 }

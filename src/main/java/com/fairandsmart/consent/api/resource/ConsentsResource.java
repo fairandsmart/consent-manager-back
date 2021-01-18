@@ -37,7 +37,6 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.exception.ConsentServiceException;
-import com.fairandsmart.consent.manager.exception.IllegalIdentifierException;
 import com.fairandsmart.consent.manager.exception.InvalidConsentException;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
@@ -46,7 +45,6 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
@@ -99,27 +97,44 @@ public class ConsentsResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_HTML)
     public TemplateModel<ConsentFormResult> postConsent(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TokenServiceException, TemplateServiceException {
         LOGGER.log(Level.INFO, "POST /consents");
         if (values.containsKey("token")) {
-            ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
-            UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction())
-                    .queryParam("t", tokenService.generateToken(tx));
-            ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
-            ConsentFormResult templateData = new ConsentFormResult();
-            templateData.setContext(ctx);
-            if (ctx.getReceiptDisplayType() != null && ctx.getReceiptDisplayType() != ConsentContext.ReceiptDisplayType.NONE) {
-                uri.queryParam("format", ctx.getReceiptDisplayType());
-                Optional<ConsentElementIdentifier> themeId = ConsentElementIdentifier.deserialize(ctx.getTheme());
-                if (themeId.isPresent()) {
-                    uri.queryParam("theme", themeId.get().getKey());
-                }
-            }
-            templateData.setReceiptURI(uri.build());
-            return templateService.buildModel(templateData);
+            ConsentFormResult result = this.internalPostConsent(values, uriInfo);
+            return templateService.buildModel(result);
         } else {
             throw new AccessDeniedException("unable to find token in form");
         }
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ConsentFormResult postConsentJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TokenServiceException, TemplateServiceException {
+        LOGGER.log(Level.INFO, "POST /consents (json)");
+        if (values.containsKey("token")) {
+            return this.internalPostConsent(values, uriInfo);
+        } else {
+            throw new AccessDeniedException("unable to find token in form");
+        }
+    }
+
+    private ConsentFormResult internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws TokenServiceException, TokenExpiredException, InvalidTokenException, ConsentServiceException, InvalidConsentException {
+        ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction()).queryParam("t", tokenService.generateToken(tx));
+        ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
+        ConsentFormResult consentFormResult = new ConsentFormResult();
+        consentFormResult.setContext(ctx);
+        if (ctx.getReceiptDisplayType() != null && ctx.getReceiptDisplayType() != ConsentContext.ReceiptDisplayType.NONE) {
+            uri.queryParam("format", ctx.getReceiptDisplayType());
+            Optional<ConsentElementIdentifier> themeId = ConsentElementIdentifier.deserialize(ctx.getTheme());
+            if (themeId.isPresent()) {
+                uri.queryParam("theme", themeId.get().getKey());
+            }
+        }
+        consentFormResult.setReceiptURI(uri.build());
+        return consentFormResult;
     }
 
 }

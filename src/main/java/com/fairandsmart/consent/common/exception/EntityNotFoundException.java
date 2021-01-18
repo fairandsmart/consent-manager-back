@@ -39,7 +39,4 @@ public class EntityNotFoundException extends Exception {
         super(message);
     }
 
-    public EntityNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

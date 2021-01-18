@@ -96,4 +96,14 @@ public class CollectionPage<T> {
         this.totalCount = totalCount;
     }
 
+    @Override
+    public String toString() {
+        return "CollectionPage{" +
+                "values=" + values +
+                ", page=" + page +
+                ", pageSize=" + pageSize +
+                ", totalPages=" + totalPages +
+                ", totalCount=" + totalCount +
+                '}';
+    }
 }

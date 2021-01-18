@@ -53,7 +53,7 @@ public class Processing extends ModelData {
     private boolean containsSensitiveData = false;
     private boolean containsMedicalData = false;
     private Controller dataController;
-    private boolean showDataController = true;
+    private boolean dataControllerVisible = true;
     private List<NameValuePair> thirdParties;
 
     public Processing() {
@@ -162,16 +162,16 @@ public class Processing extends ModelData {
         return this;
     }
 
-    public boolean isShowDataController() {
-        return showDataController;
+    public boolean isDataControllerVisible() {
+        return dataControllerVisible;
     }
 
-    public void setShowDataController(boolean showDataController) {
-        this.showDataController = showDataController;
+    public void setDataControllerVisible(boolean dataControllerVisible) {
+        this.dataControllerVisible = dataControllerVisible;
     }
 
     public Processing withShowDataController(boolean showDataController) {
-        this.showDataController = showDataController;
+        this.dataControllerVisible = showDataController;
         return this;
     }
 
@@ -236,7 +236,7 @@ public class Processing extends ModelData {
         return retention.equals(that.retention) &&
                 containsSensitiveData == that.containsSensitiveData &&
                 containsMedicalData == that.containsMedicalData &&
-                showDataController == that.showDataController &&
+                dataControllerVisible == that.dataControllerVisible &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(data, that.data) &&
                 Objects.equals(usage, that.usage) &&
@@ -247,7 +247,7 @@ public class Processing extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, data, retention, usage, purposes, containsSensitiveData, containsMedicalData, dataController, showDataController, thirdParties);
+        return Objects.hash(title, data, retention, usage, purposes, containsSensitiveData, containsMedicalData, dataController, dataControllerVisible, thirdParties);
     }
 
     @Override
@@ -261,7 +261,7 @@ public class Processing extends ModelData {
                 ", containsSensitiveData=" + containsSensitiveData +
                 ", containsMedicalData=" + containsMedicalData +
                 ", dataController=" + dataController +
-                ", showDataController=" + showDataController +
+                ", showDataController=" + dataControllerVisible +
                 ", thirdParties=" + thirdParties +
                 '}';
     }

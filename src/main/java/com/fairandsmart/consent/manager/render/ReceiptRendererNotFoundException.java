@@ -39,7 +39,4 @@ public class ReceiptRendererNotFoundException extends Exception {
         super(message);
     }
 
-    public ReceiptRendererNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

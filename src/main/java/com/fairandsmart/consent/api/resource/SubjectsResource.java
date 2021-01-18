@@ -75,9 +75,9 @@ public class SubjectsResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public SubjectDto createSubject(SubjectDto subjectDto) throws ConsentManagerException, EntityAlreadyExistsException {
+    public SubjectDto createSubject(@Valid @NotNull SubjectDto dto) throws ConsentManagerException, EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "POST /subjects/");
-        return SubjectDto.fromSubject(consentService.createSubject(subjectDto));
+        return SubjectDto.fromSubject(consentService.createSubject(dto.getName(), dto.getEmailAddress()));
     }
 
     @GET
@@ -91,9 +91,9 @@ public class SubjectsResource {
     @PUT
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public SubjectDto updateSubject(@PathParam("id") @Valid @UUID String id, SubjectDto subjectDto) throws ConsentManagerException, EntityNotFoundException {
+    public SubjectDto updateSubject(@PathParam("id") @Valid @UUID String id, @Valid @NotNull SubjectDto dto) throws AccessDeniedException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "PUT /subjects/" + id);
-        return SubjectDto.fromSubject(consentService.updateSubject(id, subjectDto));
+        return SubjectDto.fromSubject(consentService.updateSubject(id, dto.getEmailAddress()));
     }
 
     @GET

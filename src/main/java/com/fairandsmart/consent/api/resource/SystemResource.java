@@ -106,7 +106,9 @@ public class SystemResource {
     @Operation( operationId = "getClientConfig", summary = "Get the GUI configuration")
     public ClientConfigDto getClientConfig() {
         LOGGER.log(Level.INFO, "GET /system/config");
-        return ClientConfigDto.fromClientConfig(config);
+        ClientConfigDto dto = ClientConfigDto.fromClientConfig(config);
+        dto.setLanguage(supportService.getInstance().language);
+        return dto;
     }
 
 }

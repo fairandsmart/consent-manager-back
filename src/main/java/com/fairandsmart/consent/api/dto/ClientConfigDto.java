@@ -43,6 +43,8 @@ import java.util.List;
 @Schema(name="ClientConfig", description="A representation of the client configuration")
 public class ClientConfigDto {
 
+    @Schema(description = "Language used in data", readOnly = true)
+    private String language;
     @Schema(description = "Is user page need to be available", readOnly = true)
     private boolean userPageEnabled;
     @Schema(description = "Elements (processing, preferences, ...) that are available on user page", readOnly = true)
@@ -50,6 +52,14 @@ public class ClientConfigDto {
 
     public ClientConfigDto() {
         userPageElements = new ArrayList<>();
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public boolean isUserPageEnabled() {
@@ -75,5 +85,14 @@ public class ClientConfigDto {
             dto.setUserPageElements(Arrays.asList(config.userPageElements().get().split(",")));
         }
         return dto;
+    }
+
+    @Override
+    public String toString() {
+        return "ClientConfigDto{" +
+                "language='" + language + '\'' +
+                ", userPageEnabled=" + userPageEnabled +
+                ", userPageElements=" + userPageElements +
+                '}';
     }
 }

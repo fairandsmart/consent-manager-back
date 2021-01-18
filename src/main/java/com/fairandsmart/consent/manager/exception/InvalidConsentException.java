@@ -34,11 +34,9 @@ package com.fairandsmart.consent.manager.exception;
  */
 
 public class InvalidConsentException extends Exception {
+
     public InvalidConsentException(String s) {
         super(s);
     }
 
-    public InvalidConsentException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
 }

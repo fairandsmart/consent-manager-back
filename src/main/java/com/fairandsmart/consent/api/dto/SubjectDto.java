@@ -2,6 +2,10 @@ package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.manager.entity.Subject;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotEmpty;
+
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
@@ -38,7 +42,10 @@ import com.fairandsmart.consent.manager.entity.Subject;
 public class SubjectDto {
 
     private String id;
+    @NotEmpty
+    @Max(255)
     private String name;
+    @Email
     private String emailAddress;
     private long creationTimestamp;
 

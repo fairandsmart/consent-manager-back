@@ -116,4 +116,16 @@ public class ExtractionResultDto {
         dto.setRecordValue(entry.getValue().value);
         return dto;
     }
+
+    @Override
+    public String toString() {
+        return "ExtractionResultDto{" +
+                "subjectId='" + subjectId + '\'' +
+                ", subjectName='" + subjectName + '\'' +
+                ", subjectEmail='" + subjectEmail + '\'' +
+                ", recordKey='" + recordKey + '\'' +
+                ", recordSerial='" + recordSerial + '\'' +
+                ", recordValue='" + recordValue + '\'' +
+                '}';
+    }
 }

@@ -35,8 +35,9 @@ package com.fairandsmart.consent.token.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity
 public class ThinToken extends PanacheEntityBase {

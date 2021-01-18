@@ -92,6 +92,21 @@ public class ExtractionConfigDto {
         public void setRegexpValue(boolean regexpValue) {
             this.regexpValue = regexpValue;
         }
+
+        @Override
+        public String toString() {
+            return "Condition{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    ", regexpValue=" + regexpValue +
+                    '}';
+        }
     }
 
+    @Override
+    public String toString() {
+        return "ExtractionConfigDto{" +
+                "condition=" + condition +
+                '}';
+    }
 }

@@ -66,7 +66,7 @@ public class StatisticsResource {
     @Operation( operationId = "getStats", summary = "Get all backend generated statistics")
     public StatsBag getStats() throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /stats");
-        return statsService.getStats();
+        return statsService.get();
     }
 
 }

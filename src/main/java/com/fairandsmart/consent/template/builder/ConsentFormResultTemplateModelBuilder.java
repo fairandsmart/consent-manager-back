@@ -36,7 +36,6 @@ package com.fairandsmart.consent.template.builder;
 import com.fairandsmart.consent.manager.ConsentFormResult;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateModelBuilder;
-import org.apache.commons.lang3.LocaleUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Locale;

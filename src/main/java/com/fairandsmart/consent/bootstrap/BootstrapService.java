@@ -34,7 +34,7 @@ package com.fairandsmart.consent.bootstrap;
  */
 
 import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.stats.StatisticsStore;
+import com.fairandsmart.consent.stats.StatisticsService;
 import com.fairandsmart.consent.support.SupportService;
 import io.quarkus.liquibase.LiquibaseFactory;
 import io.quarkus.runtime.StartupEvent;
@@ -44,6 +44,8 @@ import liquibase.Liquibase;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +53,8 @@ import java.util.logging.Logger;
 public class BootstrapService {
 
     private static final Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
+    private static final List<String> supportedLanguages = Arrays.asList("fr", "en");
+    private static final String defaultLanguage = "fr";
 
     @Inject
     LiquibaseFactory liquibaseFactory;
@@ -62,7 +66,7 @@ public class BootstrapService {
     SupportService supportService;
 
     @Inject
-    StatisticsStore statisticsStore;
+    StatisticsService statisticsService;
 
     protected void onStart(@Observes StartupEvent ev) throws Exception {
         LOGGER.log(Level.INFO, "Application is starting, migrating database");
@@ -71,12 +75,18 @@ public class BootstrapService {
             Contexts ctx = liquibaseFactory.createContexts();
             ctx.add(config.instance());
             if (config.importDemoData()) {
-                ctx.add("import");
+                if (supportedLanguages.contains(config.language())) {
+                    LOGGER.log(Level.WARNING, "Importing demo data using language: " + config.language());
+                    ctx.add("import_".concat(config.language()));
+                } else {
+                    LOGGER.log(Level.WARNING, "Unsupported language found in config: " + config.language() + ", using default language: " + defaultLanguage);
+                    ctx.add("import_".concat(defaultLanguage));
+                }
             }
             liquibase.update(ctx, liquibaseFactory.createLabels());
-            //List<ChangeSetStatus> status = liquibase.getChangeSetStatuses(liquibaseFactory.createContexts(), liquibaseFactory.createLabels());
-            statisticsStore.initStats();
         }
-        supportService.checkLatestVersion();
+        supportService.init();
+        supportService.refresh();
+        statisticsService.init();
     }
 }

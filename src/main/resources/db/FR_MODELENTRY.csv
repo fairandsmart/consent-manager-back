@@ -1,0 +1,11 @@
+ID,AUTHOR,KEY,NAME,TYPE,BRANCHES,DESCRIPTION,VERSION
+64f90695-2f62-4f3a-8422-40265ce079a9,demo@localhost,basicinfo.001,Informations Générales,basicinfo,master,Informations générales de démonstration,0
+cbcfd77d-89fb-42d7-b030-221ca600271e,demo@localhost,processing.001,Marketing direct,processing,master,Traitement 'marketing direct' de démonstration,0
+c9eefa7b-0a0d-4668-bff7-5db2175320a3,demo@localhost,processing.002,Service principal,processing,master,Traitement 'service principal' de démonstration,0
+389d8fa4-ae5d-4c47-8fbc-cce29a1088f3,demo@localhost,preference.001,Mode d'affichage,preference,master,Préférence 'mode d'affichage' de démonstration,0
+b802b44a-be17-4948-934a-20eea0578ccf,demo@localhost,preference.002,Canaux de communication,preference,master,Préférence 'canaux de communication' de démonstration,0
+273cdd5c-556f-4213-aaae-8a6089acf2e9,demo@localhost,preference.003,Fréquence de contact,preference,master,Préférence 'fréquence de contact' de démonstration,0
+8eafdbe1-123e-4f68-8630-eaed2efe6aca,demo@localhost,preference.004,Nom d'utilisateur,preference,master,Préférence 'nom d'utilisateur' de démonstration,0
+121f4e63-de63-45a7-a050-e6fa1a2fc562,demo@localhost,email.001,Marketing Direct,email,master,"",0
+28860933-15e8-4350-96d7-d76efe7f84d6,demo@localhost,processing.003,Service de réutilisation des données énergétiques,processing,master,Service amélioré de démonstration,0
+396abd6f-47ea-4a22-b8dc-339a1311ea0b,demo@localhost,processing.004,Transfert de données énergétiques,processing,master,Données de démonstration,0

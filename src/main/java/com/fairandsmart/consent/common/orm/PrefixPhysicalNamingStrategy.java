@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 public class PrefixPhysicalNamingStrategy extends PhysicalNamingStrategyStandardImpl {
 
     private static final Logger LOGGER = Logger.getLogger(PrefixPhysicalNamingStrategy.class.getName());
-    private static final String PREFIX_PROPERTY_NAME = "consent.instance";
+    private static final String PREFIX_PROPERTY_NAME = "consent.instance.name";
     private static String prefix = "";
     {
         Properties config = new Properties();

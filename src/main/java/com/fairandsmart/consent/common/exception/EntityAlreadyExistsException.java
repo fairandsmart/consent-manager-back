@@ -39,7 +39,4 @@ public class EntityAlreadyExistsException extends Exception {
         super(message);
     }
 
-    public EntityAlreadyExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

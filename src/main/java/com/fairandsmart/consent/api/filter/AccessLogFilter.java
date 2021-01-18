@@ -34,13 +34,11 @@ package com.fairandsmart.consent.api.filter;
  */
 
 import com.fairandsmart.consent.security.AuthenticationService;
-import io.quarkus.security.identity.SecurityIdentity;
 
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
-import java.util.logging.Logger;
 
 @Provider
 public class AccessLogFilter implements ContainerRequestFilter {

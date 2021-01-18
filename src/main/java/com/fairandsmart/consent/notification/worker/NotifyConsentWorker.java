@@ -36,7 +36,10 @@ package com.fairandsmart.consent.notification.worker;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.manager.*;
+import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.ConsentElementIdentifier;
+import com.fairandsmart.consent.manager.ConsentNotification;
+import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.model.Email;
@@ -117,10 +120,6 @@ public class NotifyConsentWorker implements Runnable {
                 notification.setTheme(theme);
             }
             if (clientConfig.isUserPageEnabled() && clientConfig.userPagePublicUrl().isPresent()) {
-                //TODO There is no pre authentication info on this link, we have to think about
-                // - generate a token for accessing this page
-                // - provide a secret for accessing page
-                // - pass the username (email) allowing IdP account creation prefilled username...
                 ctx.setCollectionMethod(ConsentContext.CollectionMethod.USER_PAGE);
                 notification.setUrl(clientConfig.userPagePublicUrl().get());
             } else {

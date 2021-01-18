@@ -35,7 +35,6 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
-import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -129,9 +128,9 @@ public interface ConsentService {
 
     Subject getSubject(String name) throws AccessDeniedException;
 
-    Subject createSubject(SubjectDto subjectDto) throws ConsentManagerException, EntityAlreadyExistsException;
+    Subject createSubject(String name, String email) throws ConsentManagerException, EntityAlreadyExistsException;
 
-    Subject updateSubject(String subjectId, SubjectDto subjectDto) throws ConsentManagerException, EntityNotFoundException;
+    Subject updateSubject(String id, String email) throws AccessDeniedException, EntityNotFoundException;
 
     /* Receipts */
 

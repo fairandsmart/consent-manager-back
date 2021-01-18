@@ -54,8 +54,6 @@ public class NotificationServiceTest {
         LOGGER.log(Level.INFO, "Entering Test Submit Consent Event");
         Event event = new Event().withType(Event.CONSENT_SUBMIT).withAuthor("me").withArg("foo", "bar");
         service.notify(event);
-
-        //TODO Find a way to test that the event is really treated...
     }
 
 }
