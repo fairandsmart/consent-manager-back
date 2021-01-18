@@ -45,6 +45,8 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
@@ -75,6 +77,8 @@ public class ConsentsResource {
     @Path("token")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
+    @Operation(summary = "generate a token from a given context")
+    @SecurityRequirement(name = "access token", scopes = {"profile"} )
     public String generateToken(@Valid ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /consents/token");
         return consentService.buildToken(ctx);

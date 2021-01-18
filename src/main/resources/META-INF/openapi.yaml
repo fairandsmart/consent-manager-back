@@ -1,0 +1,10 @@
+components:
+  securitySchemes:
+    access token:
+      type: oauth2
+      description: access token from the auth server
+      flows:
+#        implicit:
+#          authorizationUrl: http://localhost:4285/auth/realms/RightConsents/protocol/openid-connect/auth
+        clientCredentials:
+          tokenUrl: http://localhost:4285/auth/realms/RightConsents/protocol/openid-connect/token
