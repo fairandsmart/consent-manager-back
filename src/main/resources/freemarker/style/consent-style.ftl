@@ -114,12 +114,19 @@
 
     .accordion-hidden {
         max-height: 0;
-        transition: .5s linear;
     }
 
     .accordion-visible {
-        max-height: 200px;
-        transition: .5s linear;
+        max-height: 500px;
+        transition: .7s ease-in-out;
+    }
+
+    .accordion-symbol-open:before {
+        content: "+";
+    }
+
+    .accordion-symbol-close:before {
+        content: "-";
     }
 
     .item-container {

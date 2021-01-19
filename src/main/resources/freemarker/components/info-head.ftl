@@ -19,7 +19,7 @@
         <#if info.jurisdictionVisible || info.collectionMethodVisible || info.scopeVisible || info.shortNoticeLinkVisible>
             <div class="block-container information-container">
                 <h4 class="block-title accordion-header" onclick="toggleAccordion('header-infos')">
-                    <@readBundle "defaultAdditionalInfoTitle"></@readBundle> <span>+</span>
+                    <@readBundle "defaultAdditionalInfoTitle"></@readBundle> <span id="header-infos-symbol" class="accordion-symbol-open"></span>
                 </h4>
 
                 <ul id="header-infos" class="block-body accordion-hidden">

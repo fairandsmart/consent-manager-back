@@ -3,10 +3,13 @@ function formatSelector(key) {
 }
 
 function toggleAccordion(id) {
-    const selector = formatSelector(id);
+    let selector = formatSelector(id);
     const wasHidden = $(selector).hasClass("accordion-hidden");
     $(selector).toggleClass("accordion-visible", wasHidden);
     $(selector).toggleClass("accordion-hidden", !wasHidden);
+    selector = formatSelector(id + "-symbol");
+    $(selector).toggleClass("accordion-symbol-close", wasHidden);
+    $(selector).toggleClass("accordion-symbol-open", !wasHidden);
 }
 
 function isPreference(selector) {

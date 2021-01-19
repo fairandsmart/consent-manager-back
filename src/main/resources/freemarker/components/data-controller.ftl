@@ -1,6 +1,6 @@
 <div class="block-container controller-container">
     <h4 class="block-title accordion-header" onclick="toggleAccordion('${dataControllerId}')">
-        <@readBundle "defaultDataControllerTitle"></@readBundle> <span>+</span>
+        <@readBundle "defaultDataControllerTitle"></@readBundle> <span id="${dataControllerId}-symbol" class="accordion-symbol-open"></span>
     </h4>
 
     <ul id="${dataControllerId}" class="block-body accordion-hidden">
@@ -28,10 +28,10 @@
                 <span class="list-value">${dataController.email?html}</span>
             </li>
         </#if>
-        <#if dataController.phone?has_content>
+        <#if dataController.phoneNumber?has_content>
             <li>
                 <span class="list-label"><@readBundle "controllerPhoneLabel"></@readBundle></span>
-                <span class="list-value">${dataController.phone?html}</span>
+                <span class="list-value">${dataController.phoneNumber?html}</span>
             </li>
         </#if>
     </ul>
