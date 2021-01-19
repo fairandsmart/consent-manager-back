@@ -37,3 +37,5 @@ release.properties
 lsp
 
 .consent-manager-tests/
+
+quarkus.log
