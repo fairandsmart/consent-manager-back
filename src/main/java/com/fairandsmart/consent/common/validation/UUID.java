@@ -44,7 +44,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Constraint(validatedBy={})
 @Retention(RetentionPolicy.RUNTIME)
-@Pattern(regexp="^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
+@Pattern(regexp="^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$") // [0-5] and [089ab] ensure we match version 1 to 5 and NIL UUID
 public @interface UUID {
     String message() default "{invalid.uuid}";
     Class<?>[] groups() default {};
