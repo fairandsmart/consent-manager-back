@@ -1,10 +1,11 @@
 package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.manager.entity.Subject;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 /*-
  * #%L
@@ -39,17 +40,32 @@ import javax.validation.constraints.NotEmpty;
  * #L%
  */
 
+@Schema(description = "Represents a subject")
 public class SubjectDto {
 
+    @Schema(description = "The subject ID", readOnly = true)
     private String id;
     @NotEmpty
-    @Max(255)
+    @Size(max = 255)
+    @Schema(description = "The subject name", example = "a mysterious customer")
     private String name;
     @Email
+    @Schema(description = "The subject email address", example = "nobody@example.com")
     private String emailAddress;
+    @Schema(description = "The subject creation date (epoch with millisec)", readOnly = true)
     private long creationTimestamp;
 
-    public SubjectDto() {}
+    public SubjectDto() {
+    }
+
+    public static SubjectDto fromSubject(Subject subject) {
+        SubjectDto dto = new SubjectDto();
+        dto.setId(subject.id);
+        dto.setName(subject.name);
+        dto.setEmailAddress(subject.emailAddress);
+        dto.setCreationTimestamp(subject.creationTimestamp);
+        return dto;
+    }
 
     public String getId() {
         return id;
@@ -81,15 +97,6 @@ public class SubjectDto {
 
     public void setCreationTimestamp(long creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
-    }
-
-    public static SubjectDto fromSubject(Subject subject) {
-        SubjectDto dto = new SubjectDto();
-        dto.setId(subject.id);
-        dto.setName(subject.name);
-        dto.setEmailAddress(subject.emailAddress);
-        dto.setCreationTimestamp(subject.creationTimestamp);
-        return dto;
     }
 
     @Override
