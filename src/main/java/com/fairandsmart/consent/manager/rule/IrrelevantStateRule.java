@@ -48,7 +48,7 @@ public class IrrelevantStateRule extends RecordStatusRule {
     @Override
     public void apply(List<Record> records) {
         LOGGER.log(Level.FINE, "searching committed records");
-        records.stream().forEach(record -> {
+        records.forEach(record -> {
             if ( record.state.equals(Record.State.COMMITTED) ) {
                 //Set status to unknown allowing next rules to treat record
                 record.status = Record.Status.UNKNOWN;

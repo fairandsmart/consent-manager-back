@@ -34,6 +34,7 @@ package com.fairandsmart.consent.manager.exception;
  */
 
 public class ConsentServiceException extends Exception {
+
     public ConsentServiceException(String s) {
         super(s);
     }
@@ -41,4 +42,5 @@ public class ConsentServiceException extends Exception {
     public ConsentServiceException(String s, Throwable throwable) {
         super(s, throwable);
     }
+
 }

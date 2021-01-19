@@ -39,5 +39,4 @@ import java.util.HashMap;
 
 @Schema(name="StatsBag", description="Map that contains all named StatsCharts.")
 public class StatsBag extends HashMap<String, StatsChart> {
-
 }

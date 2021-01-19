@@ -43,7 +43,6 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
 
 @Entity
 public class Record extends PanacheEntityBase implements Comparable<Record> {

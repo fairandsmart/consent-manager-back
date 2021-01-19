@@ -115,7 +115,7 @@ public class ConsentsResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentFormResult postConsentJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TokenServiceException, TemplateServiceException {
+    public ConsentFormResult postConsentJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidConsentException, ConsentServiceException, TokenServiceException {
         LOGGER.log(Level.INFO, "POST /consents (json)");
         if (values.containsKey("token")) {
             return this.internalPostConsent(values, uriInfo);
@@ -133,9 +133,7 @@ public class ConsentsResource {
         if (ctx.getReceiptDisplayType() != null && ctx.getReceiptDisplayType() != ConsentContext.ReceiptDisplayType.NONE) {
             uri.queryParam("format", ctx.getReceiptDisplayType());
             Optional<ConsentElementIdentifier> themeId = ConsentElementIdentifier.deserialize(ctx.getTheme());
-            if (themeId.isPresent()) {
-                uri.queryParam("theme", themeId.get().getKey());
-            }
+            themeId.ifPresent(consentElementIdentifier -> uri.queryParam("theme", consentElementIdentifier.getKey()));
         }
         consentFormResult.setReceiptURI(uri.build());
         return consentFormResult;

@@ -54,8 +54,7 @@ public class CsvBodyWriter implements MessageBodyWriter<List> {
 
     @Override
     public boolean isWriteable(Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        boolean ret = List.class.isAssignableFrom(type);
-        return ret;
+        return List.class.isAssignableFrom(type);
     }
 
     @Override

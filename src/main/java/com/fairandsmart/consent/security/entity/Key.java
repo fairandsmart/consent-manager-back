@@ -61,7 +61,7 @@ import java.util.Base64;
 public class Key extends PanacheEntityBase {
 
     private static final String DICT = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&=+-/0123456789";
-    private static SecureRandom random = new SecureRandom();
+    private static final SecureRandom random = new SecureRandom();
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -107,7 +107,7 @@ public class Key extends PanacheEntityBase {
     }
 
     public static String generate(int length) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < length; i++) {
             int index = random.nextInt(DICT.length());
             result.append(DICT.charAt(index));

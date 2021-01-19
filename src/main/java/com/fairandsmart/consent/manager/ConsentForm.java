@@ -193,7 +193,7 @@ public class ConsentForm {
                 '}';
     }
 
-    @Schema(description = "display layout to use")
+    @Schema(description = "display layout to use", example = "VERTICAL")
     public enum Orientation {
         HORIZONTAL,
         VERTICAL

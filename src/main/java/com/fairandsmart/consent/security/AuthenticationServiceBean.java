@@ -62,7 +62,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
 
     @Override
     public boolean isIdentified() {
-        return getConnectedIdentifier() != securityConfig.anonymousIdentifierName();
+        return !getConnectedIdentifier().equals(securityConfig.anonymousIdentifierName());
     }
 
     @Override
@@ -146,7 +146,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
         LOGGER.log(Level.FINE, "Listing all api keys");
         ensureConnectedIdentifierIsAdmin();
         List<Key> keys = Key.listAll();
-        keys.stream().forEach(key -> AccessLog.findByIdOptional(key.username).ifPresent(log -> key.lastAccessDate = ((AccessLog)log).timestamp));
+        keys.forEach(key -> AccessLog.findByIdOptional(key.username).ifPresent(log -> key.lastAccessDate = ((AccessLog)log).timestamp));
         return keys;
     }
 

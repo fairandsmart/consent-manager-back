@@ -186,7 +186,6 @@ public class TestUtils {
     public static Theme generateTheme(String key) {
         return new Theme()
                 .withName("Name " + key)
-                .withPresentation("Presentation " + key)
                 .withIcon("Icon " + key)
                 .withCss("CSS " + key);
     }

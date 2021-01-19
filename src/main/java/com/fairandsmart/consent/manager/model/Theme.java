@@ -42,7 +42,6 @@ public class Theme extends ModelData {
     public static final String TYPE = "theme";
 
     private String name;
-    private String presentation;
     private String icon;
     private String css;
     private String logoPath;
@@ -69,19 +68,6 @@ public class Theme extends ModelData {
 
     public Theme withName(String name) {
         this.name = name;
-        return this;
-    }
-
-    public String getPresentation() {
-        return presentation;
-    }
-
-    public void setPresentation(String presentation) {
-        this.presentation = presentation;
-    }
-
-    public Theme withPresentation(String presentation) {
-        this.presentation = presentation;
         return this;
     }
 
@@ -166,7 +152,6 @@ public class Theme extends ModelData {
         if (o == null || getClass() != o.getClass()) return false;
         Theme theme = (Theme) o;
         return Objects.equals(name, theme.name) &&
-                Objects.equals(presentation, theme.presentation) &&
                 Objects.equals(icon, theme.icon) &&
                 Objects.equals(css, theme.css) &&
                 Objects.equals(logoPath, theme.logoPath) &&
@@ -176,14 +161,13 @@ public class Theme extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, presentation, icon, css, logoPath, logoAltText, logoPosition);
+        return Objects.hash(name, icon, css, logoPath, logoAltText, logoPosition);
     }
 
     @Override
     public String toString() {
         return "Theme{" +
                 "name='" + name + '\'' +
-                ", presentation='" + presentation + '\'' +
                 ", icon='" + icon + '\'' +
                 ", css='" + css + '\'' +
                 ", logoPath='" + logoPath + '\'' +

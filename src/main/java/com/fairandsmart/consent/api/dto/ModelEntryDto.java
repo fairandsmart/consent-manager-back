@@ -123,16 +123,6 @@ public class ModelEntryDto {
         return dto;
     }
 
-    public static ModelEntryDto fromModelEntryWithoutVersions(ModelEntry entry) {
-        ModelEntryDto dto = new ModelEntryDto();
-        dto.setId(entry.id);
-        dto.setKey(entry.key);
-        dto.setName(entry.name);
-        dto.setType(entry.type);
-        dto.setDescription(entry.description);
-        return dto;
-    }
-
     @Override
     public String toString() {
         return "ModelEntryDto{" +
