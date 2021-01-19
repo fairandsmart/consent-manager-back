@@ -1,3 +1,15 @@
+info:
+  title: Consent Manager API
+  version: ${project.version}
+  description: Right Consents backend
+  termsOfService:
+  contact:
+    email: info@fairandsmart.com
+    name: development team
+    url: https://www.fairandsmart.com
+  license:
+    name: GPL (GNU General Public License) version 3
+
 components:
   securitySchemes:
     access token:
