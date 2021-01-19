@@ -35,7 +35,6 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.token.Tokenizable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.vertx.core.cli.annotations.Hidden;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -55,21 +54,21 @@ public class ConsentContext implements Tokenizable {
     private static final String ATTRIBUTES_PREFIX = "attributes_";
 
     @NotNull
-    @Schema(description = "The customer unique ID", example = "")
+    @Schema(description = "The customer unique ID", example = "a mysterious customer")
     private String subject;
     @NotNull
     private ConsentForm.Orientation orientation;
-    @Schema(description = "The identifier of the consent form heading to use", example = "basicinfo.1")
+    @Schema(description = "Consent form heading ID to use", example = "basicinfo.001")
     private String info;
     @NotNull
     @NotEmpty
-    @Schema(description = "UUIDs of processings included in the form", example = "[\"processing.1\"]")
+    @Schema(description = "Included processing IDs", example = "[\"processing.001\"]")
     private List<String> elements;
-    @Schema(description = "URL to redirect user to after consent is given / receipt is displayed", example = "https://www.fairandsmart.com")
+    @Schema(description = "Redirect URL after consent is given / receipt is displayed", example = "http://www.fairandsmart.com")
     private String callback;
-    @Schema(description = "Language to use when displaying form", example = "fr")
+    @Schema(description = "Display language", example = "fr")
     private String language;
-    @Schema(description = "The consent lifetime", example = "P6M") // TODO : explain the format
+    @Schema(description = "Consent lifetime", example = "P6M") // TODO : explain the format
     private String validity;
     private FormType formType;
     private ReceiptDisplayType receiptDisplayType;
@@ -77,25 +76,28 @@ public class ConsentContext implements Tokenizable {
     private Map<String, String> userinfos; // TODO : doc this
     @Schema(example = "{}")
     private Map<String, String> attributes; // TODO : doc this
-    @Schema(description = "the reference of the email model to use when email notification is wanted", example = "email.1")
+    @Schema(description = "Email model ID (mandatory when email notification is needed)", example = "email.001")
     private String notificationModel;
-    @Schema(description = "the email recipient to use when email notification is wanted", example = "nobody@example.com")
+    @Schema(description = "Email recipient (mandatory when email notification is needed)", example = "nobody@example.com")
     private String notificationRecipient;
     private CollectionMethod collectionMethod;
     @Schema(example = "")
     private String author; // TODO : doc this
+    @Schema(example = "false")
     private boolean preview = false; // TODO : doc this
     @Schema(description = "include iFrameResizer.js in consent page")
     private boolean iframe = false;
-    @Schema(description = "The identifier of the consent form theme to use", example = "")
+    @Schema(description = "Consent form theme ID to use", example = "")
     private String theme;
-    @Schema(example = "")
-    private String receiptId; // TODO : doc this
+    @Schema(hidden = true)
+    private String receiptId;
+    @Schema(description = "Display an \"accept all\" button ?", example = "false")
     private boolean acceptAllVisible = false;
-    @Schema(description = "shall we show an \"accept all\" button ?")
+    @Schema(description = "Display the consent validity ?")
     private boolean validityVisible = true;
-    @Schema(description = "display label for the \"accept all\" button", example = "accept all")
+    @Schema(description = "\"accept all\" button label", example = "")
     private String acceptAllText;
+    @Schema(description = "move footer to to of iframe", example = "false")
     private boolean footerOnTop = false; // TODO : doc this
 
     public ConsentContext() {
@@ -521,6 +523,7 @@ public class ConsentContext implements Tokenizable {
     @Schema(description =
         "- WEBFORM the user filled in a form;\n" +
         "- OPERATOR an operator created the record based on an interaction with the user;\n"
+            , example = "WEBFORM"
     ) // TODO : others need to be documented
      public enum CollectionMethod {
         WEBFORM,
