@@ -35,7 +35,10 @@ package com.fairandsmart.consent.common.exception;
 
 public class AccessDeniedException extends ConsentManagerException {
 
-    public static final String ACCESS_TOKEN_ISSUE = "access token is invalid, expired, missing or lacks some role";
+    public static final String ACCESS_TOKEN_ISSUE = "Access token is invalid, expired, missing or lacks some role";
+    public static final String NO_ADMIN_ROLE = "Account lacks 'roles.admin' role" ;
+    public static final String NO_OPERATOR_ROLE = "Account lacks 'roles.operator' role";
+    public static final String NO_API_ROLE = "Account lacks 'roles.api' role";
 
     public AccessDeniedException() {
         super();
