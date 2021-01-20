@@ -38,10 +38,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-@Schema(name="Extraction Config", description="A Configuration for Record Extraction")
+@Schema(description = "A Configuration for Record Extraction")
 public class ExtractionConfigDto {
 
-    @Schema(description = "The extraction condition" ,required = true)
+    @Schema(description = "The extraction condition", required = true)
     private Condition condition;
 
     public ExtractionConfigDto() {
@@ -55,16 +55,23 @@ public class ExtractionConfigDto {
         this.condition = condition;
     }
 
-    @Schema(name="ExtractionConfigCondition", description="The extraction condition")
+    @Override
+    public String toString() {
+        return "ExtractionConfigDto{" +
+                "condition=" + condition +
+                '}';
+    }
+
+    @Schema(name = "Extraction Config Condition", description = "The extraction condition")
     public class Condition {
 
         @NotNull
         @NotEmpty
-        @Schema(description = "The element key to extract", required = true)
+        @Schema(description = "The element key to extract", required = true, example = "processing.001")
         private String key;
         @NotNull
         @NotEmpty
-        @Schema(description = "The value that need to match", required = true)
+        @Schema(description = "The value that need to match", required = true, example = "accepted")
         private String value;
         @Schema(description = "is the value is a regular expression", required = true)
         private boolean regexpValue;
@@ -101,12 +108,5 @@ public class ExtractionConfigDto {
                     ", regexpValue=" + regexpValue +
                     '}';
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ExtractionConfigDto{" +
-                "condition=" + condition +
-                '}';
     }
 }
