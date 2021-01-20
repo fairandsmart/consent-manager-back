@@ -39,6 +39,7 @@ import com.fairandsmart.consent.manager.ConsentElementIdentifier;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -122,11 +123,18 @@ public class ModelVersion extends PanacheEntityBase {
         return content.containsKey(language);
     }
 
+    @Schema(description = "the version type : use MINOR for typo fixes, MAJOR in other cases")
     public enum Type {
         MAJOR,
         MINOR
     }
 
+    @Schema(description =
+            "the version status :\n" +
+            "- DRAFT : will replace an ACTIVE version when finished,\n" +
+            "- ACTIVE : in use,\n" +
+            "- ARCHIVED : has been replaced by another ACTIVE version"
+    )
     public enum Status {
         DRAFT,
         ACTIVE,
