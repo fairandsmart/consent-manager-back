@@ -39,6 +39,7 @@ import com.fairandsmart.consent.stats.dto.StatsBag;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
@@ -61,8 +62,9 @@ public class StatisticsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses( value = {
-        @APIResponse( responseCode = "401", description = "Access Denied (if you don't have 'admin' role)" ),
+        @APIResponse( responseCode = "401", description = AccessDeniedException.NO_ADMIN_ROLE ),
         @APIResponse( responseCode = "200", description = "StatBag representation of all available statistics") })
+    @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation( operationId = "getStats", summary = "Get all backend generated statistics")
     public StatsBag getStats() throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /stats");
