@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.api.dto;
 
+import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.manager.entity.Subject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -43,20 +44,17 @@ import javax.validation.constraints.Size;
 @Schema(description = "Represents a subject")
 public class SubjectDto {
 
-    @Schema(description = "The subject ID", readOnly = true)
+    @Schema(description = "The subject ID", readOnly = true, example = Placeholders.NIL_UUID)
     private String id;
     @NotEmpty
     @Size(max = 255)
-    @Schema(description = "The subject name", example = "a mysterious customer")
+    @Schema(description = "The subject name", example = Placeholders.SHELDON)
     private String name;
     @Email
-    @Schema(description = "The subject email address", example = "nobody@example.com")
+    @Schema(description = "The subject email address", example = Placeholders.SHELDON_AT_LOCALHOST)
     private String emailAddress;
-    @Schema(description = "The subject creation date (epoch with millisec)", readOnly = true)
+    @Schema(description = "The subject creation date (epoch with millisec)", readOnly = true, example = Placeholders.TS_2021_01_01)
     private long creationTimestamp;
-
-    public SubjectDto() {
-    }
 
     public static SubjectDto fromSubject(Subject subject) {
         SubjectDto dto = new SubjectDto();

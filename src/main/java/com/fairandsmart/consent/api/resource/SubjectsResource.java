@@ -34,6 +34,7 @@ package com.fairandsmart.consent.api.resource;
  */
 
 import com.fairandsmart.consent.api.dto.SubjectDto;
+import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -62,10 +63,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.fairandsmart.consent.common.exception.AccessDeniedException.NO_OPERATOR_ROLE;
-
 @Path("subjects")
-@Tag(name = "Subjects", description = "Operations related to all known subjects")
+@Tag(name = "Subjects", description = "Operations related to subjects")
 public class SubjectsResource {
 
     private static final Logger LOGGER = Logger.getLogger(SubjectsResource.class.getName());
@@ -76,13 +75,13 @@ public class SubjectsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The subject has been created"),
-            @APIResponse(responseCode = "401", description = NO_OPERATOR_ROLE),
+            @APIResponse(responseCode = "200", description = "The subject has been retrieved"),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "getSubject", summary = "Get subject")
+    @Operation(operationId = "getSubject", summary = "Search subjects by name")
     public List<SubjectDto> listSubjects(
-            @Parameter(description = "the subject id", example = "a mysterious customer") @QueryParam("name") @NotNull @NotEmpty String name
+            @Parameter(description = "Pattern to use, use % as wildcard", example = "a mysterious %") @QueryParam("name") @NotNull @NotEmpty String name
     ) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /subjects");
         return consentService.findSubjects(name).stream().map(SubjectDto::fromSubject).collect(Collectors.toList());
@@ -93,13 +92,13 @@ public class SubjectsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The subject has been created"),
-            @APIResponse(responseCode = "401", description = NO_OPERATOR_ROLE),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
             @APIResponse(responseCode = "409", description = "A subject with the same name already exists"),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation(operationId = "createSubject", summary = "Create new subject")
     public SubjectDto createSubject(
-            @Parameter(description = "the subject to create", example = "a mysterious customer") @Valid @NotNull SubjectDto dto
+            @Parameter(description = "the subject to create", example = Placeholders.SHELDON) @Valid @NotNull SubjectDto dto
     ) throws ConsentManagerException, EntityAlreadyExistsException {
         LOGGER.log(Level.INFO, "POST /subjects");
         return SubjectDto.fromSubject(consentService.createSubject(dto.getName(), dto.getEmailAddress()));
@@ -110,12 +109,12 @@ public class SubjectsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The subject has been retrieved"),
-            @APIResponse(responseCode = "401", description = NO_OPERATOR_ROLE),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "getSubject", summary = "Get subject", description = "If subject do not exists, send back an empty")
+    @Operation(operationId = "getSubject", summary = "Get subject by name", description = "If subject do not exists, send back an empty")
     public SubjectDto getSubject(
-            @Parameter(description = "the subject id", example = "a mysterious customer") @PathParam("name") @NotNull String name
+            @Parameter(description = "the subject id", example = Placeholders.SHELDON) @PathParam("name") @NotNull String name
     ) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /subjects/{0}", name);
         return SubjectDto.fromSubject(consentService.getSubject(name));
@@ -127,13 +126,13 @@ public class SubjectsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The subject has been updated"),
-            @APIResponse(responseCode = "401", description = NO_OPERATOR_ROLE),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
             @APIResponse(responseCode = "404", description = "The subject has not been found"),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation(operationId = "updateSubject", summary = "Update subject")
     public SubjectDto updateSubject(
-            @Parameter(description = "the subject id", example = com.fairandsmart.consent.common.consts.UUID.NIL_UUID) @PathParam("id") @Valid @UUID String id,
+            @Parameter(description = "the subject id", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Valid @NotNull SubjectDto dto
     ) throws AccessDeniedException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "PUT /subjects/{0}", id);
@@ -145,12 +144,12 @@ public class SubjectsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "The subject records have been retrieved"),
-            @APIResponse(responseCode = "401", description = NO_OPERATOR_ROLE),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation(operationId = "getSubjectRecords", summary = "Get subject records")
     public Response listSubjectRecords(
-            @Parameter(description = "the subject id", example = "a mysterious customer") @PathParam("subject") String subject,
+            @Parameter(description = "the subject id", example = Placeholders.SHELDON) @PathParam("subject") String subject,
             @Context UriInfo uriInfo
     ) {
         LOGGER.log(Level.INFO, "GET /subjects/{0}/records", subject);
