@@ -3,9 +3,9 @@ package com.fairandsmart.consent.api.resource;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.api.resource;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -71,8 +71,8 @@ public class SystemResource {
     @GET
     @Path("/users/me")
     @Produces(MediaType.APPLICATION_JSON)
-    @APIResponse( responseCode = "200", description = "Information for the connected user")
-    @Operation( operationId = "me", summary = "Get the connected user information")
+    @APIResponse(responseCode = "200", description = "Information for the connected user")
+    @Operation(operationId = "me", summary = "Get the connected user information")
     public UserDto me() {
         LOGGER.log(Level.INFO, "GET /system/users/me");
         UserDto user = new UserDto();
@@ -86,10 +86,10 @@ public class SystemResource {
     @GET
     @Path("/support/infos")
     @Produces(MediaType.APPLICATION_JSON)
-    @APIResponses( value = {
-            @APIResponse( responseCode = "204", description = "Support service is disabled" ),
-            @APIResponse( responseCode = "200", description = "Support service information") })
-    @Operation( operationId = "supportInfos", summary = "Get available service information (for now, only latest version is operational)")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "204", description = "Support service is disabled"),
+            @APIResponse(responseCode = "200", description = "Support service information")})
+    @Operation(operationId = "supportInfos", summary = "Get available service information (for now, only latest version is operational)")
     public SupportInfoDto supportInfos() throws SupportServiceException {
         LOGGER.log(Level.INFO, "GET /system/support/infos");
         SupportInfoDto dto = new SupportInfoDto();
@@ -102,8 +102,8 @@ public class SystemResource {
     @GET
     @Path("/config")
     @Produces(MediaType.APPLICATION_JSON)
-    @APIResponse( responseCode = "200", description = "Configuration for GUI")
-    @Operation( operationId = "getClientConfig", summary = "Get the GUI configuration")
+    @APIResponse(responseCode = "200", description = "Configuration for GUI")
+    @Operation(operationId = "getClientConfig", summary = "Get the GUI configuration")
     public ClientConfigDto getClientConfig() {
         LOGGER.log(Level.INFO, "GET /system/config");
         ClientConfigDto dto = ClientConfigDto.fromClientConfig(config);
