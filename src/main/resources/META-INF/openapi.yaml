@@ -1,22 +1,10 @@
-info:
-  title: Consent Manager API
-  version: ${project.version}
-  description: Right Consents backend
-  termsOfService:
-  contact:
-    email: info@fairandsmart.com
-    name: development team
-    url: https://www.fairandsmart.com
-  license:
-    name: GPL (GNU General Public License) version 3
-
 components:
   securitySchemes:
     access token:
       type: oauth2
       description: access token from the auth server
       flows:
-        password:
-          tokenUrl: http://localhost:4285/auth/realms/RightConsents/protocol/openid-connect/token
-#        implicit:
-#          authorizationUrl: http://localhost:4285/auth/realms/RightConsents/protocol/openid-connect/auth
+#        password:
+#          tokenUrl: http://localhost:4285/auth/realms/RightConsents/protocol/openid-connect/token
+        implicit:
+          authorizationUrl: http://localhost:4285/auth/realms/RightConsents/protocol/openid-connect/auth
