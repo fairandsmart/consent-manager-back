@@ -61,11 +61,12 @@ public class StatisticsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @APIResponses( value = {
-        @APIResponse( responseCode = "401", description = AccessDeniedException.NO_ADMIN_ROLE ),
-        @APIResponse( responseCode = "200", description = "StatBag representation of all available statistics") })
+    @APIResponses(value = {
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_ADMIN_ROLE),
+            @APIResponse(responseCode = "200", description = "StatBag representation of all available statistics")
+    })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation( operationId = "getStats", summary = "Get all backend generated statistics")
+    @Operation(summary = "Get all backend generated statistics")
     public StatsBag getStats() throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /stats");
         return statsService.get();

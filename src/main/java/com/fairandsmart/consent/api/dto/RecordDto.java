@@ -3,9 +3,9 @@ package com.fairandsmart.consent.api.dto;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.api.dto;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -39,7 +39,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.List;
 
-@Schema(name="Record", description="A Record holds a single user consent or choice")
+@Schema(name = "Record", description = "A Record holds a single user consent or choice")
 public class RecordDto {
 
     @Schema(description = "The record serial composed of info and body serial", readOnly = true)
@@ -72,6 +72,24 @@ public class RecordDto {
     private List<NotificationReport> notificationReports;
 
     public RecordDto() {
+    }
+
+    public static RecordDto fromRecord(Record record) {
+        RecordDto dto = new RecordDto();
+        dto.setSubject(record.subject);
+        dto.setSerial(record.serial);
+        dto.setInfoKey(record.infoKey);
+        dto.setBodyKey(record.bodyKey);
+        dto.setCreationTimestamp(record.creationTimestamp);
+        dto.setExpirationTimestamp(record.expirationTimestamp);
+        dto.setCollectionMethod(record.collectionMethod.toString());
+        dto.setType(record.type);
+        dto.setComment(record.comment);
+        dto.setStatus(record.status.toString());
+        dto.setStatusExplanation(record.statusExplanation.toString());
+        dto.setValue(record.value);
+        dto.setTransaction(record.transaction);
+        return dto;
     }
 
     public String getSerial() {
@@ -189,24 +207,6 @@ public class RecordDto {
     public RecordDto withNotificationReports(List<NotificationReport> notificationReports) {
         this.notificationReports = notificationReports;
         return this;
-    }
-
-    public static RecordDto fromRecord(Record record) {
-        RecordDto dto = new RecordDto();
-        dto.setSubject(record.subject);
-        dto.setSerial(record.serial);
-        dto.setInfoKey(record.infoKey);
-        dto.setBodyKey(record.bodyKey);
-        dto.setCreationTimestamp(record.creationTimestamp);
-        dto.setExpirationTimestamp(record.expirationTimestamp);
-        dto.setCollectionMethod(record.collectionMethod.toString());
-        dto.setType(record.type);
-        dto.setComment(record.comment);
-        dto.setStatus(record.status.toString());
-        dto.setStatusExplanation(record.statusExplanation.toString());
-        dto.setValue(record.value);
-        dto.setTransaction(record.transaction);
-        return dto;
     }
 
     @Override

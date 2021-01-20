@@ -79,7 +79,7 @@ public class SubjectsResource {
             @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "getSubject", summary = "Search subjects by name")
+    @Operation(summary = "Search subjects by name")
     public List<SubjectDto> listSubjects(
             @Parameter(description = "Pattern to use, use % as wildcard", example = "a mysterious %") @QueryParam("name") @NotNull @NotEmpty String name
     ) throws AccessDeniedException {
@@ -96,7 +96,7 @@ public class SubjectsResource {
             @APIResponse(responseCode = "409", description = "A subject with the same name already exists"),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "createSubject", summary = "Create new subject")
+    @Operation(summary = "Create new subject")
     public SubjectDto createSubject(
             @Parameter(description = "the subject to create", example = Placeholders.SHELDON) @Valid @NotNull SubjectDto dto
     ) throws ConsentManagerException, EntityAlreadyExistsException {
@@ -112,7 +112,7 @@ public class SubjectsResource {
             @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "getSubject", summary = "Get subject by name", description = "If subject do not exists, send back an empty")
+    @Operation(summary = "Get subject by name", description = "If subject do not exists, send back an empty")
     public SubjectDto getSubject(
             @Parameter(description = "the subject id", example = Placeholders.SHELDON) @PathParam("name") @NotNull String name
     ) throws AccessDeniedException {
@@ -130,7 +130,7 @@ public class SubjectsResource {
             @APIResponse(responseCode = "404", description = "The subject has not been found"),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "updateSubject", summary = "Update subject")
+    @Operation(summary = "Update subject")
     public SubjectDto updateSubject(
             @Parameter(description = "the subject id", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Valid @NotNull SubjectDto dto
@@ -147,7 +147,7 @@ public class SubjectsResource {
             @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "getSubjectRecords", summary = "Get subject records")
+    @Operation(summary = "Get subject records")
     public Response listSubjectRecords(
             @Parameter(description = "the subject id", example = Placeholders.SHELDON) @PathParam("subject") String subject,
             @Context UriInfo uriInfo

@@ -33,6 +33,8 @@ package com.fairandsmart.consent.manager;
  * #L%
  */
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import java.net.URI;
 
 public class ConsentFormResult {

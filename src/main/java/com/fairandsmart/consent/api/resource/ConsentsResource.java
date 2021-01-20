@@ -80,12 +80,12 @@ public class ConsentsResource {
     @Path("token")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Operation(summary = "Generate a thin token from a given context")
-    @SecurityRequirement(name = "access token", scopes = {"profile"})
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "thin token has been generated", content = @Content(example = "a token")),
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE)
     })
+    @SecurityRequirement(name = "access token", scopes = {"profile"})
+    @Operation(summary = "Generate a thin token from a given context")
     public String generateToken(@Valid ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /consents/token");
         return consentService.buildToken(ctx);
@@ -93,11 +93,11 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    @Operation(summary = "Generate a form from a given thin token")
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "form has been generated", content = @Content(example = "consent form HTML code")),
             @APIResponse(responseCode = "401", description = "thin token is either invalid or missing")
     })
+    @Operation(summary = "Generate a form from a given thin token")
     public TemplateModel<ConsentForm> getFormHtml(@QueryParam("t") @NotNull String token) throws TokenExpiredException, EntityNotFoundException, ConsentServiceException, InvalidTokenException, TemplateServiceException {
         LOGGER.log(Level.INFO, "GET /consents (html)");
         ConsentForm form = consentService.generateForm(token);

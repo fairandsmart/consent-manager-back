@@ -212,7 +212,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public void deleteEntry(String id) throws ConsentManagerException {
-        LOGGER.log(Level.INFO, "Deleting entry with id: " + id);
+        LOGGER.log(Level.INFO, "Deleting entry with id: {0}", id);
         authentication.ensureConnectedIdentifierIsAdmin();
         List<ModelVersion> versions = ModelVersion.find("entry.id = ?1", id).list();
         if (versions.isEmpty() || versions.stream().allMatch(v -> v.status.equals(ModelVersion.Status.DRAFT))) {

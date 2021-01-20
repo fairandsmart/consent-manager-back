@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Schema(name="ClientConfig", description="A representation of the client configuration")
+@Schema(name = "ClientConfig", description = "A representation of the client configuration")
 public class ClientConfigDto {
 
     @Schema(description = "Language used in data", readOnly = true)
@@ -52,6 +52,15 @@ public class ClientConfigDto {
 
     public ClientConfigDto() {
         userPageElements = new ArrayList<>();
+    }
+
+    public static ClientConfigDto fromClientConfig(ClientConfig config) {
+        ClientConfigDto dto = new ClientConfigDto();
+        dto.setUserPageEnabled(config.isUserPageEnabled());
+        if (config.userPageElements().isPresent()) {
+            dto.setUserPageElements(Arrays.asList(config.userPageElements().get().split(",")));
+        }
+        return dto;
     }
 
     public String getLanguage() {
@@ -76,15 +85,6 @@ public class ClientConfigDto {
 
     public void setUserPageElements(List<String> userPageElements) {
         this.userPageElements = userPageElements;
-    }
-
-    public static ClientConfigDto fromClientConfig(ClientConfig config) {
-        ClientConfigDto dto = new ClientConfigDto();
-        dto.setUserPageEnabled(config.isUserPageEnabled());
-        if (config.userPageElements().isPresent()) {
-            dto.setUserPageElements(Arrays.asList(config.userPageElements().get().split(",")));
-        }
-        return dto;
     }
 
     @Override

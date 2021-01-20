@@ -3,9 +3,9 @@ package com.fairandsmart.consent.api.dto;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.api.dto;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -46,9 +46,11 @@ import java.util.List;
 public class ModelEntryDto {
 
     private String id;
-    @NotNull @ModelKey
+    @NotNull
+    @ModelKey
     private String key;
-    @NotNull @Size(min = 2, max = 255)
+    @NotNull
+    @Size(min = 2, max = 255)
     private String name;
     @Size(max = 2500)
     private String description;
@@ -57,6 +59,22 @@ public class ModelEntryDto {
     private List<ModelVersionDtoLight> versions = new ArrayList<>();
 
     public ModelEntryDto() {
+    }
+
+    public static ModelEntryDto fromModelEntry(ModelEntry entry, List<ModelVersion> versions) throws ModelDataSerializationException {
+        ModelEntryDto dto = new ModelEntryDto();
+        dto.setId(entry.id);
+        dto.setKey(entry.key);
+        dto.setName(entry.name);
+        dto.setType(entry.type);
+        dto.setDescription(entry.description);
+        List<ModelVersionDtoLight> lightVersions = new ArrayList<>();
+        for (ModelVersion version : versions) {
+            ModelVersionDtoLight modelVersionDtoLight = ModelVersionDtoLight.fromModelVersion(version);
+            lightVersions.add(modelVersionDtoLight);
+        }
+        dto.setVersions(lightVersions);
+        return dto;
     }
 
     public String getId() {
@@ -105,22 +123,6 @@ public class ModelEntryDto {
 
     public void setVersions(List<ModelVersionDtoLight> versions) {
         this.versions = versions;
-    }
-
-    public static ModelEntryDto fromModelEntry(ModelEntry entry, List<ModelVersion> versions) throws ModelDataSerializationException {
-        ModelEntryDto dto = new ModelEntryDto();
-        dto.setId(entry.id);
-        dto.setKey(entry.key);
-        dto.setName(entry.name);
-        dto.setType(entry.type);
-        dto.setDescription(entry.description);
-        List<ModelVersionDtoLight> lightVersions = new ArrayList<>();
-        for (ModelVersion version : versions) {
-            ModelVersionDtoLight modelVersionDtoLight = ModelVersionDtoLight.fromModelVersion(version);
-            lightVersions.add(modelVersionDtoLight);
-        }
-        dto.setVersions(lightVersions);
-        return dto;
     }
 
     @Override

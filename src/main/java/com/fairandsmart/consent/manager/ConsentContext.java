@@ -33,6 +33,7 @@ package com.fairandsmart.consent.manager;
  * #L%
  */
 
+import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.token.Tokenizable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +45,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
 
+@Schema(description = "Consent form context object")
 public class ConsentContext implements Tokenizable {
 
     private static final String DEFAULT_VALIDITY = "P6M";
@@ -54,7 +56,7 @@ public class ConsentContext implements Tokenizable {
     private static final String ATTRIBUTES_PREFIX = "attributes_";
 
     @NotNull
-    @Schema(description = "The customer unique ID", example = "a mysterious customer")
+    @Schema(description = "The customer unique ID", example = Placeholders.SHELDON)
     private String subject;
     @NotNull
     private ConsentForm.Orientation orientation;
@@ -78,7 +80,7 @@ public class ConsentContext implements Tokenizable {
     private Map<String, String> attributes; // TODO : doc this
     @Schema(description = "Email model ID (mandatory when email notification is needed)", example = "email.001")
     private String notificationModel;
-    @Schema(description = "Email recipient (mandatory when email notification is needed)", example = "nobody@example.com")
+    @Schema(description = "Email recipient (mandatory when email notification is needed)", example = Placeholders.SHELDON_AT_LOCALHOST)
     private String notificationRecipient;
     private CollectionMethod collectionMethod;
     @Schema(example = "")

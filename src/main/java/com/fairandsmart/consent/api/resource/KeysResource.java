@@ -33,6 +33,7 @@ package com.fairandsmart.consent.api.resource;
  * #L%
  */
 
+import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.security.AuthenticationService;
@@ -69,7 +70,7 @@ public class KeysResource {
             @APIResponse(responseCode = "200", description = "The list of all keys")
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "listKeys", summary = "List of all available API access keys")
+    @Operation(summary = "List of all available API access keys")
     public List<Key> listKeys() throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /keys");
         return authenticationService.listKeys();
@@ -82,7 +83,7 @@ public class KeysResource {
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE),
             @APIResponse(responseCode = "200", description = "The created key")})
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "createKey", summary = "Create a new API access key")
+    @Operation(summary = "Create a new API access key")
     public Key createKey(Key key) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /users/key");
         return authenticationService.createKey(key.name);
@@ -94,9 +95,9 @@ public class KeysResource {
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE),
             @APIResponse(responseCode = "204", description = "The key has been deleted")})
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "deleteKey", summary = "Delete the key with that id")
+    @Operation(summary = "Delete the key with that id")
     public Response deleteKey(
-            @Parameter(description = "The key UUID (NOT its name) to delete", example = "00000000-0000-0000-0000-000000000000") @PathParam("id") @NotEmpty @UUID String id) throws AccessDeniedException {
+            @Parameter(description = "The key UUID (NOT its name) to delete", example = Placeholders.NIL_UUID) @PathParam("id") @NotEmpty @UUID String id) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "DELETE /users/key/{}", id);
         authenticationService.dropKey(id);
         return Response.noContent().build();

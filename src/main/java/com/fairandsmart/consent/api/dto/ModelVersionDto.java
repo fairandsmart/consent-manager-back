@@ -3,9 +3,9 @@ package com.fairandsmart.consent.api.dto;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,12 +21,12 @@ package com.fairandsmart.consent.api.dto;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -51,14 +51,6 @@ public class ModelVersionDto extends ModelVersionDtoLight {
     public ModelVersionDto() {
     }
 
-    public Map<String, ModelData> getData() {
-        return data;
-    }
-
-    public void setData(Map<String, ModelData> data) {
-        this.data = data;
-    }
-
     public static ModelVersionDto fromModelVersion(ModelVersion version) throws ModelDataSerializationException {
         ModelVersionDto dto = new ModelVersionDto();
         dto.setId(version.id);
@@ -77,6 +69,14 @@ public class ModelVersionDto extends ModelVersionDtoLight {
             dto.data.put(entry.getKey(), entry.getValue().getDataObject());
         }
         return dto;
+    }
+
+    public Map<String, ModelData> getData() {
+        return data;
+    }
+
+    public void setData(Map<String, ModelData> data) {
+        this.data = data;
     }
 
     @Override

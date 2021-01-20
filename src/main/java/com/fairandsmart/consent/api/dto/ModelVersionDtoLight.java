@@ -3,9 +3,9 @@ package com.fairandsmart.consent.api.dto;
 /*-
  * #%L
  * Right Consent / A Consent Manager Platform
- * 
+ *
  * Authors:
- * 
+ *
  * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
  * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
  * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
@@ -21,40 +21,70 @@ package com.fairandsmart.consent.api.dto;
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 
+import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class ModelVersionDtoLight {
 
+    @Schema(description = "the version UUID", readOnly = true)
     private String id;
+    @Schema(description = "the version serial", readOnly = true)
     private String serial;
+    @Schema(description = "the previous version UUID", readOnly = true)
     private String parent;
+    @Schema(description = "the next version child", readOnly = true)
     private String child;
+    @Schema(description = "the version author", readOnly = true, example = "demo")
     private String author;
+    @Schema(description = "the version default language", example = "fr")
     private String defaultLanguage;
+    @Schema(description = "the version default language", example = "[\"fr\"]")
     private List<String> availableLanguages;
+    @Schema(readOnly = true)
     private ModelVersion.Status status;
+    @Schema(readOnly = true)
     private ModelVersion.Type type;
+    @Schema(description = "the version creation date (epoch in millisec)", readOnly = true, example = Placeholders.TS_2021_01_01)
     private long creationDate;
+    @Schema(description = "the version last modification date (epoch in millisec)", readOnly = true, example = Placeholders.TS_2021_01_01)
     private long modificationDate;
-    private String identifier;
+    private String identifier; // TODO : document this
 
     public ModelVersionDtoLight() {
+    }
+
+    public static ModelVersionDtoLight fromModelVersion(ModelVersion version) throws ModelDataSerializationException {
+        ModelVersionDtoLight dto = new ModelVersionDtoLight();
+        dto.setId(version.id);
+        dto.setAuthor(version.author);
+        dto.setParent(version.parent);
+        dto.setChild(version.child);
+        dto.setSerial(version.serial);
+        dto.setDefaultLanguage(version.defaultLanguage);
+        dto.setAvailableLanguages(Arrays.asList(version.availableLanguages.split(",")));
+        dto.setStatus(version.status);
+        dto.setType(version.type);
+        dto.setCreationDate(version.creationDate);
+        dto.setModificationDate(version.modificationDate);
+        dto.setIdentifier(version.getIdentifier().toString());
+        return dto;
     }
 
     public String getId() {
@@ -151,23 +181,6 @@ public class ModelVersionDtoLight {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
-    }
-
-    public static ModelVersionDtoLight fromModelVersion(ModelVersion version) throws ModelDataSerializationException {
-        ModelVersionDtoLight dto = new ModelVersionDtoLight();
-        dto.setId(version.id);
-        dto.setAuthor(version.author);
-        dto.setParent(version.parent);
-        dto.setChild(version.child);
-        dto.setSerial(version.serial);
-        dto.setDefaultLanguage(version.defaultLanguage);
-        dto.setAvailableLanguages(Arrays.asList(version.availableLanguages.split(",")));
-        dto.setStatus(version.status);
-        dto.setType(version.type);
-        dto.setCreationDate(version.creationDate);
-        dto.setModificationDate(version.modificationDate);
-        dto.setIdentifier(version.getIdentifier().toString());
-        return dto;
     }
 
     @Override

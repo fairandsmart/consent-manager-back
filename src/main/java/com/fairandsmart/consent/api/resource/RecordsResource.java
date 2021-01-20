@@ -78,7 +78,7 @@ public class RecordsResource {
             @APIResponse(responseCode = "200", description = "A Map of all subject Records ordered by key")
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "listSubjectRecords", summary = "List all subject Records", description = "Records are ordered by element key and chronological order. Records status is evaluated at runtime.")
+    @Operation(summary = "List all subject Records", description = "Records are ordered by element key and chronological order. Records status is evaluated at runtime.")
     public Map<String, List<RecordDto>> listSubjectRecords(
             @Parameter(description = "Subject to query", example = Placeholders.SHELDON) @QueryParam("subject") String subject
     ) throws AccessDeniedException {
@@ -109,7 +109,7 @@ public class RecordsResource {
             @APIResponse(responseCode = "200", description = "A List of all Records that matches the extraction config")
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(operationId = "extractRecords", summary = "Extract records according to the specific provided config")
+    @Operation(summary = "Extract records", description = "Extract records according to the specific provided config")
     public List<ExtractionResultDto> extractRecords(
             @Parameter(description = "Subject to query", example = Placeholders.SHELDON) @NotNull @Valid ExtractionConfigDto dto
     ) throws AccessDeniedException {

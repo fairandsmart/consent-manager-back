@@ -96,7 +96,7 @@ public class ReceiptsResource {
             @APIResponse(responseCode = "404", description = "Unable to find the receipt due to un-existing transaction, format renderer or theme"),
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE),
             @APIResponse(responseCode = "200", description = "receipt has been generated")})
-    @Operation(operationId = "getReceipt", summary = "Get a receipt from a thin token")
+    @Operation(summary = "Get a receipt from a thin token")
     public Response getReceipt(
             @Parameter(name = "tid", description = "The receipt's transaction id", example = Placeholders.NIL_UUID) @PathParam("tid") String transaction,
             @Parameter(name = "t", description = "The receipt access token", required = true) @QueryParam("t") @NotEmpty String token,
