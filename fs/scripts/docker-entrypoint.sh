@@ -9,7 +9,8 @@ fs_error() {
 FS_PROD=${FS_PROD:-true}
 
 # container setup
-FS_ENVIRONMENT_NAME=${FS_ENVIRONMENT_NAME:-dev}
+FS_ENVIRONMENT_NAME=${FS_ENVIRONMENT_NAME:-DEV}
+FS_ENVIRONMENT_NAME=${FS_ENVIRONMENT_NAME^^}
 FS_BACKEND_TYPE=consent-manager-back
 FS_DEBUG=${FS_DEBUG:-}
 FS_JVM_ARGS=${FS_JVM_ARGS:-}
@@ -35,7 +36,7 @@ else
     export FS_DATABASE_KIND="h2"
     export FS_DATABASE_LOGIN="sa"
     export FS_DATABASE_PASSWORD="sa"
-    export FS_DATABASE_URL="jdbc:h2:/data/database/consent-manager.h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
+    export FS_DATABASE_URL="jdbc:h2:/data/database/consent-manager.h2"
     mkdir -p /data/database
 fi
 
