@@ -144,16 +144,6 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>${version.bouncycastle}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>${version.bouncycastle}</version>
-        </dependency>
-        <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
             <version>${version.java-jwt}</version>
@@ -168,11 +158,6 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>${version.freemarker}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.xades4j</groupId>
-            <artifactId>xades4j</artifactId>
-            <version>${version.xades4j}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
