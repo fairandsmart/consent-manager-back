@@ -2,7 +2,7 @@ package com.fairandsmart.consent.manager.model;
 
 /*-
  * #%L
- * Right Consents / A Consent Manager Platform
+ * Right Consents Community Edition
  * %%
  * Copyright (C) 2020 Fair And Smart
  * %%

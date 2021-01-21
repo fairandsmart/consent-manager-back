@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!--
   #%L
-  Right Consents / A Consent Manager Platform
+  Right Consents Community Edition
   %%
   Copyright (C) 2020 - 2021 Fair And Smart
   %%
