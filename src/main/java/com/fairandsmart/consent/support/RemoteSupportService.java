@@ -24,13 +24,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/consents/v2/support")
+@Path("/manager")
 @RegisterRestClient(configKey="consent.support.api")
 public interface RemoteSupportService {
 
     @GET
-    @Path("/version")
+    @Path("/version/latest")
     @Produces(MediaType.TEXT_PLAIN)
-    String getAvailableVersion(@HeaderParam("X-Consent-Instance") String key, @HeaderParam("X-Consent-Language") String language);
+    String getLatestVersion(@HeaderParam("X-Consent-Instance") String key, @HeaderParam("X-Consent-Language") String language);
 
 }

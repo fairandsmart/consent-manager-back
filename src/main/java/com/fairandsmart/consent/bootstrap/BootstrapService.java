@@ -37,7 +37,7 @@ public class BootstrapService {
 
     private static final Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
     private static final List<String> supportedLanguages = Arrays.asList("fr", "en");
-    private static final String defaultLanguage = "fr";
+    private static final String defaultLanguage = "en";
 
     @Inject
     LiquibaseFactory liquibaseFactory;

@@ -140,7 +140,7 @@ public class SupportServiceBean implements SupportService {
             throw new SupportServiceException("Unable to find instance, initialisation problem");
         }
         try {
-            String latestVersion = remoteSupportService.getAvailableVersion(instance.key, instance.language);
+            String latestVersion = remoteSupportService.getLatestVersion(instance.key, instance.language);
             LOGGER.log(Level.INFO, "Latest version available: " + latestVersion);
             return latestVersion;
         } catch (WebApplicationException e) {
