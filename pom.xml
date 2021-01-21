@@ -257,9 +257,9 @@
                 <version>${version.maven-license-plugin}</version>
                 <configuration>
                     <copyrightOwners>Fair And Smart</copyrightOwners>
-                    <projectName>Right Consents / A Consent Manager Platform</projectName>
+                    <projectName>Right Consents Community Edition</projectName>
                     <!-- set to true to force description update-->
-                    <canUpdateDescription>false</canUpdateDescription>
+                    <canUpdateDescription>true</canUpdateDescription>
                     <!-- set to true to force copyright update -->
                     <canUpdateCopyright>false</canUpdateCopyright>
                     <licenseName>fairandsmart</licenseName>
