@@ -1,16 +1,43 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+  #%L
+  Right Consents / A Consent Manager Platform
+  %%
+  Copyright (C) 2020 - 2021 Fair And Smart
+  %%
+  This program is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation, either version 3 of the License, or (at your
+  option) any later version.
+  
+  You accept that the Program was not created with a view to satisfy Your
+  individual requirements. Therefore, you must ensure that the Program
+  comply with Your needs, requirements and constraints. FAIR AND SMART
+  represents and warrants that it holds, without any restriction or
+  reservation, all the legal titles, authorizations and intellectual
+  property rights granted in the context of the GPLv3 License. See the
+  Additional Terms for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program. If not, see <https://www.gnu.org/licenses/>.
+  
+  You should have received a copy of the Additional Terms along with this
+  program. If not, see <https://www.fairandsmart.com/opensource/>.
+  #L%
+  -->
+
 <xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exslt="http://exslt.org/common" xmlns:fo="http://www.w3.org/1999/XSL/Format" exclude-result-prefixes="fo">
     <xsl:variable name="bundle">
         <labels>
             <key name="not-found">
                 <value language="default">Key not found</value>
                 <value language="en">Key not found</value>
-                <value language="fr">Clé introuvable</value>
+                <value language="fr">Clï¿½ introuvable</value>
             </key>
             <key name="title">
                 <value language="default">CONSENT RECEIPT</value>
                 <value language="en">CONSENT RECEIPT</value>
-                <value language="fr">REÇU DE CONSENTEMENT</value>
+                <value language="fr">REï¿½U DE CONSENTEMENT</value>
             </key>
             <key name="accept">
                 <value language="default">Accept</value>
@@ -20,12 +47,12 @@
             <key name="accepted">
                 <value language="default">Accepted</value>
                 <value language="en">Accepted</value>
-                <value language="fr">Accepté</value>
+                <value language="fr">Acceptï¿½</value>
             </key>
             <key name="refused">
                 <value language="default">Refused</value>
                 <value language="en">Refused</value>
-                <value language="fr">Refusé</value>
+                <value language="fr">Refusï¿½</value>
             </key>
             <key name="date">
                 <value language="default">Timestamp</value>
@@ -35,12 +62,12 @@
             <key name="expires">
                 <value language="default">Consent and Receipt Expiration Date</value>
                 <value language="en">Consent and Receipt Expiration Date</value>
-                <value language="fr">Date d&#39;expiration du consentement et du reçu</value>
+                <value language="fr">Date d&#39;expiration du consentement et du reï¿½u</value>
             </key>
             <key name="expires_explanation">
                 <value language="default">(After this date, the data controller must collect your consent again)</value>
                 <value language="en">(After this date, the data controller must collect your consent again)</value>
-                <value language="fr">(Date jusqu'à laquelle vous pouvez accéder et modifier votre consentement)</value>
+                <value language="fr">(Date jusqu'ï¿½ laquelle vous pouvez accï¿½der et modifier votre consentement)</value>
             </key>
             <key name="language">
                 <value language="default">Language</value>
@@ -50,7 +77,7 @@
             <key name="language_fr">
                 <value language="default">French (France)</value>
                 <value language="en">French (France)</value>
-                <value language="fr">Français (France)</value>
+                <value language="fr">Franï¿½ais (France)</value>
             </key>
             <key name="language_en">
                 <value language="default">English (England)</value>
@@ -60,27 +87,27 @@
             <key name="receipt_id">
                 <value language="default">Consent Record ID</value>
                 <value language="en">Consent Record ID</value>
-                <value language="fr">Identifiant du reçu</value>
+                <value language="fr">Identifiant du reï¿½u</value>
             </key>
             <key name="data_collected">
                 <value language="default">PII Categories</value>
                 <value language="en">PII Categories</value>
-                <value language="fr">Données utilisées</value>
+                <value language="fr">Donnï¿½es utilisï¿½es</value>
             </key>
             <key name="data_retention">
                 <value language="default">Data Retention Duration</value>
                 <value language="en">Data Retention Duration</value>
-                <value language="fr">Durée de conservation des données</value>
+                <value language="fr">Durï¿½e de conservation des donnï¿½es</value>
             </key>
             <key name="data_usage">
                 <value language="default">Purpose description</value>
                 <value language="en">Purpose description</value>
-                <value language="fr">Description de la finalité</value>
+                <value language="fr">Description de la finalitï¿½</value>
             </key>
             <key name="data_purpose">
                 <value language="default">Purpose categories</value>
                 <value language="en">Purpose categories</value>
-                <value language="fr">Catégories de la finalité</value>
+                <value language="fr">Catï¿½gories de la finalitï¿½</value>
             </key>
             <key name="CONSENT_CORE_SERVICE">
                 <value language="default">Core service</value>
@@ -90,7 +117,7 @@
             <key name="CONSENT_IMPROVED_SERVICE">
                 <value language="default">Improved service</value>
                 <value language="en">Improved service</value>
-                <value language="fr">Service amélioré</value>
+                <value language="fr">Service amï¿½liorï¿½</value>
             </key>
             <key name="CONSENT_MARKETING">
                 <value language="default">Marketing</value>
@@ -100,7 +127,7 @@
             <key name="CONSENT_THIRD_PART_SHARING">
                 <value language="default">Sharing with third parties</value>
                 <value language="en">Sharing with third parties</value>
-                <value language="fr">Partage à des tierces-parties</value>
+                <value language="fr">Partage ï¿½ des tierces-parties</value>
             </key>
             <key name="CONSENT_RESEARCH">
                 <value language="default">Research</value>
@@ -110,12 +137,12 @@
             <key name="subject_consent">
                 <value language="default">Status</value>
                 <value language="en">Status</value>
-                <value language="fr">Réponse</value>
+                <value language="fr">Rï¿½ponse</value>
             </key>
             <key name="subject_id">
                 <value language="default">PII Principal ID</value>
                 <value language="en">PII Principal ID</value>
-                <value language="fr">Identifiant de la personne concernée</value>
+                <value language="fr">Identifiant de la personne concernï¿½e</value>
             </key>
             <key name="data_controller_name">
                 <value language="default">PII Controller</value>
@@ -125,12 +152,12 @@
             <key name="privacy_policy">
                 <value language="default">Privacy Notice</value>
                 <value language="en">Privacy Notice</value>
-                <value language="fr">Politique de confidentialité</value>
+                <value language="fr">Politique de confidentialitï¿½</value>
             </key>
             <key name="collection_method">
                 <value language="default">Collection Method</value>
                 <value language="en">Collection Method</value>
-                <value language="fr">Méthode de collecte</value>
+                <value language="fr">Mï¿½thode de collecte</value>
             </key>
             <key name="collection_method_WEBFORM">
                 <value language="default">Web form</value>
@@ -140,7 +167,7 @@
             <key name="collection_method_OPERATOR">
                 <value language="default">Operator</value>
                 <value language="en">Operator</value>
-                <value language="fr">Opérateur</value>
+                <value language="fr">Opï¿½rateur</value>
             </key>
             <key name="collection_method_EMAIL">
                 <value language="default">Modification link in the notification email</value>
@@ -150,7 +177,7 @@
             <key name="collection_method_RECEIPT">
                 <value language="default">Modification link in the receipt</value>
                 <value language="en">Modification link in the receipt</value>
-                <value language="fr">Lien de modification du reçu</value>
+                <value language="fr">Lien de modification du reï¿½u</value>
             </key>
             <key name="collection_method_USER_PAGE">
                 <value language="default">User interface</value>
@@ -165,27 +192,27 @@
             <key name="general_info">
                 <value language="default">Informations</value>
                 <value language="en">Informations</value>
-                <value language="fr">Informations générales</value>
+                <value language="fr">Informations gï¿½nï¿½rales</value>
             </key>
             <key name="sensitive_data">
                 <value language="default">About sensitive Data</value>
                 <value language="en">Sensitive Data</value>
-                <value language="fr">À propos des données sensibles</value>
+                <value language="fr">ï¿½ propos des donnï¿½es sensibles</value>
             </key>
             <key name="contains_sensitive_data">
                 <value language="default">The transmitted information contains sensitive data.</value>
                 <value language="en">The transmitted information contains sensitive data.</value>
-                <value language="fr">Les informations transmises contiennent des données sensibles.</value>
+                <value language="fr">Les informations transmises contiennent des donnï¿½es sensibles.</value>
             </key>
             <key name="contains_medical_data">
                 <value language="default">The transmitted information contains sensitive data, including medical data.</value>
                 <value language="en">The transmitted information contains sensitive data, including medical data.</value>
-                <value language="fr">Les informations transmises contiennent des données sensibles, dont des données de santé.</value>
+                <value language="fr">Les informations transmises contiennent des donnï¿½es sensibles, dont des donnï¿½es de santï¿½.</value>
             </key>
             <key name="third_parties">
                 <value language="default">These data will be shared with:</value>
                 <value language="en">These data will be shared with:</value>
-                <value language="fr">Ces données seront transmises à :</value>
+                <value language="fr">Ces donnï¿½es seront transmises ï¿½ :</value>
             </key>
         </labels>
     </xsl:variable>

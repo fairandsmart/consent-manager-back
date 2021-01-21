@@ -2,34 +2,28 @@ package com.fairandsmart.consent.api.mapper;
 
 /*-
  * #%L
- * Right Consent / A Consent Manager Platform
- * 
- * Authors:
- * 
- * Xavier Lefevre <xavier.lefevre@fairandsmart.com> / FairAndSmart
- * Nicolas Rueff <nicolas.rueff@fairandsmart.com> / FairAndSmart
- * Jérôme Blanchard <jerome.blanchard@fairandsmart.com> / FairAndSmart
- * Alan Balbo <alan.balbo@fairandsmart.com> / FairAndSmart
- * Frederic Pierre <frederic.pierre@fairansmart.com> / FairAndSmart
- * Victor Guillaume <victor.guillaume@fairandsmart.com> / FairAndSmart
- * Manon Stremplewski <manon.stremplewski@fairandsmart.com> / FairAndSmart
- * Pauline Kullmann <pauline.kullmmann@fairandsmart.com> / FairAndSmart
+ * Right Consents / A Consent Manager Platform
  * %%
  * Copyright (C) 2020 Fair And Smart
  * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * You accept that the Program was not created with a view to satisfy Your
+ * individual requirements. Therefore, you must ensure that the Program
+ * comply with Your needs, requirements and constraints. FAIR AND SMART
+ * represents and warrants that it holds, without any restriction or
+ * reservation, all the legal titles, authorizations and intellectual
+ * property rights granted in the context of the GPLv3 License. See the
+ * Additional Terms for more details.
  * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
+ * 
+ * You should have received a copy of the Additional Terms along with this
+ * program. If not, see <https://www.fairandsmart.com/opensource/>.
  * #L%
  */
 
