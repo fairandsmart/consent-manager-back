@@ -38,4 +38,4 @@ lsp
 
 .consent-manager-tests/
 
-quarkus.log
+quarkus*.log
