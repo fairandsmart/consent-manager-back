@@ -29,6 +29,7 @@ import javax.transaction.UserTransaction;
 import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -143,8 +144,8 @@ public class SupportServiceBean implements SupportService {
             String latestVersion = remoteSupportService.getLatestVersion(instance.key, instance.language);
             LOGGER.log(Level.INFO, "Latest version available: " + latestVersion);
             return latestVersion;
-        } catch (WebApplicationException e) {
-            throw new SupportServiceException("Unable to contact support API: " + e.getResponse().getStatusInfo(), e);
+        } catch (Exception e) {
+            throw new SupportServiceException("Support Service API unreachable", e);
         }
     }
 
