@@ -21,27 +21,31 @@ export FS_HTTP_PORT=${FS_HTTP_PORT:-8087}
 
 # OIDC config
 export FS_AUTH_BACK_URL=${FS_AUTH_BACK_URL:-http://keycloak:8080}
-export FS_AUTH_CLIENTID=${FS_AUTH_CLIENTID:-fsconsentmgr}
+export FS_AUTH_CLIENTID=${FS_AUTH_CLIENTID:-cmclient}
 export FS_AUTH_FRONT_URL=${FS_AUTH_FRONT_URL:-}
-export FS_AUTH_REALM=${FS_AUTH_REALM:-FairAndSmart}
+export FS_AUTH_REALM=${FS_AUTH_REALM:-RightConsents}
 
 # DB setup
-FS_CONSENTMANAGER_BACKEND="${FS_CONSENTMANAGER_BACKEND:-h2}"
-if [[ ${FS_CONSENTMANAGER_BACKEND} == "pg" ]]; then
-    export FS_DATABASE_KIND="pg"
-    export FS_DATABASE_LOGIN=${FS_POSTGRES_USER}
-    export FS_DATABASE_PASSWORD=${FS_POSTGRES_PASSWORD}
-    export FS_DATABASE_URL="jdbc:postgresql://${FS_POSTGRES_SERVERS}/${FS_POSTGRES_DATABASE}"
+FS_DATABASE_KIND="${FS_DATABASE_KIND:-h2}"
+if [[ ${FS_DATABASE_KIND} == "pg" ]]; then
+    export FS_DATABASE_DRIVER="postgresql"
+    export FS_DATABASE_USER=${FS_DATABASE_USER:-user}
+    export FS_DATABASE_PASSWORD=${FS_DATABASE_PASSWORD:-password}
+    export FS_DATABASE_SERVERS=${FS_DATABASE_SERVERS:-server}
+    export FS_DATABASE_DB=${FS_DATABASE_DB:-db}
 else
-    export FS_DATABASE_KIND="h2"
-    export FS_DATABASE_LOGIN="sa"
+    export FS_DATABASE_DRIVER="h2"
+    export FS_DATABASE_USER="sa"
     export FS_DATABASE_PASSWORD="sa"
-    export FS_DATABASE_URL="jdbc:h2:/data/database/consent-manager.h2"
+    export FS_DATABASE_SERVERS="data/database"
+    export FS_DATABASE_DB="consent-manager.h2"
     mkdir -p /data/database
 fi
 
+export FS_DATABASE_URL="jdbc:${FS_DATABASE_DRIVER}://${FS_DATABASE_SERVERS}/${FS_DATABASE_DB}"
+
 # Mailer setup
-export FS_MAILER_FROM=${FS_MAILER_FROM:-consent-manager@fairandsmart.io}
+export FS_MAILER_FROM=${FS_MAILER_FROM:-demo@demo.com}
 export FS_MAILER_HOST=${FS_MAILER_HOST:-mail}
 export FS_MAILER_PORT=${FS_MAILER_PORT:-25}
 
@@ -52,19 +56,11 @@ mkdir -p /logs
 
 # MainConfig
 export FS_INSTANCE_NAME=${FS_INSTANCE_NAME:-$FS_ENVIRONMENT_NAME}
+export FS_INSTANCE_LANG=${FS_INSTANCE_LANG:-en}
 export FS_INSTANCE_OWNER=${FS_INSTANCE_OWNER:-demo}
 export FS_PUBLIC_URL=${FS_PUBLIC_URL:-}
 export FS_TOKEN_SECRET=${FS_TOKEN_SECRET:-eozaireeghie1aeD2phu}
 mkdir -p /data/home
-
-# SupportServiceConfig
-export FS_CORE_URL=${FS_CORE_URL:-https://core.fairandsmart.com/api}
-export FS_TSA_URL=${FS_TSA_URL:-https://freetsa.org/tsr}
-
-# SerialConfig
-
-# KeystoreConfig
-export FS_KEYSTORE_PATH=${FS_KEYSTORE_PATH:-/data/keystore.jks}
 
 # ClientConfig
 export FS_GUI_URL=${FS_GUI_URL:-http://localhost}
