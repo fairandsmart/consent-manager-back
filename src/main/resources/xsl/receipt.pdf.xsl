@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   #%L
   Right Consents, a Universal Consents & Preferences Management Platform.
@@ -51,7 +51,7 @@
             <key name="expires">
                 <value language="default">Consent and Receipt Expiration Date</value>
                 <value language="en">Consent and Receipt Expiration Date</value>
-                <value language="fr">Date d&#39;expiration du consentement et du reçu</value>
+                <value language="fr">Date d'expiration du consentement et du reçu</value>
             </key>
             <key name="expires_explanation">
                 <value language="default">(After this date, the data controller must collect your consent again)</value>
