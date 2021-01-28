@@ -7,14 +7,16 @@ package com.fairandsmart.consent.manager.filter;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
  */
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,10 +27,19 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
 
     private List<String> types;
     private List<String> keys;
+    private String keyword;
+    private Status status;
+    private String language;
     private int page;
     private int size;
     private String order;
     private String direction;
+
+    public enum Status {
+        ACTIVE,
+        INACTIVE,
+        INDIFFERENT
+    }
 
     public ModelFilter() {
     }
@@ -56,6 +67,45 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
 
     public ModelFilter withKeys(List<String> keys) {
         this.keys = keys;
+        return this;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
+    public ModelFilter withKeyword(String keyword) {
+        this.keyword = keyword;
+        return this;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public ModelFilter withStatus(Status status) {
+        this.status = status;
+        return this;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public ModelFilter withLanguage(String language) {
+        this.language = language;
         return this;
     }
 
@@ -122,6 +172,20 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (keys != null && !keys.isEmpty()) {
             parts.add("key in :keys");
         }
+        if (keyword != null && !keyword.isEmpty()) {
+            parts.add("(lower(name) like :keyword or lower(description) like :keyword)");
+        }
+        if (status != null && status != Status.INDIFFERENT) {
+            if (status == Status.ACTIVE) {
+                parts.add("status = :status");
+            }
+            if (status == Status.INACTIVE) {
+                parts.add("status != :status");
+            }
+        }
+        if (language != null && !language.isEmpty()) {
+            parts.add(":language in availableLanguages");
+        }
         return String.join(" and ", parts);
     }
 
@@ -134,6 +198,15 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (keys != null && !keys.isEmpty()) {
             params.put("keys", keys);
         }
+        if (keyword != null && !keyword.isEmpty()) {
+            params.put("keyword", StringUtils.lowerCase("%" + keyword + "%"));
+        }
+        if (status != null && status != Status.INDIFFERENT) {
+            params.put("status", ModelFilter.Status.ACTIVE);
+        }
+        if (language != null && !language.isEmpty()) {
+            params.put("language", language);
+        }
         return params;
     }
 
@@ -141,6 +214,10 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
     public String toString() {
         return "ModelFilter{" +
                 "types=" + types +
+                ", keys=" + keys +
+                ", keyword='" + keyword + '\'' +
+                ", status=" + status +
+                ", language='" + language + '\'' +
                 ", page=" + page +
                 ", size=" + size +
                 ", order='" + order + '\'' +
