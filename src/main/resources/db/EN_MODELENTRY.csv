@@ -1,10 +1,10 @@
-ID,AUTHOR,KEY,NAME,TYPE,BRANCHES,DESCRIPTION,VERSION
-64f90695-2f62-4f3a-8422-40265ce079a9,demo@localhost,basicinfo.001,General information,basicinfo,master,General Information demo data,0
-cbcfd77d-89fb-42d7-b030-221ca600271e,demo@localhost,processing.001,Direct Marketing,processing,master,Direct marketing processing demo data,0
-c9eefa7b-0a0d-4668-bff7-5db2175320a3,demo@localhost,processing.002,Core service,processing,master,Core service processing demo data,0
-389d8fa4-ae5d-4c47-8fbc-cce29a1088f3,demo@localhost,preference.001,Display Mode,preference,master,Display mode preference demo data,0
-b802b44a-be17-4948-934a-20eea0578ccf,demo@localhost,preference.002,Contact channels,preference,master,Contact channels preference demo data,0
-273cdd5c-556f-4213-aaae-8a6089acf2e9,demo@localhost,preference.003,Contact frequency,preference,master,Contact frequency preference demo data,0
-8eafdbe1-123e-4f68-8630-eaed2efe6aca,demo@localhost,preference.004,Username,preference,master,Username preference demo data,0
-121f4e63-de63-45a7-a050-e6fa1a2fc562,demo@localhost,email.001,Direct Marketing,email,master,Direct marketing email demo data,0
-396abd6f-47ea-4a22-b8dc-339a1311ea0b,demo@localhost,processing.003,Energy consumption data transfer,processing,master,Energy consumption data transfer processing demo data,2
+ID,AUTHOR,KEY,NAME,TYPE,BRANCHES,DESCRIPTION,VERSION,CREATIONDATE,MODIFICATIONDATE,STATUS,DEFAULTLANGUAGE,AVAILABLELANGUAGES
+64f90695-2f62-4f3a-8422-40265ce079a9,demo@localhost,basicinfo.001,General information,basicinfo,master,General Information demo data,0,1601890770380,1601890786955,ACTIVE,en,en
+cbcfd77d-89fb-42d7-b030-221ca600271e,demo@localhost,processing.001,Direct Marketing,processing,master,Direct marketing processing demo data,0,1601892497522,1601892531735,ACTIVE,en,en
+c9eefa7b-0a0d-4668-bff7-5db2175320a3,demo@localhost,processing.002,Core service,processing,master,Core service processing demo data,0,1601893497723,1601894531631,ACTIVE,en,en
+389d8fa4-ae5d-4c47-8fbc-cce29a1088f3,demo@localhost,preference.001,Display Mode,preference,master,Display mode preference demo data,0,1601895594552,1601896511732,ACTIVE,en,en
+b802b44a-be17-4948-934a-20eea0578ccf,demo@localhost,preference.002,Contact channels,preference,master,Contact channels preference demo data,0,1601897397522,160189793134,ACTIVE,en,en
+273cdd5c-556f-4213-aaae-8a6089acf2e9,demo@localhost,preference.003,Contact frequency,preference,master,Contact frequency preference demo data,0,1601897397522,160189793134,ACTIVE,en,en
+8eafdbe1-123e-4f68-8630-eaed2efe6aca,demo@localhost,preference.004,Username,preference,master,Username preference demo data,0,1603976106294,1603976107832,ACTIVE,en,en
+121f4e63-de63-45a7-a050-e6fa1a2fc562,demo@localhost,email.001,Direct Marketing,email,master,Direct marketing email demo data,2,1603976106294,1603976107832,ACTIVE,en,en
+396abd6f-47ea-4a22-b8dc-339a1311ea0b,demo@localhost,processing.003,Energy consumption data transfer,processing,master,Energy consumption data transfer processing demo data,2,1603976106294,1603976107832,ACTIVE,en,en

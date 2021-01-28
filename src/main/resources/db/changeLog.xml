@@ -220,7 +220,8 @@
             <column name="EXPLANATION" type="VARCHAR(2500)"/>
         </createTable>
     </changeSet>
-    <changeSet author="jayblanc" id="2" context="import_fr">
+    <changeSet author="jayblanc" id="2" context="import_fr" runOrder="last">
+        <validCheckSum>1:any</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not><changeSetExecuted id="3" author="jayblanc"/></not>
         </preConditions>
@@ -233,7 +234,8 @@
         <loadData file="db/FR_SUBJECT.csv" separator="," tableName="${instance}_SUBJECT" schemaName="PUBLIC"/>
         <loadData file="db/FR_RECORD.csv" separator="," tableName="${instance}_RECORD" schemaName="PUBLIC"/>
     </changeSet>
-    <changeSet author="jayblanc" id="3" context="import_en">
+    <changeSet author="jayblanc" id="3" context="import_en" runOrder="last">
+        <validCheckSum>1:any</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not><changeSetExecuted id="2" author="jayblanc"/></not>
         </preConditions>
@@ -245,5 +247,36 @@
         <loadData file="db/EN_SEQUENCE.csv" separator="," tableName="${instance}_SEQUENCE" schemaName="PUBLIC"/>
         <loadData file="db/EN_SUBJECT.csv" separator="," tableName="${instance}_SUBJECT" schemaName="PUBLIC"/>
         <loadData file="db/EN_RECORD.csv" separator="," tableName="${instance}_RECORD" schemaName="PUBLIC"/>
+    </changeSet>
+    <changeSet author="mstremplewski" id="4">
+        <addColumn tableName="${instance}_MODELENTRY" schemaName="PUBLIC">
+            <column name="CREATIONDATE" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATIONDATE" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)" defaultValue="INACTIVE"/>
+            <column name="DEFAULTLANGUAGE" type="VARCHAR(255)"/>
+            <column name="AVAILABLELANGUAGES" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="mstremplewski" id="5">
+        <sql>
+            update ${instance}_MODELENTRY
+            set STATUS = 'ACTIVE',
+                AVAILABLELANGUAGES = (select ${instance}_MODELVERSION.AVAILABLELANGUAGES
+                                        from ${instance}_MODELVERSION
+                                        where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                                        and ${instance}_MODELVERSION.STATUS = 'ACTIVE'),
+                DEFAULTLANGUAGE = (select ${instance}_MODELVERSION.DEFAULTLANGUAGE
+                                        from ${instance}_MODELVERSION
+                                        where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                                        and ${instance}_MODELVERSION.STATUS = 'ACTIVE')
+            where exists
+                (select * from ${instance}_MODELVERSION
+                    where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                    and ${instance}_MODELVERSION.STATUS = 'ACTIVE');
+        </sql>
     </changeSet>
 </databaseChangeLog>
