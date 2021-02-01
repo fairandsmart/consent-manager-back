@@ -246,4 +246,62 @@
         <loadData file="db/EN_SUBJECT.csv" separator="," tableName="${instance}_SUBJECT" schemaName="PUBLIC"/>
         <loadData file="db/EN_RECORD.csv" separator="," tableName="${instance}_RECORD" schemaName="PUBLIC"/>
     </changeSet>
+    <changeSet author="mstremplewski" id="4">
+        <addColumn tableName="${instance}_MODELENTRY" schemaName="PUBLIC">
+            <column name="CREATIONDATE" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATIONDATE" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)" defaultValue="INACTIVE"/>
+            <column name="DEFAULTLANGUAGE" type="VARCHAR(255)"/>
+            <column name="AVAILABLELANGUAGES" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="mstremplewski" id="5">
+        <sql>
+            update ${instance}_MODELENTRY
+            set STATUS = 'ACTIVE',
+                AVAILABLELANGUAGES = (select ${instance}_MODELVERSION.AVAILABLELANGUAGES
+                                        from ${instance}_MODELVERSION
+                                        where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                                        and ${instance}_MODELVERSION.STATUS = 'ACTIVE'),
+                DEFAULTLANGUAGE = (select ${instance}_MODELVERSION.DEFAULTLANGUAGE
+                                    from ${instance}_MODELVERSION
+                                    where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                                    and ${instance}_MODELVERSION.STATUS = 'ACTIVE')
+            where exists
+                (select * from ${instance}_MODELVERSION
+                    where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                    and ${instance}_MODELVERSION.STATUS = 'ACTIVE');
+        </sql>
+    </changeSet>
+    <changeSet author="mstremplewski" id="6">
+        <sql>
+            update ${instance}_MODELENTRY
+            set CREATIONDATE = (select ${instance}_MODELVERSION.CREATIONDATE
+                                    from ${instance}_MODELVERSION
+                                    where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                                    order by ${instance}_MODELVERSION.CREATIONDATE asc limit 1),
+                MODIFICATIONDATE = (select ${instance}_MODELVERSION.MODIFICATIONDATE
+                                    from ${instance}_MODELVERSION
+                                    where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                                    order by ${instance}_MODELVERSION.MODIFICATIONDATE desc limit 1)
+            where exists
+                (select * from ${instance}_MODELVERSION
+                    where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID
+                    limit 1);
+        </sql>
+    </changeSet>
+    <changeSet author="mstremplewski" id="7">
+        <sql>
+            update ${instance}_MODELENTRY
+            set CREATIONDATE = cast(extract(epoch from now()) as bigint) * 1000,
+                MODIFICATIONDATE = cast(extract(epoch from now()) as bigint) * 1000
+            where not exists
+                (select * from ${instance}_MODELVERSION
+                    where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID);
+        </sql>
+    </changeSet>
 </databaseChangeLog>
