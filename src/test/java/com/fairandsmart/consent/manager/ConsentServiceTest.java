@@ -72,7 +72,7 @@ public class ConsentServiceTest {
         assertNotEquals(0, entry.creationDate);
         assertEquals(entry.creationDate, entry.modificationDate);
         long modificationTimestamp = entry.modificationDate;
-        assertEquals(ModelFilter.Status.INACTIVE, entry.status);
+        assertEquals(ModelEntry.Status.INACTIVE, entry.status);
         assertEquals("", entry.availableLanguages);
 
         LOGGER.info("List existing entries for basic infos");
@@ -134,7 +134,7 @@ public class ConsentServiceTest {
         assertEquals(ModelVersion.Status.DRAFT, versions.get(0).status);
         entry = service.findEntryForKey(key);
         assertTrue(modificationTimestamp < entry.modificationDate);
-        assertEquals(ModelFilter.Status.INACTIVE, entry.status);
+        assertEquals(ModelEntry.Status.INACTIVE, entry.status);
         assertEquals("", entry.availableLanguages);
 
         LOGGER.info("Delete entry with key " + key);
@@ -167,7 +167,7 @@ public class ConsentServiceTest {
         assertEquals(ModelVersion.Status.ACTIVE, versions.get(0).status);
         entry = service.findEntryForKey(key);
         assertTrue(modificationTimestamp < entry.modificationDate);
-        assertEquals(ModelFilter.Status.ACTIVE, entry.status);
+        assertEquals(ModelEntry.Status.ACTIVE, entry.status);
         assertEquals(language, entry.availableLanguages);
 
         LOGGER.info("Check deleting entry with ACTIVE versions is forbidden");

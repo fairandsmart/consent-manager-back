@@ -163,7 +163,7 @@ public class ConsentServiceBean implements ConsentService {
         entry.author = authentication.getConnectedIdentifier();
         entry.creationDate = now;
         entry.modificationDate = now;
-        entry.status = ModelFilter.Status.INACTIVE;
+        entry.status = ModelEntry.Status.INACTIVE;
         entry.persist();
         return entry;
     }
@@ -400,7 +400,7 @@ public class ConsentServiceBean implements ConsentService {
                     version.counterparts = "";
                 }
                 version.persist();
-                version.entry.status = ModelFilter.Status.ACTIVE;
+                version.entry.status = ModelEntry.Status.ACTIVE;
                 version.entry.defaultLanguage = version.defaultLanguage;
                 version.entry.availableLanguages = version.availableLanguages;
             }
@@ -411,7 +411,7 @@ public class ConsentServiceBean implements ConsentService {
                 version.modificationDate = now;
                 version.status = ModelVersion.Status.ARCHIVED;
                 version.persist();
-                version.entry.status = ModelFilter.Status.INACTIVE;
+                version.entry.status = ModelEntry.Status.INACTIVE;
                 version.entry.defaultLanguage = null;
                 version.entry.availableLanguages = "";
             }

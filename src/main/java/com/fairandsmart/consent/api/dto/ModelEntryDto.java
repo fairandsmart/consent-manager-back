@@ -20,7 +20,6 @@ import com.fairandsmart.consent.common.validation.ModelKey;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
-import com.fairandsmart.consent.manager.filter.ModelFilter;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -47,7 +46,7 @@ public class ModelEntryDto {
     private long creationDate;
     private long modificationDate;
     @Enumerated(EnumType.STRING)
-    private ModelFilter.Status status;
+    private ModelEntry.Status status;
     private String defaultLanguage;
     private List<String> availableLanguages = new ArrayList<>();
 
@@ -141,11 +140,11 @@ public class ModelEntryDto {
         this.modificationDate = modificationDate;
     }
 
-    public ModelFilter.Status getStatus() {
+    public ModelEntry.Status getStatus() {
         return status;
     }
 
-    public void setStatus(ModelFilter.Status status) {
+    public void setStatus(ModelEntry.Status status) {
         this.status = status;
     }
 

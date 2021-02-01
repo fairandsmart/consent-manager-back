@@ -16,6 +16,7 @@ package com.fairandsmart.consent.manager.filter;
  * #L%
  */
 
+import com.fairandsmart.consent.manager.entity.ModelEntry;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -28,18 +29,12 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
     private List<String> types;
     private List<String> keys;
     private String keyword;
-    private Status status;
-    private String language;
+    private List<ModelEntry.Status> statuses;
+    private List<String> languages;
     private int page;
     private int size;
     private String order;
     private String direction;
-
-    public enum Status {
-        ACTIVE,
-        INACTIVE,
-        INDIFFERENT
-    }
 
     public ModelFilter() {
     }
@@ -83,29 +78,29 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         return this;
     }
 
-    public Status getStatus() {
-        return status;
+    public List<ModelEntry.Status> getStatuses() {
+        return statuses;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatuses(List<ModelEntry.Status> statuses) {
+        this.statuses = statuses;
     }
 
-    public ModelFilter withStatus(Status status) {
-        this.status = status;
+    public ModelFilter withStatuses(List<ModelEntry.Status> statuses) {
+        this.statuses = statuses;
         return this;
     }
 
-    public String getLanguage() {
-        return language;
+    public List<String> getLanguages() {
+        return languages;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public void setLanguages(List<String> languages) {
+        this.languages = languages;
     }
 
-    public ModelFilter withLanguage(String language) {
-        this.language = language;
+    public ModelFilter withLanguages(List<String> languages) {
+        this.languages = languages;
         return this;
     }
 
@@ -175,16 +170,19 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (keyword != null && !keyword.isEmpty()) {
             parts.add("(lower(name) like :keyword or lower(description) like :keyword)");
         }
-        if (status != null && status != Status.INDIFFERENT) {
-            if (status == Status.ACTIVE) {
-                parts.add("status = :status");
-            }
-            if (status == Status.INACTIVE) {
-                parts.add("status != :status");
-            }
+        if (statuses != null && statuses.size() == 1) {
+            parts.add("status = :status");
         }
-        if (language != null && !language.isEmpty()) {
-            parts.add(":language in availableLanguages");
+        if (languages != null && !languages.isEmpty()) {
+            List<String> languagesParts = new ArrayList<>();
+            for (int index = 0; index < languages.size(); index++) {
+                if (languages.get(index).isEmpty()) {
+                    languagesParts.add("availableLanguages = '' or availableLanguages is null");
+                } else {
+                    languagesParts.add(":language" + index + " in availableLanguages");
+                }
+            }
+            parts.add("(" + String.join(" or ", languagesParts) + ")");
         }
         return String.join(" and ", parts);
     }
@@ -201,11 +199,15 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (keyword != null && !keyword.isEmpty()) {
             params.put("keyword", StringUtils.lowerCase("%" + keyword + "%"));
         }
-        if (status != null && status != Status.INDIFFERENT) {
-            params.put("status", ModelFilter.Status.ACTIVE);
+        if (statuses != null && statuses.size() == 1) {
+            params.put("status", statuses.get(0));
         }
-        if (language != null && !language.isEmpty()) {
-            params.put("language", language);
+        if (languages != null && !languages.isEmpty()) {
+            for (int index = 0; index < languages.size(); index++) {
+                if (!languages.get(index).isEmpty()) {
+                    params.put("language" + index, languages.get(index));
+                }
+            }
         }
         return params;
     }
@@ -216,8 +218,8 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
                 "types=" + types +
                 ", keys=" + keys +
                 ", keyword='" + keyword + '\'' +
-                ", status=" + status +
-                ", language='" + language + '\'' +
+                ", statuses=" + statuses +
+                ", languages=" + languages +
                 ", page=" + page +
                 ", size=" + size +
                 ", order='" + order + '\'' +

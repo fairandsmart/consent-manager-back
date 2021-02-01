@@ -16,7 +16,6 @@ package com.fairandsmart.consent.manager.entity;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.GenericGenerator;
@@ -47,12 +46,17 @@ public class ModelEntry extends PanacheEntityBase {
     public long creationDate;
     public long modificationDate;
     @Enumerated(EnumType.STRING)
-    public ModelFilter.Status status;
+    public Status status;
     public String defaultLanguage;
     public String availableLanguages = "";
 
     public static boolean isKeyAlreadyExists(String key) {
         return ModelEntry.count("key = ?1", key) > 0;
+    }
+
+    public enum Status {
+        ACTIVE,
+        INACTIVE
     }
 
     @Override
