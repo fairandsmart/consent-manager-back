@@ -64,4 +64,9 @@
     .accept-all-container {
         padding: 0 12px;
     }
+
+    .conditions-response {
+        padding: 1em;
+        text-align: center;
+    }
 </style>

@@ -30,7 +30,11 @@ public class Conditions extends ModelData {
 
     private String title;
     private String body;
+
+    @Deprecated
     private String acceptLabel;
+
+    @Deprecated
     private String rejectLabel;
 
     public Conditions() {
