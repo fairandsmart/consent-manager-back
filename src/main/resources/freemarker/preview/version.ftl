@@ -26,7 +26,7 @@
     <meta name="author" content="Fair&Smart">
 
     <#include "../style/common-style.ftl">
-    <#if model.type=="basicinfo" || model.type=="processing" || model.type=="preference">
+    <#if model.type=="basicinfo" || model.type=="processing" || model.type=="preference" || model.type=="conditions">
         <#include "../style/consent-style.ftl">
         <#include "../style/vertical-style.ftl">
     <#elseif model.type=="theme">
@@ -44,8 +44,6 @@
             </#if>
         </#if>
         <style>${model.css}</style>
-    <#elseif model.type=="conditions">
-        <#include "../style/conditions-style.ftl">
     <#elseif model.type=="email">
         <#include "../style/email-style.ftl">
     </#if>
@@ -54,12 +52,7 @@
 </head>
 
 <body>
-<#if model.type=="conditions">
-    <div class="conditions-container">
-        <#assign conditions=model>
-        <#include "../components/conditions.ftl">
-    </div>
-<#elseif model.type=="email">
+<#if model.type=="email">
     <div>
         <#assign email=model>
         <#assign url=(email?is_hash && email.buttonLabel?has_content)?then("previewUrl","")>
@@ -118,6 +111,12 @@
                 <#assign elementContent=model>
                 <#assign identifier="preference">
                 <#include "../components/preference.ftl">
+            </div>
+        <#elseif model.type=="conditions">
+            <div class="elements-list">
+                <#assign elementContent=model>
+                <#assign identifier="conditions">
+                <#include "../components/conditions.ftl">
             </div>
         </#if>
 
