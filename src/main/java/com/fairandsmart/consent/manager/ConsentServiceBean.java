@@ -208,7 +208,14 @@ public class ConsentServiceBean implements ConsentService {
             ModelEntry.deleteById(id);
             previewCache.remove(id);
         } else {
-            throw new ConsentManagerException("unable to delete entry that have not only DRAFT versions");
+            ModelVersion version = versions.get(0);
+            List<Record> records = Record.list(version.entry.type.equals(BasicInfo.TYPE) ? "infoKey" : "bodyKey", version.entry.key);
+            if (records.size() > 0) {
+                throw new ConsentManagerException("unable to delete entry that have existing records");
+            }
+            versions.forEach(v -> ModelVersion.deleteById(v.id));
+            ModelEntry.deleteById(id);
+            previewCache.remove(id);
         }
     }
 
