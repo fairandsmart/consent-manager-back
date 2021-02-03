@@ -297,8 +297,8 @@
     <changeSet author="mstremplewski" id="7">
         <sql>
             update ${instance}_MODELENTRY
-            set CREATIONDATE = cast(extract(epoch from now()) as bigint) * 1000,
-                MODIFICATIONDATE = cast(extract(epoch from now()) as bigint) * 1000
+            set CREATIONDATE = 1601890770380, -- default arbitrary value
+                MODIFICATIONDATE = 1601890770380 -- default arbitrary value
             where not exists
                 (select * from ${instance}_MODELVERSION
                     where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID);

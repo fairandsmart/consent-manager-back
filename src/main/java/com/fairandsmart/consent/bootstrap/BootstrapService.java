@@ -56,7 +56,6 @@ public class BootstrapService {
     protected void onStart(@Observes StartupEvent ev) throws Exception {
         LOGGER.log(Level.INFO, "Application is starting, migrating database");
         Locale.setDefault(Locale.US);
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         try (Liquibase liquibase = liquibaseFactory.createLiquibase()) {
             liquibase.setChangeLogParameter("instance", config.instance());
             Contexts ctx = liquibaseFactory.createContexts();
