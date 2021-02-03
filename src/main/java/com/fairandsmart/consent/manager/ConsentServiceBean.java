@@ -153,6 +153,7 @@ public class ConsentServiceBean implements ConsentService {
         if (ModelEntry.isKeyAlreadyExists(key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
         }
+        long now = System.currentTimeMillis();
         ModelEntry entry = new ModelEntry();
         entry.type = type;
         entry.key = key;
@@ -160,6 +161,9 @@ public class ConsentServiceBean implements ConsentService {
         entry.description = description;
         entry.branches = DEFAULT_BRANCHE;
         entry.author = authentication.getConnectedIdentifier();
+        entry.creationDate = now;
+        entry.modificationDate = now;
+        entry.status = ModelEntry.Status.INACTIVE;
         entry.persist();
         return entry;
     }
@@ -188,6 +192,7 @@ public class ConsentServiceBean implements ConsentService {
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         entry.name = name;
         entry.description = description;
+        entry.modificationDate = System.currentTimeMillis();
         entry.persist();
         return entry;
     }
@@ -357,9 +362,12 @@ public class ConsentServiceBean implements ConsentService {
         if (!version.status.equals(ModelVersion.Status.DRAFT)) {
             throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
         }
+        long now = System.currentTimeMillis();
         version.type = type;
-        version.modificationDate = System.currentTimeMillis();
+        version.modificationDate = now;
         version.persist();
+        version.entry.modificationDate = now;
+        version.entry.persist();
         return version;
     }
 
@@ -368,6 +376,7 @@ public class ConsentServiceBean implements ConsentService {
     public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
         LOGGER.log(Level.INFO, "Updating status for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
+        long now = System.currentTimeMillis();
         Optional<ModelVersion> voptional = ModelVersion.findByIdOptional(id);
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
@@ -381,26 +390,34 @@ public class ConsentServiceBean implements ConsentService {
             } else {
                 if (!version.parent.isEmpty()) {
                     ModelVersion parent = ModelVersion.findById(version.parent);
-                    parent.modificationDate = System.currentTimeMillis();
+                    parent.modificationDate = now;
                     parent.status = ModelVersion.Status.ARCHIVED;
                     parent.persist();
                 }
                 version.status = ModelVersion.Status.ACTIVE;
-                version.modificationDate = System.currentTimeMillis();
+                version.modificationDate = now;
                 if (version.type.equals(ModelVersion.Type.MAJOR)) {
                     version.counterparts = "";
                 }
                 version.persist();
+                version.entry.status = ModelEntry.Status.ACTIVE;
+                version.entry.defaultLanguage = version.defaultLanguage;
+                version.entry.availableLanguages = version.availableLanguages;
             }
         } else if (status.equals(ModelVersion.Status.ARCHIVED)) {
             if (!version.status.equals(ModelVersion.Status.ACTIVE)) {
                 throw new InvalidStatusException("Only ACTIVE version can be set ARCHIVED");
             } else {
-                version.modificationDate = System.currentTimeMillis();
+                version.modificationDate = now;
                 version.status = ModelVersion.Status.ARCHIVED;
                 version.persist();
+                version.entry.status = ModelEntry.Status.INACTIVE;
+                version.entry.defaultLanguage = null;
+                version.entry.availableLanguages = "";
             }
         }
+        version.entry.modificationDate = now;
+        version.entry.persist();
         return version;
     }
 
@@ -440,6 +457,8 @@ public class ConsentServiceBean implements ConsentService {
         if (!version.status.equals(ModelVersion.Status.DRAFT)) {
             throw new ConsentManagerException("Unable to delete version that is not DRAFT");
         }
+        version.entry.modificationDate = System.currentTimeMillis();
+        version.entry.persist();
         Optional<ModelVersion> optionalParent = ModelVersion.findByIdOptional(version.parent);
         if (optionalParent.isPresent()) {
             ModelVersion parent = optionalParent.get();
@@ -859,16 +878,19 @@ public class ConsentServiceBean implements ConsentService {
         } else {
             throw new ConsentManagerException("Default language does not exist in content languages");
         }
+        long now = System.currentTimeMillis();
         version.availableLanguages = String.join(",", data.keySet());
         version.content.clear();
         for (Map.Entry<String, ModelData> entry : data.entrySet()) {
             version.content.put(entry.getKey(), new ModelContent().withAuthor(author).withDataObject(entry.getValue()));
         }
-        version.modificationDate = System.currentTimeMillis();
+        version.modificationDate = now;
         version.persist();
         if (previewCache.containsKey(version.entry.id)) {
             previewCache.put(version.entry.id, version);
         }
+        version.entry.modificationDate = now;
+        version.entry.persist();
         return version;
     }
 

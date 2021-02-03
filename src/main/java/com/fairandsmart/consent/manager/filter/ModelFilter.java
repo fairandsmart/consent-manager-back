@@ -7,14 +7,17 @@ package com.fairandsmart.consent.manager.filter;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
  */
+
+import com.fairandsmart.consent.manager.entity.ModelEntry;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +28,9 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
 
     private List<String> types;
     private List<String> keys;
+    private String keyword;
+    private List<ModelEntry.Status> statuses;
+    private List<String> languages;
     private int page;
     private int size;
     private String order;
@@ -56,6 +62,45 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
 
     public ModelFilter withKeys(List<String> keys) {
         this.keys = keys;
+        return this;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
+    public ModelFilter withKeyword(String keyword) {
+        this.keyword = keyword;
+        return this;
+    }
+
+    public List<ModelEntry.Status> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(List<ModelEntry.Status> statuses) {
+        this.statuses = statuses;
+    }
+
+    public ModelFilter withStatuses(List<ModelEntry.Status> statuses) {
+        this.statuses = statuses;
+        return this;
+    }
+
+    public List<String> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(List<String> languages) {
+        this.languages = languages;
+    }
+
+    public ModelFilter withLanguages(List<String> languages) {
+        this.languages = languages;
         return this;
     }
 
@@ -122,6 +167,23 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (keys != null && !keys.isEmpty()) {
             parts.add("key in :keys");
         }
+        if (keyword != null && !keyword.isEmpty()) {
+            parts.add("(lower(name) like :keyword or lower(description) like :keyword)");
+        }
+        if (statuses != null && statuses.size() == 1) {
+            parts.add("status = :status");
+        }
+        if (languages != null && !languages.isEmpty()) {
+            List<String> languagesParts = new ArrayList<>();
+            for (int index = 0; index < languages.size(); index++) {
+                if (languages.get(index).isEmpty()) {
+                    languagesParts.add("availableLanguages = '' or availableLanguages is null");
+                } else {
+                    languagesParts.add(":language" + index + " in availableLanguages");
+                }
+            }
+            parts.add("(" + String.join(" or ", languagesParts) + ")");
+        }
         return String.join(" and ", parts);
     }
 
@@ -134,6 +196,19 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (keys != null && !keys.isEmpty()) {
             params.put("keys", keys);
         }
+        if (keyword != null && !keyword.isEmpty()) {
+            params.put("keyword", StringUtils.lowerCase("%" + keyword + "%"));
+        }
+        if (statuses != null && statuses.size() == 1) {
+            params.put("status", statuses.get(0));
+        }
+        if (languages != null && !languages.isEmpty()) {
+            for (int index = 0; index < languages.size(); index++) {
+                if (!languages.get(index).isEmpty()) {
+                    params.put("language" + index, languages.get(index));
+                }
+            }
+        }
         return params;
     }
 
@@ -141,6 +216,10 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
     public String toString() {
         return "ModelFilter{" +
                 "types=" + types +
+                ", keys=" + keys +
+                ", keyword='" + keyword + '\'' +
+                ", statuses=" + statuses +
+                ", languages=" + languages +
                 ", page=" + page +
                 ", size=" + size +
                 ", order='" + order + '\'' +

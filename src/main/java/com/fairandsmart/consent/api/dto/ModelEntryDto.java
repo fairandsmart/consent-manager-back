@@ -21,9 +21,12 @@ import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ModelEntryDto {
@@ -40,6 +43,12 @@ public class ModelEntryDto {
     @NotNull
     private String type;
     private List<ModelVersionDtoLight> versions = new ArrayList<>();
+    private long creationDate;
+    private long modificationDate;
+    @Enumerated(EnumType.STRING)
+    private ModelEntry.Status status;
+    private String defaultLanguage;
+    private List<String> availableLanguages = new ArrayList<>();
 
     public ModelEntryDto() {
     }
@@ -51,6 +60,13 @@ public class ModelEntryDto {
         dto.setName(entry.name);
         dto.setType(entry.type);
         dto.setDescription(entry.description);
+        dto.setCreationDate(entry.creationDate);
+        dto.setModificationDate(entry.modificationDate);
+        dto.setStatus(entry.status);
+        dto.setDefaultLanguage(entry.defaultLanguage);
+        if (entry.availableLanguages != null && entry.availableLanguages.length() > 0) {
+            dto.setAvailableLanguages(Arrays.asList(entry.availableLanguages.split(",")));
+        }
         List<ModelVersionDtoLight> lightVersions = new ArrayList<>();
         for (ModelVersion version : versions) {
             ModelVersionDtoLight modelVersionDtoLight = ModelVersionDtoLight.fromModelVersion(version);
@@ -108,6 +124,46 @@ public class ModelEntryDto {
         this.versions = versions;
     }
 
+    public long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public long getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(long modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+
+    public ModelEntry.Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(ModelEntry.Status status) {
+        this.status = status;
+    }
+
+    public String getDefaultLanguage() {
+        return defaultLanguage;
+    }
+
+    public void setDefaultLanguage(String defaultLanguage) {
+        this.defaultLanguage = defaultLanguage;
+    }
+
+    public List<String> getAvailableLanguages() {
+        return availableLanguages;
+    }
+
+    public void setAvailableLanguages(List<String> availableLanguages) {
+        this.availableLanguages = availableLanguages;
+    }
+
     @Override
     public String toString() {
         return "ModelEntryDto{" +
@@ -117,6 +173,11 @@ public class ModelEntryDto {
                 ", description='" + description + '\'' +
                 ", type='" + type + '\'' +
                 ", versions=" + versions +
+                ", creationDate=" + creationDate +
+                ", modificationDate=" + modificationDate +
+                ", status=" + status +
+                ", defaultLanguage='" + defaultLanguage + '\'' +
+                ", availableLanguages=" + availableLanguages +
                 '}';
     }
 }

@@ -76,7 +76,10 @@ public class ModelsResource {
             @Parameter(description = "sort by") @QueryParam("order") @DefaultValue("key") String order,
             @Parameter(description = "sort direction (asc/desc)") @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
             @Parameter(description = "model types to query") @QueryParam("types") List<String> types, // todo : document model types
-            @Parameter(description = "model IDs to query") @QueryParam("keys") List<String> keys
+            @Parameter(description = "model IDs to query") @QueryParam("keys") List<String> keys,
+            @Parameter(description = "keyword to query") @QueryParam("keyword") String keyword,
+            @Parameter(description = "statuses to query") @QueryParam("statuses") List<ModelEntry.Status> statuses,
+            @Parameter(description = "languages to query") @QueryParam("languages") List<String> languages
     ) throws ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models");
         ModelFilter filter = new ModelFilter();
@@ -86,6 +89,9 @@ public class ModelsResource {
         filter.setDirection(direction);
         filter.setTypes(types);
         filter.setKeys(keys);
+        filter.setKeyword(keyword);
+        filter.setStatuses(statuses);
+        filter.setLanguages(languages);
         CollectionPage<ModelEntry> entries = consentService.listEntries(filter);
         CollectionPage<ModelEntryDto> dto = new CollectionPage<>(entries);
         List<ModelEntryDto> values = new ArrayList<>();

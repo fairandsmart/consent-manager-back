@@ -69,6 +69,11 @@ public class ConsentServiceTest {
         LOGGER.info("Create BasicInfo entry with key " + key);
         ModelEntry entry = service.createEntry(key, "Entry First Name", "Entry First Description", BasicInfo.TYPE);
         assertNotNull(entry);
+        assertNotEquals(0, entry.creationDate);
+        assertEquals(entry.creationDate, entry.modificationDate);
+        long modificationTimestamp = entry.modificationDate;
+        assertEquals(ModelEntry.Status.INACTIVE, entry.status);
+        assertEquals("", entry.availableLanguages);
 
         LOGGER.info("List existing entries for basic infos");
         basicInfos = service.listEntries(new ModelFilter().withTypes(Collections.singletonList(BasicInfo.TYPE)).withPage(1).withSize(5));
@@ -94,6 +99,7 @@ public class ConsentServiceTest {
         LOGGER.info("Entry: " + entry);
         assertEquals("Entry Name Updated", entry.name);
         assertEquals("Entry Description Updated", entry.description);
+        assertTrue(modificationTimestamp < entry.modificationDate);
 
         LOGGER.info("Check updating a entry with a fake key fails");
         String fakeKey = UUID.randomUUID().toString();
@@ -115,6 +121,7 @@ public class ConsentServiceTest {
         LOGGER.info("Create again BasicInfo entry with key " + key);
         entry = service.createEntry(key, "Entry First Name", "Entry First Description", BasicInfo.TYPE);
         assertNotNull(entry);
+        modificationTimestamp = entry.modificationDate;
 
         LOGGER.info("Create DRAFT Version for BasicInfo with key " + key);
         Map<String, ModelData> versionData = TestUtils.generateModelData(key, BasicInfo.TYPE, language);
@@ -125,6 +132,10 @@ public class ConsentServiceTest {
         versions = service.getVersionHistoryForKey(key);
         assertEquals(1, versions.size());
         assertEquals(ModelVersion.Status.DRAFT, versions.get(0).status);
+        entry = service.findEntryForKey(key);
+        assertTrue(modificationTimestamp < entry.modificationDate);
+        assertEquals(ModelEntry.Status.INACTIVE, entry.status);
+        assertEquals("", entry.availableLanguages);
 
         LOGGER.info("Delete entry with key " + key);
         service.deleteEntry(entry.id);
@@ -137,11 +148,15 @@ public class ConsentServiceTest {
         LOGGER.info("Create again BasicInfo entry with key " + key);
         entry = service.createEntry(key, "Entry First Name", "Entry First Description", BasicInfo.TYPE);
         assertNotNull(entry);
+        modificationTimestamp = entry.modificationDate;
 
         LOGGER.info("Create DRAFT Version for BasicInfo with key " + key);
         versionData = TestUtils.generateModelData(key, BasicInfo.TYPE, language);
         version = service.createVersion(entry.id, language, versionData);
         assertNotNull(version);
+        entry = service.findEntryForKey(key);
+        assertTrue(modificationTimestamp < entry.modificationDate);
+        modificationTimestamp = entry.modificationDate;
 
         LOGGER.info("Activate version for BasicInfo with key " + key);
         service.updateVersionStatus(version.id, ModelVersion.Status.ACTIVE);
@@ -150,6 +165,10 @@ public class ConsentServiceTest {
         versions = service.getVersionHistoryForKey(key);
         assertEquals(1, versions.size());
         assertEquals(ModelVersion.Status.ACTIVE, versions.get(0).status);
+        entry = service.findEntryForKey(key);
+        assertTrue(modificationTimestamp < entry.modificationDate);
+        assertEquals(ModelEntry.Status.ACTIVE, entry.status);
+        assertEquals(language, entry.availableLanguages);
 
         LOGGER.info("Check deleting entry with ACTIVE versions is forbidden");
         String entryId = entry.id;
