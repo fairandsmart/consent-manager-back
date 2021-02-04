@@ -7,10 +7,10 @@ package com.fairandsmart.consent.api.resource;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -57,8 +57,8 @@ public class RecordsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
-            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
-            @APIResponse(responseCode = "200", description = "A Map of all subject Records ordered by key")
+            @APIResponse(responseCode = "200", description = "A Map of all subject Records ordered by key"),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE)
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation(summary = "List all subject Records", description = "Records are ordered by element key and chronological order. Records status is evaluated at runtime.")
@@ -67,29 +67,20 @@ public class RecordsResource {
     ) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /records");
         Map<String, List<Record>> records = consentService.listSubjectRecords(subject);
-        return records.entrySet().stream().collect(
-                Collectors.toMap(
-                        Map.Entry::getKey, e -> e.getValue().stream().map(RecordDto::fromRecord).map(
-                                dto -> dto.withNotificationReports(
-                                        notificationService.listReports(
-                                                dto.getTransaction()
-                                        )
-                                )
-                        ).collect(Collectors.toList())
-                )
-        );
+        return records.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey, e -> e.getValue().stream().map(RecordDto::fromRecord).map(
+                        dto -> dto.withNotificationReports(notificationService.listReports(dto.getTransaction()))
+                ).collect(Collectors.toList())
+        ));
     }
 
     @POST
     @Path("extraction")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces({
-            "text/csv",
-            MediaType.APPLICATION_JSON
-    })
+    @Produces({"text/csv", MediaType.APPLICATION_JSON})
     @APIResponses(value = {
-            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
-            @APIResponse(responseCode = "200", description = "A List of all Records that matches the extraction config")
+            @APIResponse(responseCode = "200", description = "A List of all Records that matches the extraction config"),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE)
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation(summary = "Extract records", description = "Extract records according to the specific provided config")
@@ -100,8 +91,8 @@ public class RecordsResource {
         return consentService.extractRecords(
                 dto.getCondition().getKey(),
                 dto.getCondition().getValue(),
-                dto.getCondition().isRegexpValue()).entrySet().stream().map(ExtractionResultDto::build).collect(Collectors.toList()
-        );
+                dto.getCondition().isRegexpValue())
+                .entrySet().stream().map(ExtractionResultDto::build).collect(Collectors.toList());
     }
 
 }
