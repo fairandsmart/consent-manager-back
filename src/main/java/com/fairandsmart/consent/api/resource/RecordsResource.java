@@ -21,6 +21,7 @@ import com.fairandsmart.consent.api.dto.ExtractionResultDto;
 import com.fairandsmart.consent.api.dto.RecordDto;
 import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.notification.NotificationService;
@@ -86,7 +87,7 @@ public class RecordsResource {
     @Operation(summary = "Extract records", description = "Extract records according to the specific provided config")
     public List<ExtractionResultDto> extractRecords(
             @Parameter(description = "Subject to query", example = Placeholders.SHELDON) @NotNull @Valid ExtractionConfigDto dto
-    ) throws AccessDeniedException {
+    ) throws AccessDeniedException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "POST /records/extraction");
         return consentService.extractRecords(
                 dto.getCondition().getKey(),

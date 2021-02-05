@@ -103,7 +103,7 @@ public interface ConsentService {
 
     Map<String, Record> systemListValidRecords(String subject, String infoKey, List<String> elementsKeys) throws AccessDeniedException;
 
-    Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException;
+    Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException, EntityNotFoundException;
 
     /* Subjects */
 

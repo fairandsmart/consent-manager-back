@@ -170,8 +170,8 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (keyword != null && !keyword.isEmpty()) {
             parts.add("(lower(name) like :keyword or lower(description) like :keyword)");
         }
-        if (statuses != null && statuses.size() == 1) {
-            parts.add("status = :status");
+        if (statuses != null && !statuses.isEmpty()) {
+            parts.add("status in :statuses");
         }
         if (languages != null && !languages.isEmpty()) {
             List<String> languagesParts = new ArrayList<>();
@@ -199,8 +199,8 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
         if (keyword != null && !keyword.isEmpty()) {
             params.put("keyword", StringUtils.lowerCase("%" + keyword + "%"));
         }
-        if (statuses != null && statuses.size() == 1) {
-            params.put("status", statuses.get(0));
+        if (statuses != null && !statuses.isEmpty()) {
+            params.put("statuses", statuses);
         }
         if (languages != null && !languages.isEmpty()) {
             for (int index = 0; index < languages.size(); index++) {

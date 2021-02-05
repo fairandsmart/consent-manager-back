@@ -56,7 +56,8 @@ public class ModelEntry extends PanacheEntityBase {
 
     public enum Status {
         ACTIVE,
-        INACTIVE
+        INACTIVE,
+        DELETED
     }
 
     @Override

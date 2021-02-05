@@ -38,7 +38,11 @@ public class IrrelevantStateRule extends RecordStatusRule {
             } else {
                 LOGGER.log(Level.FINE, "marking record as irrelevant, " + record.id);
                 record.status = Record.Status.IRRELEVANT;
-                record.statusExplanation = Record.StatusExplanation.NOT_COMMITTED;
+                if (record.state.equals(Record.State.PENDING)) {
+                    record.statusExplanation = Record.StatusExplanation.STILL_PENDING;
+                } else {
+                    record.statusExplanation = Record.StatusExplanation.ENTRY_DELETED;
+                }
             }
         });
         this.applyNext(records);
