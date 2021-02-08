@@ -174,7 +174,7 @@ public class ModelsResource {
     @Operation(summary = "Delete model")
     public void deleteEntry(
             @Parameter(description = "the model ID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id
-    ) throws EntityNotFoundException, ConsentManagerException {
+    ) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException {
         LOGGER.log(Level.INFO, "DELETE /models/{0}", id);
         consentService.deleteEntry(id);
     }

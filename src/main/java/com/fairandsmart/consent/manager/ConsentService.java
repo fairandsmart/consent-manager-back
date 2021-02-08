@@ -58,7 +58,7 @@ public interface ConsentService {
 
     ModelEntry updateEntry(String entryId, String name, String description) throws EntityNotFoundException, AccessDeniedException;
 
-    void deleteEntry(String entryId) throws ConsentManagerException, EntityNotFoundException;
+    void deleteEntry(String entryId) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException;
 
     /* Versions */
 

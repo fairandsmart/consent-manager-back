@@ -199,7 +199,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public void deleteEntry(String id) throws ConsentManagerException, EntityNotFoundException {
+    public void deleteEntry(String id) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
         LOGGER.log(Level.INFO, "Deleting entry with id: {0}", id);
         authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
@@ -207,6 +207,9 @@ public class ConsentServiceBean implements ConsentService {
         List<Record> records = Record.list(entry.type.equals(BasicInfo.TYPE) ? "infoKey" : "bodyKey", entry.key);
         if (!records.isEmpty()) {
             LOGGER.log(Level.INFO, "Entry with id: {0} has records, marking it as DELETED", id);
+            if (entry.status == ModelEntry.Status.ACTIVE) {
+                this.updateVersionStatus(this.findActiveVersionForEntry(entry.id).id, ModelVersion.Status.ARCHIVED);
+            }
             entry.status = ModelEntry.Status.DELETED;
             entry.modificationDate = System.currentTimeMillis();
             entry.persist();
