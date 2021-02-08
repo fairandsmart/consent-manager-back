@@ -205,7 +205,7 @@ public class ConsentServiceBean implements ConsentService {
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         List<Record> records = Record.list(entry.type.equals(BasicInfo.TYPE) ? "infoKey" : "bodyKey", entry.key);
-        if (records.size() > 0) {
+        if (!records.isEmpty()) {
             LOGGER.log(Level.INFO, "Entry with id: {0} has records, marking it as DELETED", id);
             entry.status = ModelEntry.Status.DELETED;
             entry.modificationDate = System.currentTimeMillis();
@@ -682,14 +682,11 @@ public class ConsentServiceBean implements ConsentService {
     /* RECORDS */
 
     @Override
-    public Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException {
+    public Map<String, List<Record>> listSubjectRecords(RecordFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Listing records for subject");
-        if (!authentication.isConnectedIdentifierOperator() && !subject.equals(authentication.getConnectedIdentifier())) {
+        if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
             throw new AccessDeniedException("You must be operator to perform records search");
         }
-        RecordFilter filter = new RecordFilter();
-        filter.setState(Record.State.COMMITTED);
-        filter.setSubject(subject);
         return this.listRecordsWithStatus(filter);
     }
 
@@ -698,7 +695,7 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.INFO, "Listing valid records");
         RecordFilter filter = new RecordFilter();
         filter.setSubject(subject);
-        filter.setState(Record.State.COMMITTED);
+        filter.setStates(Collections.singletonList(Record.State.COMMITTED));
         if (infoKey != null && !infoKey.isEmpty()) {
             filter.setInfos(ModelVersion.SystemHelper.findActiveSerialsForKey(infoKey));
         }
@@ -714,29 +711,31 @@ public class ConsentServiceBean implements ConsentService {
         if (!authentication.isConnectedIdentifierAdmin()) {
             throw new AccessDeniedException("You must be admin to search subjects");
         }
-        ModelEntry entry = findEntryForKey(key);
         Map<Subject, Record> result = new HashMap<>();
+        ModelEntry entry = findEntryForKey(key);
         List<String> serials = ModelVersion.SystemHelper.findActiveSerialsForKey(key);
-        List<Subject> subjects = Subject.listAll();
-        final Pattern pattern = regexpValue ? Pattern.compile(value) : null;
-        RecordFilter filter = new RecordFilter();
-        filter.setState(Record.State.COMMITTED);
-        if (entry.type.equals(BasicInfo.TYPE)) {
-            filter.setInfos(serials);
-        } else {
-            filter.setElements(serials);
+        if (!serials.isEmpty()) {
+            List<Subject> subjects = Subject.listAll();
+            final Pattern pattern = regexpValue ? Pattern.compile(value) : null;
+            RecordFilter filter = new RecordFilter();
+            filter.setStates(Collections.singletonList(Record.State.COMMITTED));
+            if (entry.type.equals(BasicInfo.TYPE)) {
+                filter.setInfos(serials);
+            } else {
+                filter.setElements(serials);
+            }
+            subjects.forEach(subject -> {
+                filter.setSubject(subject.name);
+                List<Record> records = Record.list(filter.getQueryString(), filter.getQueryParams());
+                recordStatusChain.apply(records);
+                LOGGER.log(Level.FINE, "Rules applied on loaded records of subject : " + subject + ": " + records);
+                records.stream()
+                        .filter(r -> r.status.equals(Record.Status.VALID)
+                                && (pattern != null ? pattern.matcher(r.value).matches() : r.value.equals(value)))
+                        .findFirst()
+                        .ifPresent(r -> result.put(subject, r));
+            });
         }
-        subjects.forEach(subject -> {
-            filter.setSubject(subject.name);
-            List<Record> records = Record.list(filter.getQueryString(), filter.getQueryParams());
-            recordStatusChain.apply(records);
-            LOGGER.log(Level.FINE, "Rules applied on loaded records of subject : " + subject + ": " + records);
-            records.stream()
-                    .filter(r -> r.status.equals(Record.Status.VALID)
-                            && (pattern != null ? pattern.matcher(r.value).matches() : r.value.equals(value)))
-                    .findFirst()
-                    .ifPresent(r -> result.put(subject, r));
-        });
         return result;
     }
 

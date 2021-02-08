@@ -16,6 +16,7 @@ package com.fairandsmart.consent.manager.filter;
  * #L%
  */
 
+import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
 
 import java.util.ArrayList;
@@ -28,10 +29,10 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
     private int page;
     private int size;
     private String subject;
-    private Record.State state;
+    private List<Record.State> states;
     private List<String> infos;
     private List<String> elements;
-    private String collectionMethod;
+    private List<ConsentContext.CollectionMethod> collectionMethods;
     private long after = -1;
     private long before = -1;
     private String value;
@@ -49,12 +50,22 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.page = page;
     }
 
+    public RecordFilter withPage(int page) {
+        this.page = page;
+        return this;
+    }
+
     public int getSize() {
         return size;
     }
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public RecordFilter withSize(int size) {
+        this.size = size;
+        return this;
     }
 
     public String getSubject() {
@@ -65,12 +76,22 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.subject = subject;
     }
 
-    public Record.State getState() {
-        return state;
+    public RecordFilter withSubject(String subject) {
+        this.subject = subject;
+        return this;
     }
 
-    public void setState(Record.State state) {
-        this.state = state;
+    public List<Record.State> getStates() {
+        return states;
+    }
+
+    public void setStates(List<Record.State> states) {
+        this.states = states;
+    }
+
+    public RecordFilter withStates(List<Record.State> states) {
+        this.states = states;
+        return this;
     }
 
     public List<String> getInfos() {
@@ -81,6 +102,11 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.infos = infos;
     }
 
+    public RecordFilter withInfos(List<String> infos) {
+        this.infos = infos;
+        return this;
+    }
+
     public List<String> getElements() {
         return elements;
     }
@@ -89,12 +115,22 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.elements = elements;
     }
 
-    public String getCollectionMethod() {
-        return collectionMethod;
+    public RecordFilter withElements(List<String> elements) {
+        this.elements = elements;
+        return this;
     }
 
-    public void setCollectionMethod(String collectionMethod) {
-        this.collectionMethod = collectionMethod;
+    public List<ConsentContext.CollectionMethod> getCollectionMethods() {
+        return collectionMethods;
+    }
+
+    public void setCollectionMethods(List<ConsentContext.CollectionMethod> collectionMethods) {
+        this.collectionMethods = collectionMethods;
+    }
+
+    public RecordFilter withCollectionMethods(List<ConsentContext.CollectionMethod> collectionMethods) {
+        this.collectionMethods = collectionMethods;
+        return this;
     }
 
     public long getAfter() {
@@ -105,6 +141,11 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.after = after;
     }
 
+    public RecordFilter withAfter(long after) {
+        this.after = after;
+        return this;
+    }
+
     public long getBefore() {
         return before;
     }
@@ -113,12 +154,22 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.before = before;
     }
 
+    public RecordFilter withBefore(long before) {
+        this.before = before;
+        return this;
+    }
+
     public String getValue() {
         return value;
     }
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public RecordFilter withValue(String value) {
+        this.value = value;
+        return this;
     }
 
     @Override
@@ -130,6 +181,11 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.order = order;
     }
 
+    public RecordFilter withOrder(String order) {
+        this.order = order;
+        return this;
+    }
+
     @Override
     public String getDirection() {
         return direction;
@@ -139,28 +195,34 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         this.direction = direction;
     }
 
+    public RecordFilter withDirection(String direction) {
+        this.direction = direction;
+        return this;
+    }
+
     @Override
     public String getQueryString() {
         List<String> parts = new ArrayList<>();
         if (subject != null && !subject.isEmpty()) {
             parts.add("subject = :subject");
         }
-        if (state != null) {
-            parts.add("state = :state");
+        if (states != null && !states.isEmpty()) {
+            parts.add("state in :states");
         }
         if (infos != null && !infos.isEmpty()) {
             parts.add("infoSerial in :infos");
+            parts.add("infoSerial != ''");
         }
-        if (elements != null && elements.size() > 0) {
+        if (elements != null && !elements.isEmpty()) {
             parts.add("bodySerial in :elements");
         }
-        if (collectionMethod != null && !collectionMethod.isEmpty()) {
-            parts.add("collectionMethod = :collectionMethod");
+        if (collectionMethods != null && !collectionMethods.isEmpty()) {
+            parts.add("collectionMethod in :collectionMethods");
         }
-        if (before >= 0) {
+        if (before > 0) {
             parts.add("creationTimestamp <= :before");
         }
-        if (after >= 0) {
+        if (after > 0) {
             parts.add("creationTimestamp >= :after");
         }
         if (value != null && !value.isEmpty()) {
@@ -175,22 +237,22 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
         if (subject != null && !subject.isEmpty()) {
             params.put("subject", subject);
         }
-        if (state != null) {
-            params.put("state", state);
+        if (states != null && !states.isEmpty()) {
+            params.put("states", states);
         }
-        if (infos != null && infos.size() > 0) {
+        if (infos != null && !infos.isEmpty()) {
             params.put("infos", infos);
         }
-        if (elements != null && elements.size() > 0) {
+        if (elements != null && !elements.isEmpty()) {
             params.put("elements", elements);
         }
-        if (collectionMethod != null && !collectionMethod.isEmpty()) {
-            params.put("collectionMethod", collectionMethod);
+        if (collectionMethods != null && !collectionMethods.isEmpty()) {
+            params.put("collectionMethods", collectionMethods);
         }
-        if (before >= 0) {
+        if (before > 0) {
             params.put("before", before);
         }
-        if (after >= 0) {
+        if (after > 0) {
             params.put("after", after);
         }
         if (value != null && !value.isEmpty()) {
@@ -205,10 +267,10 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
                 "page=" + page +
                 ", size=" + size +
                 ", subject='" + subject + '\'' +
-                ", state=" + state +
+                ", states=" + states +
                 ", infos=" + infos +
                 ", elements=" + elements +
-                ", collectionMethod='" + collectionMethod + '\'' +
+                ", collectionMethods=" + collectionMethods +
                 ", after=" + after +
                 ", before=" + before +
                 ", value='" + value + '\'' +

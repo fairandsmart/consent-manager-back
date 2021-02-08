@@ -28,6 +28,7 @@ import com.fairandsmart.consent.manager.exception.InvalidConsentException;
 import com.fairandsmart.consent.manager.exception.InvalidStatusException;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
+import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
@@ -99,7 +100,7 @@ public interface ConsentService {
 
     /* Records */
 
-    Map<String, List<Record>> listSubjectRecords(String subject) throws AccessDeniedException;
+    Map<String, List<Record>> listSubjectRecords(RecordFilter filter) throws AccessDeniedException;
 
     Map<String, Record> systemListValidRecords(String subject, String infoKey, List<String> elementsKeys) throws AccessDeniedException;
 

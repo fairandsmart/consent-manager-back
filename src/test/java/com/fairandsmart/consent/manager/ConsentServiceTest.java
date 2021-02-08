@@ -28,6 +28,7 @@ import com.fairandsmart.consent.manager.exception.InvalidConsentException;
 import com.fairandsmart.consent.manager.exception.InvalidStatusException;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
+import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
@@ -570,7 +571,7 @@ public class ConsentServiceTest {
         service.submitConsent(form.getToken(), values);
 
         LOGGER.info("Reading consent records history for subject");
-        Map<String, List<Record>> subjectRecords = service.listSubjectRecords(subject);
+        Map<String, List<Record>> subjectRecords = service.listSubjectRecords(new RecordFilter().withSubject(subject));
         assertEquals(2, subjectRecords.keySet().size());
         assertTrue(subjectRecords.containsKey(et1.key));
         assertEquals(2, subjectRecords.get(et1.key).size());
@@ -902,9 +903,14 @@ public class ConsentServiceTest {
         String t1Identifier = "element/processing/" + t1Key + "/" + v1t1.serial;
         String t2Identifier = "element/processing/" + t2Key + "/" + v1t2.serial;
 
+        String user1 = "user1";
+        String user2 = "user2";
+        String user3 = "user3";
+        String user4 = "user4";
+
         LOGGER.info("Submitting a consent for user1");
         ConsentContext ctx = new ConsentContext()
-                .setSubject("user1")
+                .setSubject(user1)
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
@@ -920,7 +926,7 @@ public class ConsentServiceTest {
 
         LOGGER.info("Submitting a consent for user2");
         ctx = new ConsentContext()
-                .setSubject("user2")
+                .setSubject(user2)
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
@@ -936,7 +942,7 @@ public class ConsentServiceTest {
 
         LOGGER.info("Submitting a consent for user3");
         ctx = new ConsentContext()
-                .setSubject("user3")
+                .setSubject(user3)
                 .setOrientation(ConsentForm.Orientation.VERTICAL)
                 .setInfo(biKey)
                 .setElements(Arrays.asList(t1Key, t2Key))
@@ -952,53 +958,53 @@ public class ConsentServiceTest {
 
         LOGGER.info("Create subject user4 (no records)");
         SubjectDto subjectDto = new SubjectDto();
-        subjectDto.setName("user4");
+        subjectDto.setName(user4);
         service.createSubject(subjectDto.getName(), subjectDto.getEmailAddress());
 
         LOGGER.info("Listing user1 records");
-        Map<String, List<Record>> records = service.listSubjectRecords("user1");
+        Map<String, List<Record>> records = service.listSubjectRecords(new RecordFilter().withSubject(user1));
         assertTrue(records.containsKey(t1Key));
         assertTrue(records.get(t1Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("accepted")));
         assertTrue(records.containsKey(t2Key));
         assertTrue(records.get(t2Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("refused")));
 
         LOGGER.info("Listing user2 records");
-        records = service.listSubjectRecords("user2");
+        records = service.listSubjectRecords(new RecordFilter().withSubject(user2));
         assertTrue(records.containsKey(t1Key));
         assertTrue(records.get(t1Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("refused")));
         assertTrue(records.containsKey(t2Key));
         assertTrue(records.get(t2Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("refused")));
 
         LOGGER.info("Listing user3 records");
-        records = service.listSubjectRecords("user3");
+        records = service.listSubjectRecords(new RecordFilter().withSubject(user3));
         assertTrue(records.containsKey(t1Key));
         assertTrue(records.get(t1Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("accepted")));
         assertTrue(records.containsKey(t2Key));
         assertTrue(records.get(t2Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("accepted")));
 
         LOGGER.info("Listing user4 records");
-        records = service.listSubjectRecords("user4");
+        records = service.listSubjectRecords(new RecordFilter().withSubject(user3));
         assertTrue(records.isEmpty());
 
         //TODO Increase rule based records status by adding new consent submit and new models versions.
 
         LOGGER.info("Finding subjects with treatment t1 accepted");
         Map<Subject, Record> subjects = service.extractRecords(t1Key, "accepted", false);
-        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user1")));
-        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user3")));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals(user1)));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals(user3)));
 
         LOGGER.info("Finding subjects with treatment t1 refused");
         subjects = service.extractRecords(t1Key, "refused", false);
-        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user2")));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals(user2)));
 
         LOGGER.info("Finding subjects with treatment t2 accepted");
         subjects = service.extractRecords(t2Key, "accepted", false);
-        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user3")));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals(user3)));
 
         LOGGER.info("Finding subjects with treatment t2 refused");
         subjects = service.extractRecords(t2Key, "refused", false);
-        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user1")));
-        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals("user2")));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals(user1)));
+        assertTrue(subjects.keySet().stream().anyMatch(subject -> subject.name.equals(user2)));
 
         //TODO Increase listing testing with rule based records status by adding new consent submit and new models versions.
     }
