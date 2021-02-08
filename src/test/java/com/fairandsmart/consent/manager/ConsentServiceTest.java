@@ -171,9 +171,10 @@ public class ConsentServiceTest {
         assertEquals(ModelEntry.Status.ACTIVE, entry.status);
         assertEquals(language, entry.availableLanguages);
 
-        LOGGER.info("Check deleting entry with ACTIVE versions is forbidden");
-        String entryId = entry.id;
-        assertThrows(ConsentManagerException.class, () -> service.deleteEntry(entryId));
+        LOGGER.info("Delete entry with ACTIVE version");
+        service.deleteEntry(entry.id);
+
+        // TODO Write tests to check the behaviour of deleteEntry for an entry with an ACTIVE version and records
     }
 
     @Test
@@ -983,7 +984,7 @@ public class ConsentServiceTest {
         assertTrue(records.get(t2Key).stream().anyMatch(record -> record.status.equals(Record.Status.VALID) && record.value.equals("accepted")));
 
         LOGGER.info("Listing user4 records");
-        records = service.listSubjectRecords(new RecordFilter().withSubject(user3));
+        records = service.listSubjectRecords(new RecordFilter().withSubject(user4));
         assertTrue(records.isEmpty());
 
         //TODO Increase rule based records status by adding new consent submit and new models versions.
