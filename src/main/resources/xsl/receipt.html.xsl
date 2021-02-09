@@ -443,10 +443,6 @@
                         flex-shrink: 0;
                     }
 
-                    .item-body, .block-body {
-                        padding-left: 16px;
-                    }
-
                     .processing-response {
                         display: block;
                         position: relative;
@@ -638,13 +634,19 @@
                                         </xsl:call-template>
                                     </div>
                                 </div>
-                                <div class="item-container">
+                                <div class="item-container processing-data">
                                     <p class="item-body"><xsl:value-of select="current()/data"/></p>
+                                </div>
+                                <div class="item-container processing-retention">
                                     <p class="item-body"><xsl:value-of select="current()/retention/fullText"/></p>
+                                </div>
+                                <div class="item-container processing-usage">
                                     <p class="item-body"><xsl:value-of select="current()/usage"/></p>
+                                </div>
+                                <div class="item-container processing-purposes">
                                     <p class="item-body">
                                         <xsl:call-template name="translate">
-                                            <xsl:with-param name="key">receipt_id</xsl:with-param>
+                                            <xsl:with-param name="key">data_purpose</xsl:with-param>
                                             <xsl:with-param name="language"><xsl:value-of select="$lang"/></xsl:with-param>
                                         </xsl:call-template>
                                         <xsl:text>: </xsl:text>

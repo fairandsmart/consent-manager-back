@@ -26,27 +26,27 @@
         </div>
 
         <#-- Data -->
-        <div class="item-container">
+        <div class="item-container processing-data">
             <p class="item-body"><@valueOrError elementContent.data "missingValue"></@valueOrError></p>
         </div>
 
         <#-- Retention -->
-        <div class="item-container">
+        <div class="item-container processing-retention">
             <p class="item-body">
                 <@valueOrError elementContent.retention.label "missingValue"></@valueOrError> <@valueOrError elementContent.retention.value "missingValue"></@valueOrError> <@readBundle elementContent.retention.unit?html "missingValue"></@readBundle>.
             </p>
         </div>
 
         <#-- Usage -->
-        <div class="item-container">
+        <div class="item-container processing-usage">
             <p class="item-body"><@valueOrError elementContent.usage "missingValue"></@valueOrError></p>
         </div>
 
         <#-- Purposes -->
-        <div class="item-container">
+        <div class="item-container processing-purposes">
             <p class="item-body">
                 <span><@readBundle "purpose_title"></@readBundle></span>
-                <span><#list elementContent.purposes as purpose><@readBundle purpose?lower_case></@readBundle><#sep>, </#list></span>
+                <#list elementContent.purposes as purpose><@readBundle purpose?lower_case></@readBundle><#sep>, </#list>
             </p>
         </div>
 
