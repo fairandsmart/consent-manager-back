@@ -83,7 +83,8 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         EXPIRED,
         INFO_SERIAL_ARCHIVED,
         BODY_SERIAL_ARCHIVED,
-        NOT_COMMITTED
+        STILL_PENDING,
+        ENTRY_DELETED
     }
 
     public static Record build(ConsentContext ctx, String transaction, String defaultAuthor, Instant now, ConsentElementIdentifier info, ConsentElementIdentifier body, String value, String comment) {

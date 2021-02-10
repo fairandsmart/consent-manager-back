@@ -18,14 +18,6 @@
 
     <div class="conditions">${elementContent.body}</div>
 
-    <#if data.preview>
-        <#assign acceptOptions="disabled style='pointer-events: none !important;'">
-        <#assign refuseOptions="disabled style='pointer-events: none !important;'">
-    <#else>
-        <#assign acceptOptions="onclick='rejectConditions()'">
-        <#assign refuseOptions="onclick='acceptConditions()'">
-    </#if>
-
     <div class="conditions-response">
         <#if !data.preview>
             <#assign isChecked=!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted">
