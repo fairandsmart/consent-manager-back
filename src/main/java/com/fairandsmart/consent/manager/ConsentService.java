@@ -50,7 +50,7 @@ public interface ConsentService {
 
     CollectionPage<ModelEntry> listEntries(ModelFilter filter);
 
-    ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, AccessDeniedException;
+    ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, ConsentManagerException;
 
     ModelEntry getEntry(String entryId) throws EntityNotFoundException, AccessDeniedException;
 

@@ -147,10 +147,12 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, AccessDeniedException {
+    public ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, ConsentManagerException {
         LOGGER.log(Level.INFO, "Creating new entry");
         authentication.ensureConnectedIdentifierIsAdmin();
-        if (ModelEntry.isKeyAlreadyExists(key)) {
+        if (key == null || key.isEmpty()) {
+            throw new ConsentManagerException("Cannot create a model entry with an empty key");
+        } else if (ModelEntry.isKeyAlreadyExists(key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
         }
         long now = System.currentTimeMillis();
@@ -361,7 +363,6 @@ public class ConsentServiceBean implements ConsentService {
         } catch (ModelDataSerializationException ex) {
             throw new ConsentManagerException("Unable to serialise data", ex);
         }
-
     }
 
     @Override
