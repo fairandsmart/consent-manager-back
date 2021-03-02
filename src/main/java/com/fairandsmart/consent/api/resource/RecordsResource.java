@@ -67,8 +67,6 @@ public class RecordsResource {
     @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation(summary = "List all subject Records", description = "Records are ordered by element key and chronological order. Records status is evaluated at runtime.")
     public Map<String, List<RecordDto>> listSubjectRecords(
-            @Parameter(description = "Page number to get") @QueryParam("page") @DefaultValue("0") int page,
-            @Parameter(description = "Page size") @QueryParam("size") @DefaultValue("25") int size,
             @Parameter(description = "Sort by") @QueryParam("order") @DefaultValue("key") String order,
             @Parameter(description = "Sort direction (asc/desc)") @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
             @Parameter(description = "Subject to query", example = Placeholders.SHELDON) @QueryParam("subject") String subject,
@@ -82,8 +80,6 @@ public class RecordsResource {
     ) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /records");
         RecordFilter filter = new RecordFilter();
-        filter.setPage(page);
-        filter.setSize(size);
         filter.setOrder(order);
         filter.setDirection(direction);
         filter.setSubject(subject);

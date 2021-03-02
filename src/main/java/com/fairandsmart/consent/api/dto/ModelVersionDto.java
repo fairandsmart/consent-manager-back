@@ -47,7 +47,6 @@ public class ModelVersionDto extends ModelVersionDtoLight {
         dto.setType(version.type);
         dto.setCreationDate(version.creationDate);
         dto.setModificationDate(version.modificationDate);
-        dto.setIdentifier(version.getIdentifier().toString());
         for (Map.Entry<String, ModelContent> entry : version.content.entrySet()) {
             dto.data.put(entry.getKey(), entry.getValue().getDataObject());
         }
@@ -76,7 +75,6 @@ public class ModelVersionDto extends ModelVersionDtoLight {
                 ", type=" + super.getType() +
                 ", creationDate=" + super.getCreationDate() +
                 ", modificationDate=" + super.getModificationDate() +
-                ", identifier='" + super.getIdentifier() + '\'' +
                 ", data=" + data +
                 '}';
     }

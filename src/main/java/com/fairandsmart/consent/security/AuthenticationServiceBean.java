@@ -18,6 +18,8 @@ package com.fairandsmart.consent.security;
 
 import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.notification.NotificationService;
+import com.fairandsmart.consent.notification.entity.EventType;
 import com.fairandsmart.consent.security.entity.AccessLog;
 import com.fairandsmart.consent.security.entity.Key;
 import io.quarkus.security.identity.SecurityIdentity;
@@ -42,6 +44,9 @@ public class AuthenticationServiceBean implements AuthenticationService {
 
     @Inject
     SecurityIdentity identity;
+
+    @Inject
+    NotificationService notification;
 
     @Override
     public boolean isIdentified() {
@@ -138,7 +143,9 @@ public class AuthenticationServiceBean implements AuthenticationService {
     public Key createKey(String name) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Creating new API key");
         ensureConnectedIdentifierIsAdmin();
-        return Key.create(name, securityConfig.apiRoleName());
+        Key key = Key.create(name, securityConfig.apiRoleName());
+        this.notification.publish(EventType.KEY_CREATE, Key.class.getName(), key.id, getConnectedIdentifier());
+        return key;
     }
 
     @Override
@@ -147,5 +154,6 @@ public class AuthenticationServiceBean implements AuthenticationService {
         LOGGER.log(Level.FINE, "Dropping API key");
         ensureConnectedIdentifierIsAdmin();
         Key.deleteById(id);
+        this.notification.publish(EventType.KEY_DELETE, Key.class.getName(), id, getConnectedIdentifier());
     }
 }

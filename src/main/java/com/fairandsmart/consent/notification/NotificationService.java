@@ -16,16 +16,25 @@ package com.fairandsmart.consent.notification;
  * #L%
  */
 
+import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.entity.NotificationReport;
+import com.fairandsmart.consent.notification.filter.EventFilter;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NotificationService {
 
-    void notify(Event event);
+    void publish(Event event);
+
+    void publish(String eventType, String sourceType, String sourceId, String author);
+
+    void publish(String eventType, String sourceType, String sourceId, String author, Map<String, String> args);
 
     void pushReport(NotificationReport report);
+
+    CollectionPage<Event> findEvents(EventFilter filter);
 
     List<NotificationReport> listReports(String transactionId);
 

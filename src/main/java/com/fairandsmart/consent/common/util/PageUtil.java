@@ -17,7 +17,7 @@ package com.fairandsmart.consent.common.util;
  */
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
-import com.fairandsmart.consent.manager.filter.PaginableFilter;
+import com.fairandsmart.consent.common.filter.PaginableFilter;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 

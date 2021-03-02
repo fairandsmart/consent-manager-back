@@ -18,6 +18,7 @@ package com.fairandsmart.consent.notification.listener;
 
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.notification.entity.Event;
+import com.fairandsmart.consent.notification.entity.EventType;
 import com.fairandsmart.consent.notification.worker.NotifyConsentWorker;
 import io.quarkus.vertx.ConsumeEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -39,13 +40,15 @@ public class NotifyConsentListener {
     @Inject
     NotifyConsentWorker worker;
 
-    @ConsumeEvent(value = Event.CONSENT_SUBMIT)
+    @ConsumeEvent(value = Event.NOTIFICATION_CHANNEL)
     public void consume(Event event) {
-        LOGGER.log(Level.FINE, "Consent Submit event received: " + event.toString());
-        ConsentContext ctx = (ConsentContext)event.getData();
-        if (StringUtils.isNotEmpty(ctx.getNotificationRecipient())) {
-            worker.setCtx(ctx);
-            executor.submit(worker);
+        LOGGER.log(Level.FINE, "Event received: " + event.toString());
+        if (event.getEventType().equals(EventType.CONSENT_SUBMIT)) {
+            ConsentContext ctx = (ConsentContext) event.getData();
+            if (StringUtils.isNotEmpty(ctx.getNotificationRecipient())) {
+                worker.setCtx(ctx);
+                executor.submit(worker);
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.manager.filter;
+package com.fairandsmart.consent.common.filter;
 
 /*-
  * #%L
@@ -16,10 +16,10 @@ package com.fairandsmart.consent.manager.filter;
  * #L%
  */
 
-public interface PaginableFilter {
+public interface SortableFilter {
 
-    int getPage();
+    String getOrder();
 
-    int getSize();
+    String getDirection();
 
 }

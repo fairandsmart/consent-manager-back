@@ -211,4 +211,5 @@ public class RecordDto {
                 ", notificationReports=" + notificationReports +
                 '}';
     }
+
 }

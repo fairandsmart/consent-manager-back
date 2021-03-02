@@ -18,12 +18,15 @@ package com.fairandsmart.consent.api.filter;
 
 import com.fairandsmart.consent.security.AuthenticationService;
 
+import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
 
 @Provider
+@Priority(Priorities.USER)
 public class AccessLogFilter implements ContainerRequestFilter {
 
     @Inject

@@ -46,6 +46,8 @@ import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
+import com.fairandsmart.consent.notification.entity.EventArgs;
+import com.fairandsmart.consent.notification.entity.EventType;
 import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
@@ -134,7 +136,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public CollectionPage<ModelEntry> listEntries(ModelFilter filter) {
-        LOGGER.log(Level.INFO, "Listing models entries");
+        LOGGER.log(Level.FINE, "Listing models entries");
         PanacheQuery<ModelEntry> query;
         Sort sort = SortUtil.fromFilter(filter);
         if (sort != null) {
@@ -167,12 +169,14 @@ public class ConsentServiceBean implements ConsentService {
         entry.modificationDate = now;
         entry.status = ModelEntry.Status.INACTIVE;
         entry.persist();
+
+        this.notification.publish(EventType.MODEL_CREATE, ModelEntry.class.getName(), entry.id, entry.author, EventArgs.build("name", name).addArg("description", description).addArg("type", type));
         return entry;
     }
 
     @Override
     public ModelEntry getEntry(String id) throws EntityNotFoundException, AccessDeniedException {
-        LOGGER.log(Level.INFO, "Getting entry for id: " + id);
+        LOGGER.log(Level.FINE, "Getting entry for id: " + id);
         authentication.ensureConnectedIdentifierIsOperator();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
@@ -180,7 +184,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ModelEntry findEntryForKey(String key) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding entry for key: " + key);
+        LOGGER.log(Level.FINE, "Finding entry for key: " + key);
         Optional<ModelEntry> optional = ModelEntry.find("key = ?1", key).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for key: " + key));
     }
@@ -188,7 +192,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public ModelEntry updateEntry(String id, String name, String description) throws EntityNotFoundException, AccessDeniedException {
-        LOGGER.log(Level.INFO, "Updating entry for id: " + id);
+        LOGGER.log(Level.FINE, "Updating entry for id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
@@ -196,43 +200,46 @@ public class ConsentServiceBean implements ConsentService {
         entry.description = description;
         entry.modificationDate = System.currentTimeMillis();
         entry.persist();
+
+        this.notification.publish(EventType.MODEL_UPDATE, ModelEntry.class.getName(), entry.id, entry.author, EventArgs.build("name", name).addArg("description", description));
         return entry;
     }
 
     @Override
     @Transactional
     public void deleteEntry(String id) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
-        LOGGER.log(Level.INFO, "Deleting entry with id: {0}", id);
+        LOGGER.log(Level.FINE, "Deleting entry with id: {0}", id);
         authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + id));
         List<Record> records = Record.list(entry.type.equals(BasicInfo.TYPE) ? "infoKey" : "bodyKey", entry.key);
         if (!records.isEmpty()) {
-            LOGGER.log(Level.INFO, "Entry with id: {0} has records, marking it as DELETED", id);
+            LOGGER.log(Level.FINE, "Entry with id: {0} has records, marking it as DELETED", id);
             if (entry.status == ModelEntry.Status.ACTIVE) {
                 this.updateVersionStatus(this.findActiveVersionForEntry(entry.id).id, ModelVersion.Status.ARCHIVED);
             }
             entry.status = ModelEntry.Status.DELETED;
             entry.modificationDate = System.currentTimeMillis();
             entry.persist();
-            LOGGER.log(Level.INFO, "Invalidating records for entry with id: {0}", id);
+            LOGGER.log(Level.FINE, "Invalidating records for entry with id: {0}", id);
             for (Record record : records) {
                 record.state = Record.State.DELETED;
                 record.persist();
             }
         } else {
-            LOGGER.log(Level.INFO, "Entry with id: {0} has no record, deleting it from database", id);
+            LOGGER.log(Level.FINE, "Entry with id: {0} has no record, deleting it from database", id);
             List<ModelVersion> versions = ModelVersion.find("entry.id = ?1", id).list();
             versions.forEach(v -> ModelVersion.deleteById(v.id));
             ModelEntry.deleteById(id);
         }
         previewCache.remove(id);
+        this.notification.publish(EventType.MODEL_DELETE, ModelEntry.class.getName(), entry.id, entry.author);
     }
 
     @Override
     @Transactional
     public ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Creating new version for entry with id: " + entryId);
+        LOGGER.log(Level.FINE, "Creating new version for entry with id: " + entryId);
         authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelEntry> optional = ModelEntry.find("id = ?1", entryId).singleResultOptional();
@@ -245,7 +252,7 @@ public class ConsentServiceBean implements ConsentService {
         try {
             long now = System.currentTimeMillis();
             if (latest == null) {
-                LOGGER.log(Level.INFO, "No existing version found, creating first one");
+                LOGGER.log(Level.FINE, "No existing version found, creating first one");
                 latest = new ModelVersion();
                 latest.entry = entry;
                 latest.author = connectedIdentifier;
@@ -257,7 +264,7 @@ public class ConsentServiceBean implements ConsentService {
             } else if (latest.status.equals(ModelVersion.Status.DRAFT)) {
                 throw new ConsentManagerException("A draft version already exists, unable to create new one");
             } else {
-                LOGGER.log(Level.INFO, "Latest version found, creating new one");
+                LOGGER.log(Level.FINE, "Latest version found, creating new one");
                 ModelVersion newversion = new ModelVersion();
                 newversion.entry = latest.entry;
                 newversion.author = connectedIdentifier;
@@ -275,6 +282,7 @@ public class ConsentServiceBean implements ConsentService {
                 latest.persist();
                 latest = newversion;
             }
+            this.notification.publish(EventType.MODEL_VERSION_CREATE, ModelEntry.class.getName(), entry.id, entry.author, EventArgs.build("serial", latest.serial));
             return this.updateVersionContent(latest, data, defaultLanguage, connectedIdentifier);
         } catch (SerialGeneratorException | ModelDataSerializationException ex) {
             throw new ConsentManagerException("unable to create new version", ex);
@@ -283,47 +291,47 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding active version for entry with key: " + key);
+        LOGGER.log(Level.FINE, "Finding active version for entry with key: " + key);
         return ModelVersion.SystemHelper.findActiveVersionByKey(key);
     }
 
     @Override
     public ModelVersion findActiveVersionForEntry(String entryId) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding active version for entry with id: " + entryId);
+        LOGGER.log(Level.FINE, "Finding active version for entry with id: " + entryId);
         return ModelVersion.SystemHelper.findActiveVersionByEntryId(entryId);
     }
 
     @Override
     public ModelVersion findLatestVersionForKey(String key) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding latest version for entry with key: " + key);
+        LOGGER.log(Level.FINE, "Finding latest version for entry with key: " + key);
         Optional<ModelVersion> voptional = ModelVersion.find("entry.key = ?1 and child = ?2", key, "").singleResultOptional();
         return voptional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with key: " + key));
     }
 
     @Override
     public ModelVersion findLatestVersionForEntry(String entryId) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding latest version for entry with id: " + entryId);
+        LOGGER.log(Level.FINE, "Finding latest version for entry with id: " + entryId);
         Optional<ModelVersion> voptional = ModelVersion.find("entry.id = ?1 and child = ?2", entryId, "").singleResultOptional();
         return voptional.orElseThrow(() -> new EntityNotFoundException("unable to find latest version for entry with id: " + entryId));
     }
 
     @Override
     public ModelVersion getVersion(String id) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding version for id: " + id);
+        LOGGER.log(Level.FINE, "Finding version for id: " + id);
         Optional<ModelVersion> optional = ModelVersion.findByIdOptional(id);
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for id: " + id));
     }
 
     @Override
     public ModelVersion findVersionForSerial(String serial) throws EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Finding version for serial: " + serial);
+        LOGGER.log(Level.FINE, "Finding version for serial: " + serial);
         Optional<ModelVersion> optional = ModelVersion.find("serial = ?1", serial).singleResultOptional();
         return optional.orElseThrow(() -> new EntityNotFoundException("unable to find a version for serial: " + serial));
     }
 
     @Override
     public List<ModelVersion> getVersionHistoryForKey(String key) throws ConsentManagerException {
-        LOGGER.log(Level.INFO, "Listing versions for entry with key: " + key);
+        LOGGER.log(Level.FINE, "Listing versions for entry with key: " + key);
         List<ModelVersion> versions = ModelVersion.find("entry.key = ?1", key).list();
         if (!versions.isEmpty()) {
             return ModelVersion.HistoryHelper.orderVersions(versions);
@@ -333,7 +341,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException {
-        LOGGER.log(Level.INFO, "Listing versions for entry with id: " + entryId);
+        LOGGER.log(Level.FINE, "Listing versions for entry with id: " + entryId);
         List<ModelVersion> versions = ModelVersion.find("entry.id = ?1", entryId).list();
         if (!versions.isEmpty()) {
             return ModelVersion.HistoryHelper.orderVersions(versions);
@@ -344,7 +352,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public ModelVersion updateVersion(String id, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Updating content for version with id: " + id);
+        LOGGER.log(Level.FINE, "Updating content for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelVersion> voptional = ModelVersion.find("id = ?1", id).singleResultOptional();
@@ -359,7 +367,9 @@ public class ConsentServiceBean implements ConsentService {
             throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
         }
         try {
-            return this.updateVersionContent(version, data, defaultLanguage, connectedIdentifier);
+            ModelVersion uversion = this.updateVersionContent(version, data, defaultLanguage, connectedIdentifier);
+            this.notification.publish(EventType.MODEL_VERSION_UPDATE, ModelEntry.class.getName(), uversion.entry.id, uversion.entry.author, EventArgs.build("serial", uversion.serial));
+            return uversion;
         } catch (ModelDataSerializationException ex) {
             throw new ConsentManagerException("Unable to serialise data", ex);
         }
@@ -368,7 +378,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public ModelVersion updateVersionType(String id, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Updating type for version with id: " + id);
+        LOGGER.log(Level.FINE, "Updating type for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelVersion> voptional = ModelVersion.findByIdOptional(id);
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
@@ -384,13 +394,14 @@ public class ConsentServiceBean implements ConsentService {
         version.persist();
         version.entry.modificationDate = now;
         version.entry.persist();
+        this.notification.publish(EventType.MODEL_VERSION_UPDATE_TYPE, ModelEntry.class.getName(), version.entry.id, version.entry.author, EventArgs.build("serial", version.serial).addArg("type", type.toString()));
         return version;
     }
 
     @Override
     @Transactional
     public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
-        LOGGER.log(Level.INFO, "Updating status for version with id: " + id);
+        LOGGER.log(Level.FINE, "Updating status for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         long now = System.currentTimeMillis();
         Optional<ModelVersion> voptional = ModelVersion.findByIdOptional(id);
@@ -434,6 +445,7 @@ public class ConsentServiceBean implements ConsentService {
         }
         version.entry.modificationDate = now;
         version.entry.persist();
+        this.notification.publish(EventType.MODEL_VERSION_UPDATE_STATUS, ModelEntry.class.getName(), version.entry.id, version.entry.author, EventArgs.build("serial", version.serial).addArg("status", status.toString()));
         return version;
     }
 
@@ -463,7 +475,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public void deleteVersion(String id) throws ConsentManagerException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Deleting version with id: " + id);
+        LOGGER.log(Level.FINE, "Deleting version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelVersion> voptional = ModelVersion.findByIdOptional(id);
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
@@ -482,13 +494,14 @@ public class ConsentServiceBean implements ConsentService {
             parent.persist();
         }
         version.delete();
+        this.notification.publish(EventType.MODEL_VERSION_DELETE, ModelEntry.class.getName(), version.entry.id, version.entry.author, EventArgs.build("serial", version.serial));
     }
 
     /* CONSENT MANAGEMENT */
 
     @Override
     public String buildToken(ConsentContext ctx) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "Building generate form token for context: " + ctx);
+        LOGGER.log(Level.FINE, "Building generate form token for context: " + ctx);
         if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
             ctx.setSubject(authentication.getConnectedIdentifier());
         } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierApi()) {
@@ -499,7 +512,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
-        LOGGER.log(Level.INFO, "Generating consent form");
+        LOGGER.log(Level.FINE, "Generating consent form");
         try {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
 
@@ -542,7 +555,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException {
-        LOGGER.log(Level.INFO, "Submitting consent");
+        LOGGER.log(Level.FINE, "Submitting consent");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
@@ -575,7 +588,10 @@ public class ConsentServiceBean implements ConsentService {
             ctx.setInfo(infoId.getKey());
 
             if (!Subject.exists(ctx.getSubject())) {
-                Subject.create(ctx.getSubject()).persist();
+                Subject subject = Subject.create(ctx.getSubject());
+                subject.persist();
+                this.notification.publish(EventType.SUBJECT_CREATE, Subject.class.getName(), subject.id, authentication.getConnectedIdentifier(), EventArgs.build("name", ctx.getSubject()));
+
             }
             String comment = values.containsKey("comment") ? valuesMap.get("comment") : "";
 
@@ -610,8 +626,8 @@ public class ConsentServiceBean implements ConsentService {
             }
             this.notification.pushReport(report);
 
-            Event<ConsentContext> event = new Event<ConsentContext>().withAuthor(connectedIdentifier).withType(Event.CONSENT_SUBMIT).withData(ctx);
-            this.notification.notify(event);
+            Event<ConsentContext> event = new Event<ConsentContext>().addChannel(Event.NOTIFICATION_CHANNEL).withEventType(EventType.CONSENT_SUBMIT).withSourceType(ConsentContext.class.getName()).withSourceId(transaction).withAuthor(connectedIdentifier).withData(ctx);
+            this.notification.publish(event);
 
             return new ConsentTransaction(receiptId);
         } catch (TokenServiceException | ConsentServiceException | EntityNotFoundException | DatatypeConfigurationException | ReceiptStoreException | ReceiptAlreadyExistsException | ModelDataSerializationException e) {
@@ -623,7 +639,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public List<Subject> findSubjects(String name) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "Searching subjects");
+        LOGGER.log(Level.FINE, "Searching subjects");
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to search for subjects");
         }
@@ -632,7 +648,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public Subject getSubject(String name) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "Getting subject for name: " + name);
+        LOGGER.log(Level.FINE, "Getting subject for name: " + name);
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to search for subjects");
         }
@@ -649,7 +665,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     @Transactional
     public Subject createSubject(String name, String email) throws ConsentManagerException, EntityAlreadyExistsException {
-        LOGGER.log(Level.INFO, "Creating subject with name: " + name);
+        LOGGER.log(Level.FINE, "Creating subject with name: " + name);
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to create subjects");
         }
@@ -666,13 +682,15 @@ public class ConsentServiceBean implements ConsentService {
         subject.creationTimestamp = now.toEpochMilli();
         subject.emailAddress = email;
         subject.persist();
+
+        this.notification.publish(EventType.SUBJECT_CREATE, Subject.class.getName(), subject.id, authentication.getConnectedIdentifier(), EventArgs.build("name", name).addArg("email", email));
         return subject;
     }
 
     @Override
     @Transactional
     public Subject updateSubject(String id, String email) throws EntityNotFoundException, AccessDeniedException {
-        LOGGER.log(Level.INFO, "Updating subject with id: " + id);
+        LOGGER.log(Level.FINE, "Updating subject with id: " + id);
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to update subjects");
         }
@@ -680,6 +698,8 @@ public class ConsentServiceBean implements ConsentService {
         Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("Unable to find a subject for id: " + id));
         subject.emailAddress = email;
         subject.persist();
+
+        this.notification.publish(EventType.SUBJECT_UPDATE, Subject.class.getName(), subject.id, authentication.getConnectedIdentifier(), EventArgs.build("email", email));
         return subject;
     }
 
@@ -687,16 +707,17 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public Map<String, List<Record>> listSubjectRecords(RecordFilter filter) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "Listing records for subject");
+        LOGGER.log(Level.FINE, "Listing records for subject");
         if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
             throw new AccessDeniedException("You must be operator to perform records search");
         }
+        this.notification.publish(EventType.SUBJECT_LIST_RECORDS, Subject.class.getName(), filter.getSubject(), authentication.getConnectedIdentifier());
         return this.listRecordsWithStatus(filter);
     }
 
     @Override
     public Map<String, Record> systemListValidRecords(String subject, String infoKey, List<String> elementsKeys) {
-        LOGGER.log(Level.INFO, "Listing valid records");
+        LOGGER.log(Level.FINE, "Listing valid records");
         RecordFilter filter = new RecordFilter();
         filter.setSubject(subject);
         filter.setStates(Collections.singletonList(Record.State.COMMITTED));
@@ -711,7 +732,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "Extracting valid records with key: " + key + " and value: " + value + ((regexpValue) ? " (regexp)" : " (exact match)"));
+        LOGGER.log(Level.FINE, "Extracting valid records with key: " + key + " and value: " + value + ((regexpValue) ? " (regexp)" : " (exact match)"));
         if (!authentication.isConnectedIdentifierAdmin()) {
             throw new AccessDeniedException("You must be admin to search subjects");
         }
@@ -740,6 +761,7 @@ public class ConsentServiceBean implements ConsentService {
                         .ifPresent(r -> result.put(subject, r));
             });
         }
+        this.notification.publish(EventType.RECORD_EXTRACT, Record.class.getName(), key, authentication.getConnectedIdentifier());
         return result;
     }
 
@@ -747,7 +769,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public Receipt getReceipt(String token, String id) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
-        LOGGER.log(Level.INFO, "Getting receipt for id: " + id);
+        LOGGER.log(Level.FINE, "Getting receipt for id: " + id);
         try {
             Receipt receipt = store.get(id);
             if (!authentication.getConnectedIdentifier().equals(receipt.getSubject()) && !authentication.isConnectedIdentifierOperator()) {
@@ -760,6 +782,7 @@ public class ConsentServiceBean implements ConsentService {
                     throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
                 }
             }
+            this.notification.publish(EventType.RECEIPT_READ, Receipt.class.getName(), id, authentication.getConnectedIdentifier());
             return receipt;
         } catch (ReceiptStoreException e) {
             throw new ConsentManagerException("Unable to read receipt from store", e);
@@ -768,16 +791,20 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     public byte[] renderReceipt(String token, String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException {
-        LOGGER.log(Level.INFO, "Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
+        LOGGER.log(Level.FINE, "Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
         Receipt receipt = getReceipt(token, id);
-        return this.internalRenderReceipt(receipt, format, themeKey);
+        byte[] result =  this.internalRenderReceipt(receipt, format, themeKey);
+        this.notification.publish(EventType.RECEIPT_READ, Receipt.class.getName(), id, authentication.getConnectedIdentifier(), EventArgs.build("format", format).addArg("theme", themeKey));
+        return result;
     }
 
     @Override
     public byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
+        LOGGER.log(Level.FINE, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
         Receipt receipt = store.get(id);
-        return this.internalRenderReceipt(receipt, format, themeKey);
+        byte[] result =  this.internalRenderReceipt(receipt, format, themeKey);
+        this.notification.publish(EventType.RECEIPT_READ, Receipt.class.getName(), id, authentication.getConnectedIdentifier(), EventArgs.build("format", format).addArg("theme", themeKey));
+        return result;
     }
 
     /* INTERNAL */
@@ -863,7 +890,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     protected void onStart(@Observes StartupEvent ev) throws IOException, URISyntaxException {
-        LOGGER.log(Level.INFO, "Application is starting, importing receipts");
+        LOGGER.log(Level.FINE, "Application is starting, importing receipts");
         URL receipts = getClass().getClassLoader().getResource("receipts");
         if (receipts != null) {
             FileSystem fs = null;

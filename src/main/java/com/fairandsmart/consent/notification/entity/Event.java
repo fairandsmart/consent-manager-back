@@ -16,23 +16,64 @@ package com.fairandsmart.consent.notification.entity;
  * #L%
  */
 
-import java.util.HashMap;
-import java.util.Map;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import org.hibernate.annotations.GenericGenerator;
 
-public class Event<T> {
-    
-    public static final String CONSENT_SUBMIT = "consent.submit";
-    public static final String CONSENT_NOTIFY = "consent.notify";
+import javax.persistence.*;
+import java.util.*;
 
+@Entity
+public class Event<T>  extends PanacheEntityBase {
+
+    public static final String NOTIFICATION_CHANNEL = "notification";
+    public static final String AUDIT_CHANNEL = "audit";
+
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private String id;
+    @Transient
+    private Set<String> channels = new HashSet<>();
     private long timestamp;
     private String author;
-    private String type;
-    private T data;
+    private String eventType;
+    private String sourceType;
+    private String sourceId;
+    @ElementCollection(fetch = FetchType.EAGER)
     private Map<String, String> args;
+    @Transient
+    private T data;
 
     public Event() {
         args = new HashMap<>();
         timestamp = System.currentTimeMillis();
+        channels.add(AUDIT_CHANNEL);
+    }
+
+    public Event(Event event) {
+        this.timestamp = event.timestamp;
+        this.author = event.author;
+        this.eventType = event.eventType;
+        this.sourceType = event.sourceType;
+        this.sourceId = event.sourceId;
+        this.args = event.args;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Set<String> getChannels() {
+        return channels;
+    }
+
+    public Event<T> addChannel(String channel) {
+        this.channels.add(channel);
+        return this;
     }
 
     public long getTimestamp() {
@@ -56,16 +97,42 @@ public class Event<T> {
         return this;
     }
 
-    public String getType() {
-        return type;
+    public String getEventType() {
+        return eventType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
     }
 
-    public Event<T> withType(String type) {
-        this.type = type;
+    public Event<T> withEventType(String eventType) {
+        this.eventType = eventType;
+        return this;
+    }
+
+    public String getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(String sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public Event<T> withSourceType(String sourceType) {
+        this.sourceType = sourceType;
+        return this;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public Event<T> withSourceId(String sourceId) {
+        this.sourceId = sourceId;
         return this;
     }
 
@@ -90,6 +157,11 @@ public class Event<T> {
         this.args = args;
     }
 
+    public Event<T> withArgs(Map<String, String> args) {
+        this.args.putAll(args);
+        return this;
+    }
+
     public String getArg(String key) {
         return this.args.get(key);
     }
@@ -106,9 +178,13 @@ public class Event<T> {
     @Override
     public String toString() {
         return "Event{" +
-                "timestamp=" + timestamp +
+                "channels='" + channels + '\'' +
+                ", id=" + id +
+                ", timestamp=" + timestamp +
                 ", author='" + author + '\'' +
-                ", type='" + type + '\'' +
+                ", eventType='" + eventType + '\'' +
+                ", sourceType='" + sourceType + '\'' +
+                ", sourceId='" + sourceId + '\'' +
                 ", args=" + args +
                 '}';
     }

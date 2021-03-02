@@ -16,6 +16,9 @@ package com.fairandsmart.consent.manager.filter;
  * #L%
  */
 
+import com.fairandsmart.consent.common.filter.PaginableFilter;
+import com.fairandsmart.consent.common.filter.QueryableFilter;
+import com.fairandsmart.consent.common.filter.SortableFilter;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFilter {
+public class ModelFilter extends PaginableFilter implements SortableFilter, QueryableFilter {
 
     private List<String> types;
     private List<String> keys;
@@ -224,6 +227,8 @@ public class ModelFilter implements SortableFilter, PaginableFilter, QueryableFi
                 ", size=" + size +
                 ", order='" + order + '\'' +
                 ", direction='" + direction + '\'' +
+                ", limit=" + getLimit() +
+                ", offset=" + getOffset() +
                 '}';
     }
 }

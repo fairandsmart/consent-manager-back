@@ -24,10 +24,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import java.util.Arrays;
 import java.util.List;
 
-public class ModelVersionDtoLight {
+public class ModelVersionDtoLight{
 
     @Schema(description = "the version UUID", readOnly = true)
     private String id;
+    @Schema(description = "the model entry UUID", readOnly = true)
+    private String entry;
     @Schema(description = "the version serial", readOnly = true)
     private String serial;
     @Schema(description = "the previous version UUID", readOnly = true)
@@ -48,7 +50,7 @@ public class ModelVersionDtoLight {
     private long creationDate;
     @Schema(description = "the version last modification date (epoch in millisec)", readOnly = true, example = Placeholders.TS_2021_01_01)
     private long modificationDate;
-    private String identifier; // TODO : document this
+    private String identifier;
 
     public ModelVersionDtoLight() {
     }
@@ -56,6 +58,7 @@ public class ModelVersionDtoLight {
     public static ModelVersionDtoLight fromModelVersion(ModelVersion version) throws ModelDataSerializationException {
         ModelVersionDtoLight dto = new ModelVersionDtoLight();
         dto.setId(version.id);
+        dto.setEntry(version.entry.id);
         dto.setAuthor(version.author);
         dto.setParent(version.parent);
         dto.setChild(version.child);
@@ -76,6 +79,14 @@ public class ModelVersionDtoLight {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getEntry() {
+        return entry;
+    }
+
+    public void setEntry(String entry) {
+        this.entry = entry;
     }
 
     public String getSerial() {
@@ -170,6 +181,7 @@ public class ModelVersionDtoLight {
     public String toString() {
         return "ModelVersionDtoLight{" +
                 "id='" + id + '\'' +
+                ", entry='" + entry + '\'' +
                 ", serial='" + serial + '\'' +
                 ", parent='" + parent + '\'' +
                 ", child='" + child + '\'' +

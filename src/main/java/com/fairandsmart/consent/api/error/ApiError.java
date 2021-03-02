@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class ApiError {
+
+    public static final String API_ERROR_HEADER = "CM_API_ERROR";
  
     private int status;
     private String type;

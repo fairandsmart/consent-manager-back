@@ -53,7 +53,7 @@ public class BootstrapService {
     StatisticsService statisticsService;
 
     protected void onStart(@Observes StartupEvent ev) throws Exception {
-        LOGGER.log(Level.INFO, "Application is starting, migrating database");
+        LOGGER.log(Level.INFO, "Application is starting, applying bootstrap");
         Locale.setDefault(Locale.US);
         try (Liquibase liquibase = liquibaseFactory.createLiquibase()) {
             liquibase.setChangeLogParameter("instance", config.instance());
@@ -74,4 +74,5 @@ public class BootstrapService {
         supportService.refresh();
         statisticsService.init();
     }
+
 }

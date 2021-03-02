@@ -81,6 +81,7 @@ public class ApiErrorBodyWriter implements MessageBodyWriter<ApiError> {
         try {
             LOGGER.log(Level.INFO, "Applying error template to ApiError: " + error);
             Template template = cfg.getTemplate("error.ftl");
+            httpHeaders.add(ApiError.API_ERROR_HEADER, error.getType());
             Writer writer = new OutputStreamWriter(entityStream);
             TemplateModel<ApiError> model = new TemplateModel<>();
             model.setData(error);

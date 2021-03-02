@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.manager.filter;
+package com.fairandsmart.consent.common.filter;
 
 /*-
  * #%L
@@ -16,10 +16,12 @@ package com.fairandsmart.consent.manager.filter;
  * #L%
  */
 
-public interface SortableFilter {
+import java.util.Map;
 
-    String getOrder();
+public interface QueryableFilter {
 
-    String getDirection();
+    String getQueryString();
+
+    Map<String, Object> getQueryParams();
 
 }

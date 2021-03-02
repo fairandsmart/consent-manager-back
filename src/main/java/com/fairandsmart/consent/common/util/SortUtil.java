@@ -16,7 +16,7 @@ package com.fairandsmart.consent.common.util;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.filter.SortableFilter;
+import com.fairandsmart.consent.common.filter.SortableFilter;
 import io.quarkus.panache.common.Sort;
 import org.apache.commons.lang3.StringUtils;
 

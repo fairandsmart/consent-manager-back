@@ -16,6 +16,8 @@ package com.fairandsmart.consent.manager.filter;
  * #L%
  */
 
+import com.fairandsmart.consent.common.filter.QueryableFilter;
+import com.fairandsmart.consent.common.filter.SortableFilter;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
 
@@ -24,10 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RecordFilter implements SortableFilter, PaginableFilter, QueryableFilter {
+public class RecordFilter implements SortableFilter, QueryableFilter {
 
-    private int page;
-    private int size;
     private String subject;
     private List<Record.State> states;
     private List<String> infos;
@@ -40,32 +40,6 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
     private String direction;
 
     public RecordFilter() {
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public RecordFilter withPage(int page) {
-        this.page = page;
-        return this;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public RecordFilter withSize(int size) {
-        this.size = size;
-        return this;
     }
 
     public String getSubject() {
@@ -264,9 +238,7 @@ public class RecordFilter implements SortableFilter, PaginableFilter, QueryableF
     @Override
     public String toString() {
         return "RecordFilter{" +
-                "page=" + page +
-                ", size=" + size +
-                ", subject='" + subject + '\'' +
+                "subject='" + subject + '\'' +
                 ", states=" + states +
                 ", infos=" + infos +
                 ", elements=" + elements +

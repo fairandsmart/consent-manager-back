@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Entity
-@Schema(name="Record", description="A Record holds a single user consent or choice")
+@Schema(name="Notification Report", description="A Notification Report holds a status about a transaction notification")
 public class NotificationReport extends PanacheEntityBase {
 
     @Id

@@ -17,6 +17,7 @@ package com.fairandsmart.consent.notification;
  */
 
 import com.fairandsmart.consent.notification.entity.Event;
+import com.fairandsmart.consent.notification.entity.EventType;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
@@ -35,8 +36,8 @@ public class NotificationServiceTest {
     @Test
     public void testConsentNotificationEvent() {
         LOGGER.log(Level.INFO, "Entering Test Submit Consent Event");
-        Event event = new Event().withType(Event.CONSENT_SUBMIT).withAuthor("me").withArg("foo", "bar");
-        service.notify(event);
+        Event event = new Event().withEventType(EventType.CONSENT_SUBMIT).withAuthor("me").withArg("foo", "bar");
+        service.publish(event);
     }
 
 }
