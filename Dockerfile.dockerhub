@@ -1,12 +1,13 @@
 FROM quay.io/quarkus/centos-quarkus-maven:20.3-java11 AS build
+USER quarkus
 COPY pom.xml /project
-RUN mvn -f /project/pom.xml -B de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
+RUN mvn -B de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
 COPY src /project/src
-RUN mvn -f /project/pom.xml clean package -Duber-jar
+RUN mvn package -Duber-jar
 
 FROM adoptopenjdk:11-jre-hotspot
 RUN apt-get update && apt-get install -y gettext-base
-COPY --from=build /project/target/*-runner.jar /consent-manager-back-h2.jar
+COPY --from=build /project/target/consent-manager-back-uber-jar-h2-*-runner.jar /consent-manager-back-h2.jar
 COPY fs /
 VOLUME /data
 EXPOSE 8087
