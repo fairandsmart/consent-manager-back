@@ -25,6 +25,9 @@ public interface MainConfig {
     @ConfigProperty(name = "instance.name")
     String instance();
 
+    @ConfigProperty(name = "instance.owner")
+    String owner();
+
     @ConfigProperty(name = "instance.lang")
     String language();
 
