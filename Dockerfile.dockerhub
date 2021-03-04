@@ -1,8 +1,7 @@
 FROM quay.io/quarkus/centos-quarkus-maven:20.3-java11 AS build
-USER quarkus
-COPY pom.xml /project
+COPY --chown=quarkus:quarkus pom.xml /project
 RUN mvn -B de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
-COPY src /project/src
+COPY --chown=quarkus:quarkus src /project/src
 RUN mvn package -Duber-jar
 
 FROM adoptopenjdk:11-jre-hotspot
