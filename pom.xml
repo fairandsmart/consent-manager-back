@@ -17,31 +17,17 @@
         <quarkus.datasource.db-kind>h2</quarkus.datasource.db-kind>
         <quarkus.package.type>jar</quarkus.package.type>
         <version.apache-fop>2.5</version.apache-fop>
-        <version.commons-codec>1.14</version.commons-codec>
-        <version.dependency-check-maven>6.1.1</version.dependency-check-maven>
         <version.freemarker>2.3.30</version.freemarker>
-        <version.gitflow-maven-plugin>1.15.1</version.gitflow-maven-plugin>
         <version.java-jwt>3.12.0</version.java-jwt>
         <version.jsoup>1.13.1</version.jsoup>
         <version.maven>3.6.2</version.maven>
-        <version.maven-clean-plugin>3.1.0</version.maven-clean-plugin>
         <version.maven-compiler-plugin>3.8.1</version.maven-compiler-plugin>
-        <version.maven-dependency-check-plugin>5.3.2</version.maven-dependency-check-plugin>
-        <version.maven-deploy-plugin>3.0.0-M1</version.maven-deploy-plugin>
         <version.maven-enforcer-plugin>3.0.0-M3</version.maven-enforcer-plugin>
-        <version.maven-exec-plugin>3.0.0</version.maven-exec-plugin>
         <version.maven-failsafe-plugin>2.22.0</version.maven-failsafe-plugin>
-        <version.maven-install-plugin>3.0.0-M1</version.maven-install-plugin>
-        <version.maven-jar-plugin>3.2.0</version.maven-jar-plugin>
         <version.maven-license-plugin>2.0.0</version.maven-license-plugin>
         <version.maven-quarkus-plugin>1.12.0.Final</version.maven-quarkus-plugin>
-        <version.maven-resources-plugin>3.2.0</version.maven-resources-plugin>
-        <version.maven-site-plugin>3.9.1</version.maven-site-plugin>
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
         <version.quarkus>1.12.0.Final</version.quarkus>
-        <version.resteasy-client>4.5.3.Final</version.resteasy-client>
-        <version.sortpom-maven-plugin>2.13.1</version.sortpom-maven-plugin>
-        <version.versions-maven-plugin>2.8.1</version.versions-maven-plugin>
         <version.zxing>3.4.1</version.zxing>
         <version.authzforce.pdp>14.0.0</version.authzforce.pdp>
         <version.consul.client>1.4.0</version.consul.client>
@@ -307,20 +293,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.github.ekryd.sortpom</groupId>
-                <artifactId>sortpom-maven-plugin</artifactId>
-                <version>${version.sortpom-maven-plugin}</version>
-                <configuration>
-                    <predefinedSortOrder>custom_1</predefinedSortOrder>
-                    <lineSeparator>\n</lineSeparator>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <sortProperties>true</sortProperties>
-                    <keepBlankLines>false</keepBlankLines>
-                    <expandEmptyElements>false</expandEmptyElements>
-                    <nrOfIndentSpace>4</nrOfIndentSpace>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${version.maven-enforcer-plugin}</version>
                 <inherited>true</inherited>
@@ -458,23 +430,6 @@
             <timezone>+1</timezone>
         </developer>
     </developers>
-    <scm>
-        <connection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</connection>
-        <developerConnection>scm:git:ssh://git@gitlab.fairandsmart.tech:10022/fairandsmart/${project.artifactId}</developerConnection>
-        <url>https://gitlab.fairandsmart.tech/fairandsmart/${project.artifactId}</url>
-    </scm>
-    <distributionManagement>
-        <repository>
-            <id>fns-nexus</id>
-            <name>Fair And Smart Nexus Releases</name>
-            <url>https://repository.fairandsmart.tech/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>fns-nexus</id>
-            <name>Fair And Smart Nexus Snapshots</name>
-            <url>https://repository.fairandsmart.tech/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
     <profiles>
         <profile>
             <id>native</id>
@@ -514,24 +469,6 @@
             </properties>
         </profile>
         <profile>
-            <id>pg-storage</id>
-            <activation>
-                <property>
-                    <name>pg</name>
-                </property>
-            </activation>
-            <properties>
-                <quarkus.datasource.db-kind>pg</quarkus.datasource.db-kind>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-jdbc-postgresql</artifactId>
-                    <version>${version.quarkus}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
             <id>uber-jar-packaging</id>
             <activation>
                 <property>
@@ -541,91 +478,6 @@
             <properties>
                 <quarkus.package.type>uber-jar</quarkus.package.type>
             </properties>
-        </profile>
-        <profile>
-            <id>CI</id>
-            <activation>
-                <property>
-                    <name>env.CI</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>versions-maven-plugin</artifactId>
-                        <version>${version.versions-maven-plugin}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>display-property-updates</goal>
-                                    <goal>display-plugin-updates</goal>
-                                    <goal>display-parent-updates</goal>
-                                    <goal>display-dependency-updates</goal>
-                                </goals>
-                                <phase>validate</phase>
-                                <configuration>
-                                    <processDependencyManagement>false</processDependencyManagement>
-                                    <processPluginDependenciesInPluginManagement>false
-                                    </processPluginDependenciesInPluginManagement>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                        <version>${version.dependency-check-maven}</version>
-                        <configuration>
-                            <enableRetired>true</enableRetired>
-                            <enableExperimental>true</enableExperimental>
-                            <scanSet>
-                                <fileSet>
-                                    <directory>src/main</directory>
-                                </fileSet>
-                            </scanSet>
-                            <format>ALL</format>
-                            <suppressionFiles>
-                                <suppressionFile>project-suppression.xml</suppressionFile>
-                            </suppressionFiles>
-                            <failBuildOnCVSS>11</failBuildOnCVSS>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                                <phase>verify</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.amashchenko.maven.plugin</groupId>
-                        <artifactId>gitflow-maven-plugin</artifactId>
-                        <version>${version.gitflow-maven-plugin}</version>
-                        <configuration>
-                            <gitFlowConfig>
-                                <productionBranch>production</productionBranch>
-                                <developmentBranch>master</developmentBranch>
-                                <origin>origin</origin>
-                            </gitFlowConfig>
-                            <commitMessages>
-                                <releaseStartMessage>[BUILD] set version to @{version}</releaseStartMessage>
-                                <releaseFinishMessage>[BUILD] set version to @{version}</releaseFinishMessage>
-                                <releaseFinishMergeMessage>[BUILD] merged changes from version @{version} in production branch</releaseFinishMergeMessage>
-                                <releaseFinishDevMergeMessage>[BUILD] merged fixes for version @{version} in master branch</releaseFinishDevMergeMessage>
-                                <hotfixStartMessage>[BUILD] set version to @{version}</hotfixStartMessage>
-                                <hotfixFinishMessage>[BUILD] set version to @{version}</hotfixFinishMessage>
-                                <hotfixFinishMergeMessage>[BUILD] merged changes from version @{version} in production branch</hotfixFinishMergeMessage>
-                                <hotfixFinishDevMergeMessage>[BUILD] merged fixes for version @{version} in master branch</hotfixFinishDevMergeMessage>
-                                <hotfixFinishSupportMergeMessage>[BUILD] merged fixes for version @{version} in support branch</hotfixFinishSupportMergeMessage>
-                            </commitMessages>
-                            <useSnapshotInRelease>true</useSnapshotInRelease>
-                            <useSnapshotInHotfix>true</useSnapshotInHotfix>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>
