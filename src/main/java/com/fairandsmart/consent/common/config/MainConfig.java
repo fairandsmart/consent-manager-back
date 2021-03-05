@@ -31,9 +31,6 @@ public interface MainConfig {
     @ConfigProperty(name = "instance.lang")
     String language();
 
-    @ConfigProperty(name = "instance.owner")
-    String owner();
-
     @ConfigProperty(name = "instance.import-data", defaultValue="false")
     boolean importDemoData();
 

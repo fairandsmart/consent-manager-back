@@ -34,7 +34,6 @@
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
         <version.zxing>3.4.1</version.zxing>
-        <version.authzforce.pdp>14.0.0</version.authzforce.pdp>
         <version.consul.client>1.4.0</version.consul.client>
     </properties>
     <dependencyManagement>
