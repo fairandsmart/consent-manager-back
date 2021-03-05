@@ -31,11 +31,17 @@ public interface MainConfig {
     @ConfigProperty(name = "instance.lang")
     String language();
 
+    @ConfigProperty(name = "instance.owner")
+    String owner();
+
     @ConfigProperty(name = "instance.import-data", defaultValue="false")
     boolean importDemoData();
 
     @ConfigProperty(name = "public.url")
     String publicUrl();
+
+    @ConfigProperty(name = "private.url")
+    String privateUrl();
 
     @ConfigProperty(name = "home")
     String home();

@@ -16,25 +16,31 @@ package com.fairandsmart.consent.api.resource;
  * #L%
  */
 
-import com.fairandsmart.consent.api.dto.ClientConfigDto;
-import com.fairandsmart.consent.api.dto.SupportInfoDto;
-import com.fairandsmart.consent.api.dto.UserDto;
+import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.config.ClientConfig;
+import com.fairandsmart.consent.common.validation.SortDirection;
+import com.fairandsmart.consent.manager.entity.ModelEntry;
+import com.fairandsmart.consent.notification.NotificationService;
+import com.fairandsmart.consent.notification.entity.Event;
+import com.fairandsmart.consent.notification.filter.EventFilter;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.support.SupportService;
 import com.fairandsmart.consent.support.SupportServiceException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.validation.Valid;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("/system")
 @Tag(name = "System", description = "System operations")
@@ -47,6 +53,9 @@ public class SystemResource {
 
     @Inject
     SupportService supportService;
+
+    @Inject
+    NotificationService notificationService;
 
     @Inject
     ClientConfig config;
@@ -94,4 +103,33 @@ public class SystemResource {
         return dto;
     }
 
+    @GET
+    @Path("/events")
+    @Produces(MediaType.APPLICATION_JSON)
+    @APIResponse(responseCode = "200", description = "System events list")
+    @Operation(summary = "Get the GUI configuration")
+    public CollectionPage<EventDto> listEvents(
+            @Parameter(description = "page number to get") @QueryParam("page") @DefaultValue("0") int page,
+            @Parameter(description = "page size") @QueryParam("size") @DefaultValue("25") int size,
+            @Parameter(description = "sort by") @QueryParam("order") @DefaultValue("key") String order,
+            @Parameter(description = "sort direction (asc/desc)") @QueryParam("direction") @Valid @SortDirection @DefaultValue("asc") String direction,
+            @Parameter(description = "event author to query") @QueryParam("author") String author,
+            @Parameter(description = "event types to query") @QueryParam("eventTypes") List<String> eventTypes,
+            @Parameter(description = "event source types to query") @QueryParam("sourceTypes") List<String> sourceTypes,
+            @Parameter(description = "event source id to query") @QueryParam("sourceId") String sourceId) {
+        LOGGER.log(Level.INFO, "GET /system/events");
+        EventFilter filter = new EventFilter();
+        filter.setPage(page);
+        filter.setSize(size);
+        filter.setOrder(order);
+        filter.setDirection(direction);
+        filter.setAuthor(author);
+        filter.setEventTypes(eventTypes);
+        filter.setSourceTypes(sourceTypes);
+        filter.setSourceId(sourceId);
+        CollectionPage<Event> events = notificationService.findEvents(filter);
+        CollectionPage<EventDto> dto = new CollectionPage<>(events);
+        dto.setValues(events.getValues().stream().map(EventDto::fromEvent).collect(Collectors.toList()));
+        return dto;
+    }
 }

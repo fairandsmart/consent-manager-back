@@ -16,6 +16,8 @@ package com.fairandsmart.consent.api.dto;
  * #L%
  */
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,8 @@ public class CollectionPage<T> {
     private int pageSize;
     private int totalPages;
     private long totalCount;
+    private int limit;
+    private int offset;
 
     public CollectionPage() {
         values = new ArrayList<>();
@@ -36,6 +40,8 @@ public class CollectionPage<T> {
         this.pageSize = another.pageSize;
         this.totalPages = another.totalPages;
         this.totalCount = another.totalCount;
+        this.limit = another.limit;
+        this.offset = another.offset;
         values = new ArrayList<>();
     }
 
@@ -53,6 +59,7 @@ public class CollectionPage<T> {
 
     public void setPage(int page) {
         this.page = page;
+        this.offset = page * pageSize;
     }
 
     public int getPageSize() {
@@ -61,6 +68,8 @@ public class CollectionPage<T> {
 
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
+        this.limit = pageSize;
+        this.offset = page * pageSize;
     }
 
     public int getTotalPages() {
@@ -79,6 +88,19 @@ public class CollectionPage<T> {
         this.totalCount = totalCount;
     }
 
+    public int getLimit() {
+        return limit;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    @JsonProperty("size")
+    public long getSize() {
+        return totalCount;
+    }
+
     @Override
     public String toString() {
         return "CollectionPage{" +
@@ -87,6 +109,9 @@ public class CollectionPage<T> {
                 ", pageSize=" + pageSize +
                 ", totalPages=" + totalPages +
                 ", totalCount=" + totalCount +
+                ", limit=" + limit +
+                ", offset=" + offset +
+                ", size=" + totalCount +
                 '}';
     }
 }

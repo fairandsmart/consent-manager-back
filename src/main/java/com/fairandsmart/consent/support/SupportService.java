@@ -31,6 +31,5 @@ public interface SupportService {
 
     void init() throws SupportServiceException;
 
-    @Scheduled(cron="0 0 0 ? * MON")
     void refresh();
 }

@@ -81,7 +81,7 @@ public class KeysResource {
     @Operation(summary = "Delete the key with that id")
     public Response deleteKey(
             @Parameter(description = "The key UUID (NOT its name) to delete", example = Placeholders.NIL_UUID) @PathParam("id") @NotEmpty @UUID String id) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "DELETE /users/key/{}", id);
+        LOGGER.log(Level.INFO, "DELETE /users/key/" + id);
         authenticationService.dropKey(id);
         return Response.noContent().build();
     }

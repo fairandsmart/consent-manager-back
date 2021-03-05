@@ -304,4 +304,40 @@
                     where ${instance}_MODELENTRY.ID = ${instance}_MODELVERSION.ENTRY_ID);
         </sql>
     </changeSet>
+    <changeSet author="jayblanc" id="8">
+        <createTable tableName="${instance}_EVENT" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="TIMESTAMP" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="AUTHOR" type="VARCHAR(255)"/>
+            <column name="EVENTTYPE" type="VARCHAR(255)"/>
+            <column name="SOURCETYPE" type="VARCHAR(500)"/>
+            <column name="SOURCEID" type="VARCHAR(255)"/>
+        </createTable>
+        <createTable tableName="${instance}_EVENT_ARGS" schemaName="PUBLIC" >
+            <column name="EVENT_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ARGS_KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ARGS" type="VARCHAR(5000)"/>
+        </createTable>
+        <addForeignKeyConstraint
+                constraintName="${instance}_FK_EVENT_ARGS_ID"
+                baseColumnNames="EVENT_ID"
+                baseTableName="${instance}_EVENT_ARGS"
+                baseTableSchemaName="PUBLIC"
+                referencedColumnNames="ID"
+                referencedTableName="${instance}_EVENT"
+                referencedTableSchemaName="PUBLIC"/>
+        <addPrimaryKey
+                constraintName="${instance}_PK_EVENT_ARGS_ID"
+                columnNames="EVENT_ID, ARGS_KEY"
+                schemaName="PUBLIC"
+                tableName="${instance}_EVENT_ARGS"/>
+    </changeSet>
 </databaseChangeLog>

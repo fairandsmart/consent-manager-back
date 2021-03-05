@@ -79,8 +79,10 @@ public class ModelsResource {
             @Parameter(description = "model IDs to query") @QueryParam("keys") List<String> keys,
             @Parameter(description = "keyword to query") @QueryParam("keyword") String keyword,
             @Parameter(description = "statuses to query") @QueryParam("statuses") List<ModelEntry.Status> statuses,
-            @Parameter(description = "languages to query") @QueryParam("languages") List<String> languages
-    ) throws ConsentManagerException, ModelDataSerializationException {
+            @Parameter(description = "languages to query") @QueryParam("languages") List<String> languages,
+            @Parameter(description = "offset to apply", deprecated = true) @QueryParam("offset") @DefaultValue("-1") int offset,
+            @Parameter(description = "page limit", deprecated = true) @QueryParam("limit") @DefaultValue("0") int limit
+            ) throws ConsentManagerException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models");
         ModelFilter filter = new ModelFilter();
         filter.setPage(page);
@@ -92,6 +94,12 @@ public class ModelsResource {
         filter.setKeyword(keyword);
         filter.setStatuses(statuses);
         filter.setLanguages(languages);
+        if ( limit > 0 ) {
+            filter.setLimit(limit);
+        }
+        if ( offset >= 0 ) {
+            filter.setOffset(offset);
+        }
         CollectionPage<ModelEntry> entries = consentService.listEntries(filter);
         CollectionPage<ModelEntryDto> dto = new CollectionPage<>(entries);
         List<ModelEntryDto> values = new ArrayList<>();
