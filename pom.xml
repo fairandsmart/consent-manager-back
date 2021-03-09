@@ -494,5 +494,22 @@
                 <quarkus.package.type>uber-jar</quarkus.package.type>
             </properties>
         </profile>
-    </profiles>
+        <profile>
+            <id>pg-storage</id>
+            <activation>
+                <property>
+                    <name>pg</name>
+                </property>
+            </activation>
+            <properties>
+                <quarkus.datasource.db-kind>pg</quarkus.datasource.db-kind>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-jdbc-postgresql</artifactId>
+                    <version>${version.quarkus}</version>
+                </dependency>
+            </dependencies>
+        </profile>    </profiles>
 </project>
