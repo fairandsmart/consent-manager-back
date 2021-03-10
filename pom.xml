@@ -4,9 +4,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fairandsmart</groupId>
-    <artifactId>consent-manager-back-${quarkus.package.type}-${quarkus.datasource.db-kind}</artifactId>
+    <artifactId>consent-manager-back</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>FairAndSmart Consent Manager Backend (${quarkus.package.type} / ${quarkus.datasource.db-kind})</name>
+    <name>FairAndSmart Consent Manager Backend</name>
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
@@ -34,8 +34,6 @@
         <version.sortpom-maven-plugin>2.12.0</version.sortpom-maven-plugin>
         <version.versions-maven-plugin>2.7</version.versions-maven-plugin>
         <version.zxing>3.4.1</version.zxing>
-        <version.authzforce.pdp>14.0.0</version.authzforce.pdp>
-        <version.consul.client>1.4.0</version.consul.client>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -135,6 +133,18 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
             <version>${version.java-jwt}</version>
@@ -149,18 +159,6 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>${version.freemarker}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-csv</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
