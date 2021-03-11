@@ -6,7 +6,7 @@ RUN mvn package -Duber-jar
 
 FROM adoptopenjdk:11-jre-hotspot
 RUN apt-get update && apt-get install -y gettext-base
-COPY --from=build /project/target/consent-manager-back-uber-jar-h2-*-runner.jar /consent-manager-back-h2.jar
+COPY --from=build /project/target/consent-manager-back-*-runner.jar /consent-manager-back.jar
 COPY fs /
 VOLUME /data
 EXPOSE 8087

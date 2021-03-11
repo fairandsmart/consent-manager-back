@@ -26,23 +26,13 @@ export FS_AUTH_FRONT_URL=${FS_AUTH_FRONT_URL:-}
 export FS_AUTH_REALM=${FS_AUTH_REALM:-RightConsents}
 
 # DB setup
-FS_DATABASE_KIND="${FS_DATABASE_KIND:-h2}"
-if [[ ${FS_DATABASE_KIND} == "pg" ]]; then
-    export FS_DATABASE_DRIVER="postgresql"
-    export FS_DATABASE_USER=${FS_DATABASE_USER:-user}
-    export FS_DATABASE_PASSWORD=${FS_DATABASE_PASSWORD:-password}
-    export FS_DATABASE_SERVERS=${FS_DATABASE_SERVERS:-server}
-    export FS_DATABASE_DB=${FS_DATABASE_DB:-db}
-else
-    export FS_DATABASE_DRIVER="h2"
-    export FS_DATABASE_USER="sa"
-    export FS_DATABASE_PASSWORD="sa"
-    export FS_DATABASE_SERVERS="data/database"
-    export FS_DATABASE_DB="consent-manager.h2"
-    mkdir -p /data/database
-fi
+export FS_DATABASE_USER="sa"
+export FS_DATABASE_PASSWORD="sa"
+export FS_DATABASE_SERVERS="data/database"
+export FS_DATABASE_DB="consent-manager.h2"
+mkdir -p /data/database
 
-export FS_DATABASE_URL="jdbc:${FS_DATABASE_DRIVER}://${FS_DATABASE_SERVERS}/${FS_DATABASE_DB}"
+export FS_DATABASE_URL="jdbc:h2://${FS_DATABASE_SERVERS}/${FS_DATABASE_DB}"
 
 # Mailer setup
 export FS_MAILER_FROM=${FS_MAILER_FROM:-demo@demo.com}
@@ -79,4 +69,4 @@ envsubst < /config/application-template.properties > /config/application.propert
 # shellcheck disable=SC2086
 read -r -a FS_JVM_ARGS_A <<< ${FS_JVM_ARGS}
 
-exec java "${FS_JVM_ARGS_A[@]}" "-Xmx$FS_MAXHEAPSIZE" -jar "/$FS_BACKEND_TYPE-$FS_DATABASE_KIND.jar"
+exec java "${FS_JVM_ARGS_A[@]}" "-Xmx$FS_MAXHEAPSIZE" -jar "/$FS_BACKEND_TYPE.jar"
