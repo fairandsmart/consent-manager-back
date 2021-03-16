@@ -429,6 +429,7 @@ public class ConsentServiceTest {
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
         types.add(Processing.TYPE);
+        types.add(FormLayout.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
         String language = "fr";
@@ -454,23 +455,27 @@ public class ConsentServiceTest {
         ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
 
+        // Creating Form layout entry
+        String lKey = UUID.randomUUID().toString();
+        ModelEntry el1 = service.createEntry(lKey, "Name " + lKey, "Description " + lKey, FormLayout.TYPE);
+        assertNotNull(el1);
+        ModelVersion v1l1 = service.createVersion(el1.id, language, Collections.singletonMap(language, TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key))));
+        service.updateVersionStatus(v1l1.id, ModelVersion.Status.ACTIVE);
+
         // Checking that the entries have been created
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
-        assertEquals(entriesCount + 3, entries.getTotalCount());
+        assertEquals(entriesCount + 4, entries.getTotalCount());
 
         LOGGER.info("Creating READ context and token");
         String subject = "lmichu";
         ConsentContext readCtx = new ConsentContext()
                 .setSubject(subject)
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+                .setLayout(lKey);
         String readToken = service.buildToken(readCtx);
 
         LOGGER.info("Reading consent records before submit");
-        Map<String, Record> records = service.systemListValidRecords(readCtx.getSubject(), readCtx.getInfo(), readCtx.getElements());
+        Map<String, Record> records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
         assertEquals(0, records.size());
 
         LOGGER.info("First consent form");
@@ -486,7 +491,7 @@ public class ConsentServiceTest {
         service.submitConsent(form.getToken(), values);
 
         LOGGER.info("Reading consent records after submit");
-        records = service.systemListValidRecords(readCtx.getSubject(), readCtx.getInfo(), readCtx.getElements());
+        records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
         assertEquals(2, records.size());
         assertTrue(records.containsKey(et1.key));
         Record record = records.get(et1.key);
@@ -514,7 +519,7 @@ public class ConsentServiceTest {
         service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.info("Reading consent records after new version MINOR (no effect)");
-        records = service.systemListValidRecords(readCtx.getSubject(), readCtx.getInfo(), readCtx.getElements());
+        records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
         assertEquals(2, records.size());
         assertTrue(records.containsKey(et1.key));
         record = records.get(et1.key);
@@ -535,7 +540,7 @@ public class ConsentServiceTest {
         service.updateVersionStatus(v3t2.id, ModelVersion.Status.ACTIVE);
 
         LOGGER.info("Reading consent records after new version MAJOR (no more value for t2)");
-        records = service.systemListValidRecords(readCtx.getSubject(), readCtx.getInfo(), readCtx.getElements());
+        records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
         assertEquals(1, records.size());
         assertTrue(records.containsKey(et1.key));
         record = records.get(et1.key);
@@ -554,11 +559,13 @@ public class ConsentServiceTest {
         LOGGER.info("New consent form");
         readCtx = new ConsentContext()
                 .setSubject(subject)
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Collections.singletonList(t1Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+                .setLayoutData(new FormLayout()
+                        .withOrientation(FormLayout.Orientation.VERTICAL)
+                        .withInfo(biKey)
+                        .withElements(Collections.singletonList(t1Key))
+                        .withExistingElementsVisible(true))
+                .setOrigin(ConsentContext.Origin.WEBFORM.getValue());
         readToken = service.buildToken(readCtx);
         form = service.generateForm(readToken);
         assertEquals(1, form.getElements().size());
@@ -601,6 +608,7 @@ public class ConsentServiceTest {
         types.add(BasicInfo.TYPE);
         types.add(Processing.TYPE);
         types.add(Preference.TYPE);
+        types.add(FormLayout.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
         String language = "fr";
@@ -654,20 +662,37 @@ public class ConsentServiceTest {
         ModelVersion v1t3 = service.createVersion(et3.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t3Key)));
         service.updateVersionStatus(v1t3.id, ModelVersion.Status.ACTIVE);
 
+        // Creating Full Form layout entry
+        String l1Key = UUID.randomUUID().toString();
+        ModelEntry el1 = service.createEntry(l1Key, "Name " + l1Key, "Description " + l1Key, FormLayout.TYPE);
+        assertNotNull(el1);
+        ModelVersion v1l1 = service.createVersion(el1.id, language, Collections.singletonMap(language, TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key, p2Key, p1Key))));
+        service.updateVersionStatus(v1l1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Partial Form layout entry
+        String l2Key = UUID.randomUUID().toString();
+        ModelEntry el2 = service.createEntry(l2Key, "Name " + l2Key, "Description " + l2Key, FormLayout.TYPE);
+        assertNotNull(el2);
+        ModelVersion v1l2 = service.createVersion(el2.id, language, Collections.singletonMap(language, TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key, p2Key, p1Key)).withExistingElementsVisible(false)));
+        service.updateVersionStatus(v1l2.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Partial Form layout entry
+        String l3Key = UUID.randomUUID().toString();
+        ModelEntry el3 = service.createEntry(l3Key, "Name " + l3Key, "Description " + l3Key, FormLayout.TYPE);
+        assertNotNull(el3);
+        ModelVersion v1l3 = service.createVersion(el3.id, language, Collections.singletonMap(language, TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key, p1Key, p2Key, t3Key, p3Key)).withExistingElementsVisible(false)));
+        service.updateVersionStatus(v1l3.id, ModelVersion.Status.ACTIVE);
+
         // Checking that the entries have been created
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
-        assertEquals(entriesCount + 7, entries.getTotalCount());
+        assertEquals(entriesCount + 10, entries.getTotalCount());
 
         LOGGER.info("Creating READ context and token");
         String subject = "nmichu";
         ConsentContext readCtx = new ConsentContext()
                 .setSubject(subject)
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key, p2Key, p1Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM)
-                .setFormType(ConsentContext.FormType.FULL);
+                .setLayout(l2Key);
         String readToken = service.buildToken(readCtx);
 
         LOGGER.info("First consent form");
@@ -691,12 +716,8 @@ public class ConsentServiceTest {
         LOGGER.info("Creating second READ context and token");
         readCtx = new ConsentContext()
                 .setSubject(subject)
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key, p1Key, p2Key, t3Key, p3Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM)
-                .setFormType(ConsentContext.FormType.PARTIAL);
+                .setLayout(l3Key);
         readToken = service.buildToken(readCtx);
 
         LOGGER.info("Second consent form");
@@ -713,6 +734,10 @@ public class ConsentServiceTest {
         assertEquals("refused", form.getPreviousValues().get(v1t2.serial));
         assertEquals("Option2", form.getPreviousValues().get(v1p1.serial));
         assertEquals("Option3", form.getPreviousValues().get(v1p2.serial));
+
+        //TODO Test form layout data
+
+        //TODO Test form layout override using form data
     }
 
     @Test
@@ -723,6 +748,7 @@ public class ConsentServiceTest {
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
         types.add(Processing.TYPE);
+        types.add(FormLayout.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
         String language = "fr";
@@ -748,21 +774,26 @@ public class ConsentServiceTest {
         ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
 
+        // Creating Full Form layout entry
+        String l1Key = UUID.randomUUID().toString();
+        ModelEntry el1 = service.createEntry(l1Key, "Name " + l1Key, "Description " + l1Key, FormLayout.TYPE);
+        assertNotNull(el1);
+        ModelVersion v1l1 = service.createVersion(el1.id, language, Collections.singletonMap(language, TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key))));
+        service.updateVersionStatus(v1l1.id, ModelVersion.Status.ACTIVE);
+
         // Checking that the entries have been created
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
-        assertEquals(entriesCount + 3, entries.getTotalCount());
+        assertEquals(entriesCount + 4, entries.getTotalCount());
         String biIdentifier = "element/basicinfo/" + biKey + "/" + v1bi1.serial;
         String t1Identifier = "element/processing/" + t1Key + "/" + v1t1.serial;
         String t2Identifier = "element/processing/" + t2Key + "/" + v1t2.serial;
+        String l1Identifier = "element/layout/" + l1Key + "/" + v1l1.serial;
 
         LOGGER.info("Submitting a consent for sheldon");
         ConsentContext ctx = new ConsentContext()
                 .setSubject("sheldon")
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+                .setLayout(l1Key);
         String token = service.buildToken(ctx);
         ConsentForm form = service.generateForm(token);
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
@@ -774,11 +805,8 @@ public class ConsentServiceTest {
         LOGGER.info("Submitting a consent for penny");
         ctx = new ConsentContext()
                 .setSubject("penny")
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+                .setLayout(l1Key);
         token = service.buildToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
@@ -790,11 +818,8 @@ public class ConsentServiceTest {
         LOGGER.info("Submitting a consent for leonard");
         ctx = new ConsentContext()
                 .setSubject("leonard")
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+                .setLayout(l1Key);
         token = service.buildToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
@@ -872,6 +897,7 @@ public class ConsentServiceTest {
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
         types.add(Processing.TYPE);
+        types.add(FormLayout.TYPE);
         CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         long entriesCount = entries.getTotalCount();
         String language = "fr";
@@ -897,12 +923,20 @@ public class ConsentServiceTest {
         ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
         service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
 
+        // Creating Full Form layout entry
+        String l1Key = UUID.randomUUID().toString();
+        ModelEntry el1 = service.createEntry(l1Key, "Name " + l1Key, "Description " + l1Key, FormLayout.TYPE);
+        assertNotNull(el1);
+        ModelVersion v1l1 = service.createVersion(el1.id, language, Collections.singletonMap(language, TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key))));
+        service.updateVersionStatus(v1l1.id, ModelVersion.Status.ACTIVE);
+
         // Checking that the entries have been created
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
-        assertEquals(entriesCount + 3, entries.getTotalCount());
+        assertEquals(entriesCount + 4, entries.getTotalCount());
         String biIdentifier = "element/basicinfo/" + biKey + "/" + v1bi1.serial;
         String t1Identifier = "element/processing/" + t1Key + "/" + v1t1.serial;
         String t2Identifier = "element/processing/" + t2Key + "/" + v1t2.serial;
+        String l1Identifier = "element/layout/" + l1Key + "/" + v1l1.serial;
 
         String user1 = "user1";
         String user2 = "user2";
@@ -912,11 +946,8 @@ public class ConsentServiceTest {
         LOGGER.info("Submitting a consent for user1");
         ConsentContext ctx = new ConsentContext()
                 .setSubject(user1)
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+                .setLayout(l1Key);
         String token = service.buildToken(ctx);
         ConsentForm form = service.generateForm(token);
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
@@ -928,11 +959,8 @@ public class ConsentServiceTest {
         LOGGER.info("Submitting a consent for user2");
         ctx = new ConsentContext()
                 .setSubject(user2)
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+                .setLayout(l1Key);
         token = service.buildToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
@@ -944,11 +972,8 @@ public class ConsentServiceTest {
         LOGGER.info("Submitting a consent for user3");
         ctx = new ConsentContext()
                 .setSubject(user3)
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setCollectionMethod(ConsentContext.CollectionMethod.WEBFORM);
+                .setLayout(l1Key);
         token = service.buildToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
@@ -1009,4 +1034,5 @@ public class ConsentServiceTest {
 
         //TODO Increase listing testing with rule based records status by adding new consent submit and new models versions.
     }
+
 }

@@ -51,8 +51,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public String value;
     @Enumerated(EnumType.STRING)
     public State state;
-    @Enumerated(EnumType.STRING)
-    public ConsentContext.CollectionMethod collectionMethod;
+    public String origin;
     public String author;
     @Column(length = 5000)
     public String comment;
@@ -101,7 +100,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         record.creationTimestamp = now.toEpochMilli();
         record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
         record.state = Record.State.COMMITTED;
-        record.collectionMethod = ctx.getCollectionMethod();
+        record.origin = ctx.getOrigin();
         record.author = StringUtils.isNotEmpty(ctx.getAuthor()) ? ctx.getAuthor() : defaultAuthor;
         record.comment = comment;
         return record;
@@ -127,7 +126,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
                 ", state=" + state +
                 ", status=" + status +
                 ", statusExplanation=" + statusExplanation +
-                ", collectionMethod=" + collectionMethod +
+                ", origin=" + origin +
                 ", author='" + author + '\'' +
                 ", comment='" + comment + '\'' +
                 ", attributes=" + attributes +

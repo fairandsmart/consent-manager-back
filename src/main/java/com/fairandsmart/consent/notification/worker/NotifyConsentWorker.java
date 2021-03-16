@@ -91,22 +91,22 @@ public class NotifyConsentWorker implements Runnable {
     @Transactional
     public void run() {
         LOGGER.log(Level.FINE, "Notify Consent worker started for ctx: " + ctx);
-        NotificationReport report = new NotificationReport(ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
+        NotificationReport report = new NotificationReport(ctx.getTransaction(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
         try {
             ConsentNotification notification = new ConsentNotification();
             notification.setLanguage(ctx.getLanguage());
             notification.setRecipient(ctx.getNotificationRecipient());
-            ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getNotificationModel()).get().getSerial(), true);
+            ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getLayoutData().getNotification()).get().getSerial(), true);
             notification.setModel(notificationModel);
-            if (StringUtils.isNotEmpty(ctx.getTheme())) {
-                ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getTheme()).get().getSerial(), true);
+            if (StringUtils.isNotEmpty(ctx.getLayoutData().getTheme())) {
+                ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getLayoutData().getTheme()).get().getSerial(), true);
                 notification.setTheme(theme);
             }
             if (clientConfig.isUserPageEnabled() && clientConfig.userPagePublicUrl().isPresent()) {
-                ctx.setCollectionMethod(ConsentContext.CollectionMethod.USER_PAGE);
+                ctx.setOrigin(ConsentContext.Origin.USER.getValue());
                 notification.setUrl(clientConfig.userPagePublicUrl().get());
             } else {
-                ctx.setCollectionMethod(ConsentContext.CollectionMethod.EMAIL);
+                ctx.setOrigin(ConsentContext.Origin.EMAIL.getValue());
                 notification.setToken(this.tokenService.generateToken(ctx,
                         Date.from(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC")).plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS).toInstant())));
                 URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
@@ -114,7 +114,7 @@ public class NotifyConsentWorker implements Runnable {
             }
             notification.setReceiptName("receipt.pdf");
             notification.setReceiptType("application/pdf");
-            notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getReceiptId(), "application/pdf", ctx.getTheme()));
+            notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getTransaction(), "application/pdf", ctx.getLayoutData().getTheme()));
 
             TemplateModel<ConsentNotification> model = new TemplateModel("email.ftl", notification, notification.getLanguage());
             ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));

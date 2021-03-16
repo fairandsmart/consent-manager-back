@@ -25,6 +25,7 @@ import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.manager.model.BasicInfo;
+import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.manager.model.Processing;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
@@ -130,11 +131,8 @@ public class CollectWithEmailTest {
         ConsentContext ctx = new ConsentContext()
                 .setSubject("mmichu")
                 .setValidity("P2Y")
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
                 .setLanguage(language)
-                .setNotificationModel(eKey)
+                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey))
                 .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
@@ -155,7 +153,7 @@ public class CollectWithEmailTest {
 
         //PART 3
         LOGGER.log(Level.INFO, "Posting user answer");
-        Response postResponse = given().contentType(ContentType.URLENC).formParams(values).when().post("/consents");
+        Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC).formParams(values).when().post("/consents");
         postResponse.then().assertThat().statusCode(200);
 
         //PART 4

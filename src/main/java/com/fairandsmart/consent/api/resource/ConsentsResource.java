@@ -28,6 +28,7 @@ import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -129,9 +130,9 @@ public class ConsentsResource {
         ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
         ConsentFormResult consentFormResult = new ConsentFormResult();
         consentFormResult.setContext(ctx);
-        if (ctx.getReceiptDisplayType() != null && ctx.getReceiptDisplayType() != ConsentContext.ReceiptDisplayType.NONE) {
-            uri.queryParam("format", ctx.getReceiptDisplayType());
-            Optional<ConsentElementIdentifier> themeId = ConsentElementIdentifier.deserialize(ctx.getTheme());
+        if (StringUtils.isNotEmpty(ctx.getLayoutData().getDesiredReceiptMimeType())) {
+            uri.queryParam("format", ctx.getLayoutData().getDesiredReceiptMimeType());
+            Optional<ConsentElementIdentifier> themeId = ConsentElementIdentifier.deserialize(ctx.getLayoutData().getTheme());
             themeId.ifPresent(consentElementIdentifier -> uri.queryParam("theme", consentElementIdentifier.getKey()));
         }
         consentFormResult.setReceiptURI(uri.build());

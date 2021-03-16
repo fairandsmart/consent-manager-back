@@ -340,4 +340,11 @@
                 schemaName="PUBLIC"
                 tableName="${instance}_EVENT_ARGS"/>
     </changeSet>
+    <changeSet author="jayblanc" id="9">
+        <renameColumn  columnDataType="VARCHAR(255)"
+                       newColumnName="ORIGIN"
+                       oldColumnName="COLLECTIONMETHOD"
+                       schemaName="PUBLIC"
+                       tableName="${instance}_RECORD"/>
+    </changeSet>
 </databaseChangeLog>

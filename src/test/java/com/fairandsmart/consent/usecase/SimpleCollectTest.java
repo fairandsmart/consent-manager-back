@@ -22,8 +22,10 @@ import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentForm;
+import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.BasicInfo;
+import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.manager.model.Processing;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -35,9 +37,8 @@ import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -122,12 +123,8 @@ public class SimpleCollectTest {
         ConsentContext ctx = new ConsentContext()
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
-                .setReceiptDisplayType(ConsentContext.ReceiptDisplayType.HTML)
-                .setLanguage(language)
-                .setAcceptAllVisible(true);
+                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withDesiredReceiptMimeType(MediaType.TEXT_HTML).withAcceptAllVisible(true))
+                .setLanguage(language);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
@@ -179,7 +176,7 @@ public class SimpleCollectTest {
         //PART 2
         //Post user answer
         LOGGER.log(Level.INFO, "Posting user answer");
-        Response postResponse = given().contentType(ContentType.URLENC)
+        Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
                 .formParams(values).when().post("/consents");
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
@@ -204,7 +201,6 @@ public class SimpleCollectTest {
         assertTrue(receiptPage.contains("RE&Ccedil;U"));
         assertTrue(receiptPage.contains("<title>RE&Ccedil;U DE CONSENTEMENT</title>"));
         assertTrue(receiptPage.contains("Fran&ccedil;ais (France)"));
-        assertTrue(receiptPage.contains("Formulaire web"));
         assertTrue(receiptPage.contains("Data body " + t1Key));
         assertTrue(receiptPage.contains("Data body " + t2Key));
         assertTrue(receiptPage.contains("<h3 class=\"element-title\">Processing title " + t1Key + "</h3>"));
@@ -236,12 +232,8 @@ public class SimpleCollectTest {
         ctx = new ConsentContext()
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
-                .setOrientation(ConsentForm.Orientation.VERTICAL)
-                .setInfo(biKey)
-                .setElements(Arrays.asList(t1Key, t2Key))
-                .setReceiptDisplayType(ConsentContext.ReceiptDisplayType.XML)
-                .setLanguage(language)
-                .setAcceptAllVisible(true);
+                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withDesiredReceiptMimeType(MediaType.APPLICATION_XML).withAcceptAllVisible(true))
+                .setLanguage(language);
         LOGGER.log(Level.INFO, "New context" + ctx.toString());
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
@@ -311,7 +303,7 @@ public class SimpleCollectTest {
         assertTrue(receiptPage.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
         assertTrue(receiptPage.contains("<receipt>"));
         assertTrue(receiptPage.contains("<language>fr</language>"));
-        assertTrue(receiptPage.contains("<collectionMethod>" + ConsentContext.CollectionMethod.WEBFORM.name() + "</collectionMethod>"));
+        assertTrue(receiptPage.contains("<collectionMethod>" + ConsentContext.Origin.WEBFORM.getValue() + "</collectionMethod>"));
         assertTrue(receiptPage.contains("<data>Data body " + t1Key + "</data>"));
         assertTrue(receiptPage.contains("<data>Data body " + t2Key + "</data>"));
         assertTrue(receiptPage.contains("<value>refused</value>"));

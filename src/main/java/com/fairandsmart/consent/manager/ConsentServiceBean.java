@@ -34,10 +34,7 @@ import com.fairandsmart.consent.manager.exception.InvalidStatusException;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.model.BasicInfo;
-import com.fairandsmart.consent.manager.model.Processing;
-import com.fairandsmart.consent.manager.model.Receipt;
-import com.fairandsmart.consent.manager.model.Theme;
+import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.manager.render.*;
 import com.fairandsmart.consent.manager.rule.BasicRecordStatusRuleChain;
 import com.fairandsmart.consent.manager.store.LocalFolderReceiptStore;
@@ -515,39 +512,50 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.FINE, "Generating consent form");
         try {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
+            //Assign transaction id
+            ctx.setTransaction(Base58.encodeUUID(UUID.randomUUID().toString()));
+
+            //Load layout model if exists
+            if (StringUtils.isNotEmpty(ctx.getLayout())) {
+                ctx.setLayoutData((FormLayout) ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getLayout())).getData(ctx.getLanguage()));
+            }
+            if (ctx.getLayoutData() == null) {
+                throw new ConsentServiceException("Unable to generate consent form: layout data is null");
+            }
 
             //Initialise form using context
             ConsentForm form = new ConsentForm(ctx);
 
             // Fetch elements from context
-            List<String> elementsKeys = this.extractElementsKeys(ctx.getElements());
+            List<String> elementsKeys = this.extractElementsKeys(ctx.getLayoutData().getElements());
             List<ModelVersion> elementsVersions = ModelVersion.SystemHelper.findActiveVersionsForKeys(elementsKeys);
 
             // Fetch previous records
             if (!ctx.isPreview()) {
-                final Map<String, Record> previousRecords = systemListValidRecords(ctx.getSubject(), ctx.getInfo(), elementsKeys);
+                final Map<String, Record> previousRecords = systemListValidRecords(ctx.getSubject(), ctx.getLayoutData().getInfo(), elementsKeys);
                 form.setPreviousValues(elementsVersions.stream().filter(version -> previousRecords.containsKey(version.entry.key)).collect(Collectors.toMap((v) -> v.serial, (v) -> previousRecords.get(v.entry.key).value)));
             }
 
             // Update form and context elements, infos, theme and notification
-            form.setElements(elementsVersions.stream().filter(version -> (ctx.getFormType().equals(ConsentContext.FormType.FULL) || !form.getPreviousValues().containsKey(version.serial))).collect(Collectors.toList()));
-            ctx.setElements(form.getElements().stream().map(version -> version.getIdentifier().serialize()).collect(Collectors.toList()));
-            if (StringUtils.isNotEmpty(ctx.getInfo())) {
-                form.setInfo(ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getInfo())));
-                ctx.setInfo(form.getInfo().getIdentifier().serialize());
+            final boolean existingElementsVisibles = ctx.getLayoutData().isExistingElementsVisibles();
+            form.setElements(elementsVersions.stream().filter(version -> (existingElementsVisibles || !form.getPreviousValues().containsKey(version.serial))).collect(Collectors.toList()));
+            ctx.getLayoutData().setElements(form.getElements().stream().map(version -> version.getIdentifier().serialize()).collect(Collectors.toList()));
+            if (StringUtils.isNotEmpty(ctx.getLayoutData().getInfo())) {
+                form.setInfo(ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getLayoutData().getInfo())));
+                ctx.getLayoutData().setInfo(form.getInfo().getIdentifier().serialize());
             }
-            if (StringUtils.isNotEmpty(ctx.getTheme())) {
-                form.setTheme(ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getTheme())));
-                ctx.setTheme(form.getTheme().getIdentifier().serialize());
+            if (StringUtils.isNotEmpty(ctx.getLayoutData().getTheme())) {
+                form.setTheme(ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getLayoutData().getTheme())));
+                ctx.getLayoutData().setTheme(form.getTheme().getIdentifier().serialize());
             }
-            if (StringUtils.isNotEmpty(ctx.getNotificationModel())) {
-                ModelVersion notification = ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getNotificationModel()));
-                ctx.setNotificationModel(notification.getIdentifier().serialize());
+            if (StringUtils.isNotEmpty(ctx.getLayoutData().getNotification())) {
+                ModelVersion notification = ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getLayoutData().getNotification()));
+                ctx.getLayoutData().setNotification(notification.getIdentifier().serialize());
             }
 
             form.setToken(this.tokenService.generateToken(ctx));
             return form;
-        } catch (TokenServiceException e) {
+        } catch (ModelDataSerializationException | TokenServiceException e) {
             throw new ConsentServiceException("Unable to generate consent form", e);
         }
     }
@@ -569,10 +577,9 @@ public class ConsentServiceBean implements ConsentService {
             }
 
             this.checkValuesCoherency(ctx, valuesMap);
-            String transaction = Base58.encodeUUID(UUID.randomUUID().toString());
             Instant now = Instant.now();
 
-            Optional<ConsentElementIdentifier> infoIdOpt = ConsentElementIdentifier.deserialize(ctx.getInfo());
+            Optional<ConsentElementIdentifier> infoIdOpt = ConsentElementIdentifier.deserialize(ctx.getLayoutData().getInfo());
             ConsentElementIdentifier infoId;
             BasicInfo info;
             if (infoIdOpt.isPresent()) {
@@ -585,7 +592,7 @@ public class ConsentServiceBean implements ConsentService {
                 infoId = infoVersion.getIdentifier();
                 info = (BasicInfo) infoVersion.getData(ctx.getLanguage());
             }
-            ctx.setInfo(infoId.getKey());
+            ctx.getLayoutData().setInfo(infoId.getKey());
 
             if (!Subject.exists(ctx.getSubject())) {
                 Subject subject = Subject.create(ctx.getSubject());
@@ -595,8 +602,8 @@ public class ConsentServiceBean implements ConsentService {
             }
             String comment = values.containsKey("comment") ? valuesMap.get("comment") : "";
 
-            List<Record> records = ctx.getElements().stream().map(ConsentElementIdentifier::deserialize).filter(Optional::isPresent).map(
-                    opt -> Record.build(ctx, transaction, authentication.getConnectedIdentifier(), now, infoId, opt.get(), valuesMap.get(opt.get().serialize()), comment)
+            List<Record> records = ctx.getLayoutData().getElements().stream().map(ConsentElementIdentifier::deserialize).filter(Optional::isPresent).map(
+                    opt -> Record.build(ctx, ctx.getTransaction(), authentication.getConnectedIdentifier(), now, infoId, opt.get(), valuesMap.get(opt.get().serialize()), comment)
             ).collect(Collectors.toList());
             records.forEach(record -> record.persist());
 
@@ -608,28 +615,25 @@ public class ConsentServiceBean implements ConsentService {
                 } catch (EntityNotFoundException | ModelDataSerializationException e) { //
                 }
             });
-            Receipt receipt = Receipt.build(transaction, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
-            ctx.setCollectionMethod(ConsentContext.CollectionMethod.RECEIPT);
+            Receipt receipt = Receipt.build(ctx.getTransaction(), config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
+            ctx.setOrigin(ConsentContext.Origin.RECEIPT.getValue());
             String updateToken = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
             receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
             receipt.setUpdateUrlQrCode(generateQRCode(receipt.getUpdateUrl()));
             store.put(receipt);
 
-            String receiptId = receipt.getTransaction();
-            ctx.setReceiptId(receiptId);
-
             NotificationReport report;
-            if (StringUtils.isNotEmpty(ctx.getNotificationRecipient()) && StringUtils.isNotEmpty(ctx.getNotificationModel())) {
-                report = new NotificationReport(ctx.getReceiptId(), NotificationReport.Type.EMAIL, NotificationReport.Status.PENDING);
+            if (StringUtils.isNotEmpty(ctx.getNotificationRecipient()) && StringUtils.isNotEmpty(ctx.getLayoutData().getNotification())) {
+                report = new NotificationReport(ctx.getTransaction(), NotificationReport.Type.EMAIL, NotificationReport.Status.PENDING);
             } else {
-                report = new NotificationReport(ctx.getReceiptId(), NotificationReport.Type.NONE, NotificationReport.Status.NONE);
+                report = new NotificationReport(ctx.getTransaction(), NotificationReport.Type.NONE, NotificationReport.Status.NONE);
             }
             this.notification.pushReport(report);
 
-            Event<ConsentContext> event = new Event<ConsentContext>().addChannel(Event.NOTIFICATION_CHANNEL).withEventType(EventType.CONSENT_SUBMIT).withSourceType(ConsentContext.class.getName()).withSourceId(transaction).withAuthor(connectedIdentifier).withData(ctx);
+            Event<ConsentContext> event = new Event<ConsentContext>().addChannel(Event.NOTIFICATION_CHANNEL).withEventType(EventType.CONSENT_SUBMIT).withSourceType(ConsentContext.class.getName()).withSourceId(ctx.getTransaction()).withAuthor(connectedIdentifier).withData(ctx);
             this.notification.publish(event);
 
-            return new ConsentTransaction(receiptId);
+            return new ConsentTransaction(ctx.getTransaction());
         } catch (TokenServiceException | ConsentServiceException | EntityNotFoundException | DatatypeConfigurationException | ReceiptStoreException | ReceiptAlreadyExistsException | ModelDataSerializationException e) {
             throw new ConsentServiceException("Unable to submit consent", e);
         }
@@ -839,11 +843,11 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidConsentException {
-        if (ctx.getInfo() == null && values.containsKey("info")) {
+        if (ctx.getLayoutData().getInfo() == null && values.containsKey("info")) {
             throw new InvalidConsentException("submitted basic info incoherency, expected: null got: " + values.get("info"));
         }
-        if (StringUtils.isNotEmpty(ctx.getInfo()) && (!values.containsKey("info") || !values.get("info").equals(ctx.getInfo()))) {
-            throw new InvalidConsentException("submitted basic info incoherency, expected: " + ctx.getInfo() + " got: " + values.get("info"));
+        if (StringUtils.isNotEmpty(ctx.getLayoutData().getInfo()) && (!values.containsKey("info") || !values.get("info").equals(ctx.getLayoutData().getInfo()))) {
+            throw new InvalidConsentException("submitted basic info incoherency, expected: " + ctx.getLayoutData().getInfo() + " got: " + values.get("info"));
         }
         Map<String, String> submittedElementValues = values.entrySet().stream()
                 .filter(e -> e.getKey().startsWith("element") && !e.getKey().endsWith("-optional"))
@@ -853,10 +857,10 @@ public class ConsentServiceBean implements ConsentService {
         List<String> ignoredElements = values.keySet().stream()
                 .filter(key -> key.endsWith("-optional")).map(key -> key.replace("-optional", ""))
                 .filter(key -> !submittedElementValues.containsKey(key)).collect(Collectors.toList());
-        ctx.setElements(ctx.getElements().stream().filter(e -> !ignoredElements.contains(e)).collect(Collectors.toList()));
+        ctx.getLayoutData().setElements(ctx.getLayoutData().getElements().stream().filter(e -> !ignoredElements.contains(e)).collect(Collectors.toList()));
         values.keySet().removeIf(key -> key.endsWith("-optional"));
 
-        if (!new HashSet<>(ctx.getElements()).equals(submittedElementValues.keySet())) {
+        if (!new HashSet<>(ctx.getLayoutData().getElements()).equals(submittedElementValues.keySet())) {
             throw new InvalidConsentException("submitted elements incoherency");
         }
     }

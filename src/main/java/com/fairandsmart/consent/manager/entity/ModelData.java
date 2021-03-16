@@ -35,7 +35,8 @@ import java.io.IOException;
         @Type(value = Conditions.class, name = Conditions.TYPE),
         @Type(value = Email.class, name = Email.TYPE),
         @Type(value = Theme.class, name = Theme.TYPE),
-        @Type(value = Preference.class, name = Preference.TYPE)
+        @Type(value = Preference.class, name = Preference.TYPE),
+        @Type(value = FormLayout.class, name = FormLayout.TYPE)
 })
 public abstract class ModelData {
 

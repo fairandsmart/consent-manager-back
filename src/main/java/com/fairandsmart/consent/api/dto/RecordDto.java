@@ -45,8 +45,8 @@ public class RecordDto {
     private String status;
     @Schema(description = "The record evaluation explanation", readOnly = true)
     private String statusExplanation;
-    @Schema(description = "The collection method of that record", readOnly = true)
-    private String collectionMethod;
+    @Schema(description = "The collection origin of that record", readOnly = true)
+    private String origin;
     @Schema(description = "A comment added to the record", readOnly = true)
     private String comment;
     @Schema(description = "The record transaction id (used also as the receipt id)", readOnly = true)
@@ -65,7 +65,7 @@ public class RecordDto {
         dto.setBodyKey(record.bodyKey);
         dto.setCreationTimestamp(record.creationTimestamp);
         dto.setExpirationTimestamp(record.expirationTimestamp);
-        dto.setCollectionMethod(record.collectionMethod.toString());
+        dto.setOrigin(record.origin);
         dto.setType(record.type);
         dto.setComment(record.comment);
         dto.setStatus(record.status.toString());
@@ -155,12 +155,12 @@ public class RecordDto {
         this.statusExplanation = statusExplanation;
     }
 
-    public String getCollectionMethod() {
-        return collectionMethod;
+    public String getOrigin() {
+        return origin;
     }
 
-    public void setCollectionMethod(String collectionMethod) {
-        this.collectionMethod = collectionMethod;
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 
     public String getComment() {
@@ -205,7 +205,7 @@ public class RecordDto {
                 ", value='" + value + '\'' +
                 ", status='" + status + '\'' +
                 ", statusExplanation='" + statusExplanation + '\'' +
-                ", collectionMethod='" + collectionMethod + '\'' +
+                ", origin='" + origin + '\'' +
                 ", comment='" + comment + '\'' +
                 ", transaction='" + transaction + '\'' +
                 ", notificationReports=" + notificationReports +

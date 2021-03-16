@@ -32,7 +32,7 @@ public class RecordFilter implements SortableFilter, QueryableFilter {
     private List<Record.State> states;
     private List<String> infos;
     private List<String> elements;
-    private List<ConsentContext.CollectionMethod> collectionMethods;
+    private List<String> origins;
     private long after = -1;
     private long before = -1;
     private String value;
@@ -94,16 +94,16 @@ public class RecordFilter implements SortableFilter, QueryableFilter {
         return this;
     }
 
-    public List<ConsentContext.CollectionMethod> getCollectionMethods() {
-        return collectionMethods;
+    public List<String> getOrigins() {
+        return origins;
     }
 
-    public void setCollectionMethods(List<ConsentContext.CollectionMethod> collectionMethods) {
-        this.collectionMethods = collectionMethods;
+    public void setOrigins(List<String> origins) {
+        this.origins = origins;
     }
 
-    public RecordFilter withCollectionMethods(List<ConsentContext.CollectionMethod> collectionMethods) {
-        this.collectionMethods = collectionMethods;
+    public RecordFilter withOrigins(List<String> origins) {
+        this.origins = origins;
         return this;
     }
 
@@ -190,8 +190,8 @@ public class RecordFilter implements SortableFilter, QueryableFilter {
         if (elements != null && !elements.isEmpty()) {
             parts.add("bodySerial in :elements");
         }
-        if (collectionMethods != null && !collectionMethods.isEmpty()) {
-            parts.add("collectionMethod in :collectionMethods");
+        if (origins != null && !origins.isEmpty()) {
+            parts.add("origin in :origins");
         }
         if (before > 0) {
             parts.add("creationTimestamp <= :before");
@@ -220,8 +220,8 @@ public class RecordFilter implements SortableFilter, QueryableFilter {
         if (elements != null && !elements.isEmpty()) {
             params.put("elements", elements);
         }
-        if (collectionMethods != null && !collectionMethods.isEmpty()) {
-            params.put("collectionMethods", collectionMethods);
+        if (origins != null && !origins.isEmpty()) {
+            params.put("origins", origins);
         }
         if (before > 0) {
             params.put("before", before);
@@ -242,7 +242,7 @@ public class RecordFilter implements SortableFilter, QueryableFilter {
                 ", states=" + states +
                 ", infos=" + infos +
                 ", elements=" + elements +
-                ", collectionMethods=" + collectionMethods +
+                ", origins=" + origins +
                 ", after=" + after +
                 ", before=" + before +
                 ", value='" + value + '\'' +

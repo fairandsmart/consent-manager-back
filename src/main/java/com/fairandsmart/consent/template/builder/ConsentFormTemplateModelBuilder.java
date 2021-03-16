@@ -17,6 +17,7 @@ package com.fairandsmart.consent.template.builder;
  */
 
 import com.fairandsmart.consent.manager.ConsentForm;
+import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateModelBuilder;
 
@@ -45,7 +46,7 @@ public class ConsentFormTemplateModelBuilder implements TemplateModelBuilder {
         model.setBundle(bundle);
         model.setData(form);
 
-        String orientation = form.getOrientation().equals(ConsentForm.Orientation.HORIZONTAL) ? "horizontal" : "vertical";
+        String orientation = form.getOrientation().equals(FormLayout.Orientation.HORIZONTAL) ? "horizontal" : "vertical";
         model.setTemplate("form-" + orientation + ".ftl");
 
         LOGGER.log(Level.FINE, model.toString());
