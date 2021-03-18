@@ -537,8 +537,8 @@ public class ConsentServiceBean implements ConsentService {
             }
 
             // Update form and context elements, infos, theme and notification
-            final boolean existingElementsVisibles = ctx.getLayoutData().isExistingElementsVisibles();
-            form.setElements(elementsVersions.stream().filter(version -> (existingElementsVisibles || !form.getPreviousValues().containsKey(version.serial))).collect(Collectors.toList()));
+            final boolean existingElementsVisible = ctx.getLayoutData().isExistingElementsVisible();
+            form.setElements(elementsVersions.stream().filter(version -> (existingElementsVisible || !form.getPreviousValues().containsKey(version.serial))).collect(Collectors.toList()));
             ctx.getLayoutData().setElements(form.getElements().stream().map(version -> version.getIdentifier().serialize()).collect(Collectors.toList()));
             if (StringUtils.isNotEmpty(ctx.getLayoutData().getInfo())) {
                 form.setInfo(ModelVersion.SystemHelper.findActiveVersionByKey(extractElementKey(ctx.getLayoutData().getInfo())));

@@ -17,7 +17,7 @@ public class FormLayout extends ModelData {
     private String notification;
 
     private Orientation orientation;
-    private boolean existingElementsVisibles = true;
+    private boolean existingElementsVisible = true;
     private String desiredReceiptMimeType;
 
     private boolean validityVisible = true;
@@ -107,16 +107,16 @@ public class FormLayout extends ModelData {
         return this;
     }
 
-    public boolean isExistingElementsVisibles() {
-        return existingElementsVisibles;
+    public boolean isExistingElementsVisible() {
+        return existingElementsVisible;
     }
 
-    public void setExistingElementsVisibles(boolean existingElementsVisibles) {
-        this.existingElementsVisibles = existingElementsVisibles;
+    public void setExistingElementsVisible(boolean existingElementsVisible) {
+        this.existingElementsVisible = existingElementsVisible;
     }
 
     public FormLayout withExistingElementsVisible(boolean existingElementsVisible) {
-        this.existingElementsVisibles = existingElementsVisible;
+        this.existingElementsVisible = existingElementsVisible;
         return this;
     }
 
@@ -217,7 +217,7 @@ public class FormLayout extends ModelData {
         if (orientation != null) {
             claims.put("orientation", this.getOrientation().toString());
         }
-        claims.put("existingElementsVisibles", Boolean.toString(this.isExistingElementsVisibles()));
+        claims.put("existingElementsVisible", Boolean.toString(this.isExistingElementsVisible()));
         if (desiredReceiptMimeType != null) {
             claims.put("desiredReceiptMimeType", this.getDesiredReceiptMimeType());
         }
@@ -251,8 +251,8 @@ public class FormLayout extends ModelData {
         if (claims.containsKey("orientation")) {
             this.setOrientation(Orientation.valueOf(claims.get("orientation")));
         }
-        if (claims.containsKey("existingElementsVisibles")) {
-            this.setExistingElementsVisibles(Boolean.parseBoolean(claims.get("existingElementsVisibles")));
+        if (claims.containsKey("existingElementsVisible")) {
+            this.setExistingElementsVisible(Boolean.parseBoolean(claims.get("existingElementsVisible")));
         }
         if (claims.containsKey("desiredReceiptMimeType")) {
             this.setDesiredReceiptMimeType(claims.get("desiredReceiptMimeType"));
@@ -297,12 +297,12 @@ public class FormLayout extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FormLayout that = (FormLayout) o;
-        return existingElementsVisibles == that.existingElementsVisibles && validityVisible == that.validityVisible && includeIFrameResizer == that.includeIFrameResizer && acceptAllVisible == that.acceptAllVisible && footerOnTop == that.footerOnTop && Objects.equals(info, that.info) && Objects.equals(elements, that.elements) && Objects.equals(theme, that.theme) && Objects.equals(notification, that.notification) && orientation == that.orientation && Objects.equals(desiredReceiptMimeType, that.desiredReceiptMimeType) && Objects.equals(acceptAllText, that.acceptAllText);
+        return existingElementsVisible == that.existingElementsVisible && validityVisible == that.validityVisible && includeIFrameResizer == that.includeIFrameResizer && acceptAllVisible == that.acceptAllVisible && footerOnTop == that.footerOnTop && Objects.equals(info, that.info) && Objects.equals(elements, that.elements) && Objects.equals(theme, that.theme) && Objects.equals(notification, that.notification) && orientation == that.orientation && Objects.equals(desiredReceiptMimeType, that.desiredReceiptMimeType) && Objects.equals(acceptAllText, that.acceptAllText);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(info, elements, theme, notification, orientation, existingElementsVisibles, desiredReceiptMimeType, validityVisible, includeIFrameResizer, acceptAllVisible, acceptAllText, footerOnTop);
+        return Objects.hash(info, elements, theme, notification, orientation, existingElementsVisible, desiredReceiptMimeType, validityVisible, includeIFrameResizer, acceptAllVisible, acceptAllText, footerOnTop);
     }
 
     @Override
@@ -313,7 +313,7 @@ public class FormLayout extends ModelData {
                 ", theme='" + theme + '\'' +
                 ", notification='" + notification + '\'' +
                 ", orientation=" + orientation +
-                ", existingElementsVisibles=" + existingElementsVisibles +
+                ", existingElementsVisible=" + existingElementsVisible +
                 ", desiredReceiptMimeType='" + desiredReceiptMimeType + '\'' +
                 ", validityVisible=" + validityVisible +
                 ", includeIFrameResizer=" + includeIFrameResizer +
