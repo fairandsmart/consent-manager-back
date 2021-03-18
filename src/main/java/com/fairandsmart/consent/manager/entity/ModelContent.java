@@ -18,6 +18,7 @@ package com.fairandsmart.consent.manager.entity;
 
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.persistence.Column;
@@ -66,6 +67,7 @@ public class ModelContent {
     public ModelData getDataObject() throws ModelDataSerializationException {
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return mapper.readValue(data, dataClass);
         } catch ( JsonProcessingException e ) {
             throw new ModelDataSerializationException("Unable to deserialize element data", e);
