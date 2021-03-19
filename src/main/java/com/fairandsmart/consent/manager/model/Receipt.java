@@ -59,7 +59,7 @@ public class Receipt {
     @XmlElement(name="attachment")
     private List<Attachment> attachments;
     private String privacyPolicyUrl;
-    private ConsentContext.CollectionMethod collectionMethod;
+    private String collectionMethod;
     private String updateUrl;
     private String updateUrlQrCode;
     private String notificationType;
@@ -215,11 +215,11 @@ public class Receipt {
         this.language = language;
     }
 
-    public ConsentContext.CollectionMethod getCollectionMethod() {
+    public String getCollectionMethod() {
         return collectionMethod;
     }
 
-    public void setCollectionMethod(ConsentContext.CollectionMethod collectionMethod) {
+    public void setCollectionMethod(String collectionMethod) {
         this.collectionMethod = collectionMethod;
     }
 
@@ -260,11 +260,7 @@ public class Receipt {
         receipt.setTransaction(transaction);
         receipt.setLanguage(ctx.getLanguage());
         receipt.setDate(date);
-        if (!ctx.isValidityVisible()) {
-            receipt.setExpirationDate(null);
-        } else {
-            receipt.setExpirationDate(date.plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS));
-        }
+        receipt.setExpirationDate(date.plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS));
         receipt.setProcessor(processor);
         receipt.setSubject(ctx.getSubject());
         receipt.setSubjectDetails(ctx.getUserinfos().entrySet().stream().map(entry -> new NameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList()));
@@ -276,7 +272,7 @@ public class Receipt {
             receipt.setHeaderNotice(info.getTitle() + " " + info.getHeader());
             receipt.setFooterNotice(info.getFooter());
         }
-        receipt.setCollectionMethod(ctx.getCollectionMethod());
+        receipt.setCollectionMethod(ctx.getOrigin());
 
         for (Pair<Processing, Record> pair : records) {
             Consent trecord = new Consent();

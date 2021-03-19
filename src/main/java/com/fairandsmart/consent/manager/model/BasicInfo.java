@@ -33,8 +33,6 @@ public class BasicInfo extends ModelData {
     // Consent parameters
     private String jurisdiction;
     private boolean jurisdictionVisible = false;
-    private String collectionMethod;
-    private boolean collectionMethodVisible = false;
     private Controller dataController;
     private boolean dataControllerVisible = false;
     private String scope;
@@ -111,32 +109,6 @@ public class BasicInfo extends ModelData {
 
     public BasicInfo withShowJurisdiction(boolean showJurisdiction) {
         this.jurisdictionVisible = showJurisdiction;
-        return this;
-    }
-
-    public String getCollectionMethod() {
-        return collectionMethod;
-    }
-
-    public void setCollectionMethod(String collectionMethod) {
-        this.collectionMethod = collectionMethod;
-    }
-
-    public BasicInfo withCollectionMethod(String collectionMethod) {
-        this.collectionMethod = collectionMethod;
-        return this;
-    }
-
-    public boolean isCollectionMethodVisible() {
-        return collectionMethodVisible;
-    }
-
-    public void setCollectionMethodVisible(boolean collectionMethodVisible) {
-        this.collectionMethodVisible = collectionMethodVisible;
-    }
-
-    public BasicInfo withShowCollectionMethod(boolean showCollectionMethod) {
-        this.collectionMethodVisible = showCollectionMethod;
         return this;
     }
 
@@ -260,7 +232,6 @@ public class BasicInfo extends ModelData {
         if (o == null || getClass() != o.getClass()) return false;
         BasicInfo info = (BasicInfo) o;
         return jurisdictionVisible == info.jurisdictionVisible &&
-                collectionMethodVisible == info.collectionMethodVisible &&
                 dataControllerVisible == info.dataControllerVisible &&
                 scopeVisible == info.scopeVisible &&
                 shortNoticeLinkVisible == info.shortNoticeLinkVisible &&
@@ -268,7 +239,6 @@ public class BasicInfo extends ModelData {
                 Objects.equals(header, info.header) &&
                 Objects.equals(footer, info.footer) &&
                 Objects.equals(jurisdiction, info.jurisdiction) &&
-                Objects.equals(collectionMethod, info.collectionMethod) &&
                 Objects.equals(dataController, info.dataController) &&
                 Objects.equals(scope, info.scope) &&
                 Objects.equals(shortNoticeLink, info.shortNoticeLink) &&
@@ -278,7 +248,7 @@ public class BasicInfo extends ModelData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, header, footer, jurisdiction, jurisdictionVisible, collectionMethod, collectionMethodVisible, dataController, dataControllerVisible, scope, scopeVisible, shortNoticeLink, shortNoticeLinkVisible, privacyPolicyUrl, customPrivacyPolicyText);
+        return Objects.hash(title, header, footer, jurisdiction, jurisdictionVisible, dataController, dataControllerVisible, scope, scopeVisible, shortNoticeLink, shortNoticeLinkVisible, privacyPolicyUrl, customPrivacyPolicyText);
     }
 
     @Override
@@ -289,8 +259,6 @@ public class BasicInfo extends ModelData {
                 ", footer='" + footer + '\'' +
                 ", jurisdiction='" + jurisdiction + '\'' +
                 ", jurisdictionVisible=" + jurisdictionVisible +
-                ", collectionMethod='" + collectionMethod + '\'' +
-                ", collectionMethodVisible=" + collectionMethodVisible +
                 ", dataController=" + dataController +
                 ", dataControllerVisible=" + dataControllerVisible +
                 ", scope='" + scope + '\'' +

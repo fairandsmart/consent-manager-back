@@ -18,12 +18,13 @@ package com.fairandsmart.consent.api.dto;
 
 import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelData;
+import com.fairandsmart.consent.manager.model.FormLayout;
 
 public class PreviewDto {
 
     private final boolean preview = true;
     private String language;
-    private ConsentForm.Orientation orientation;
+    private FormLayout.Orientation orientation;
     private ModelData data;
     private PreviewType previewType = PreviewType.FORM;
 
@@ -38,11 +39,11 @@ public class PreviewDto {
         this.language = language;
     }
 
-    public ConsentForm.Orientation getOrientation() {
+    public FormLayout.Orientation getOrientation() {
         return orientation;
     }
 
-    public void setOrientation(ConsentForm.Orientation orientation) {
+    public void setOrientation(FormLayout.Orientation orientation) {
         this.orientation = orientation;
     }
 

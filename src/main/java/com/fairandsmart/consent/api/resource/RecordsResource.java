@@ -73,7 +73,7 @@ public class RecordsResource {
             @Parameter(description = "States to query") @QueryParam("states") List<Record.State> states,
             @Parameter(description = "Basic information models serials to query") @QueryParam("infos") List<String> infos,
             @Parameter(description = "Body elements models serials to query") @QueryParam("elements") List<String> elements,
-            @Parameter(description = "Collection methods to query") @QueryParam("collectionMethods") List<ConsentContext.CollectionMethod> collectionMethods,
+            @Parameter(description = "Collection origins to query") @QueryParam("origins") List<String> origins,
             @Parameter(description = "Value to query") @QueryParam("value") String value,
             @Parameter(description = "Minimum submission date to query") @QueryParam("after") @DefaultValue("0") long after,
             @Parameter(description = "Maximum submission date to query") @QueryParam("before") @DefaultValue("0") long before
@@ -86,7 +86,7 @@ public class RecordsResource {
         filter.setStates(states);
         filter.setInfos(infos);
         filter.setElements(elements);
-        filter.setCollectionMethods(collectionMethods);
+        filter.setOrigins(origins);
         filter.setValue(value);
         filter.setAfter(after);
         filter.setBefore(before);

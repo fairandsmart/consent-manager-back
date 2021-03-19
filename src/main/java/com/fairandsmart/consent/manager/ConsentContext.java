@@ -17,81 +17,82 @@ package com.fairandsmart.consent.manager;
  */
 
 import com.fairandsmart.consent.common.consts.Placeholders;
+import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.token.Tokenizable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Schema(description = "Consent form context object")
 public class ConsentContext implements Tokenizable {
 
     private static final String DEFAULT_VALIDITY = "P6M";
     private static final long DEFAULT_VALIDITY_MILLIS = 15778800000L;
-    private static final FormType DEFAULT_FORM_TYPE = FormType.FULL;
-    private static final CollectionMethod DEFAULT_COLLECTION_METHOD = CollectionMethod.WEBFORM;
     private static final String USERINFOS_PREFIX = "userinfos_";
     private static final String ATTRIBUTES_PREFIX = "attributes_";
 
     @NotNull
-    @Schema(description = "The customer unique ID", example = Placeholders.SHELDON)
+    @Schema(description = "The customer unique identifier", example = Placeholders.SHELDON)
     private String subject;
-    @NotNull
-    private ConsentForm.Orientation orientation;
-    @Schema(description = "Consent form heading ID to use", example = "basicinfo.001")
-    private String info;
-    @NotNull
-    @NotEmpty
-    @Schema(description = "Included processing IDs", example = "[\"processing.001\"]")
-    private List<String> elements;
     @Schema(description = "Redirect URL after consent is given / receipt is displayed", example = "http://www.fairandsmart.com")
     private String callback;
     @Schema(description = "Display language", example = "fr")
     private String language;
+    @Schema(description = "Consent collection origin", example = "webform")
+    private String origin;
+    @Schema(description = "Email recipient (mandatory when email notification is needed)", example = Placeholders.SHELDON_AT_LOCALHOST)
+    private String notificationRecipient;
     @Schema(description = "Consent lifetime", example = "P6M") // TODO : explain the format
     private String validity;
-    private FormType formType;
-    private ReceiptDisplayType receiptDisplayType;
     @Schema(example = "{}")
     private Map<String, String> userinfos; // TODO : doc this
     @Schema(example = "{}")
     private Map<String, String> attributes; // TODO : doc this
-    @Schema(description = "Email model ID (mandatory when email notification is needed)", example = "email.001")
-    private String notificationModel;
-    @Schema(description = "Email recipient (mandatory when email notification is needed)", example = Placeholders.SHELDON_AT_LOCALHOST)
-    private String notificationRecipient;
-    private CollectionMethod collectionMethod;
-    @Schema(example = "")
-    private String author; // TODO : doc this
-    @Schema(example = "false")
-    private boolean preview = false; // TODO : doc this
-    @Schema(description = "include iFrameResizer.js in consent page")
-    private boolean iframe = false;
-    @Schema(description = "Consent form theme ID to use", example = "")
-    private String theme;
     @Schema(hidden = true)
-    private String receiptId;
-    @Schema(description = "Display an \"accept all\" button ?", example = "false")
-    private boolean acceptAllVisible = false;
-    @Schema(description = "Display the consent validity ?")
-    private boolean validityVisible = true;
-    @Schema(description = "\"accept all\" button label", example = "")
-    private String acceptAllText;
-    @Schema(description = "move footer to to of iframe", example = "false")
-    private boolean footerOnTop = false; // TODO : doc this
+    private String transaction;
+    @Schema(description = "Consent form layout key to use", example = "layout.001")
+    private String layout;
+    @Schema(description = "Consent form layout data to use")
+    private FormLayout layoutData;
+    @Schema(description = "This context will be used to generate a form preview", example = "false")
+    private boolean preview = false;
+    @Schema(description = "The consent author (in case the consent is set by an operator)")
+    private String author;
+
+    public enum Origin {
+        WEBFORM("webform"),
+        RECEIPT("receipt"),
+        USER("user"),
+        EMAIL("email"),
+        OPERATOR("operator");
+
+        private String value;
+
+        Origin(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
 
     public ConsentContext() {
-        this.elements = new ArrayList<>();
         this.userinfos = new HashMap<>();
         this.attributes = new HashMap<>();
         this.validity = DEFAULT_VALIDITY;
-        this.formType  = DEFAULT_FORM_TYPE;
-        this.collectionMethod = DEFAULT_COLLECTION_METHOD;
+        this.origin = Origin.WEBFORM.getValue();
     }
 
     public String getSubject() {
@@ -100,43 +101,6 @@ public class ConsentContext implements Tokenizable {
 
     public ConsentContext setSubject(String subject) {
         this.subject = subject;
-        return this;
-    }
-
-    public ConsentForm.Orientation getOrientation() {
-        return orientation;
-    }
-
-    public ConsentContext setOrientation(ConsentForm.Orientation orientation) {
-        this.orientation = orientation;
-        return this;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public ConsentContext setInfo(String info) {
-        this.info = info;
-        return this;
-    }
-
-    public List<String> getElements() {
-        return elements;
-    }
-
-    @Schema(hidden = true)
-    public String getElementsString() {
-        return String.join(",", elements);
-    }
-
-    @Schema(hidden = true)
-    public void setElementsString(String elements) {
-        this.setElements(Arrays.asList(elements.split(",")));
-    }
-
-    public ConsentContext setElements(List<String> elements) {
-        this.elements = elements;
         return this;
     }
 
@@ -158,6 +122,15 @@ public class ConsentContext implements Tokenizable {
 
     public ConsentContext setLanguage(String language) {
         this.language = language;
+        return this;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public ConsentContext setOrigin(String origin) {
+        this.origin = origin;
         return this;
     }
 
@@ -188,15 +161,6 @@ public class ConsentContext implements Tokenizable {
         }
     }
 
-    public FormType getFormType() {
-        return formType;
-    }
-
-    public ConsentContext setFormType(FormType formType) {
-        this.formType = formType;
-        return this;
-    }
-
     public Map<String, String> getUserinfos() {
         return userinfos;
     }
@@ -215,15 +179,6 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getNotificationModel() {
-        return notificationModel;
-    }
-
-    public ConsentContext setNotificationModel(String notificationModel) {
-        this.notificationModel = notificationModel;
-        return this;
-    }
-
     public String getNotificationRecipient() {
         return notificationRecipient;
     }
@@ -233,21 +188,31 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public CollectionMethod getCollectionMethod() {
-        return collectionMethod;
+    public String getTransaction() {
+        return transaction;
     }
 
-    public ConsentContext setCollectionMethod(CollectionMethod collectionMethod) {
-        this.collectionMethod = collectionMethod;
+    public ConsentContext setTransaction(String transaction) {
+        this.transaction = transaction;
         return this;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getLayout() {
+        return layout;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public ConsentContext setLayout(String layout) {
+        this.layout = layout;
+        return this;
+    }
+
+    public FormLayout getLayoutData() {
+        return layoutData;
+    }
+
+    public ConsentContext setLayoutData(FormLayout layoutData) {
+        this.layoutData = layoutData;
+        return this;
     }
 
     public boolean isPreview() {
@@ -259,75 +224,12 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public boolean isIframe() {
-        return iframe;
+    public String getAuthor() {
+        return author;
     }
 
-    public ConsentContext setIframe(boolean iframe) {
-        this.iframe = iframe;
-        return this;
-    }
-
-    public String getTheme() {
-        return theme;
-    }
-
-    public ConsentContext setTheme(String theme) {
-        this.theme = theme;
-        return this;
-    }
-
-    public ReceiptDisplayType getReceiptDisplayType() {
-        return receiptDisplayType;
-    }
-
-    public ConsentContext setReceiptDisplayType(ReceiptDisplayType receiptDisplayType) {
-        this.receiptDisplayType = receiptDisplayType;
-        return this;
-    }
-
-    public String getReceiptId() {
-        return receiptId;
-    }
-
-    public ConsentContext setReceiptId(String receiptId) {
-        this.receiptId = receiptId;
-        return this;
-    }
-
-    public boolean isAcceptAllVisible() {
-        return acceptAllVisible;
-    }
-
-    public ConsentContext setAcceptAllVisible(boolean acceptAllVisible) {
-        this.acceptAllVisible = acceptAllVisible;
-        return this;
-    }
-
-    public String getAcceptAllText() {
-        return acceptAllText;
-    }
-
-    public ConsentContext setAcceptAllText(String acceptAllText) {
-        this.acceptAllText = acceptAllText;
-        return this;
-    }
-
-    public boolean isFooterOnTop() {
-        return footerOnTop;
-    }
-
-    public ConsentContext setFooterOnTop(boolean footerOnTop) {
-        this.footerOnTop = footerOnTop;
-        return this;
-    }
-
-    public boolean isValidityVisible() {
-        return validityVisible;
-    }
-
-    public ConsentContext setValidityVisible(boolean validityVisible) {
-        this.validityVisible = validityVisible;
+    public ConsentContext setAuthor(String author) {
+        this.author = author;
         return this;
     }
 
@@ -335,12 +237,6 @@ public class ConsentContext implements Tokenizable {
     @Schema(hidden = true)
     public Map<String, String> getClaims() {
         Map<String, String> claims = new HashMap<>();
-        if (info != null) {
-            claims.put("info", this.getInfo());
-        }
-        if (elements != null && !elements.isEmpty()) {
-            claims.put("elements", this.getElementsString());
-        }
         if (language != null) {
             claims.put("language", this.getLanguage());
         }
@@ -350,32 +246,11 @@ public class ConsentContext implements Tokenizable {
         if (callback != null) {
             claims.put("callback", this.getCallback());
         }
-        if (orientation != null) {
-            claims.put("orientation", this.getOrientation().name());
-        }
-        if (formType != null) {
-            claims.put("formType", this.getFormType().name());
-        }
-        if (receiptDisplayType != null) {
-            claims.put("receiptDisplayType", this.getReceiptDisplayType().toString());
-        }
-        if (notificationModel != null) {
-            claims.put("notificationModel", this.getNotificationModel());
-        }
         if (notificationRecipient != null) {
             claims.put("notificationRecipient", this.getNotificationRecipient());
         }
-        if (collectionMethod != null) {
-            claims.put("collectionMethod", this.getCollectionMethod().name());
-        }
-        if (theme != null) {
-            claims.put("theme", this.getTheme());
-        }
-        if (receiptId != null) {
-            claims.put("receiptId", this.getReceiptId());
-        }
-        if (acceptAllText != null) {
-            claims.put("acceptAllText", this.getAcceptAllText());
+        if (origin != null) {
+            claims.put("origin", this.origin);
         }
         if (userinfos != null && !userinfos.isEmpty()) {
             for (Map.Entry<String, String> entry : userinfos.entrySet()) {
@@ -387,23 +262,26 @@ public class ConsentContext implements Tokenizable {
                 claims.put(ATTRIBUTES_PREFIX + entry.getKey(), entry.getValue());
             }
         }
-        claims.put("acceptAllVisible", Boolean.toString(this.isAcceptAllVisible()));
+        if (transaction != null) {
+            claims.put("transaction", this.getTransaction());
+        }
+        if (layout != null) {
+            claims.put("layout", this.getLayout());
+        }
+        if (layoutData != null) {
+            Map<String, String> layout = this.getLayoutData().getClaims();
+            claims.putAll(layout.entrySet().stream().collect(Collectors.toMap(entry -> "layout.".concat(entry.getKey()),Map.Entry::getValue)));
+        }
         claims.put("preview", Boolean.toString(this.isPreview()));
-        claims.put("iframe", Boolean.toString(this.isIframe()));
-        claims.put("footerOnTop", Boolean.toString(this.isFooterOnTop()));
-        claims.put("validityVisible", Boolean.toString(this.isValidityVisible()));
+        if (author != null) {
+            claims.put("author", this.getAuthor());
+        }
         return claims;
     }
 
     @Override
     @Schema(hidden = true)
     public Tokenizable setClaims(Map<String, String> claims) {
-        if (claims.containsKey("info")) {
-            this.setInfo(claims.get("info"));
-        }
-        if (claims.containsKey("elements")) {
-            this.setElementsString(claims.get("elements"));
-        }
         if (claims.containsKey("language")) {
             this.setLanguage(claims.get("language"));
         }
@@ -413,47 +291,11 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("callback")) {
             this.setCallback(claims.get("callback"));
         }
-        if (claims.containsKey("orientation")) {
-            this.setOrientation(ConsentForm.Orientation.valueOf(claims.get("orientation")));
-        }
-        if (claims.containsKey("formType")) {
-            this.setFormType(FormType.valueOf(claims.get("formType")));
-        }
-        if (claims.containsKey("receiptDisplayType")) {
-            this.setReceiptDisplayType(ReceiptDisplayType.valueOfName(claims.get("receiptDisplayType")));
-        }
-        if (claims.containsKey("notificationModel")) {
-            this.setNotificationModel(claims.get("notificationModel"));
-        }
         if (claims.containsKey("notificationRecipient")) {
             this.setNotificationRecipient(claims.get("notificationRecipient"));
         }
-        if (claims.containsKey("collectionMethod")) {
-            this.setCollectionMethod(CollectionMethod.valueOf(claims.get("collectionMethod")));
-        }
-        if (claims.containsKey("preview")) {
-            this.setPreview(Boolean.parseBoolean(claims.get("preview")));
-        }
-        if (claims.containsKey("iframe")) {
-            this.setIframe(Boolean.parseBoolean(claims.get("iframe")));
-        }
-        if (claims.containsKey("theme")) {
-            this.setTheme(claims.get("theme"));
-        }
-        if (claims.containsKey("receiptId")) {
-            this.setReceiptId(claims.get("receiptId"));
-        }
-        if (claims.containsKey("acceptAllVisible")) {
-            this.setAcceptAllVisible(Boolean.parseBoolean(claims.get("acceptAllVisible")));
-        }
-        if (claims.containsKey("acceptAllText")) {
-            this.setAcceptAllText(claims.get("acceptAllText"));
-        }
-        if (claims.containsKey("footerOnTop")) {
-            this.setFooterOnTop(Boolean.parseBoolean(claims.get("footerOnTop")));
-        }
-        if (claims.containsKey("validityVisible")) {
-            this.setValidityVisible(Boolean.parseBoolean(claims.get("validityVisible")));
+        if (claims.containsKey("origin")) {
+            this.setOrigin(claims.get("origin"));
         }
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
                 entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
@@ -461,90 +303,43 @@ public class ConsentContext implements Tokenizable {
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(ATTRIBUTES_PREFIX)).forEach(
                 entry -> this.getAttributes().put(entry.getKey().substring(ATTRIBUTES_PREFIX.length()), entry.getValue())
         );
+        if (claims.containsKey("transaction")) {
+            this.setTransaction(claims.get("transaction"));
+        }
+        if (claims.containsKey("layout")) {
+            this.setLayout(claims.get("layout"));
+        }
+        Map<String, String> overlayingClaims = claims.entrySet().stream().filter(e -> e.getKey().startsWith("layout.")).collect(Collectors.toMap(e -> e.getKey().substring("layout.".length()), Map.Entry::getValue));
+        if (!overlayingClaims.isEmpty()) {
+            FormLayout overlaying = new FormLayout();
+            overlaying.setClaims(overlayingClaims);
+            this.setLayoutData(overlaying);
+        }
+        if (claims.containsKey("isPreview")) {
+            this.setPreview(Boolean.parseBoolean(claims.get("isPreview")));
+        }
+        if (claims.containsKey("author")) {
+            this.setAuthor(claims.get("author"));
+        }
         return this;
-    }
-
-    @Schema(description =
-        "- PARTIAL form will only display elements that have no previous record;\n" +
-        "- FULL form will display all elements;"
-    )
-    public enum FormType {
-        PARTIAL,
-        FULL
-    }
-
-    public enum ReceiptDisplayType {
-        NONE("none"),
-        HTML("text/html"),
-        PDF("application/pdf"),
-        XML("application/xml"),
-        TEXT("text/plain");
-
-        private final String name;
-
-        ReceiptDisplayType(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        public static ReceiptDisplayType valueOfName(String name) {
-            for (ReceiptDisplayType e : values()) {
-                if (e.name.equals(name)) {
-                    return e;
-                }
-            }
-            throw new IllegalArgumentException("Unknown format : " + name);
-        }
-    }
-
-    @Schema(description =
-        "- WEBFORM the user filled in a form;\n" +
-        "- OPERATOR an operator created the record based on an interaction with the user;\n"
-            , example = "WEBFORM"
-    ) // TODO : others need to be documented
-     public enum CollectionMethod {
-        WEBFORM,
-        OPERATOR,
-        EMAIL,
-        RECEIPT,
-        USER_PAGE
     }
 
     @Override
     public String toString() {
         return "ConsentContext{" +
                 "subject='" + subject + '\'' +
-                ", orientation=" + orientation +
-                ", info='" + info + '\'' +
-                ", elements=" + elements +
                 ", callback='" + callback + '\'' +
                 ", language='" + language + '\'' +
+                ", origin='" + origin + '\'' +
+                ", notificationRecipient='" + notificationRecipient + '\'' +
                 ", validity='" + validity + '\'' +
-                ", formType=" + formType +
-                ", receiptDisplayType=" + receiptDisplayType +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
-                ", notificationModel='" + notificationModel + '\'' +
-                ", notificationRecipient='" + notificationRecipient + '\'' +
-                ", collectionMethod=" + collectionMethod +
-                ", author='" + author + '\'' +
+                ", transaction='" + transaction + '\'' +
+                ", layout='" + layout + '\'' +
+                ", layoutData=" + layoutData +
                 ", preview=" + preview +
-                ", iframe=" + iframe +
-                ", theme='" + theme + '\'' +
-                ", receiptId='" + receiptId + '\'' +
-                ", showAcceptAll=" + acceptAllVisible +
-                ", showValidity=" + validityVisible +
-                ", acceptAllText='" + acceptAllText + '\'' +
-                ", footerOnTop=" + footerOnTop +
+                ", author='" + author + '\'' +
                 '}';
     }
-
 }

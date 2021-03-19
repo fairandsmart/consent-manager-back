@@ -17,6 +17,7 @@ package com.fairandsmart.consent.manager;
  */
 
 import com.fairandsmart.consent.manager.entity.ModelVersion;
+import com.fairandsmart.consent.manager.model.FormLayout;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class ConsentForm {
     private ModelVersion info;
     private List<ModelVersion> elements;
     private String language;
-    private Orientation orientation;
+    private FormLayout.Orientation orientation;
     private Map<String, String> previousValues;
     private boolean preview = false;
     private ModelVersion theme;
@@ -48,11 +49,11 @@ public class ConsentForm {
     public ConsentForm(ConsentContext ctx) {
         this();
         this.language = ctx.getLanguage();
-        this.orientation = ctx.getOrientation();
         this.preview = ctx.isPreview();
-        this.acceptAllVisible = ctx.isAcceptAllVisible();
-        this.acceptAllText = ctx.getAcceptAllText();
-        this.footerOnTop = ctx.isFooterOnTop();
+        this.orientation = ctx.getLayoutData().getOrientation();
+        this.acceptAllVisible = ctx.getLayoutData().isAcceptAllVisible();
+        this.acceptAllText = ctx.getLayoutData().getAcceptAllText();
+        this.footerOnTop = ctx.getLayoutData().isFooterOnTop();
     }
 
     public String getToken() {
@@ -91,11 +92,11 @@ public class ConsentForm {
         this.language = language;
     }
 
-    public Orientation getOrientation() {
+    public FormLayout.Orientation getOrientation() {
         return orientation;
     }
 
-    public void setOrientation(Orientation orientation) {
+    public void setOrientation(FormLayout.Orientation orientation) {
         this.orientation = orientation;
     }
 
@@ -177,9 +178,4 @@ public class ConsentForm {
                 '}';
     }
 
-    @Schema(description = "display layout to use", example = "VERTICAL")
-    public enum Orientation {
-        HORIZONTAL,
-        VERTICAL
-    }
 }

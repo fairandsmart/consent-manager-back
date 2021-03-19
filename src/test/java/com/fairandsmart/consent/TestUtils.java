@@ -100,8 +100,6 @@ public class TestUtils {
                 .withPrivacyPolicyUrl("Privacy policy URL " + key)
                 .withDataController(generateDataController(key + "_dc"))
                 .withShowDataController(true)
-                .withCollectionMethod(ConsentContext.CollectionMethod.WEBFORM.name())
-                .withShowCollectionMethod(true)
                 .withJurisdiction("Jurisdiction " + key)
                 .withShowJurisdiction(true)
                 .withScope("Scope " + key)
@@ -171,6 +169,20 @@ public class TestUtils {
                 .withName("Name " + key)
                 .withIcon("Icon " + key)
                 .withCss("CSS " + key);
+    }
+
+    public static FormLayout generateFormLayout(String info, List<String> elements) {
+        return new FormLayout()
+                .withInfo(info)
+                .withElements(elements)
+                .withAcceptAllVisible(true)
+                .withAcceptAllText("AccepterTout")
+                .withDesiredReceiptMimeType("application/pdf")
+                .withIncludeIFrameResizer(false)
+                .withOrientation(FormLayout.Orientation.VERTICAL)
+                .withExistingElementsVisible(true)
+                .withValidityVisible(false);
+
     }
 
     private static Controller generateDataController(String key) {
