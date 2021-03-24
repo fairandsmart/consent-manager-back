@@ -145,7 +145,7 @@ public class SupportServiceBean implements SupportService {
             LOGGER.log(Level.INFO, "Latest version available: " + latestVersion);
             return latestVersion;
         } catch (Exception e) {
-            throw new SupportServiceException("Support Service API unreachable", e);
+            throw new SupportServiceException("Support Service API unreachable: " + e.getMessage());
         }
     }
 
