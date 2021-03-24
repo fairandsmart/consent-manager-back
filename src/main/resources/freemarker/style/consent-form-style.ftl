@@ -22,7 +22,7 @@
         height: 100vh;
     }
 
-    .receipt-container {
+    .main-container {
         margin: auto;
         border: 1px solid #eeeeee;
         border-radius: 4px;
@@ -30,11 +30,11 @@
         max-height: 90vh;
     }
 
-    .receipt-content {
+    .main-content {
         padding: 1em;
     }
 
-    .receipt-content p {
+    .content p {
         color: rgba(0, 0, 0, 0.54);
     }
 

@@ -23,10 +23,7 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.*;
-import com.fairandsmart.consent.manager.exception.ConsentServiceException;
-import com.fairandsmart.consent.manager.exception.InvalidConsentException;
-import com.fairandsmart.consent.manager.exception.InvalidStatusException;
-import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
+import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.Receipt;
@@ -94,9 +91,9 @@ public interface ConsentService {
 
     String buildToken(ConsentContext ctx) throws AccessDeniedException;
 
-    ConsentForm generateForm(String token) throws EntityNotFoundException, TokenExpiredException, InvalidTokenException, ConsentServiceException;
+    ConsentForm generateForm(String token) throws TokenExpiredException, InvalidTokenException, ConsentServiceException, GenerateFormException;
 
-    ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, InvalidConsentException;
+    ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException;
 
     /* Records */
 

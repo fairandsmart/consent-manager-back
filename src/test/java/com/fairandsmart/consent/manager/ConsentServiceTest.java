@@ -23,10 +23,7 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.entity.*;
-import com.fairandsmart.consent.manager.exception.ConsentServiceException;
-import com.fairandsmart.consent.manager.exception.InvalidConsentException;
-import com.fairandsmart.consent.manager.exception.InvalidStatusException;
-import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
+import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.*;
@@ -424,7 +421,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testRecordLifecycle() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
+    public void testRecordLifecycle() throws TokenExpiredException, InvalidValuesException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, GenerateFormException, ConsentManagerException, InvalidStatusException, EntityNotFoundException, SubmitConsentException {
         LOGGER.info("#### Test record lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -602,7 +599,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testFormGeneration() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, ConsentServiceException, InvalidTokenException, TokenExpiredException, InvalidConsentException {
+    public void testFormGeneration() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, ConsentServiceException, InvalidTokenException, TokenExpiredException, InvalidValuesException, GenerateFormException, SubmitConsentException {
         LOGGER.info("#### Test form generation");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -743,7 +740,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubjectLifecycle() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
+    public void testSubjectLifecycle() throws TokenExpiredException, InvalidValuesException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException, GenerateFormException, SubmitConsentException {
         LOGGER.info("#### Test subject lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -892,7 +889,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubjectRecords() throws TokenExpiredException, InvalidConsentException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException {
+    public void testSubjectRecords() throws TokenExpiredException, InvalidValuesException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException, GenerateFormException, SubmitConsentException {
         LOGGER.info("#### Test subject records");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -1034,5 +1031,150 @@ public class ConsentServiceTest {
 
         //TODO Increase listing testing with rule based records status by adding new consent submit and new models versions.
     }
+
+    @Test
+    @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testFormGenerationErrors() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException {
+        LOGGER.info("#### Test form generation errors");
+        List<String> types = new ArrayList<>();
+        types.add(BasicInfo.TYPE);
+        types.add(Processing.TYPE);
+        types.add(Preference.TYPE);
+        CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        long entriesCount = entries.getTotalCount();
+        String language = "fr";
+
+        // Creating a BasicInfo entry
+        String biKey = UUID.randomUUID().toString();
+        ModelEntry ebi1 = service.createEntry(biKey, "Name " + biKey, "Description " + biKey, BasicInfo.TYPE);
+        assertNotNull(ebi1);
+        ModelVersion v1bi1 = service.createVersion(ebi1.id, language, Collections.singletonMap(language, TestUtils.generateBasicInfo(biKey)));
+        service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Processing entry n.1
+        String t1Key = UUID.randomUUID().toString();
+        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
+        assertNotNull(et1);
+        ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key)));
+        service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Processing entry n.2
+        String t2Key = UUID.randomUUID().toString();
+        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
+        assertNotNull(et2);
+        ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
+        service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
+
+        // Checking that the entries have been created
+        entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        assertEquals(entriesCount + 3, entries.getTotalCount());
+
+        LOGGER.info("Creating context and token that include a unknown key");
+        String subject = "omichu";
+        ConsentContext readCtx = new ConsentContext()
+                .setSubject(subject)
+                .setLanguage(language)
+                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key, "unknown.key")).withExistingElementsVisible(true));
+        String readToken = service.buildToken(readCtx);
+
+        LOGGER.info("Generate consent form");
+        assertThrows(GenerateFormException.class, () -> service.generateForm(readToken));
+    }
+
+    @Test
+    @Transactional
+    @TestSecurity(user = "sheldon", roles = {"admin"})
+    public void testSubmitConsentErrors() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, ConsentServiceException, InvalidTokenException, TokenExpiredException, InvalidValuesException, GenerateFormException {
+        LOGGER.info("#### Test submit consent errors ");
+        List<String> types = new ArrayList<>();
+        types.add(BasicInfo.TYPE);
+        types.add(Processing.TYPE);
+        types.add(Preference.TYPE);
+        CollectionPage<ModelEntry> entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        long entriesCount = entries.getTotalCount();
+        String language = "fr";
+
+        // Creating a BasicInfo entry
+        String biKey = UUID.randomUUID().toString();
+        ModelEntry ebi1 = service.createEntry(biKey, "Name " + biKey, "Description " + biKey, BasicInfo.TYPE);
+        assertNotNull(ebi1);
+        ModelVersion v1bi1 = service.createVersion(ebi1.id, language, Collections.singletonMap(language, TestUtils.generateBasicInfo(biKey)));
+        service.updateVersionStatus(v1bi1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Processing entry n.1
+        String t1Key = UUID.randomUUID().toString();
+        ModelEntry et1 = service.createEntry(t1Key, "Name " + t1Key, "Description " + t1Key, Processing.TYPE);
+        assertNotNull(et1);
+        ModelVersion v1t1 = service.createVersion(et1.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t1Key)));
+        service.updateVersionStatus(v1t1.id, ModelVersion.Status.ACTIVE);
+
+        // Creating Processing entry n.2
+        String t2Key = UUID.randomUUID().toString();
+        ModelEntry et2 = service.createEntry(t2Key, "Name " + t2Key, "Description " + t2Key, Processing.TYPE);
+        assertNotNull(et2);
+        ModelVersion v1t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
+        service.updateVersionStatus(v1t2.id, ModelVersion.Status.ACTIVE);
+
+        // Checking that the entries have been created
+        entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
+        assertEquals(entriesCount + 3, entries.getTotalCount());
+
+
+        //First error case, an element of the submission context reference an entry that has been deleted between form generation and submission
+        LOGGER.info("Creating context and token");
+        String subject = "omichu";
+        ConsentContext readCtx = new ConsentContext()
+                .setSubject(subject)
+                .setLanguage(language)
+                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key)).withExistingElementsVisible(true));
+        String readToken = service.buildToken(readCtx);
+
+        LOGGER.info("Generate consent form");
+        ConsentForm form = service.generateForm(readToken);
+        assertEquals(2, form.getElements().size());
+        assertEquals(0, form.getPreviousValues().size());
+        assertEquals(t1Key, form.getElements().get(0).entry.key);
+        assertEquals(t2Key, form.getElements().get(1).entry.key);
+
+        service.deleteEntry(et1.id);
+
+        LOGGER.info("Submit consent");
+        MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
+        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
+        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
+        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
+        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form.getToken(), values));
+
+
+        //Second error case, a new version of one (or more) form element is created between form generation and submission
+        LOGGER.info("Creating new context and token");
+        ConsentContext readCtx2 = new ConsentContext()
+                .setSubject(subject)
+                .setLanguage(language)
+                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
+        String readToken2 = service.buildToken(readCtx2);
+
+        LOGGER.info("Generate new consent form");
+        ConsentForm form2 = service.generateForm(readToken2);
+        assertEquals(1, form2.getElements().size());
+        assertEquals(0, form2.getPreviousValues().size());
+        assertEquals(t2Key, form2.getElements().get(0).entry.key);
+
+        ModelVersion v2t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing(t2Key)));
+        service.updateVersionStatus(v2t2.id, ModelVersion.Status.ACTIVE);
+
+        LOGGER.info("Submit consent");
+        MultivaluedMap<String, String> values2 = new MultivaluedHashMap<>();
+        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
+        values.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "refused");
+        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form2.getToken(), values2));
+
+        //Troisième erreur : envoyer des valeurs pourries un element qui n'existe pas
+    }
+
 
 }

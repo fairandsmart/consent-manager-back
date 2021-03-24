@@ -18,8 +18,8 @@
 <head>
     <#include "macros/lang-macros.ftl">
 
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta charset="UTF-8">
     <meta name="description" content="Outil de gestion des consentements Fair&Smart">
     <meta name="author" content="Fair&Smart">
 
@@ -27,20 +27,20 @@
     <#include "style/consent-form-style.ftl">
     <#include "components/theme.ftl">
 
-    <title><@readBundle "consentPageTitle" "missingValue"></@readBundle></title>
+    <title><@readBundle "errorPageTitle" "missingValue"></@readBundle></title>
 </head>
 
 <body>
 
 <div class="main-container">
     <div class="main-content">
-        <h2><@readBundle "thankYou" "missingValue"></@readBundle></h2>
-        <p><@readBundle "changesAcknowledged" "missingValue"></@readBundle></p>
+        <h2><@readBundle "${data.key!'defaultError'}Title" "missingValue"></@readBundle></h2>
+        <p><@readBundle "${data.key!'defaultError'}Message" "missingValue"></@readBundle></p>
     </div>
-    <#if data.receiptURI?has_content>
+    <#if data.retryURI?has_content>
         <div class="info-footer">
             <div class="submit-container">
-                <a href="${data.receiptURI}" target="_self"><button type="submit" class="submit-button"><@readBundle "receiptButton" "missingValue"></@readBundle></button></a>
+                <a href="${data.retryURI}" target="_self"><button type="submit" class="submit-button"><@readBundle "reloadButton" "missingValue"></@readBundle></button></a>
             </div>
         </div>
     </#if>
@@ -59,4 +59,3 @@
     }
 </script>
 </body>
-</html>
