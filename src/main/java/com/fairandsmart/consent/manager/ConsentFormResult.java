@@ -16,13 +16,15 @@ package com.fairandsmart.consent.manager;
  * #L%
  */
 
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
 import java.net.URI;
 
 public class ConsentFormResult {
-    ConsentContext context;
-    URI receiptURI;
+
+    private ConsentContext context;
+    private URI receiptURI;
+
+    public ConsentFormResult() {
+    }
 
     public void setContext(ConsentContext context) {
         this.context = context;

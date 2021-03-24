@@ -27,6 +27,8 @@ import java.util.Map;
 
 public class ConsentForm {
 
+    //TODO Increase this field with a complete object that could create a nice display (and maybe some behaviour : repost, propagate to support, ...)
+    private String error;
     @Schema(description = "The form attached token", example = "")
     private String token;
     private ModelVersion info;
@@ -54,6 +56,14 @@ public class ConsentForm {
         this.acceptAllVisible = ctx.getLayoutData().isAcceptAllVisible();
         this.acceptAllText = ctx.getLayoutData().getAcceptAllText();
         this.footerOnTop = ctx.getLayoutData().isFooterOnTop();
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 
     public String getToken() {
