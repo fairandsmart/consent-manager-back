@@ -34,10 +34,7 @@ import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.*;
 import com.fairandsmart.consent.manager.render.*;
 import com.fairandsmart.consent.manager.rule.BasicRecordStatusRuleChain;
-import com.fairandsmart.consent.manager.store.LocalFolderReceiptStore;
-import com.fairandsmart.consent.manager.store.ReceiptAlreadyExistsException;
-import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
-import com.fairandsmart.consent.manager.store.ReceiptStoreException;
+import com.fairandsmart.consent.manager.store.*;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.entity.EventArgs;
@@ -108,7 +105,7 @@ public class ConsentServiceBean implements ConsentService {
     TokenService tokenService;
 
     @Inject
-    LocalFolderReceiptStore store;
+    ReceiptStore store;
 
     @Inject
     NotificationService notification;
