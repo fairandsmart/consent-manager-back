@@ -20,6 +20,7 @@ import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.manager.model.Receipt;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
@@ -36,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Singleton
+@Default
 public class LocalFolderReceiptStore implements ReceiptStore {
 
     private static final Logger LOGGER = Logger.getLogger(LocalFolderReceiptStore.class.getName());
