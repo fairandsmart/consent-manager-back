@@ -463,6 +463,10 @@ public class ConsentServiceTest {
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         assertEquals(entriesCount + 4, entries.getTotalCount());
 
+        //Count initial transactions
+        long txCountInitial = service.countTransactionsCreatedBetween(0, System.currentTimeMillis());
+        LOGGER.info("Initial transaction count: " + txCountInitial);
+
         LOGGER.info("Creating READ context and token");
         String subject = "lmichu";
         ConsentContext readCtx = new ConsentContext()
@@ -502,6 +506,11 @@ public class ConsentServiceTest {
         assertEquals(Record.Status.VALID, record.status);
         assertEquals(Record.StatusExplanation.LATEST_VALID, record.statusExplanation);
         assertEquals("refused", record.value);
+
+        //Count transactions after first consent submit
+        long txCountCurrent = service.countTransactionsCreatedBetween(0, System.currentTimeMillis());
+        LOGGER.info("Current transactions count: " + txCountCurrent);
+        assertEquals(txCountInitial+1, txCountCurrent);
 
         LOGGER.info("Second consent form");
         form = service.generateForm(readToken);
@@ -574,6 +583,10 @@ public class ConsentServiceTest {
         values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
         values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "refused");
         service.submitConsent(form.getToken(), values);
+
+        txCountCurrent = service.countTransactionsCreatedBetween(0, System.currentTimeMillis());
+        LOGGER.info("Current transactions count: " + txCountCurrent);
+        assertEquals(txCountInitial+2, txCountCurrent);
 
         LOGGER.info("Reading consent records history for subject");
         Map<String, List<Record>> subjectRecords = service.listSubjectRecords(new RecordFilter().withSubject(subject));
