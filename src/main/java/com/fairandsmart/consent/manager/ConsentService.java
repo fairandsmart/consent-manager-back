@@ -103,6 +103,15 @@ public interface ConsentService {
 
     Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException, EntityNotFoundException;
 
+    /* Transactions */
+
+    Record.State getTransactionState(String transaction);
+
+    boolean isTransactionExists(String transaction);
+
+    long countTransactionsCreatedBetween(long from, long to);
+
+
     /* Subjects */
 
     List<Subject> findSubjects(String subject) throws AccessDeniedException;

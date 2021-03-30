@@ -26,6 +26,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @Entity
 public class Record extends PanacheEntityBase implements Comparable<Record> {
@@ -63,6 +64,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public StatusExplanation statusExplanation;
 
     public enum State {
+        UNKNOWN,
         PENDING,
         COMMITTED,
         DELETED
@@ -104,6 +106,25 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         record.author = StringUtils.isNotEmpty(ctx.getAuthor()) ? ctx.getAuthor() : defaultAuthor;
         record.comment = comment;
         return record;
+    }
+
+    public static long countRecordTransactions(long from, long to){
+        return Record.find("select distinct r.transaction from Record r where r.creationTimestamp > ?1 and r.creationTimestamp < ?2", from, to).count();
+    }
+
+    public static Record.State findTransactionState(String transaction){
+        //We only get the first because all records state should be identical in the same transaction
+        Optional<Record> result = Record.find("transaction = ?1", transaction).firstResultOptional();
+        if (result.isPresent()) {
+            return result.get().state;
+        } else {
+            return State.UNKNOWN;
+        }
+    }
+
+    public static boolean isTransactionExists(String transaction) {
+        Optional<Record> result = Record.find("transaction = ?1", transaction).firstResultOptional();
+        return result.isPresent();
     }
 
     @Override

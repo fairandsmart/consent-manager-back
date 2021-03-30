@@ -571,6 +571,12 @@ public class ConsentServiceBean implements ConsentService {
                     throw new SubmitConsentException(ctx, null, "Subject is empty");
                 }
 
+                if (StringUtils.isNotEmpty(ctx.getTransaction())) {
+                    //TODO Check transaction existing records status (already used, pending, whatever)
+                } else {
+                    ctx.setTransaction(Base58.encodeUUID(UUID.randomUUID().toString()));
+                }
+
                 Map<String, String> valuesMap = new HashMap<>();
                 for (MultivaluedMap.Entry<String, List<String>> value : values.entrySet()) {
                     valuesMap.put(value.getKey(), String.join(",", value.getValue()));
@@ -772,6 +778,21 @@ public class ConsentServiceBean implements ConsentService {
         }
         this.notification.publish(EventType.RECORD_EXTRACT, Record.class.getName(), key, authentication.getConnectedIdentifier());
         return result;
+    }
+
+    @Override
+    public Record.State getTransactionState(String transaction) {
+        return Record.findTransactionState(transaction);
+    }
+
+    @Override
+    public boolean isTransactionExists(String transaction) {
+        return Record.isTransactionExists(transaction);
+    }
+
+    @Override
+    public long countTransactionsCreatedBetween(long from, long to) {
+        return Record.countRecordTransactions(from, to);
     }
 
     /* RECEIPTS */
