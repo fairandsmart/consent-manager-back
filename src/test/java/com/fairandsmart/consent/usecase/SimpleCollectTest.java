@@ -280,7 +280,7 @@ public class SimpleCollectTest {
             values.replace(key, "refused"); //User refuse every processing
         }
 
-        postResponse = given().contentType(ContentType.URLENC)
+        postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
                 .formParams(values).when().post("/consents");
         postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
