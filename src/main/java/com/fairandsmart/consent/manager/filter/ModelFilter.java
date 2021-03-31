@@ -182,7 +182,7 @@ public class ModelFilter extends PaginableFilter implements SortableFilter, Quer
                 if (languages.get(index).isEmpty()) {
                     languagesParts.add("availableLanguages = '' or availableLanguages is null");
                 } else {
-                    languagesParts.add(":language" + index + " in availableLanguages");
+                    languagesParts.add("availableLanguages like concat('%',concat(:language" + index + ",'%'))");
                 }
             }
             parts.add("(" + String.join(" or ", languagesParts) + ")");

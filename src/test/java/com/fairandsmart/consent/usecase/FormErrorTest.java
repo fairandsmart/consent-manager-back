@@ -137,10 +137,7 @@ public class FormErrorTest {
         }
         values.remove("info");
         Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC).formParams(values).when().post("/consents");
-        String submitPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
-        LOGGER.log(Level.INFO, "Consent submit error page: " + submitPage);
-        assertTrue(submitPage.contains("Impossible de valider les choix"));
 
 
         //Test invalid token (expired token is hard to generate

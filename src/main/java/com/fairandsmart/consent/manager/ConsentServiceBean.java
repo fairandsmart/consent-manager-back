@@ -869,12 +869,6 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidValuesException {
-        if (ctx.getLayoutData().getInfo() == null && values.containsKey("info")) {
-            throw new InvalidValuesException("submitted basic info incoherency", "null", values.get("info"));
-        }
-        if (StringUtils.isNotEmpty(ctx.getLayoutData().getInfo()) && (!values.containsKey("info") || !values.get("info").equals(ctx.getLayoutData().getInfo()))) {
-            throw new InvalidValuesException("submitted basic info incoherency", ctx.getLayoutData().getInfo(), values.get("info"));
-        }
         Map<String, String> submittedElementValues = values.entrySet().stream()
                 .filter(e -> e.getKey().startsWith("element") && !e.getKey().endsWith("-optional"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
