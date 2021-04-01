@@ -19,8 +19,6 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.validation.SortDirection;
-import com.fairandsmart.consent.manager.ConsentService;
-import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.filter.EventFilter;
@@ -35,10 +33,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,9 +54,6 @@ public class SystemResource {
 
     @Inject
     NotificationService notificationService;
-
-    @Inject
-    ConsentService consentService;
 
     @Inject
     ClientConfig config;
@@ -105,21 +98,6 @@ public class SystemResource {
         LOGGER.log(Level.INFO, "GET /system/config");
         ClientConfigDto dto = ClientConfigDto.fromClientConfig(config);
         dto.setLanguage(supportService.getInstance().language);
-        return dto;
-    }
-
-    @GET
-    @Path("/counters/transaction")
-    @Produces(MediaType.APPLICATION_JSON)
-    @APIResponse(responseCode = "200", description = "Transaction counter")
-    @Operation(summary = "Get the Transaction count between timestamp interval")
-    public CounterDto getTransactionCounter(
-            @Parameter(description = "timestamp when to start counting") @QueryParam("from") @DefaultValue("0") long from,
-            @Parameter(description = "timestamp when to stop counting") @QueryParam("to") @NotEmpty long to
-            ) {
-        LOGGER.log(Level.INFO, "GET /counters/transaction");
-        long value = consentService.countTransactionsCreatedBetween(from, to);
-        CounterDto dto = new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
         return dto;
     }
 
