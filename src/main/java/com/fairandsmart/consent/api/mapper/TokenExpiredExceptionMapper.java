@@ -34,6 +34,6 @@ public class TokenExpiredExceptionMapper implements ExceptionMapper<TokenExpired
     @Override
     public Response toResponse(TokenExpiredException exception) {
         ApiError error = new ApiError(ApiError.Type.TOKEN_EXPIRED).withInstance(config.instance()).withException(exception);
-        return Response.status(error.getStatus()).entity(error).build();
+        return Response.status(error.getStatus()).header(ApiError.API_ERROR_HEADER, error.getType()).entity(error).build();
     }
 }

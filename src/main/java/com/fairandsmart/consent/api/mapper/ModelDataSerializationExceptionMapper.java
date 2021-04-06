@@ -34,6 +34,6 @@ public class ModelDataSerializationExceptionMapper implements ExceptionMapper<Mo
     @Override
     public Response toResponse(ModelDataSerializationException exception) {
         ApiError error = new ApiError(ApiError.Type.MODEL_DATA_SERIALIZATION_ERROR).withInstance(config.instance()).withException(exception);
-        return Response.status(error.getStatus()).entity(error).build();
+        return Response.status(error.getStatus()).header(ApiError.API_ERROR_HEADER, error.getType()).entity(error).build();
     }
 }
