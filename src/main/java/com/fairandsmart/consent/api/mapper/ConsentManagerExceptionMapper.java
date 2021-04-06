@@ -34,6 +34,9 @@ public class ConsentManagerExceptionMapper implements ExceptionMapper<ConsentMan
     @Override
     public Response toResponse(ConsentManagerException exception) {
         ApiError error = new ApiError(ApiError.Type.UNEXPECTED_ERROR).withInstance(config.instance()).withException(exception);
-        return Response.status(error.getStatus()).header(ApiError.API_ERROR_HEADER, error.getType()).entity(error).build();
+        return Response.status(error.getStatus())
+                .header(ApiError.API_ERROR_HEADER, error.getType())
+                .header("access-control-expose-headers", ApiError.API_ERROR_HEADER)
+                .entity(error).build();
     }
 }
