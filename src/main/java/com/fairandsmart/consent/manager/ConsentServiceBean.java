@@ -724,7 +724,7 @@ public class ConsentServiceBean implements ConsentService {
     public Map<String, List<Record>> listSubjectRecords(RecordFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Listing records for subject");
         if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform records search");
+            throw new AccessDeniedException("You must be operator to perform records search or search your own subject records");
         }
         this.notification.publish(EventType.SUBJECT_LIST_RECORDS, Subject.class.getName(), filter.getSubject(), authentication.getConnectedIdentifier());
         return this.listRecordsWithStatus(filter);
@@ -881,7 +881,7 @@ public class ConsentServiceBean implements ConsentService {
         values.keySet().removeIf(key -> key.endsWith("-optional"));
 
         if (!new HashSet<>(ctx.getLayoutData().getElements()).equals(submittedElementValues.keySet())) {
-            throw new InvalidValuesException("submitted elements incoherency");
+            throw new InvalidValuesException("submitted elements incoherency", ctx.getLayoutData().getElements().stream().collect(Collectors.joining(",")), submittedElementValues.keySet().stream().collect(Collectors.joining(",")));
         }
     }
 
