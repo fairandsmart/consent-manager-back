@@ -34,6 +34,6 @@ public class ReceiptNotFoundExceptionMapper implements ExceptionMapper<ReceiptNo
     @Override
     public Response toResponse(ReceiptNotFoundException exception) {
         ApiError error = new ApiError(ApiError.Type.RECEIPT_NOT_FOUND).withInstance(config.instance()).withException(exception);
-        return Response.status(error.getStatus()).entity(error).build();
+        return Response.status(error.getStatus()).header(ApiError.API_ERROR_HEADER, error.getType()).entity(error).build();
     }
 }
