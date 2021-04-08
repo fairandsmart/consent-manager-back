@@ -571,7 +571,7 @@ public class ConsentServiceTest {
                         .withInfo(biKey)
                         .withElements(Collections.singletonList(t1Key))
                         .withExistingElementsVisible(true))
-                .setOrigin(ConsentContext.Origin.WEBFORM.getValue());
+                .setOrigin(ConsentContext.Origin.WEBFORM);
         readToken = service.buildToken(readCtx);
         form = service.generateForm(readToken);
         assertEquals(1, form.getElements().size());
@@ -1088,7 +1088,7 @@ public class ConsentServiceTest {
         ConsentContext readCtx = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
-                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key, "unknown.key")).withExistingElementsVisible(true));
         String readToken = service.buildToken(readCtx);
 
@@ -1141,7 +1141,7 @@ public class ConsentServiceTest {
         ConsentContext readCtx = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
-                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key)).withExistingElementsVisible(true));
         String readToken = service.buildToken(readCtx);
 
@@ -1167,7 +1167,7 @@ public class ConsentServiceTest {
         ConsentContext readCtx2 = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
-                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
         String readToken2 = service.buildToken(readCtx2);
 
