@@ -62,6 +62,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.transaction.Transaction;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
@@ -572,7 +573,10 @@ public class ConsentServiceBean implements ConsentService {
                 }
 
                 if (StringUtils.isNotEmpty(ctx.getTransaction())) {
-                    //TODO Check transaction existing records status (already used, pending, whatever)
+                    Record.State state = Record.findTransactionState(ctx.getTransaction());
+                    if (state != Record.State.NOTFOUND) {
+                        throw new SubmitConsentException(ctx, null, "Consent has already been submitted, transaction is " + state);
+                    }
                 } else {
                     ctx.setTransaction(Base58.encodeUUID(UUID.randomUUID().toString()));
                 }
