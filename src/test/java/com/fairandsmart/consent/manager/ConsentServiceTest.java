@@ -1099,7 +1099,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubmitConsentErrors() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, ConsentServiceException, InvalidTokenException, TokenExpiredException, InvalidValuesException, GenerateFormException {
+    public void testSubmitConsentErrors() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, ConsentServiceException, InvalidTokenException, TokenExpiredException, InvalidValuesException, GenerateFormException, SubmitConsentException {
         LOGGER.info("#### Test submit consent errors ");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -1155,11 +1155,11 @@ public class ConsentServiceTest {
         service.deleteEntry(et1.id);
 
         LOGGER.info("Submit consent");
-        MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
-        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
-        values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
-        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form.getToken(), values));
+        MultivaluedMap<String, String> values1 = new MultivaluedHashMap<>();
+        values1.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
+        values1.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
+        values1.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
+        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form.getToken(), values1));
 
 
         //Second error case, a new version of one (or more) form element is created between form generation and submission
@@ -1182,11 +1182,55 @@ public class ConsentServiceTest {
 
         LOGGER.info("Submit consent");
         MultivaluedMap<String, String> values2 = new MultivaluedHashMap<>();
-        values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "refused");
+        values2.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
+        values2.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "refused");
         assertThrows(SubmitConsentException.class, () -> service.submitConsent(form2.getToken(), values2));
 
-        //Troisième erreur : envoyer des valeurs pourries un element qui n'existe pas
+        //Third error case, send bad values
+        LOGGER.info("Creating new context and token");
+        ConsentContext readCtx3 = new ConsentContext()
+                .setSubject(subject)
+                .setLanguage(language)
+                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
+        String readToken3 = service.buildToken(readCtx3);
+
+        LOGGER.info("Generate new consent form");
+        ConsentForm form3 = service.generateForm(readToken3);
+        assertEquals(1, form3.getElements().size());
+        assertEquals(0, form3.getPreviousValues().size());
+        assertEquals(t2Key, form3.getElements().get(0).entry.key);
+
+        LOGGER.info("Submit consent");
+        MultivaluedMap<String, String> values3 = new MultivaluedHashMap<>();
+        values3.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
+        values3.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "blabla");
+        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form3.getToken(), values3));
+
+        //Fourth error case, send values of en element that does not exists
+
+        //Fifth error case, send values twice
+        LOGGER.info("Creating new context and token");
+        ConsentContext readCtx5 = new ConsentContext()
+                .setSubject(subject)
+                .setLanguage(language)
+                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
+        String readToken5 = service.buildToken(readCtx5);
+
+        LOGGER.info("Generate new consent form");
+        ConsentForm form5 = service.generateForm(readToken5);
+        assertEquals(1, form5.getElements().size());
+        assertEquals(0, form5.getPreviousValues().size());
+        assertEquals(t2Key, form5.getElements().get(0).entry.key);
+
+        LOGGER.info("Submit consent");
+        MultivaluedMap<String, String> values5 = new MultivaluedHashMap<>();
+        values5.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
+        values5.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "refused");
+        ConsentTransaction tx5 = service.submitConsent(form5.getToken(), values5);
+        assertNotNull(tx5.getTransaction());
+        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form5.getToken(), values5));
     }
 
 

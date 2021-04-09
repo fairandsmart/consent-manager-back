@@ -7,6 +7,10 @@ import com.fairandsmart.consent.manager.ConsentContext;
 
 public class SubmitConsentException extends Exception implements NamedException, ReportableException, RetryableException {
 
+    //TODO Use a super exception that includes all fields that could produce a specific html template and avoid those useless interfaces :
+    //   JAX-RS allows to write a Mapper for super class
+    //   We should create a global mapper and an exception handler that would be able to produce the
+
     public static final String KEY = "submitForm";
 
     private ConsentContext ctx;

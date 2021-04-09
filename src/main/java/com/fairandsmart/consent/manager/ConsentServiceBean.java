@@ -646,7 +646,9 @@ public class ConsentServiceBean implements ConsentService {
 
                 return new ConsentTransaction(ctx.getTransaction());
             } catch (InvalidValuesException | EntityNotFoundException e) {
-                //TODO Try to fix context with upgraded elements (separate EntityNotFoundException execption treatment)
+                //TODO Try to fix context with upgraded elements (separate EntityNotFoundException exception treatment)
+                // Maybe use a specific exception for different cases or add an error type inside that exception
+                // Or ccatch the InvalidValues Exception and set the context here.
                 throw new SubmitConsentException(ctx, null, e);
             }
         } catch (TokenServiceException | DatatypeConfigurationException | ReceiptStoreException | ReceiptAlreadyExistsException | ModelDataSerializationException e) {
@@ -873,6 +875,18 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidValuesException {
+        Optional<Map.Entry<String, String>> badProcessing = values.entrySet().stream().filter(e -> e.getKey().startsWith("element/" + Processing.TYPE) && !(e.getValue().equals("accepted") || e.getValue().equals("refused"))).findAny();
+        if (badProcessing.isPresent()) {
+            throw new InvalidValuesException("submitted elements wrong value", badProcessing.get().getKey().concat(":").concat("(accepted|refused)"), badProcessing.get().getKey().concat(":").concat(badProcessing.get().getValue()));
+        }
+
+        Optional<Map.Entry<String, String>> badConditions = values.entrySet().stream().filter(e -> e.getKey().startsWith("element/" + Conditions.TYPE) && !(e.getValue().equals("accepted") || e.getValue().equals("refused"))).findAny();
+        if (badProcessing.isPresent()) {
+            throw new InvalidValuesException("submitted elements wrong value", badProcessing.get().getKey().concat(":").concat("(accepted|refused)"), badProcessing.get().getKey().concat(":").concat(badProcessing.get().getValue()));
+        }
+
+        //TODO test also preferences to ensure values are coherent with preference
+
         Map<String, String> submittedElementValues = values.entrySet().stream()
                 .filter(e -> e.getKey().startsWith("element") && !e.getKey().endsWith("-optional"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
