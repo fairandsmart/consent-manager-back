@@ -64,7 +64,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public StatusExplanation statusExplanation;
 
     public enum State {
-        UNKNOWN,
+        NOTFOUND,
         PENDING,
         COMMITTED,
         DELETED
@@ -118,7 +118,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         if (result.isPresent()) {
             return result.get().state;
         } else {
-            return State.UNKNOWN;
+            return State.NOTFOUND;
         }
     }
 
