@@ -303,7 +303,7 @@ public class SimpleCollectTest {
         assertTrue(receiptPage.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
         assertTrue(receiptPage.contains("<receipt>"));
         assertTrue(receiptPage.contains("<language>fr</language>"));
-        assertTrue(receiptPage.contains("<collectionMethod>" + ConsentContext.Origin.WEBFORM.getValue() + "</collectionMethod>"));
+        assertTrue(receiptPage.contains("<collectionMethod>" + ConsentContext.Origin.WEBFORM.toString() + "</collectionMethod>"));
         assertTrue(receiptPage.contains("<data>Data body " + t1Key + "</data>"));
         assertTrue(receiptPage.contains("<data>Data body " + t2Key + "</data>"));
         assertTrue(receiptPage.contains("<value>refused</value>"));

@@ -624,7 +624,7 @@ public class ConsentServiceBean implements ConsentService {
                     }
                 }
                 Receipt receipt = Receipt.build(ctx.getTransaction(), config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
-                ctx.setOrigin(ConsentContext.Origin.RECEIPT.getValue());
+                ctx.setOrigin(ConsentContext.Origin.RECEIPT);
                 String updateToken = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
                 receipt.setUpdateUrlQrCode(generateQRCode(receipt.getUpdateUrl()));

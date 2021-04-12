@@ -272,7 +272,7 @@ public class Receipt {
             receipt.setHeaderNotice(info.getTitle() + " " + info.getHeader());
             receipt.setFooterNotice(info.getFooter());
         }
-        receipt.setCollectionMethod(ctx.getOrigin());
+        receipt.setCollectionMethod(ctx.getOrigin().toString());
 
         for (Pair<Processing, Record> pair : records) {
             Consent trecord = new Consent();
