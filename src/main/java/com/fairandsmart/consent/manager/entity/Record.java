@@ -64,7 +64,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
     public StatusExplanation statusExplanation;
 
     public enum State {
-        UNKNOWN,
+        NOTFOUND,
         PENDING,
         COMMITTED,
         DELETED
@@ -102,7 +102,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         record.creationTimestamp = now.toEpochMilli();
         record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
         record.state = Record.State.COMMITTED;
-        record.origin = ctx.getOrigin();
+        record.origin = ctx.getOrigin().toString();
         record.author = StringUtils.isNotEmpty(ctx.getAuthor()) ? ctx.getAuthor() : defaultAuthor;
         record.comment = comment;
         return record;
@@ -118,7 +118,7 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         if (result.isPresent()) {
             return result.get().state;
         } else {
-            return State.UNKNOWN;
+            return State.NOTFOUND;
         }
     }
 

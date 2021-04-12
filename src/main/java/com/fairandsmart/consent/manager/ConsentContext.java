@@ -45,7 +45,7 @@ public class ConsentContext implements Tokenizable {
     @Schema(description = "Display language", example = "fr")
     private String language;
     @Schema(description = "Consent collection origin", example = "webform")
-    private String origin;
+    private Origin origin;
     @Schema(description = "Email recipient (mandatory when email notification is needed)", example = Placeholders.SHELDON_AT_LOCALHOST)
     private String notificationRecipient;
     @Schema(description = "Consent lifetime", example = "P6M") // TODO : explain the format
@@ -66,33 +66,18 @@ public class ConsentContext implements Tokenizable {
     private String author;
 
     public enum Origin {
-        WEBFORM("webform"),
-        RECEIPT("receipt"),
-        USER("user"),
-        EMAIL("email"),
-        OPERATOR("operator");
-
-        private String value;
-
-        Origin(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
+        WEBFORM,
+        RECEIPT,
+        USER,
+        EMAIL,
+        OPERATOR
     }
 
     public ConsentContext() {
         this.userinfos = new HashMap<>();
         this.attributes = new HashMap<>();
         this.validity = DEFAULT_VALIDITY;
-        this.origin = Origin.WEBFORM.getValue();
+        this.origin = Origin.WEBFORM;
     }
 
     public String getSubject() {
@@ -125,11 +110,11 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getOrigin() {
+    public Origin getOrigin() {
         return origin;
     }
 
-    public ConsentContext setOrigin(String origin) {
+    public ConsentContext setOrigin(Origin origin) {
         this.origin = origin;
         return this;
     }
@@ -143,7 +128,7 @@ public class ConsentContext implements Tokenizable {
             this.validity = DEFAULT_VALIDITY;
         } else {
             try {
-                DatatypeFactory.newInstance().newDuration(validity);
+                DatatypeFactory.newInstance().newDuration(getParseableValidity());
                 this.validity = validity;
             } catch (DatatypeConfigurationException e) {
                 this.validity = DEFAULT_VALIDITY;
@@ -153,9 +138,17 @@ public class ConsentContext implements Tokenizable {
     }
 
     @JsonIgnore
+    private String getParseableValidity() {
+        if (validity.contains("W")) {
+            return "P" + 7 * Integer.parseInt(validity.substring(1, validity.length() - 1))+ "D";
+        }
+        return validity;
+    }
+
+    @JsonIgnore
     public long getValidityInMillis() {
         try {
-            return DatatypeFactory.newInstance().newDuration(validity).getTimeInMillis(new Date(0));
+            return DatatypeFactory.newInstance().newDuration(getParseableValidity()).getTimeInMillis(new Date(0));
         } catch (DatatypeConfigurationException e) {
             return DEFAULT_VALIDITY_MILLIS;
         }
@@ -250,7 +243,7 @@ public class ConsentContext implements Tokenizable {
             claims.put("notificationRecipient", this.getNotificationRecipient());
         }
         if (origin != null) {
-            claims.put("origin", this.origin);
+            claims.put("origin", this.getOrigin().toString());
         }
         if (userinfos != null && !userinfos.isEmpty()) {
             for (Map.Entry<String, String> entry : userinfos.entrySet()) {
@@ -295,7 +288,7 @@ public class ConsentContext implements Tokenizable {
             this.setNotificationRecipient(claims.get("notificationRecipient"));
         }
         if (claims.containsKey("origin")) {
-            this.setOrigin(claims.get("origin"));
+            this.setOrigin(Origin.valueOf(claims.get("origin")));
         }
         claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
                 entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
@@ -330,7 +323,7 @@ public class ConsentContext implements Tokenizable {
                 "subject='" + subject + '\'' +
                 ", callback='" + callback + '\'' +
                 ", language='" + language + '\'' +
-                ", origin='" + origin + '\'' +
+                ", origin=" + origin +
                 ", notificationRecipient='" + notificationRecipient + '\'' +
                 ", validity='" + validity + '\'' +
                 ", userinfos=" + userinfos +

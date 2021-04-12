@@ -115,7 +115,7 @@ public class FormErrorTest {
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
                 .setLanguage(language)
-                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key)).withExistingElementsVisible(true).withAcceptAllVisible(true).withDesiredReceiptMimeType(MediaType.TEXT_HTML));
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
