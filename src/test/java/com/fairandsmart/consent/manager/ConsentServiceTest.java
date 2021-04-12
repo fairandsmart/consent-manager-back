@@ -1191,7 +1191,7 @@ public class ConsentServiceTest {
         ConsentContext readCtx3 = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
-                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
         String readToken3 = service.buildToken(readCtx3);
 
@@ -1214,7 +1214,7 @@ public class ConsentServiceTest {
         ConsentContext readCtx5 = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
-                .setOrigin(ConsentContext.Origin.WEBFORM.getValue())
+                .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
         String readToken5 = service.buildToken(readCtx5);
 
