@@ -62,6 +62,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.transaction.Transaction;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
@@ -572,7 +573,10 @@ public class ConsentServiceBean implements ConsentService {
                 }
 
                 if (StringUtils.isNotEmpty(ctx.getTransaction())) {
-                    //TODO Check transaction existing records status (already used, pending, whatever)
+                    Record.State state = Record.findTransactionState(ctx.getTransaction());
+                    if (state != Record.State.NOTFOUND) {
+                        throw new SubmitConsentException(ctx, null, "Consent has already been submitted, transaction is " + state);
+                    }
                 } else {
                     ctx.setTransaction(Base58.encodeUUID(UUID.randomUUID().toString()));
                 }
@@ -620,7 +624,7 @@ public class ConsentServiceBean implements ConsentService {
                     }
                 }
                 Receipt receipt = Receipt.build(ctx.getTransaction(), config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
-                ctx.setOrigin(ConsentContext.Origin.RECEIPT.getValue());
+                ctx.setOrigin(ConsentContext.Origin.RECEIPT);
                 String updateToken = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
                 receipt.setUpdateUrlQrCode(generateQRCode(receipt.getUpdateUrl()));
@@ -642,7 +646,9 @@ public class ConsentServiceBean implements ConsentService {
 
                 return new ConsentTransaction(ctx.getTransaction());
             } catch (InvalidValuesException | EntityNotFoundException e) {
-                //TODO Try to fix context with upgraded elements (separate EntityNotFoundException execption treatment)
+                //TODO Try to fix context with upgraded elements (separate EntityNotFoundException exception treatment)
+                // Maybe use a specific exception for different cases or add an error type inside that exception
+                // Or ccatch the InvalidValues Exception and set the context here.
                 throw new SubmitConsentException(ctx, null, e);
             }
         } catch (TokenServiceException | DatatypeConfigurationException | ReceiptStoreException | ReceiptAlreadyExistsException | ModelDataSerializationException e) {
@@ -724,7 +730,7 @@ public class ConsentServiceBean implements ConsentService {
     public Map<String, List<Record>> listSubjectRecords(RecordFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Listing records for subject");
         if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform records search");
+            throw new AccessDeniedException("You must be operator to perform records search or search your own subject records");
         }
         this.notification.publish(EventType.SUBJECT_LIST_RECORDS, Subject.class.getName(), filter.getSubject(), authentication.getConnectedIdentifier());
         return this.listRecordsWithStatus(filter);
@@ -869,6 +875,18 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     private void checkValuesCoherency(ConsentContext ctx, Map<String, String> values) throws InvalidValuesException {
+        Optional<Map.Entry<String, String>> badProcessing = values.entrySet().stream().filter(e -> e.getKey().startsWith("element/" + Processing.TYPE) && !(e.getValue().equals("accepted") || e.getValue().equals("refused"))).findAny();
+        if (badProcessing.isPresent()) {
+            throw new InvalidValuesException("submitted elements wrong value", badProcessing.get().getKey().concat(":").concat("(accepted|refused)"), badProcessing.get().getKey().concat(":").concat(badProcessing.get().getValue()));
+        }
+
+        Optional<Map.Entry<String, String>> badConditions = values.entrySet().stream().filter(e -> e.getKey().startsWith("element/" + Conditions.TYPE) && !(e.getValue().equals("accepted") || e.getValue().equals("refused"))).findAny();
+        if (badProcessing.isPresent()) {
+            throw new InvalidValuesException("submitted elements wrong value", badProcessing.get().getKey().concat(":").concat("(accepted|refused)"), badProcessing.get().getKey().concat(":").concat(badProcessing.get().getValue()));
+        }
+
+        //TODO test also preferences to ensure values are coherent with preference
+
         Map<String, String> submittedElementValues = values.entrySet().stream()
                 .filter(e -> e.getKey().startsWith("element") && !e.getKey().endsWith("-optional"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -881,7 +899,7 @@ public class ConsentServiceBean implements ConsentService {
         values.keySet().removeIf(key -> key.endsWith("-optional"));
 
         if (!new HashSet<>(ctx.getLayoutData().getElements()).equals(submittedElementValues.keySet())) {
-            throw new InvalidValuesException("submitted elements incoherency");
+            throw new InvalidValuesException("submitted elements incoherency", ctx.getLayoutData().getElements().stream().collect(Collectors.joining(",")), submittedElementValues.keySet().stream().collect(Collectors.joining(",")));
         }
     }
 

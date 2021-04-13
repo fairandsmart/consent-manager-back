@@ -103,10 +103,10 @@ public class NotifyConsentWorker implements Runnable {
                 notification.setTheme(theme);
             }
             if (clientConfig.isUserPageEnabled() && clientConfig.userPagePublicUrl().isPresent()) {
-                ctx.setOrigin(ConsentContext.Origin.USER.getValue());
+                ctx.setOrigin(ConsentContext.Origin.USER);
                 notification.setUrl(clientConfig.userPagePublicUrl().get());
             } else {
-                ctx.setOrigin(ConsentContext.Origin.EMAIL.getValue());
+                ctx.setOrigin(ConsentContext.Origin.EMAIL);
                 notification.setToken(this.tokenService.generateToken(ctx,
                         Date.from(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC")).plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS).toInstant())));
                 URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
