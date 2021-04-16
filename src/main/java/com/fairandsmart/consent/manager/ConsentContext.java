@@ -308,8 +308,8 @@ public class ConsentContext implements Tokenizable {
             overlaying.setClaims(overlayingClaims);
             this.setLayoutData(overlaying);
         }
-        if (claims.containsKey("isPreview")) {
-            this.setPreview(Boolean.parseBoolean(claims.get("isPreview")));
+        if (claims.containsKey("preview")) {
+            this.setPreview(Boolean.parseBoolean(claims.get("preview")));
         }
         if (claims.containsKey("author")) {
             this.setAuthor(claims.get("author"));
