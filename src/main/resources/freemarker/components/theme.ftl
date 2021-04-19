@@ -21,7 +21,7 @@
     <#assign theme=langContent>
 
     <#if theme?is_hash && theme.css?has_content>
-        <style>${theme.css?html}</style>
+        <style>${theme.css}</style>
     </#if>
 <#else>
     <#assign theme="">
