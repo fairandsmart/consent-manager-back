@@ -120,5 +120,23 @@ if (consentForm.length > 0) {
         if (!formValid) {
             e.preventDefault();
         }
+        notify('submitting-consent-form');
     });
+}
+
+var iFrameEventstargetOrigin = null;
+
+function init(eventsTargetOrigin) {
+    iFrameEventstargetOrigin = eventsTargetOrigin;
+    notify('consent-form-loaded')
+}
+
+function notify(message) {
+    if (iFrameEventstargetOrigin) {
+        if ('parentIFrame' in window) {
+            window.parentIFrame.sendMessage(message, iFrameEventstargetOrigin);
+        } else if (window.top && window.top !== window) {
+            window.top.postMessage(message, iFrameEventstargetOrigin);
+        }
+    }
 }
