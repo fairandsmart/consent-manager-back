@@ -86,6 +86,11 @@ public class CollectWithEmailTest {
                 when().get("/health").
                 then().body("status", equalTo("UP"));
 
+        //Purge mailbox
+        LOGGER.log(Level.INFO, "Purge mailbox");
+        mailbox.clear();
+        assertTrue(mailbox.getTotalMessagesSent() == 0);
+
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
         List<String> keys = List.of(biKey, t1Key, t2Key, eKey);
