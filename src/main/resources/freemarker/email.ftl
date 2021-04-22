@@ -26,7 +26,7 @@
 
     <#include "style/common-style.ftl">
     <#include "style/email-style.ftl">
-    <#include "components/theme.ftl">
+    <#include "components/theme-email.ftl">
 
     <@fetchMultiLangContent data.model></@fetchMultiLangContent>
     <#assign email=langContent>
