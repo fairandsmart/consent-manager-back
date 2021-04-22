@@ -56,11 +56,11 @@ public class CollectWithEmailAndThemeTest {
     private static final String TEST_PASSWORD = "password";
 
     private static final String language = "fr";
-    private static final String biKey = "cwet_bi1";
-    private static final String t1Key = "cwet_t1";
-    private static final String t2Key = "cwet_t2";
-    private static final String eKey = "cwet_e1";
-    private static final String thKey = "cwet_th1";
+    private static final String biKey = "cweatt_bi1";
+    private static final String t1Key = "cweatt_t1";
+    private static final String t2Key = "cweatt_t2";
+    private static final String eKey = "cweatt_e1";
+    private static final String thKey = "cweatt_th1";
     private static final String recipient = "mmichu@localhost";
 
     @Inject
