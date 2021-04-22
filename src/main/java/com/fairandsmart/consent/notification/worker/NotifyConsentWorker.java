@@ -114,7 +114,7 @@ public class NotifyConsentWorker implements Runnable {
             }
             notification.setReceiptName("receipt.pdf");
             notification.setReceiptType("application/pdf");
-            notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getTransaction(), "application/pdf", ctx.getLayoutData().getTheme()));
+            notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getTransaction(), "application/pdf", (notification.getTheme() != null)?notification.getTheme().entry.key:""));
 
             TemplateModel<ConsentNotification> model = new TemplateModel("email.ftl", notification, notification.getLanguage());
             ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
