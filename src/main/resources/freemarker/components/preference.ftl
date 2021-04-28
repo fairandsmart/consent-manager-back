@@ -14,11 +14,11 @@
  #L%
 -->
 <div class="element">
-    <#assign hasPreviousValues=!data.preview && data.previousValues[element.serial]?has_content>
-    <#assign hasDefaultValues=elementContent.includeDefault && elementContent.defaultValues?has_content>
-    <#assign previousValues=hasPreviousValues?then(data.previousValues[element.serial]?split(","),[])>
-
     <#if elementContent?is_hash>
+        <#assign hasPreviousValues=!data.preview && data.previousValues[element.serial]?has_content>
+        <#assign hasDefaultValues=elementContent.includeDefault && elementContent.defaultValues?has_content>
+        <#assign previousValues=hasPreviousValues?then(data.previousValues[element.serial]?split(","),[])>
+
         <#-- Header -->
         <#if !data.preview>
             <input type="hidden" name="${identifier}-optional" id="${identifier}-optional"
