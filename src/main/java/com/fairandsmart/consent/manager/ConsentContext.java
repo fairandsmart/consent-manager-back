@@ -7,10 +7,10 @@ package com.fairandsmart.consent.manager;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -40,8 +40,10 @@ public class ConsentContext implements Tokenizable {
     @NotNull
     @Schema(description = "The customer unique identifier", example = Placeholders.SHELDON)
     private String subject;
-    @Schema(description = "Redirect URL after consent is given / receipt is displayed", example = "http://www.fairandsmart.com")
+    @Schema(description = "Redirect URL after consent is given", example = "http://www.fairandsmart.com")
     private String callback;
+    @Schema(description = "Parent window domain, necessary for callback", example = "http://www.fairandsmart.com")
+    private String iframeOrigin;
     @Schema(description = "Display language", example = "fr")
     private String language;
     @Schema(description = "Consent collection origin", example = "webform")
@@ -95,6 +97,15 @@ public class ConsentContext implements Tokenizable {
 
     public ConsentContext setCallback(String callback) {
         this.callback = callback;
+        return this;
+    }
+
+    public String getIframeOrigin() {
+        return iframeOrigin;
+    }
+
+    public ConsentContext setIframeOrigin(String iframeOrigin) {
+        this.iframeOrigin = iframeOrigin;
         return this;
     }
 
@@ -239,6 +250,9 @@ public class ConsentContext implements Tokenizable {
         if (callback != null) {
             claims.put("callback", this.getCallback());
         }
+        if (iframeOrigin != null) {
+            claims.put("iframeOrigin", this.getIframeOrigin());
+        }
         if (notificationRecipient != null) {
             claims.put("notificationRecipient", this.getNotificationRecipient());
         }
@@ -284,6 +298,9 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("callback")) {
             this.setCallback(claims.get("callback"));
         }
+        if (claims.containsKey("iframeOrigin")) {
+            this.setIframeOrigin(claims.get("iframeOrigin"));
+        }
         if (claims.containsKey("notificationRecipient")) {
             this.setNotificationRecipient(claims.get("notificationRecipient"));
         }
@@ -322,6 +339,7 @@ public class ConsentContext implements Tokenizable {
         return "ConsentContext{" +
                 "subject='" + subject + '\'' +
                 ", callback='" + callback + '\'' +
+                ", iframeOrigin='" + iframeOrigin + '\'' +
                 ", language='" + language + '\'' +
                 ", origin=" + origin +
                 ", notificationRecipient='" + notificationRecipient + '\'' +
