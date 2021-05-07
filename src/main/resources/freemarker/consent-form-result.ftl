@@ -36,8 +36,11 @@
     <div class="main-content">
         <h2><@readBundle "thankYou" "missingValue"></@readBundle></h2>
         <p><@readBundle "changesAcknowledged" "missingValue"></@readBundle></p>
+        <#if data.context.callback?has_content>
+            <p><@readBundle "callbackLoading" "missingValue"></@readBundle></p>
+        </#if>
     </div>
-    <#if data.receiptURI?has_content>
+    <#if !data.context.callback?has_content && data.receiptURI?has_content>
         <div class="info-footer">
             <div class="submit-container">
                 <a href="${data.receiptURI}" target="_self"><button type="submit" class="submit-button"><@readBundle "receiptButton" "missingValue"></@readBundle></button></a>
@@ -47,16 +50,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.2.11/iframeResizer.contentWindow.min.js" integrity="sha512-FOf4suFgz7OrWmBiyyWW48u/+6GaaAFSDHagh2EBu/GH/1+OQSYc0NFGeGeZK0gZ3vuU1ovmzVzD6bxmT4vayg==" crossorigin="anonymous"></script>
+<script src="/assets/js/callback.js" onload="init('${data.context.iframeOrigin}', '${data.context.callback}')"></script>
 
-<script type="text/javascript">
-    window.iFrameResizer = {
-        readyCallback: function () {
-            if ('parentIFrame' in window) {
-                window.parentIFrame.sendMessage('sent', '*');
-                window.parentIFrame.close();
-            }
-        }
-    }
-</script>
 </body>
 </html>
