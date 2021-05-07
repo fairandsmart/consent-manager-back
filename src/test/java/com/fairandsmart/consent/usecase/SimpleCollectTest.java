@@ -21,8 +21,6 @@ import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.ConsentForm;
-import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.FormLayout;

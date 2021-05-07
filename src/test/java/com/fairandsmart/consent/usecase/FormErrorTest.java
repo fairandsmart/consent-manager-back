@@ -21,7 +21,6 @@ import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.FormLayout;
@@ -32,7 +31,6 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;

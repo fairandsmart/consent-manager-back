@@ -62,7 +62,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.transaction.Transaction;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
@@ -881,11 +880,11 @@ public class ConsentServiceBean implements ConsentService {
         }
 
         Optional<Map.Entry<String, String>> badConditions = values.entrySet().stream().filter(e -> e.getKey().startsWith("element/" + Conditions.TYPE) && !(e.getValue().equals("accepted") || e.getValue().equals("refused"))).findAny();
-        if (badProcessing.isPresent()) {
+        if (badConditions.isPresent()) {
             throw new InvalidValuesException("submitted elements wrong value", badProcessing.get().getKey().concat(":").concat("(accepted|refused)"), badProcessing.get().getKey().concat(":").concat(badProcessing.get().getValue()));
         }
 
-        //TODO test also preferences to ensure values are coherent with preference
+        //TODO test also preferences to ensure values are coherent with preferences
 
         Map<String, String> submittedElementValues = values.entrySet().stream()
                 .filter(e -> e.getKey().startsWith("element") && !e.getKey().endsWith("-optional"))
