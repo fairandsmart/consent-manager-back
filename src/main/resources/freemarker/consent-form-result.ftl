@@ -50,7 +50,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.2.11/iframeResizer.contentWindow.min.js" integrity="sha512-FOf4suFgz7OrWmBiyyWW48u/+6GaaAFSDHagh2EBu/GH/1+OQSYc0NFGeGeZK0gZ3vuU1ovmzVzD6bxmT4vayg==" crossorigin="anonymous"></script>
-<script src="/assets/js/callback.js" onload="init('${data.context.iframeOrigin}', '${data.context.callback}')"></script>
+<script src="/assets/js/callback.js" onload="init('${data.context.iframeOrigin!""}', '${data.context.callback!""}')"></script>
 
 </body>
 </html>

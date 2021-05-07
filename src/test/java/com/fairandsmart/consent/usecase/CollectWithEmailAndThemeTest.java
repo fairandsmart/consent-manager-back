@@ -89,7 +89,7 @@ public class CollectWithEmailAndThemeTest {
         //Purge mailbox
         LOGGER.log(Level.INFO, "Purge mailbox");
         mailbox.clear();
-        assertTrue(mailbox.getTotalMessagesSent() == 0);
+        assertEquals(mailbox.getTotalMessagesSent(), 0);
 
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");

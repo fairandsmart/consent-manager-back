@@ -21,7 +21,6 @@ import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.manager.model.BasicInfo;
@@ -89,7 +88,7 @@ public class CollectWithEmailTest {
         //Purge mailbox
         LOGGER.log(Level.INFO, "Purge mailbox");
         mailbox.clear();
-        assertTrue(mailbox.getTotalMessagesSent() == 0);
+        assertEquals(mailbox.getTotalMessagesSent(), 0);
 
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
