@@ -110,14 +110,18 @@ public class ConsentContext implements Tokenizable {
     }
 
     public String getLanguage() {
-        if (StringUtils.isEmpty(language)) {
-            return Locale.getDefault().toLanguageTag();
-        }
         return language;
     }
 
     public ConsentContext setLanguage(String language) {
         this.language = language;
+        return this;
+    }
+
+    public ConsentContext setDefaultLanguage(String language) {
+        if (this.language == null || this.language.isEmpty()) {
+            this.language = language;
+        }
         return this;
     }
 

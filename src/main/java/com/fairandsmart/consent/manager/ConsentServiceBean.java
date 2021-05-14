@@ -498,6 +498,7 @@ public class ConsentServiceBean implements ConsentService {
         } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierApi()) {
             throw new AccessDeniedException("Only admin, operator or api can generate token for other identifier than connected one");
         }
+        ctx.setDefaultLanguage(config.language());
         return tokenService.generateToken(ctx);
     }
 
@@ -508,6 +509,8 @@ public class ConsentServiceBean implements ConsentService {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
             //Assign transaction id
             ctx.setTransaction(Base58.encodeUUID(UUID.randomUUID().toString()));
+            //Assign default language
+            ctx.setDefaultLanguage(config.language());
 
             try {
                 //Load layout model if exists
@@ -647,7 +650,7 @@ public class ConsentServiceBean implements ConsentService {
             } catch (InvalidValuesException | EntityNotFoundException e) {
                 //TODO Try to fix context with upgraded elements (separate EntityNotFoundException exception treatment)
                 // Maybe use a specific exception for different cases or add an error type inside that exception
-                // Or ccatch the InvalidValues Exception and set the context here.
+                // Or catch the InvalidValues Exception and set the context here.
                 throw new SubmitConsentException(ctx, null, e);
             }
         } catch (TokenServiceException | DatatypeConfigurationException | ReceiptStoreException | ReceiptAlreadyExistsException | ModelDataSerializationException e) {
