@@ -18,7 +18,9 @@ package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.config.ClientConfig;
+import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.validation.SortDirection;
+import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.filter.EventFilter;
@@ -57,6 +59,9 @@ public class SystemResource {
 
     @Inject
     ClientConfig config;
+
+    @Inject
+    SecurityConfig securityConfig;
 
     @GET
     @Path("/users/me")
@@ -98,6 +103,9 @@ public class SystemResource {
         LOGGER.log(Level.INFO, "GET /system/config");
         ClientConfigDto dto = ClientConfigDto.fromClientConfig(config);
         dto.setLanguage(supportService.getInstance().language);
+        dto.addSecurityRole("admin", securityConfig.adminRoleName());
+        dto.addSecurityRole("operator", securityConfig.operatorRoleName());
+        dto.addSecurityRole("api", securityConfig.apiRoleName());
         return dto;
     }
 
