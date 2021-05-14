@@ -50,8 +50,8 @@ public class StatisticsServiceBean implements StatisticsService {
     public StatsBag get() throws AccessDeniedException {
         LOGGER.log(Level.INFO, "Fetching stats");
         this.refresh();
-        if (!authentication.isConnectedIdentifierAdmin()) {
-            throw new AccessDeniedException("You must be admin to search stats");
+        if (!authentication.isConnectedIdentifierOperator()) {
+            throw new AccessDeniedException("You must be operator to search stats");
         }
 
         final List<String> entriesTypes = Arrays.asList(Processing.TYPE, Preference.TYPE, Conditions.TYPE);

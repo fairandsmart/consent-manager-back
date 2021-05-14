@@ -19,9 +19,7 @@ package com.fairandsmart.consent.api.dto;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Schema(name = "ClientConfig", description = "A representation of the client configuration")
 public class ClientConfigDto {
@@ -32,9 +30,13 @@ public class ClientConfigDto {
     private boolean userPageEnabled;
     @Schema(description = "Elements (processing, preferences, ...) that are available on user page", readOnly = true)
     private List<String> userPageElements;
+    @Schema(description = "Roles mapping", readOnly = true)
+    private Map<String, String> rolesMapping;
+
 
     public ClientConfigDto() {
         userPageElements = new ArrayList<>();
+        rolesMapping = new HashMap<>();
     }
 
     public static ClientConfigDto fromClientConfig(ClientConfig config) {
@@ -70,12 +72,25 @@ public class ClientConfigDto {
         this.userPageElements = userPageElements;
     }
 
+    public Map<String, String> getRolesMapping() {
+        return rolesMapping;
+    }
+
+    public void setRolesMapping(Map<String, String> rolesMapping) {
+        this.rolesMapping = rolesMapping;
+    }
+
+    public void addSecurityRole(String name, String mapping) {
+        this.rolesMapping.put(name, mapping);
+    }
+
     @Override
     public String toString() {
         return "ClientConfigDto{" +
                 "language='" + language + '\'' +
                 ", userPageEnabled=" + userPageEnabled +
                 ", userPageElements=" + userPageElements +
+                ", rolesMapping=" + rolesMapping +
                 '}';
     }
 }
