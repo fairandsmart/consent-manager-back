@@ -93,7 +93,10 @@ public class TokenServiceBean implements TokenService {
     @Override
     @Transactional
     public String generateToken(Tokenizable tokenizable) {
-        return this.generateToken(tokenizable, Calendar.HOUR, 4);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.add(Calendar.MILLISECOND, tokenizable.expirationDelay());
+        return this.generateToken(tokenizable, calendar.getTime());
     }
 
     @Override
