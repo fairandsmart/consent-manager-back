@@ -29,8 +29,6 @@ public class UserDto {
     private boolean admin;
     @Schema(description = "Is user in 'operator' group ?", readOnly = true)
     private boolean operator;
-    @Schema(description = "The list of all user roles (admin, operator, user)", readOnly = true)
-    private Set<String> roles;
 
     public UserDto() {
     }
@@ -59,21 +57,12 @@ public class UserDto {
         this.operator = operator;
     }
 
-    public Set<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
-    }
-
     @Override
     public String toString() {
         return "UserDto{" +
                 "username='" + username + '\'' +
                 ", admin=" + admin +
                 ", operator=" + operator +
-                ", roles=" + roles +
                 '}';
     }
 }

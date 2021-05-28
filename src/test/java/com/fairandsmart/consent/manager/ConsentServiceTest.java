@@ -473,7 +473,7 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setLanguage(language)
                 .setLayout(lKey);
-        String readToken = service.buildToken(readCtx);
+        String readToken = service.buildFormToken(readCtx);
 
         LOGGER.info("Reading consent records before submit");
         Map<String, Record> records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
@@ -572,7 +572,7 @@ public class ConsentServiceTest {
                         .withElements(Collections.singletonList(t1Key))
                         .withExistingElementsVisible(true))
                 .setOrigin(ConsentContext.Origin.WEBFORM);
-        readToken = service.buildToken(readCtx);
+        readToken = service.buildFormToken(readCtx);
         form = service.generateForm(readToken);
         assertEquals(1, form.getElements().size());
         assertEquals(1, form.getPreviousValues().size());
@@ -703,7 +703,7 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setLanguage(language)
                 .setLayout(l2Key);
-        String readToken = service.buildToken(readCtx);
+        String readToken = service.buildFormToken(readCtx);
 
         LOGGER.info("First consent form");
         ConsentForm form = service.generateForm(readToken);
@@ -728,7 +728,7 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setLanguage(language)
                 .setLayout(l3Key);
-        readToken = service.buildToken(readCtx);
+        readToken = service.buildFormToken(readCtx);
 
         LOGGER.info("Second consent form");
         form = service.generateForm(readToken);
@@ -804,7 +804,7 @@ public class ConsentServiceTest {
                 .setSubject("sheldon")
                 .setLanguage(language)
                 .setLayout(l1Key);
-        String token = service.buildToken(ctx);
+        String token = service.buildFormToken(ctx);
         ConsentForm form = service.generateForm(token);
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
@@ -817,7 +817,7 @@ public class ConsentServiceTest {
                 .setSubject("penny")
                 .setLanguage(language)
                 .setLayout(l1Key);
-        token = service.buildToken(ctx);
+        token = service.buildFormToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
@@ -830,7 +830,7 @@ public class ConsentServiceTest {
                 .setSubject("leonard")
                 .setLanguage(language)
                 .setLayout(l1Key);
-        token = service.buildToken(ctx);
+        token = service.buildFormToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
@@ -958,7 +958,7 @@ public class ConsentServiceTest {
                 .setSubject(user1)
                 .setLanguage(language)
                 .setLayout(l1Key);
-        String token = service.buildToken(ctx);
+        String token = service.buildFormToken(ctx);
         ConsentForm form = service.generateForm(token);
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
@@ -971,7 +971,7 @@ public class ConsentServiceTest {
                 .setSubject(user2)
                 .setLanguage(language)
                 .setLayout(l1Key);
-        token = service.buildToken(ctx);
+        token = service.buildFormToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
@@ -984,7 +984,7 @@ public class ConsentServiceTest {
                 .setSubject(user3)
                 .setLanguage(language)
                 .setLayout(l1Key);
-        token = service.buildToken(ctx);
+        token = service.buildFormToken(ctx);
         form = service.generateForm(token);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
@@ -1090,7 +1090,7 @@ public class ConsentServiceTest {
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key, "unknown.key")).withExistingElementsVisible(true));
-        String readToken = service.buildToken(readCtx);
+        String readToken = service.buildFormToken(readCtx);
 
         LOGGER.info("Generate consent form");
         assertThrows(GenerateFormException.class, () -> service.generateForm(readToken));
@@ -1143,7 +1143,7 @@ public class ConsentServiceTest {
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key)).withExistingElementsVisible(true));
-        String readToken = service.buildToken(readCtx);
+        String readToken = service.buildFormToken(readCtx);
 
         LOGGER.info("Generate consent form");
         ConsentForm form = service.generateForm(readToken);
@@ -1169,7 +1169,7 @@ public class ConsentServiceTest {
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
-        String readToken2 = service.buildToken(readCtx2);
+        String readToken2 = service.buildFormToken(readCtx2);
 
         LOGGER.info("Generate new consent form");
         ConsentForm form2 = service.generateForm(readToken2);
@@ -1193,7 +1193,7 @@ public class ConsentServiceTest {
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
-        String readToken3 = service.buildToken(readCtx3);
+        String readToken3 = service.buildFormToken(readCtx3);
 
         LOGGER.info("Generate new consent form");
         ConsentForm form3 = service.generateForm(readToken3);
@@ -1216,7 +1216,7 @@ public class ConsentServiceTest {
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
-        String readToken5 = service.buildToken(readCtx5);
+        String readToken5 = service.buildFormToken(readCtx5);
 
         LOGGER.info("Generate new consent form");
         ConsentForm form5 = service.generateForm(readToken5);

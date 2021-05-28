@@ -28,8 +28,6 @@ public interface AuthenticationService {
 
     String getConnectedIdentifier();
 
-    Set<String> listConnectedIdentifierRoles();
-
     boolean isConnectedIdentifierAdmin();
 
     void ensureConnectedIdentifierIsAdmin() throws AccessDeniedException;

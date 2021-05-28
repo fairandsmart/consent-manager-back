@@ -26,6 +26,7 @@ import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.model.Email;
+import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.template.TemplateModel;
@@ -112,9 +113,12 @@ public class NotifyConsentWorker implements Runnable {
                 URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
                 notification.setUrl(notificationUri.toString());
             }
-            notification.setReceiptName("receipt.pdf");
-            notification.setReceiptType("application/pdf");
-            notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getTransaction(), "application/pdf", (notification.getTheme() != null)?notification.getTheme().entry.key:""));
+            try {
+                notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getTransaction(), "application/pdf", (notification.getTheme() != null) ? notification.getTheme().entry.key : ""));
+                notification.setReceiptName("receipt.pdf");
+                notification.setReceiptType("application/pdf");
+            } catch (ReceiptNotFoundException e) { //
+            }
 
             TemplateModel<ConsentNotification> model = new TemplateModel("email.ftl", notification, notification.getLanguage());
             ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));

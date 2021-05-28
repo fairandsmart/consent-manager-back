@@ -89,7 +89,7 @@ public interface ConsentService {
 
     /* Forms */
 
-    String buildToken(ConsentContext ctx) throws AccessDeniedException;
+    String buildFormToken(ConsentContext ctx) throws AccessDeniedException;
 
     ConsentForm generateForm(String token) throws TokenExpiredException, InvalidTokenException, ConsentServiceException, GenerateFormException;
 
@@ -121,6 +121,8 @@ public interface ConsentService {
     Subject createSubject(String name, String email) throws ConsentManagerException, EntityAlreadyExistsException;
 
     Subject updateSubject(String id, String email) throws AccessDeniedException, EntityNotFoundException;
+
+    String buildSubjectToken(SubjectContext ctx) throws AccessDeniedException;
 
     /* Receipts */
 

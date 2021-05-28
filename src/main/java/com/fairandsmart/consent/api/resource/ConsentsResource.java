@@ -33,6 +33,7 @@ import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
@@ -43,6 +44,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.net.URI;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -70,15 +72,32 @@ public class ConsentsResource {
     @Path("token")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
+    @Deprecated
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "thin token has been generated", content = @Content(example = "a token")),
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE)
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(summary = "Generate a thin token from a given context")
-    public String generateToken(@Valid ConsentContext ctx) throws AccessDeniedException {
+    @Operation(summary = "Generate a form token from a given context")
+    public Response generateFormToken(@Valid ConsentContext ctx, @Context UriInfo uriInfo) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /consents/token");
-        return consentService.buildToken(ctx);
+        URI uri = uriInfo.getBaseUriBuilder().path(TokensResource.class).path("consent").build();
+        return Response.seeOther(uri).entity(ctx).build();
+    }
+
+    @POST
+    @Path("token")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "The subject access token"),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
+    })
+    @SecurityRequirement(name = "access token", scopes = {"profile"})
+    @Operation(summary = "Generate a subject token for a given context")
+    public String generateSubjectToken(@Valid SubjectContext ctx) throws AccessDeniedException {
+        LOGGER.log(Level.INFO, "POST /consents/token");
+        return consentService.buildSubjectToken(ctx);
     }
 
     @GET

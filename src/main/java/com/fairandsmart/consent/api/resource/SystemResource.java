@@ -78,7 +78,6 @@ public class SystemResource {
         user.setUsername(authenticationService.getConnectedIdentifier());
         user.setAdmin(authenticationService.isConnectedIdentifierAdmin());
         user.setOperator(authenticationService.isConnectedIdentifierOperator());
-        user.setRoles(authenticationService.listConnectedIdentifierRoles());
         return user;
     }
 

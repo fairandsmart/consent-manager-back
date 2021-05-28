@@ -28,6 +28,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -60,10 +61,6 @@ public class AuthenticationServiceBean implements AuthenticationService {
         return connectedIdentifier;
     }
 
-    @Override
-    public Set<String> listConnectedIdentifierRoles() {
-        return identity.getRoles();
-    }
 
     @Override
     public boolean isConnectedIdentifierAdmin() {

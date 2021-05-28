@@ -491,9 +491,10 @@ public class ConsentServiceBean implements ConsentService {
     /* CONSENT MANAGEMENT */
 
     @Override
-    public String buildToken(ConsentContext ctx) throws AccessDeniedException {
+    public String buildFormToken(ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Building generate form token for context: " + ctx);
         if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
+            //TODO check that anonymous generation is not possible
             ctx.setSubject(authentication.getConnectedIdentifier());
         } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierApi()) {
             throw new AccessDeniedException("Only admin, operator or api can generate token for other identifier than connected one");
@@ -622,12 +623,14 @@ public class ConsentServiceBean implements ConsentService {
                         trecords.add(new ImmutablePair<>(processing, record));
                     }
                 }
-                Receipt receipt = Receipt.build(ctx.getTransaction(), config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
-                ctx.setOrigin(ConsentContext.Origin.RECEIPT);
-                String updateToken = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
-                receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
-                receipt.setUpdateUrlQrCode(generateQRCode(receipt.getUpdateUrl()));
-                store.put(receipt);
+                if (trecords.size() > 0) {
+                    Receipt receipt = Receipt.build(ctx.getTransaction(), config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
+                    ctx.setOrigin(ConsentContext.Origin.RECEIPT);
+                    String updateToken = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
+                    receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
+                    receipt.setUpdateUrlQrCode(generateQRCode(receipt.getUpdateUrl()));
+                    store.put(receipt);
+                }
 
                 //Store records here to avoid previous error, depending on the receipt type (2PC) maybe set record status to PENDING...
                 records.forEach(record -> record.persist());
@@ -669,8 +672,8 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public Subject getSubject(String name) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Getting subject for name: " + name);
-        if (!authentication.isConnectedIdentifierOperator()) {
-            throw new AccessDeniedException("You must be operator to search for subjects");
+        if (!authentication.getConnectedIdentifier().equals(name) && !authentication.isConnectedIdentifierOperator()) {
+            throw new AccessDeniedException("You must be the subject or an operator to load another subject");
         }
         Optional<Subject> optional = Subject.find("name = ?1", name).singleResultOptional();
         if (optional.isPresent()) {
@@ -721,6 +724,15 @@ public class ConsentServiceBean implements ConsentService {
 
         this.notification.publish(EventType.SUBJECT_UPDATE, Subject.class.getName(), subject.id, authentication.getConnectedIdentifier(), EventArgs.build("email", email));
         return subject;
+    }
+
+    @Override
+    public String buildSubjectToken(SubjectContext ctx) throws AccessDeniedException {
+        LOGGER.log(Level.FINE, "Building access token for subject with id: " + ctx.getSubject());
+        if (!authentication.isConnectedIdentifierOperator()) {
+            throw new AccessDeniedException("You must be operator to generate subjects token");
+        }
+        return tokenService.generateToken(ctx);
     }
 
     /* RECORDS */
