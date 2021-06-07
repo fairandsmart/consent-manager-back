@@ -6,7 +6,7 @@
     <parent>
     <groupId>com.fairandsmart</groupId>
         <artifactId>parent</artifactId>
-        <version>46-SNAPSHOT</version>
+        <version>50-SNAPSHOT</version>
     </parent>
     <artifactId>consent-manager-back-${quarkus.package.type}-${quarkus.datasource.db-kind}-enterprise</artifactId>
     <version>1.1.0-SNAPSHOT</version>
@@ -163,17 +163,14 @@
         <dependency>
             <groupId>com.fairandsmart.quarkus.extension</groupId>
             <artifactId>topology</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.fairandsmart.quarkus.extension</groupId>
             <artifactId>security</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.fairandsmart.quarkus.extension</groupId>
             <artifactId>xades</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
