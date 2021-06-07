@@ -30,6 +30,10 @@ public class SubjectContext implements Tokenizable {
 
     @Override
     public Tokenizable setSubject(String subject) {
+        return this.withSubject(subject);
+    }
+
+    public SubjectContext withSubject(String subject) {
         this.subject = subject;
         return this;
     }
@@ -38,8 +42,13 @@ public class SubjectContext implements Tokenizable {
         return actions;
     }
 
-    public void setActions(List<String> actions) {
-        this.actions = actions;
+    public SubjectContext setActions(List<String> actions) {
+        return this.withActions(actions);
+    }
+
+    public SubjectContext withActions(List<String> actions) {
+        this.setActions(actions);
+        return this;
     }
 
     @Override

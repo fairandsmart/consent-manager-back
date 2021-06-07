@@ -26,7 +26,10 @@ import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.model.*;
+import com.fairandsmart.consent.manager.model.BasicInfo;
+import com.fairandsmart.consent.manager.model.FormLayout;
+import com.fairandsmart.consent.manager.model.Preference;
+import com.fairandsmart.consent.manager.model.Processing;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import io.quarkus.test.junit.QuarkusTest;
@@ -1228,8 +1231,8 @@ public class ConsentServiceTest {
         MultivaluedMap<String, String> values5 = new MultivaluedHashMap<>();
         values5.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
         values5.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "refused");
-        ConsentTransaction tx5 = service.submitConsent(form5.getToken(), values5);
-        assertNotNull(tx5.getTransaction());
+        ConsentReceipt receipt = service.submitConsent(form5.getToken(), values5);
+        assertNotNull(receipt.getTransaction());
         assertThrows(SubmitConsentException.class, () -> service.submitConsent(form5.getToken(), values5));
     }
 

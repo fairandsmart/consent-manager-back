@@ -79,25 +79,10 @@ public class ConsentsResource {
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation(summary = "Generate a form token from a given context")
-    public Response generateFormToken(@Valid ConsentContext ctx, @Context UriInfo uriInfo) throws AccessDeniedException {
+    public Response generateFormToken(@Valid ConsentContext ctx, @Context UriInfo uriInfo) {
         LOGGER.log(Level.INFO, "POST /consents/token");
         URI uri = uriInfo.getBaseUriBuilder().path(TokensResource.class).path("consent").build();
         return Response.seeOther(uri).entity(ctx).build();
-    }
-
-    @POST
-    @Path("token")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The subject access token"),
-            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
-    })
-    @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(summary = "Generate a subject token for a given context")
-    public String generateSubjectToken(@Valid SubjectContext ctx) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "POST /consents/token");
-        return consentService.buildSubjectToken(ctx);
     }
 
     @GET
@@ -152,7 +137,7 @@ public class ConsentsResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentFormResult postConsentJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidValuesException, ConsentServiceException, TokenServiceException, SubmitConsentException {
+    public ConsentFormResult postConsentJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, ConsentServiceException, TokenServiceException, SubmitConsentException {
         LOGGER.log(Level.INFO, "POST /consents (json)");
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
@@ -161,8 +146,8 @@ public class ConsentsResource {
     }
 
     private ConsentFormResult internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws TokenServiceException, TokenExpiredException, InvalidTokenException, ConsentServiceException, SubmitConsentException {
-        ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
-        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction()).queryParam("t", tokenService.generateToken(tx));
+        ConsentReceipt receipt = consentService.submitConsent(values.get("token").get(0), values);
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(receipt.getTransaction()).queryParam("t", tokenService.generateToken(new SubjectContext().setSubject(receipt.getSubject())));
         ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
         ConsentFormResult consentFormResult = new ConsentFormResult();
         consentFormResult.setContext(ctx);

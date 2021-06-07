@@ -16,7 +16,7 @@ package com.fairandsmart.consent.manager.render;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.ConsentReceipt;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -24,14 +24,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "receipt")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class RenderableReceipt extends Receipt {
+public class RenderableReceipt extends ConsentReceipt {
 
     private RenderingLayout layout;
 
     public RenderableReceipt() {
     }
 
-    public RenderableReceipt(Receipt receipt, RenderingLayout layout) {
+    public RenderableReceipt(ConsentReceipt receipt, RenderingLayout layout) {
         super(receipt);
         this.layout = layout;
     }

@@ -31,7 +31,6 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) throws IOException {
 
         String token = requestContext.getUriInfo().getQueryParameters().getFirst("t");
-
         if (token != null) {
             LOGGER.log(Level.INFO, "Found token parameter in request: " + token);
             if (!authenticationService.isIdentified()) {

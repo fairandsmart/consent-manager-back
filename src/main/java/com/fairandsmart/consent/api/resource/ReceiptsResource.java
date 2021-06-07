@@ -22,27 +22,25 @@ import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.ReceiptMediaType;
 import com.fairandsmart.consent.manager.ConsentService;
-import com.fairandsmart.consent.manager.ConsentTransaction;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenService;
 import com.fairandsmart.consent.token.TokenServiceException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.logging.Level;
@@ -56,22 +54,6 @@ public class ReceiptsResource {
 
     @Inject
     ConsentService consentService;
-
-    @Inject
-    TokenService tokenService;
-
-    @POST
-    @Path("token")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "thin token has been generated", content = @Content(example = "a token")),
-    })
-    @Operation(summary = "Generate a thin token from a given transaction")
-    public String generateReceiptToken(@NotNull @Valid ConsentTransaction transaction) {
-        LOGGER.log(Level.INFO, "POST /receipts/token");
-        return tokenService.generateToken(transaction);
-    }
 
     @GET
     @Path("{tid}")
@@ -87,7 +69,7 @@ public class ReceiptsResource {
             @Parameter(name = "theme", description = "The required theme ID") @QueryParam("theme") String theme) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /receipts/{0}", transaction);
         String mimeType = format != null ? format : MediaType.TEXT_HTML;
-        byte[] receipt = consentService.renderReceipt(token, transaction, mimeType, theme);
+        byte[] receipt = consentService.renderReceipt(transaction, mimeType, theme);
         return Response.ok(receipt, mimeType).build();
     }
 
