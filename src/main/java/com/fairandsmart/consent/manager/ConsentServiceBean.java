@@ -814,22 +814,22 @@ public class ConsentServiceBean implements ConsentService {
     /* RECEIPTS */
 
     @Override
-    public ConsentReceipt getReceipt(String id) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
+    public ConsentReceipt getReceipt(String id) throws ConsentManagerException, ReceiptNotFoundException {
         LOGGER.log(Level.FINE, "Getting receipt for id: " + id);
         try {
             ConsentReceipt receipt = store.get(id);
-            if (!authentication.getConnectedIdentifier().equals(receipt.getSubject()) && !authentication.isConnectedIdentifierOperator()) {
-               throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
+            if (authentication.getConnectedIdentifier().equals(receipt.getTransaction()) || authentication.getConnectedIdentifier().equals(receipt.getSubject()) || authentication.isConnectedIdentifierOperator()) {
+                this.notification.publish(EventType.RECEIPT_READ, ConsentReceipt.class.getName(), id, authentication.getConnectedIdentifier());
+                return receipt;
             }
-            this.notification.publish(EventType.RECEIPT_READ, ConsentReceipt.class.getName(), id, authentication.getConnectedIdentifier());
-            return receipt;
+            throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
         } catch (ReceiptStoreException e) {
             throw new ConsentManagerException("Unable to read receipt from store", e);
         }
     }
 
     @Override
-    public byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException {
+    public byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.FINE, "Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
         ConsentReceipt receipt = getReceipt(id);
         byte[] result =  this.internalRenderReceipt(receipt, format, themeKey);
@@ -844,6 +844,17 @@ public class ConsentServiceBean implements ConsentService {
         byte[] result =  this.internalRenderReceipt(receipt, format, themeKey);
         this.notification.publish(EventType.RECEIPT_READ, ConsentReceipt.class.getName(), id, authentication.getConnectedIdentifier(), EventArgs.build("format", format).addArg("theme", themeKey));
         return result;
+    }
+
+    @Override
+    public String buildReceiptToken(ReceiptContext ctx) throws AccessDeniedException, ReceiptStoreException, ReceiptNotFoundException {
+        LOGGER.log(Level.FINE, "Building receipt token for transaction id: " + ctx.getTransaction());
+        authentication.ensureIsIdentified();
+        ConsentReceipt receipt = store.get(ctx.getTransaction());
+        if (authentication.getConnectedIdentifier().equals(receipt.getTransaction()) || authentication.getConnectedIdentifier().equals(receipt.getSubject()) || authentication.isConnectedIdentifierOperator()) {
+            return tokenService.generateToken(ctx);
+        }
+        throw new AccessDeniedException("You must be operator to build token for receipts of other subjects");
     }
 
     /* INTERNAL */

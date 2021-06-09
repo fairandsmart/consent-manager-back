@@ -59,10 +59,10 @@ public class CollectWithEmailAndNoReceiptTest {
     private static final String TEST_PASSWORD = "password";
 
     private static final String language = "fr";
-    private static final String biKey = "cwet_bi1";
-    private static final String t1Key = "cwet_t1";
-    private static final String t2Key = "cwet_t2";
-    private static final String eKey = "cwet_e1";
+    private static final String biKey = "cwenrt_bi1";
+    private static final String t1Key = "cwenrt_t1";
+    private static final String t2Key = "cwenrt_t2";
+    private static final String eKey = "cwenrt_e1";
     private static final String recipient = "mmichu@localhost";
 
     @Inject
@@ -144,7 +144,7 @@ public class CollectWithEmailAndNoReceiptTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/consents/token").asString();
+                .when().post("/tokens/consent").asString();
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token :" + token);
 

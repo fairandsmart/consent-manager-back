@@ -50,9 +50,6 @@ public class SystemResource {
     private static final Logger LOGGER = Logger.getLogger(SystemResource.class.getName());
 
     @Inject
-    AuthenticationService authenticationService;
-
-    @Inject
     SupportService supportService;
 
     @Inject
@@ -66,20 +63,6 @@ public class SystemResource {
 
     @Inject
     SecurityConfig securityConfig;
-
-    @GET
-    @Path("/users/me")
-    @Produces(MediaType.APPLICATION_JSON)
-    @APIResponse(responseCode = "200", description = "Information for the connected user")
-    @Operation(summary = "Get the connected user information")
-    public UserDto me() {
-        LOGGER.log(Level.INFO, "GET /system/users/me");
-        UserDto user = new UserDto();
-        user.setUsername(authenticationService.getConnectedIdentifier());
-        user.setAdmin(authenticationService.isConnectedIdentifierAdmin());
-        user.setOperator(authenticationService.isConnectedIdentifierOperator());
-        return user;
-    }
 
     @GET
     @Path("/support/infos")

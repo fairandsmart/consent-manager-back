@@ -125,9 +125,11 @@ public interface ConsentService {
 
     /* Receipts */
 
-    ConsentReceipt getReceipt(String id) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException;
+    ConsentReceipt getReceipt(String id) throws ReceiptNotFoundException, ConsentManagerException;
 
-    byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException;
+    String buildReceiptToken(ReceiptContext ctx) throws AccessDeniedException, ReceiptStoreException, ReceiptNotFoundException;
+
+    byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException;
 
     byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, IOException, JAXBException, RenderingException, ModelDataSerializationException, EntityNotFoundException;
 }

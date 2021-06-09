@@ -21,7 +21,6 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.exception.ConsentServiceException;
 import com.fairandsmart.consent.manager.exception.GenerateFormException;
-import com.fairandsmart.consent.manager.exception.InvalidValuesException;
 import com.fairandsmart.consent.manager.exception.SubmitConsentException;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
@@ -33,7 +32,6 @@ import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
@@ -82,7 +80,7 @@ public class ConsentsResource {
     public Response generateFormToken(@Valid ConsentContext ctx, @Context UriInfo uriInfo) {
         LOGGER.log(Level.INFO, "POST /consents/token");
         URI uri = uriInfo.getBaseUriBuilder().path(TokensResource.class).path("consent").build();
-        return Response.seeOther(uri).entity(ctx).build();
+        return Response.temporaryRedirect(uri).entity(ctx).build();
     }
 
     @GET
@@ -147,7 +145,7 @@ public class ConsentsResource {
 
     private ConsentFormResult internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws TokenServiceException, TokenExpiredException, InvalidTokenException, ConsentServiceException, SubmitConsentException {
         ConsentReceipt receipt = consentService.submitConsent(values.get("token").get(0), values);
-        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(receipt.getTransaction()).queryParam("t", tokenService.generateToken(new SubjectContext().setSubject(receipt.getSubject())));
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(receipt.getTransaction()).queryParam("t", tokenService.generateToken(new ReceiptContext().setSubject(receipt.getSubject())));
         ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
         ConsentFormResult consentFormResult = new ConsentFormResult();
         consentFormResult.setContext(ctx);

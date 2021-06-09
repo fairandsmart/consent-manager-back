@@ -3,10 +3,12 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentService;
+import com.fairandsmart.consent.manager.ReceiptContext;
 import com.fairandsmart.consent.manager.SubjectContext;
+import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
+import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
@@ -59,6 +61,21 @@ public class TokensResource {
     public String createSubjectToken(@Valid SubjectContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /tokens/subject");
         return consentService.buildSubjectToken(ctx);
+    }
+
+    @POST
+    @Path("receipt")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "The generated token"),
+            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
+    })
+    @SecurityRequirement(name = "access token", scopes = {"profile"})
+    @Operation(summary = "Create receipt token for accessing a specific receipt")
+    public String createSubjectToken(@Valid ReceiptContext ctx) throws AccessDeniedException, ReceiptStoreException, ReceiptNotFoundException {
+        LOGGER.log(Level.INFO, "POST /tokens/receipt");
+        return consentService.buildReceiptToken(ctx);
     }
 
 }
