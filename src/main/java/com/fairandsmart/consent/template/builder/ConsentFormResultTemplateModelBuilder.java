@@ -48,7 +48,7 @@ public class ConsentFormResultTemplateModelBuilder implements TemplateModelBuild
         model.setData(consentSubmissionData);
         model.setTemplate("consent-form-result.ftl");
 
-        LOGGER.log(Level.FINE, model.toString());
+        LOGGER.log(Level.FINEST, model.toString());
         return model;
     }
 

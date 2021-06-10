@@ -49,7 +49,7 @@ public class ConsentFormTemplateModelBuilder implements TemplateModelBuilder {
         String orientation = form.getOrientation().equals(FormLayout.Orientation.HORIZONTAL) ? "horizontal" : "vertical";
         model.setTemplate("form-" + orientation + ".ftl");
 
-        LOGGER.log(Level.FINE, model.toString());
+        LOGGER.log(Level.FINEST, model.toString());
         return model;
     }
 }

@@ -44,7 +44,7 @@ public class ConsentFormErrorTemplateModelBuilder implements TemplateModelBuilde
         template.setBundle(bundle);
         template.setData((ConsentFormError) data);
         template.setTemplate("consent-form-error.ftl");
-        LOGGER.log(Level.FINE, template.toString());
+        LOGGER.log(Level.FINEST, template.toString());
         return template;
     }
 }

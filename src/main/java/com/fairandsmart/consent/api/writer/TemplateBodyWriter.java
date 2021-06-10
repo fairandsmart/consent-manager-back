@@ -57,7 +57,7 @@ public class TemplateBodyWriter implements MessageBodyWriter<TemplateModel> {
     @Override
     public void writeTo(TemplateModel model, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws WebApplicationException {
         try {
-            LOGGER.log(Level.FINE, "Applying template to model: " + model);
+            LOGGER.log(Level.FINEST, "Applying template to model: " + model);
             template.render(model, entityStream);
         } catch ( TemplateServiceException e ) {
             throw new WebApplicationException(e);

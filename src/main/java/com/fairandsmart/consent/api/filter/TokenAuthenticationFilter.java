@@ -32,9 +32,9 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
 
         String token = requestContext.getUriInfo().getQueryParameters().getFirst("t");
         if (token != null) {
-            LOGGER.log(Level.INFO, "Found token parameter in request: " + token);
+            LOGGER.log(Level.FINE, "Found token parameter in request: " + token);
             if (!authenticationService.isIdentified()) {
-                LOGGER.log(Level.INFO, "User is not authentified, trying to extract authentication information from token");
+                LOGGER.log(Level.FINE, "User is not authentified, trying to extract authentication information from token");
                 try {
                     Tokenizable tokenizeable = tokenService.readToken(token);
                     requestContext.setSecurityContext(new SecurityContext() {
@@ -63,12 +63,10 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
                             return SecurityContext.BASIC_AUTH;
                         }
                     });
-
+                    LOGGER.log(Level.FINE, "User is now connected with token subject: " + tokenizeable.getSubject());
                 } catch (TokenExpiredException | TokenServiceException | InvalidTokenException e) {
                     LOGGER.log(Level.INFO, "Unable to retrieve token: " + e.getMessage() + ", avoiding token authentication");
-                    requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
                 }
-
             } else {
                 LOGGER.log(Level.INFO, "User is already authentified as: " + authenticationService.getConnectedIdentifier());
             }
