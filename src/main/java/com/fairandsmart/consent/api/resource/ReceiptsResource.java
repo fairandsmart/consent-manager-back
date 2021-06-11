@@ -56,17 +56,17 @@ public class ReceiptsResource {
     ConsentService consentService;
 
     @GET
-    @Path("{tid}")
+    @Path("{rid}")
     @APIResponses(value = {
             @APIResponse(responseCode = "404", description = "Unable to find the receipt due to un-existing transaction, format renderer or theme"),
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE),
             @APIResponse(responseCode = "200", description = "receipt has been generated")})
     @Operation(summary = "Get a receipt from a thin token")
     public Response getReceipt(
-            @Parameter(name = "tid", description = "The receipt's transaction id", example = Placeholders.NIL_UUID) @PathParam("tid") String transaction,
+            @Parameter(name = "rid", description = "The receipt's transaction id", example = Placeholders.NIL_UUID) @PathParam("rid") String transaction,
             @Parameter(name = "t", description = "The receipt access token", required = true) @QueryParam("t") @NotEmpty String token,
             @Parameter(name = "format", description = "The desired receipt format", example = MediaType.TEXT_PLAIN, required = true) @QueryParam("format") @NotEmpty @ReceiptMediaType String format,
-            @Parameter(name = "theme", description = "The required theme ID") @QueryParam("theme") String theme) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
+            @Parameter(name = "theme", description = "The required theme ID") @QueryParam("theme") String theme) throws ConsentManagerException, ReceiptNotFoundException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /receipts/{0}", transaction);
         String mimeType = format != null ? format : MediaType.TEXT_HTML;
         byte[] receipt = consentService.renderReceipt(transaction, mimeType, theme);
