@@ -19,10 +19,13 @@
     <div class="conditions">${elementContent.body}</div>
 
     <div class="conditions-response">
-        <#if !data.preview>
-            <#assign isChecked=!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted">
+        <#if data.previousValues[element.serial]?has_content>
+            <div class="processing-response ${data.previousValues[element.serial]?html}">
+                <@readBundle data.previousValues[element.serial]?html></@readBundle>
+            </div>
+        <#else>
+            <@toggleSwitch "${identifier}" isChecked></@toggleSwitch>
         </#if>
-        <@toggleSwitch "${identifier}" isChecked></@toggleSwitch>
     </div>
 <#else>
     <h1><@writeError "missingValue"></@writeError></h1>
