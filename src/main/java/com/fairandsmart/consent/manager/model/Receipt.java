@@ -7,10 +7,10 @@ package com.fairandsmart.consent.manager.model;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -18,6 +18,7 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.common.util.ZonedDateTimeAdapter;
 import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.entity.Record;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -49,7 +50,12 @@ public class Receipt {
     private Controller dataController;
     private String headerNotice;
     @XmlElementWrapper(name="consents")
-    @XmlElement(name="consent")
+    @XmlElements({
+            @XmlElement(name="consent", type=ProcessingConsent.class),
+            @XmlElement(name="processingConsent", type=ProcessingConsent.class),
+            @XmlElement(name="preferenceConsent", type=PreferenceConsent.class),
+            @XmlElement(name="conditionsConsent", type=ConditionsConsent.class)
+    })
     private List<Consent> consents;
     private String footerNotice;
     @XmlElementWrapper(name="attributes")
@@ -255,7 +261,7 @@ public class Receipt {
         this.notificationRecipient = notificationRecipient;
     }
 
-    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, List<Pair<Processing, Record>> records) throws DatatypeConfigurationException {
+    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, List<Pair<ModelData, Record>> records) throws DatatypeConfigurationException {
         Receipt receipt = new Receipt();
         receipt.setTransaction(transaction);
         receipt.setLanguage(ctx.getLanguage());
@@ -274,22 +280,43 @@ public class Receipt {
         }
         receipt.setCollectionMethod(ctx.getOrigin().toString());
 
-        for (Pair<Processing, Record> pair : records) {
-            Consent trecord = new Consent();
-            trecord.setSerial(pair.getRight().serial);
-            trecord.setData(pair.getLeft().getData());
-            trecord.setRetention(pair.getLeft().getRetention());
-            trecord.setUsage(pair.getLeft().getUsage());
-            trecord.setTitle(pair.getLeft().getTitle());
-            trecord.setPurposes(pair.getLeft().getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
-            trecord.setController(pair.getLeft().getDataController());
-            trecord.setContainsSensitiveData(pair.getLeft().isContainsSensitiveData());
-            trecord.setContainsMedicalData(pair.getLeft().isContainsMedicalData());
-            trecord.setValue(pair.getRight().value);
-            if (pair.getLeft().getThirdParties() != null && pair.getLeft().getThirdParties().size() > 0) {
-                trecord.setThirdParties(pair.getLeft().getThirdParties());
+        for (Pair<ModelData, Record> pair : records) {
+            if (Processing.TYPE.equals(pair.getLeft().getType())) {
+                Processing entry = (Processing) pair.getLeft();
+                ProcessingConsent consent = new ProcessingConsent();
+                consent.setSerial(pair.getRight().serial);
+                consent.setValue(pair.getRight().value);
+                consent.setData(entry.getData());
+                consent.setRetention(entry.getRetention());
+                consent.setUsage(entry.getUsage());
+                consent.setTitle(entry.getTitle());
+                consent.setPurposes(entry.getPurposes().stream().map(Enum::name).collect(Collectors.toList()));
+                consent.setController(entry.getDataController());
+                consent.setContainsSensitiveData(entry.isContainsSensitiveData());
+                consent.setContainsMedicalData(entry.isContainsMedicalData());
+                if (entry.getThirdParties() != null && entry.getThirdParties().size() > 0) {
+                    consent.setThirdParties(entry.getThirdParties());
+                }
+                receipt.getConsents().add(consent);
             }
-            receipt.getConsents().add(trecord);
+            if (Preference.TYPE.equals(pair.getRight().type)) {
+                Preference entry = (Preference) pair.getLeft();
+                PreferenceConsent consent = new PreferenceConsent();
+                consent.setSerial(pair.getRight().serial);
+                consent.setValue(pair.getRight().value);
+                consent.setLabel(entry.getLabel());
+                consent.setDescription(entry.getDescription());
+                receipt.getConsents().add(consent);
+            }
+            if (Conditions.TYPE.equals(pair.getRight().type)) {
+                Conditions entry = (Conditions) pair.getLeft();
+                ConditionsConsent consent = new ConditionsConsent();
+                consent.setSerial(pair.getRight().serial);
+                consent.setValue(pair.getRight().value);
+                consent.setTitle(entry.getTitle());
+                consent.setBody(entry.getBody());
+                receipt.getConsents().add(consent);
+            }
         }
 
         if (ctx.getNotificationRecipient() != null && !ctx.getNotificationRecipient().isEmpty()) {

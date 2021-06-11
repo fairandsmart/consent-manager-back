@@ -611,15 +611,14 @@ public class ConsentServiceBean implements ConsentService {
                 }
                 String comment = values.containsKey("comment") ? valuesMap.get("comment") : "";
 
-                List<Pair<Processing, Record>> trecords = new ArrayList<>();
+                List<Pair<ModelData, Record>> trecords = new ArrayList<>();
                 List<Record> records = ctx.getLayoutData().getElements().stream().map(ConsentElementIdentifier::deserialize).filter(Optional::isPresent).map(
                         opt -> Record.build(ctx, ctx.getTransaction(), authentication.getConnectedIdentifier(), now, infoId, opt.get(), valuesMap.get(opt.get().serialize()), comment)
                 ).collect(Collectors.toList());
                 for (Record record : records) {
                     ModelVersion version = ModelVersion.SystemHelper.findModelVersionForSerial(record.bodySerial, false);
-                    if (Processing.TYPE.equals(version.entry.type)) {
-                        Processing processing = (Processing) version.getData(ctx.getLanguage());
-                        trecords.add(new ImmutablePair<>(processing, record));
+                    if (Processing.TYPE.equals(version.entry.type) || Preference.TYPE.equals(version.entry.type) || Conditions.TYPE.equals(version.entry.type)) {
+                        trecords.add(new ImmutablePair<>(version.getData(ctx.getLanguage()), record));
                     }
                 }
                 Receipt receipt = Receipt.build(ctx.getTransaction(), config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
