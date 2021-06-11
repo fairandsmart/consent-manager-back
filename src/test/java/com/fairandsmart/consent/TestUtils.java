@@ -148,9 +148,7 @@ public class TestUtils {
     public static Conditions generateConditions(String key) {
         return new Conditions()
                 .withTitle("Title " + key)
-                .withBody("Body " + key)
-                .withAcceptLabel("Accept " + key)
-                .withRejectLabel("Reject" + key);
+                .withBody("Body " + key);
     }
 
     public static Email generateEmail(String key) {
