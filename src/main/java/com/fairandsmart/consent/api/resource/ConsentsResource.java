@@ -124,9 +124,9 @@ public class ConsentsResource {
         LOGGER.log(Level.INFO, "POST /consents/values (html)");
         try {
             if (!values.containsKey("token")) {
-                throw new AccessDeniedException("unable to find token in form");
+                throw new AccessDeniedException("unable to find token in values");
             }
-            ConsentFormResult result = this.internalPostConsent(values, uriInfo);
+            ConsentAcknowledgment result = this.internalPostConsent(values, uriInfo);
             return templateService.buildModel(result);
         } catch (AccessDeniedException | TokenExpiredException | InvalidTokenException | ConsentServiceException | TokenServiceException | SubmitConsentException e) {
             ConsentFormError error = new ConsentFormError(e);
@@ -139,7 +139,7 @@ public class ConsentsResource {
     @Path("values")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentFormResult postConsentValuesJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, ConsentServiceException, TokenServiceException, SubmitConsentException {
+    public ConsentAcknowledgment postConsentValuesJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, ConsentServiceException, TokenServiceException, SubmitConsentException {
         LOGGER.log(Level.INFO, "POST /consents/values (json)");
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
@@ -158,23 +158,33 @@ public class ConsentsResource {
     })
     public TemplateModel postConsentConfirmation(MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws TemplateServiceException {
         LOGGER.log(Level.INFO, "POST /consents/confirmation (html)");
+        try {
+            if (!values.containsKey("token")) {
+                throw new AccessDeniedException("unable to find token in values");
+            }
+            throw new ConsentServiceException("NOT IMPLEMENTED");
+        } catch (AccessDeniedException | ConsentServiceException e) {
+            ConsentFormError error = new ConsentFormError(e);
+            error.setLanguage(getLanguage(acceptLanguage));
+            return templateService.buildModel(error);
+        }
     }
 
     @POST
     @Path("values")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentAcknowledgment postConsentConfirmationJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, ConsentServiceException, TokenServiceException, SubmitConsentException {
+    public ConsentAcknowledgment postConsentConfirmationJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws ConsentServiceException {
         LOGGER.log(Level.INFO, "POST /consents/confirmation (json)");
-
+        throw new ConsentServiceException("NOT IMPLEMENTED");
     }
 
 
-    private ConsentFormResult internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws TokenServiceException, TokenExpiredException, InvalidTokenException, ConsentServiceException, SubmitConsentException {
-        ConsentReceipt receipt = consentService.submitConsent(values.get("token").get(0), values);
-        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(receipt.getTransaction()).queryParam("t", tokenService.generateToken(new ReceiptContext().setSubject(receipt.getSubject())));
+    private ConsentAcknowledgment internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws TokenServiceException, TokenExpiredException, InvalidTokenException, ConsentServiceException, SubmitConsentException {
+        ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction()).queryParam("t", tokenService.generateToken(new ReceiptContext().setSubject(receipt.getSubject())));
         ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
-        ConsentFormResult consentFormResult = new ConsentFormResult();
+        ConsentAcknowledgment consentFormResult = new ConsentAcknowledgment();
         consentFormResult.setContext(ctx);
         if (StringUtils.isNotEmpty(ctx.getLayoutData().getDesiredReceiptMimeType())) {
             uri.queryParam("format", ctx.getLayoutData().getDesiredReceiptMimeType());

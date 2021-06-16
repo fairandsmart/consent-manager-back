@@ -18,12 +18,12 @@ package com.fairandsmart.consent.manager;
 
 import java.net.URI;
 
-public class ConsentFormResult {
+public class ConsentAcknowledgment {
 
     private ConsentContext context;
     private URI receiptURI;
 
-    public ConsentFormResult() {
+    public ConsentAcknowledgment() {
     }
 
     public void setContext(ConsentContext context) {
