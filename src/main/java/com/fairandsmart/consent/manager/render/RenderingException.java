@@ -16,7 +16,10 @@ package com.fairandsmart.consent.manager.render;
  * #L%
  */
 
-public class RenderingException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.GenericException;
+
+public class RenderingException extends GenericException {
 
     public RenderingException(String message) {
         super(message);
@@ -24,5 +27,10 @@ public class RenderingException extends Exception {
 
     public RenderingException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.RENDERER_ERROR;
     }
 }

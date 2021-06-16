@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.common.exception;
+package com.fairandsmart.consent.support;
 
 /*-
  * #%L
@@ -16,21 +16,21 @@ package com.fairandsmart.consent.common.exception;
  * #L%
  */
 
-public class ConsentManagerException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.GenericException;
 
-    public ConsentManagerException() {
-    }
+public class SupportUnreachableException extends GenericException {
 
-    public ConsentManagerException(String message) {
+    public SupportUnreachableException(String message) {
         super(message);
     }
 
-    public ConsentManagerException(String message, Throwable cause) {
+    public SupportUnreachableException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ConsentManagerException(Throwable cause) {
-        super(cause);
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.SUPPORT_SERVICE_ERROR;
     }
-
 }

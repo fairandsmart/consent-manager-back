@@ -16,10 +16,18 @@ package com.fairandsmart.consent.manager.store;
  * #L%
  */
 
-public class ReceiptAlreadyExistsException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.GenericException;
+
+public class ReceiptAlreadyExistsException extends GenericException {
 
     public ReceiptAlreadyExistsException(String s) {
         super(s);
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.ENTITY_ALREADY_EXISTS;
     }
 
 }

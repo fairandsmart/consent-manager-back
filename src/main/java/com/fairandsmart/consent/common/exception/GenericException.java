@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.manager.exception;
+package com.fairandsmart.consent.common.exception;
 
 /*-
  * #%L
@@ -16,14 +16,24 @@ package com.fairandsmart.consent.manager.exception;
  * #L%
  */
 
-public class ConsentServiceException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
 
-    public ConsentServiceException(String s) {
-        super(s);
+public abstract class GenericException extends Exception {
+
+    public GenericException() {
     }
 
-    public ConsentServiceException(String s, Throwable throwable) {
-        super(s, throwable);
+    public GenericException(String message) {
+        super(message);
     }
 
+    public GenericException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public GenericException(Throwable cause) {
+        super(cause);
+    }
+
+    abstract public ApiError.Type getType();
 }
