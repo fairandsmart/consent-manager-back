@@ -19,6 +19,7 @@ package com.fairandsmart.consent.notification.worker;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.MainConfig;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentElementIdentifier;
 import com.fairandsmart.consent.manager.ConsentNotification;
@@ -30,7 +31,6 @@ import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
-import com.fairandsmart.consent.template.TemplateServiceException;
 import com.fairandsmart.consent.token.TokenService;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
@@ -136,7 +136,7 @@ public class NotifyConsentWorker implements Runnable {
             LOGGER.log(Level.SEVERE, "unable to read email model data", e);
             report.status = NotificationReport.Status.ERROR;
             report.explanation = e.getMessage();
-        } catch (TemplateServiceException e) {
+        } catch (UnexpectedException e) {
             LOGGER.log(Level.SEVERE, "error while calculating template for email", e);
             report.status = NotificationReport.Status.ERROR;
             report.explanation = e.getMessage();

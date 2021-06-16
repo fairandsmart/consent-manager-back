@@ -17,6 +17,7 @@ package com.fairandsmart.consent.serial;
  */
 
 import com.fairandsmart.consent.common.config.SerialConfig;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.common.util.Lock;
 import com.fairandsmart.consent.common.util.LockType;
@@ -47,7 +48,7 @@ public class SerialGeneratorBean implements SerialGenerator {
     @Override
     @Lock(LockType.WRITE)
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public String next(String name) throws SerialGeneratorException {
+    public String next(String name) throws UnexpectedException {
         LOGGER.log(Level.FINE,"Generating next serial for name: " + name);
         long value = generate(name);
         return config.prefix() + valueToSerial(value);
@@ -113,7 +114,7 @@ public class SerialGeneratorBean implements SerialGenerator {
         return checksum;
     }
 
-    private long generate(String name) throws SerialGeneratorException {
+    private long generate(String name) throws UnexpectedException {
         try {
             Sequence pool = pools.get(name);
             if (pool == null) {
@@ -141,7 +142,7 @@ public class SerialGeneratorBean implements SerialGenerator {
             pool.next++;
             return pool.next;
         } catch ( RuntimeException e ) {
-            throw new SerialGeneratorException("Unable to generate new serial", e);
+            throw new UnexpectedException("Unable to generate new serial", e);
         }
     }
 

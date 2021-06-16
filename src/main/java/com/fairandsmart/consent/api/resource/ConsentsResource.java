@@ -18,18 +18,15 @@ package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.*;
-import com.fairandsmart.consent.manager.exception.ConsentServiceException;
 import com.fairandsmart.consent.manager.exception.GenerateFormException;
-import com.fairandsmart.consent.manager.exception.InvalidValuesException;
 import com.fairandsmart.consent.manager.exception.SubmitConsentException;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
-import com.fairandsmart.consent.template.TemplateServiceException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
-import com.fairandsmart.consent.token.TokenServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -88,12 +85,12 @@ public class ConsentsResource {
             @APIResponse(responseCode = "401", description = "thin token is either invalid or missing")
     })
     @Operation(summary = "Generate a form from a given thin token")
-    public TemplateModel getFormHtml(@QueryParam("t") @NotNull String token, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws TemplateServiceException {
+    public TemplateModel getFormHtml(@QueryParam("t") @NotNull String token, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "GET /consents (html)");
         try {
             ConsentForm form = consentService.generateForm(token);
             return templateService.buildModel(form);
-        } catch (GenerateFormException | TokenExpiredException | InvalidTokenException | ConsentServiceException e) {
+        } catch (GenerateFormException | TokenExpiredException | InvalidTokenException | UnexpectedException e) {
             ConsentFormError error = new ConsentFormError(e);
             error.setLanguage(getLanguage(acceptLanguage));
             return templateService.buildModel(error);
@@ -102,7 +99,7 @@ public class ConsentsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentForm getFormJson(@QueryParam("t") @NotNull String token) throws TokenExpiredException, ConsentServiceException, InvalidTokenException, GenerateFormException {
+    public ConsentForm getFormJson(@QueryParam("t") @NotNull String token) throws TokenExpiredException, UnexpectedException, InvalidTokenException, GenerateFormException {
         LOGGER.log(Level.INFO, "GET /consents (json)");
         return consentService.generateForm(token);
     }
@@ -115,7 +112,7 @@ public class ConsentsResource {
             @APIResponse(responseCode = "200", description = "form result has been recorded", content = @Content(example = "consent receipt HTML code")),
             @APIResponse(responseCode = "401", description = "thin token is either invalid or missing")
     })
-    public TemplateModel postConsent(MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws TemplateServiceException {
+    public TemplateModel postConsent(MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "POST /consents");
         try {
             if (!values.containsKey("token")) {
@@ -123,7 +120,7 @@ public class ConsentsResource {
             }
             ConsentFormResult result = this.internalPostConsent(values, uriInfo);
             return templateService.buildModel(result);
-        } catch (AccessDeniedException | TokenExpiredException | InvalidTokenException | ConsentServiceException | TokenServiceException | SubmitConsentException e) {
+        } catch (AccessDeniedException | TokenExpiredException | InvalidTokenException | UnexpectedException | SubmitConsentException e) {
             ConsentFormError error = new ConsentFormError(e);
             error.setLanguage(getLanguage(acceptLanguage));
             return templateService.buildModel(error);
@@ -133,7 +130,7 @@ public class ConsentsResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentFormResult postConsentJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, InvalidValuesException, ConsentServiceException, TokenServiceException, SubmitConsentException {
+    public ConsentFormResult postConsentJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, UnexpectedException, SubmitConsentException {
         LOGGER.log(Level.INFO, "POST /consents (json)");
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
@@ -141,7 +138,7 @@ public class ConsentsResource {
         return this.internalPostConsent(values, uriInfo);
     }
 
-    private ConsentFormResult internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws TokenServiceException, TokenExpiredException, InvalidTokenException, ConsentServiceException, SubmitConsentException {
+    private ConsentFormResult internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws UnexpectedException, TokenExpiredException, InvalidTokenException, SubmitConsentException {
         ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction()).queryParam("t", tokenService.generateToken(tx));
         ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));

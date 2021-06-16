@@ -26,10 +26,8 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.transaction.UserTransaction;
-import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -73,15 +71,15 @@ public class SupportServiceBean implements SupportService {
     }
 
     @Override
-    public String getLatestVersion() throws SupportServiceException {
+    public String getLatestVersion() throws SupportUnreachableException {
         if (config.isEnabled()) {
             return latestVersion;
         }
-        throw new SupportServiceException("Support has been disabled in configuration, re-enable if you want to contact support API");
+        throw new SupportUnreachableException("Support has been disabled in configuration, re-enable if you want to contact support API");
     }
 
     @Override
-    public String getCurrentVersion() throws SupportServiceException {
+    public String getCurrentVersion() throws SupportUnreachableException {
         if (config.isEnabled()) {
             try {
                 InputStream resourceAsStream = this.getClass().getResourceAsStream("/META-INF/maven/com.fairandsmart/consent-manager-back/pom.properties");
@@ -89,10 +87,10 @@ public class SupportServiceBean implements SupportService {
                 prop.load(resourceAsStream);
                 return prop.getProperty("version");
             } catch (IOException e) {
-                throw new SupportServiceException("unable to get version from package", e);
+                throw new SupportUnreachableException("unable to get version from package", e);
             }
         }
-        throw new SupportServiceException("Support has been disabled in configuration, re-enable if you want to contact support API");
+        throw new SupportUnreachableException("Support has been disabled in configuration, re-enable if you want to contact support API");
     }
 
     @Override
@@ -101,7 +99,7 @@ public class SupportServiceBean implements SupportService {
         if (config.isEnabled()) {
             try {
                 this.latestVersion = this.remoteCheckLatestVersion();
-            } catch (SupportServiceException e) {
+            } catch (SupportUnreachableException e) {
                 LOGGER.log(Level.WARNING, "Error while checking latest version available", e);
                 this.supportStatus = e.getMessage();
             }
@@ -109,7 +107,7 @@ public class SupportServiceBean implements SupportService {
     }
 
     @Override
-    public void init() throws SupportServiceException {
+    public void init() throws SupportUnreachableException {
         LOGGER.log(Level.INFO, "Initialising support service");
         Optional<Instance> dbInstance = Instance.findByIdOptional(mainConfig.instance());
         if (dbInstance.isEmpty()) {
@@ -127,7 +125,7 @@ public class SupportServiceBean implements SupportService {
                 } catch (Exception e2) {
                     //
                 }
-                throw new SupportServiceException("Unable to create instance entity", e);
+                throw new SupportUnreachableException("Unable to create instance entity", e);
             }
             this.instance = instance;
         } else {
@@ -135,17 +133,17 @@ public class SupportServiceBean implements SupportService {
         }
     }
 
-    private String remoteCheckLatestVersion() throws SupportServiceException {
+    private String remoteCheckLatestVersion() throws SupportUnreachableException {
         LOGGER.log(Level.INFO, "Checking remote instance");
         if ( instance == null ) {
-            throw new SupportServiceException("Unable to find instance, initialisation problem");
+            throw new SupportUnreachableException("Unable to find instance, initialisation problem");
         }
         try {
             String latestVersion = remoteSupportService.getLatestVersion(instance.key, instance.language);
             LOGGER.log(Level.INFO, "Latest version available: " + latestVersion);
             return latestVersion;
         } catch (Exception e) {
-            throw new SupportServiceException("Support Service API unreachable: " + e.getMessage());
+            throw new SupportUnreachableException("Support Service API unreachable: " + e.getMessage());
         }
     }
 

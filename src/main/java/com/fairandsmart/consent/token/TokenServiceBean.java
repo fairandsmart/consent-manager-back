@@ -24,6 +24,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fairandsmart.consent.common.config.MainConfig;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.token.entity.ThinToken;
 import io.quarkus.scheduler.Scheduled;
@@ -100,7 +101,7 @@ public class TokenServiceBean implements TokenService {
     }
 
     @Override
-    public Tokenizable readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException {
+    public Tokenizable readToken(String token) throws UnexpectedException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "Reading token");
         String fullToken = token;
         if (token.length() < 25) {
@@ -124,13 +125,13 @@ public class TokenServiceBean implements TokenService {
             tokenizable.setClaims(claims);
             return tokenizable;
         } catch (ClassNotFoundException e) {
-            throw new TokenServiceException("Unable to load class of tokenized object");
+            throw new UnexpectedException("Unable to load class of tokenized object");
         } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
-            throw new TokenServiceException("Unable to build tokenizable", e);
+            throw new UnexpectedException("Unable to build tokenizable", e);
         }
     }
 
-    private DecodedJWT getDecodedToken(String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException {
+    private DecodedJWT getDecodedToken(String token) throws UnexpectedException, InvalidTokenException, TokenExpiredException {
         LOGGER.log(Level.INFO, "Decoding token: " + token);
         if (verifier != null) {
             LOGGER.log(Level.FINE, "Verifier is not null");
@@ -145,7 +146,7 @@ public class TokenServiceBean implements TokenService {
                 throw new InvalidTokenException(ex);
             }
         }
-        throw new TokenServiceException("token verifier is null");
+        throw new UnexpectedException("token verifier is null");
     }
 
     @Scheduled(cron="0 0 1 * * ?")

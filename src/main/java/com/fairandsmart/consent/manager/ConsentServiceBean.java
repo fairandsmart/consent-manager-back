@@ -19,10 +19,7 @@ package com.fairandsmart.consent.manager;
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
 import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.ConsentManagerException;
-import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
-import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.*;
 import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.common.util.PageUtil;
 import com.fairandsmart.consent.common.util.SortUtil;
@@ -42,11 +39,9 @@ import com.fairandsmart.consent.notification.entity.EventType;
 import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.serial.SerialGenerator;
-import com.fairandsmart.consent.serial.SerialGeneratorException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
-import com.fairandsmart.consent.token.TokenServiceException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
@@ -140,11 +135,11 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, ConsentManagerException {
+    public ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, UnexpectedException, AccessDeniedException {
         LOGGER.log(Level.INFO, "Creating new entry");
         authentication.ensureConnectedIdentifierIsAdmin();
         if (key == null || key.isEmpty()) {
-            throw new ConsentManagerException("Cannot create a model entry with an empty key");
+            throw new UnexpectedException("Cannot create a model entry with an empty key");
         } else if (ModelEntry.isKeyAlreadyExists(key)) {
             throw new EntityAlreadyExistsException("A model entry already exists with key: " + key);
         }
@@ -198,7 +193,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public void deleteEntry(String id) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
+    public void deleteEntry(String id) throws UnexpectedException, EntityNotFoundException, InvalidStatusException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Deleting entry with id: {0}", id);
         authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelEntry> optional = ModelEntry.findByIdOptional(id);
@@ -229,14 +224,14 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws UnexpectedException, EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Creating new version for entry with id: " + entryId);
         authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelEntry> optional = ModelEntry.find("id = ?1", entryId).singleResultOptional();
         ModelEntry entry = optional.orElseThrow(() -> new EntityNotFoundException("unable to find an entry for id: " + entryId));
         if (data.values().stream().anyMatch(d -> !d.getType().equals(entry.type))) {
-            throw new ConsentManagerException("One content data type does not belongs to entry type: " + entry.type);
+            throw new UnexpectedException("One content data type does not belongs to entry type: " + entry.type);
         }
         Optional<ModelVersion> voptional = ModelVersion.find("entry.id = ?1 and child = ?2", entryId, "").singleResultOptional();
         ModelVersion latest = voptional.orElse(null);
@@ -253,7 +248,7 @@ public class ConsentServiceBean implements ConsentService {
                 latest.serial = generator.next(ModelVersion.class.getName());
                 latest.type = ModelVersion.Type.MINOR;
             } else if (latest.status.equals(ModelVersion.Status.DRAFT)) {
-                throw new ConsentManagerException("A draft version already exists, unable to create new one");
+                throw new UnexpectedException("A draft version already exists, unable to create new one");
             } else {
                 LOGGER.log(Level.FINE, "Latest version found, creating new one");
                 ModelVersion newversion = new ModelVersion();
@@ -275,8 +270,8 @@ public class ConsentServiceBean implements ConsentService {
             }
             this.notification.publish(EventType.MODEL_VERSION_CREATE, ModelEntry.class.getName(), entry.id, entry.author, EventArgs.build("serial", latest.serial));
             return this.updateVersionContent(latest, data, defaultLanguage, connectedIdentifier);
-        } catch (SerialGeneratorException | ModelDataSerializationException ex) {
-            throw new ConsentManagerException("unable to create new version", ex);
+        } catch (UnexpectedException | ModelDataSerializationException ex) {
+            throw new UnexpectedException("unable to create new version", ex);
         }
     }
 
@@ -321,7 +316,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public List<ModelVersion> getVersionHistoryForKey(String key) throws ConsentManagerException {
+    public List<ModelVersion> getVersionHistoryForKey(String key) throws UnexpectedException {
         LOGGER.log(Level.FINE, "Listing versions for entry with key: " + key);
         List<ModelVersion> versions = ModelVersion.find("entry.key = ?1", key).list();
         if (!versions.isEmpty()) {
@@ -331,7 +326,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException {
+    public List<ModelVersion> getVersionHistoryForEntry(String entryId) throws UnexpectedException {
         LOGGER.log(Level.FINE, "Listing versions for entry with id: " + entryId);
         List<ModelVersion> versions = ModelVersion.find("entry.id = ?1", entryId).list();
         if (!versions.isEmpty()) {
@@ -342,42 +337,42 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion updateVersion(String id, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion updateVersion(String id, String defaultLanguage, Map<String, ModelData> data) throws UnexpectedException, EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Updating content for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         String connectedIdentifier = authentication.getConnectedIdentifier();
         Optional<ModelVersion> voptional = ModelVersion.find("id = ?1", id).singleResultOptional();
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (data.values().stream().anyMatch(d -> !d.getType().equals(version.entry.type))) {
-            throw new ConsentManagerException("One content data type does not belongs to entry type: " + version.entry.type);
+            throw new UnexpectedException("One content data type does not belongs to entry type: " + version.entry.type);
         }
         if (!version.child.isEmpty()) {
-            throw new ConsentManagerException("Unable to update content for version that is not last one");
+            throw new UnexpectedException("Unable to update content for version that is not last one");
         }
         if (!version.status.equals(ModelVersion.Status.DRAFT)) {
-            throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
+            throw new UnexpectedException("Unable to update type for version that is not DRAFT");
         }
         try {
             ModelVersion uversion = this.updateVersionContent(version, data, defaultLanguage, connectedIdentifier);
             this.notification.publish(EventType.MODEL_VERSION_UPDATE, ModelEntry.class.getName(), uversion.entry.id, uversion.entry.author, EventArgs.build("serial", uversion.serial));
             return uversion;
         } catch (ModelDataSerializationException ex) {
-            throw new ConsentManagerException("Unable to serialise data", ex);
+            throw new UnexpectedException("Unable to serialise data", ex);
         }
     }
 
     @Override
     @Transactional
-    public ModelVersion updateVersionType(String id, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException {
+    public ModelVersion updateVersionType(String id, ModelVersion.Type type) throws UnexpectedException, EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Updating type for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelVersion> voptional = ModelVersion.findByIdOptional(id);
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
-            throw new ConsentManagerException("Unable to update type for version that is not last one");
+            throw new UnexpectedException("Unable to update type for version that is not last one");
         }
         if (!version.status.equals(ModelVersion.Status.DRAFT)) {
-            throw new ConsentManagerException("Unable to update type for version that is not DRAFT");
+            throw new UnexpectedException("Unable to update type for version that is not DRAFT");
         }
         long now = System.currentTimeMillis();
         version.type = type;
@@ -391,14 +386,14 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException {
+    public ModelVersion updateVersionStatus(String id, ModelVersion.Status status) throws UnexpectedException, EntityNotFoundException, InvalidStatusException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Updating status for version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         long now = System.currentTimeMillis();
         Optional<ModelVersion> voptional = ModelVersion.findByIdOptional(id);
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
-            throw new ConsentManagerException("Unable to update status of a version that is not the latest");
+            throw new UnexpectedException("Unable to update status of a version that is not the latest");
         }
         if (status.equals(ModelVersion.Status.DRAFT)) {
             throw new InvalidStatusException("Unable to update a version to DRAFT status");
@@ -465,16 +460,16 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public void deleteVersion(String id) throws ConsentManagerException, EntityNotFoundException {
+    public void deleteVersion(String id) throws UnexpectedException, EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Deleting version with id: " + id);
         authentication.ensureConnectedIdentifierIsAdmin();
         Optional<ModelVersion> voptional = ModelVersion.findByIdOptional(id);
         ModelVersion version = voptional.orElseThrow(() -> new EntityNotFoundException("unable to find a version with id: " + id));
         if (!version.child.isEmpty()) {
-            throw new ConsentManagerException("Unable to delete version that is not last one");
+            throw new UnexpectedException("Unable to delete version that is not last one");
         }
         if (!version.status.equals(ModelVersion.Status.DRAFT)) {
-            throw new ConsentManagerException("Unable to delete version that is not DRAFT");
+            throw new UnexpectedException("Unable to delete version that is not DRAFT");
         }
         version.entry.modificationDate = System.currentTimeMillis();
         version.entry.persist();
@@ -502,7 +497,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public ConsentForm generateForm(String token) throws GenerateFormException, TokenExpiredException, InvalidTokenException, ConsentServiceException {
+    public ConsentForm generateForm(String token) throws GenerateFormException, TokenExpiredException, InvalidTokenException, UnexpectedException {
         LOGGER.log(Level.FINE, "Generating consent form");
         try {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
@@ -553,14 +548,14 @@ public class ConsentServiceBean implements ConsentService {
             } catch (EntityNotFoundException e) {
                 throw new GenerateFormException(ctx, e.getMessage());
             }
-        } catch (ModelDataSerializationException | TokenServiceException e) {
-            throw new ConsentServiceException("Unable to generate consent form", e);
+        } catch (UnexpectedException | ModelDataSerializationException e) {
+            throw new UnexpectedException("Unable to generate consent form", e);
         }
     }
 
     @Override
     @Transactional
-    public ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException {
+    public ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, UnexpectedException, SubmitConsentException {
         LOGGER.log(Level.FINE, "Submitting consent");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
@@ -646,11 +641,11 @@ public class ConsentServiceBean implements ConsentService {
             } catch (InvalidValuesException | EntityNotFoundException e) {
                 //TODO Try to fix context with upgraded elements (separate EntityNotFoundException exception treatment)
                 // Maybe use a specific exception for different cases or add an error type inside that exception
-                // Or ccatch the InvalidValues Exception and set the context here.
+                // Or catch the InvalidValues Exception and set the context here.
                 throw new SubmitConsentException(ctx, null, e);
             }
-        } catch (TokenServiceException | DatatypeConfigurationException | ReceiptStoreException | ReceiptAlreadyExistsException | ModelDataSerializationException e) {
-            throw new ConsentServiceException("Unable to submit consent", e);
+        } catch (UnexpectedException | DatatypeConfigurationException | ModelDataSerializationException | ReceiptAlreadyExistsException e) {
+            throw new UnexpectedException("Unable to submit consent", e);
         }
     }
 
@@ -683,13 +678,13 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public Subject createSubject(String name, String email) throws ConsentManagerException, EntityAlreadyExistsException {
+    public Subject createSubject(String name, String email) throws UnexpectedException, EntityAlreadyExistsException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Creating subject with name: " + name);
         if (!authentication.isConnectedIdentifierOperator()) {
             throw new AccessDeniedException("You must be operator to create subjects");
         }
         if (StringUtils.isEmpty(name)) {
-            throw new ConsentManagerException("Subject name cannot be empty");
+            throw new UnexpectedException("Subject name cannot be empty");
         }
         Optional<Subject> optional = Subject.find("name = ?1", name).singleResultOptional();
         if (optional.isPresent()) {
@@ -802,7 +797,7 @@ public class ConsentServiceBean implements ConsentService {
     /* RECEIPTS */
 
     @Override
-    public Receipt getReceipt(String token, String id) throws ConsentManagerException, ReceiptNotFoundException, TokenServiceException, TokenExpiredException, InvalidTokenException {
+    public Receipt getReceipt(String token, String id) throws ReceiptNotFoundException, UnexpectedException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.FINE, "Getting receipt for id: " + id);
         try {
             Receipt receipt = store.get(id);
@@ -818,13 +813,13 @@ public class ConsentServiceBean implements ConsentService {
             }
             this.notification.publish(EventType.RECEIPT_READ, Receipt.class.getName(), id, authentication.getConnectedIdentifier());
             return receipt;
-        } catch (ReceiptStoreException e) {
-            throw new ConsentManagerException("Unable to read receipt from store", e);
+        } catch (UnexpectedException | AccessDeniedException e) {
+            throw new UnexpectedException("Unable to read receipt from store", e);
         }
     }
 
     @Override
-    public byte[] renderReceipt(String token, String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException {
+    public byte[] renderReceipt(String token, String id, String format, String themeKey) throws ReceiptNotFoundException, UnexpectedException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.FINE, "Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
         Receipt receipt = getReceipt(token, id);
         byte[] result =  this.internalRenderReceipt(receipt, format, themeKey);
@@ -833,7 +828,7 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
-    public byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
+    public byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptNotFoundException, UnexpectedException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.FINE, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
         Receipt receipt = store.get(id);
         byte[] result =  this.internalRenderReceipt(receipt, format, themeKey);
@@ -843,7 +838,7 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
-    private byte[] internalRenderReceipt(Receipt receipt, String format, String themeKey) throws ModelDataSerializationException, EntityNotFoundException, RenderingException, ReceiptRendererNotFoundException {
+    private byte[] internalRenderReceipt(Receipt receipt, String format, String themeKey) throws ReceiptRendererNotFoundException, ModelDataSerializationException, EntityNotFoundException, RenderingException {
         Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
         if (renderer.isPresent()) {
             RenderableReceipt rreceipt = new RenderableReceipt(receipt, buildThemeInfo(themeKey, receipt.getLanguage()));
@@ -880,7 +875,7 @@ public class ConsentServiceBean implements ConsentService {
 
         Optional<Map.Entry<String, String>> badConditions = values.entrySet().stream().filter(e -> e.getKey().startsWith("element/" + Conditions.TYPE) && !(e.getValue().equals("accepted") || e.getValue().equals("refused"))).findAny();
         if (badConditions.isPresent()) {
-            throw new InvalidValuesException("submitted elements wrong value", badProcessing.get().getKey().concat(":").concat("(accepted|refused)"), badProcessing.get().getKey().concat(":").concat(badProcessing.get().getValue()));
+            throw new InvalidValuesException("submitted elements wrong value", badConditions.get().getKey().concat(":").concat("(accepted|refused)"), badConditions.get().getKey().concat(":").concat(badConditions.get().getValue()));
         }
 
         //TODO test also preferences to ensure values are coherent with preferences
@@ -897,7 +892,7 @@ public class ConsentServiceBean implements ConsentService {
         values.keySet().removeIf(key -> key.endsWith("-optional"));
 
         if (!new HashSet<>(ctx.getLayoutData().getElements()).equals(submittedElementValues.keySet())) {
-            throw new InvalidValuesException("submitted elements incoherency", ctx.getLayoutData().getElements().stream().collect(Collectors.joining(",")), submittedElementValues.keySet().stream().collect(Collectors.joining(",")));
+            throw new InvalidValuesException("submitted elements incoherency", String.join(",", ctx.getLayoutData().getElements()), String.join(",", submittedElementValues.keySet()));
         }
     }
 
@@ -947,7 +942,7 @@ public class ConsentServiceBean implements ConsentService {
                             JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
                             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
                             this.store.put((Receipt) unmarshaller.unmarshal(inputStream));
-                        } catch (IOException | ReceiptStoreException | JAXBException e) {
+                        } catch (IOException | UnexpectedException | JAXBException e) {
                             LOGGER.log(Level.SEVERE, "Unable to import receipt: " + e.getMessage(), e);
                         } catch (ReceiptAlreadyExistsException e) {
                             LOGGER.log(Level.INFO, "Receipt already imported");
@@ -959,11 +954,11 @@ public class ConsentServiceBean implements ConsentService {
         }
     }
 
-    private ModelVersion updateVersionContent(ModelVersion version, Map<String, ModelData> data, String defaultLanguage, String author) throws ConsentManagerException, ModelDataSerializationException {
+    private ModelVersion updateVersionContent(ModelVersion version, Map<String, ModelData> data, String defaultLanguage, String author) throws UnexpectedException, ModelDataSerializationException {
         if (data.containsKey(defaultLanguage)) {
             version.defaultLanguage = defaultLanguage;
         } else {
-            throw new ConsentManagerException("Default language does not exist in content languages");
+            throw new UnexpectedException("Default language does not exist in content languages");
         }
         long now = System.currentTimeMillis();
         version.availableLanguages = String.join(",", data.keySet());

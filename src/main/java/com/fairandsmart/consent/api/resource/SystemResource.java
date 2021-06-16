@@ -26,7 +26,7 @@ import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.filter.EventFilter;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.support.SupportService;
-import com.fairandsmart.consent.support.SupportServiceException;
+import com.fairandsmart.consent.support.SupportUnreachableException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -89,7 +89,7 @@ public class SystemResource {
             @APIResponse(responseCode = "204", description = "Support service is disabled"),
             @APIResponse(responseCode = "200", description = "Support service information")})
     @Operation(summary = "Get available service information (for now, only latest version is operational)")
-    public SupportInfoDto supportInfos() throws SupportServiceException {
+    public SupportInfoDto supportInfos() throws SupportUnreachableException {
         LOGGER.log(Level.INFO, "GET /system/support/infos");
         SupportInfoDto dto = new SupportInfoDto();
         dto.setStatus(supportService.getSupportStatus());
@@ -124,8 +124,7 @@ public class SystemResource {
             ) {
         LOGGER.log(Level.INFO, "GET /counters/transaction");
         long value = consentService.countTransactionsCreatedBetween(from, to);
-        CounterDto dto = new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
-        return dto;
+        return new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
     }
 
     @GET

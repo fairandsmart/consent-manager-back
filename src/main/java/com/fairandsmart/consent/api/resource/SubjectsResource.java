@@ -19,9 +19,9 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.api.dto.SubjectDto;
 import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -82,7 +82,7 @@ public class SubjectsResource {
     @Operation(summary = "Create new subject")
     public SubjectDto createSubject(
             @Parameter(description = "the subject to create", example = Placeholders.SHELDON) @Valid @NotNull SubjectDto dto
-    ) throws ConsentManagerException, EntityAlreadyExistsException {
+    ) throws UnexpectedException, EntityAlreadyExistsException, AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /subjects");
         return SubjectDto.fromSubject(consentService.createSubject(dto.getName(), dto.getEmailAddress()));
     }
