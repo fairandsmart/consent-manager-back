@@ -36,6 +36,7 @@ public class ConsentContext implements Tokenizable {
     private static final long DEFAULT_VALIDITY_MILLIS = 15778800000L;
     private static final String USERINFOS_PREFIX = "userinfos_";
     private static final String ATTRIBUTES_PREFIX = "attributes_";
+    private static final String CONFIRMATION_PREFIX = "confirmation_";
 
     @NotNull
     @Schema(description = "The customer unique identifier", example = Placeholders.SHELDON)
@@ -66,6 +67,10 @@ public class ConsentContext implements Tokenizable {
     private boolean preview = false;
     @Schema(description = "The consent author (in case the consent is set by an operator)")
     private String author;
+    @Schema(description = "This context will need a user confirmation to commit transaction", example = Placeholders.CONFIRM_NONE)
+    private Confirmation confirmation = Confirmation.NONE;
+    @Schema(description = "The confirmation context elements")
+    private Map<String, String> confirmationConfig;
 
     public enum Origin {
         WEBFORM,
@@ -73,6 +78,16 @@ public class ConsentContext implements Tokenizable {
         USER,
         EMAIL,
         OPERATOR
+    }
+
+    public enum Confirmation {
+        NONE,
+        BUTTON,
+        EMAIL_CODE,
+        SMS_CODE,
+        SIGNED_RECEIPT,
+        AUDIO_RECORD,
+        DIGITAL_SIGNED_RECEIPT
     }
 
     public ConsentContext() {
@@ -237,6 +252,24 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
+    public Confirmation getConfirmation() {
+        return confirmation;
+    }
+
+    public ConsentContext setConfirmation(Confirmation confirmation) {
+        this.confirmation = confirmation;
+        return this;
+    }
+
+    public Map<String, String> getConfirmationConfig() {
+        return confirmationConfig;
+    }
+
+    public ConsentContext setConfirmationConfig(Map<String, String> confirmationConfig) {
+        this.confirmationConfig = confirmationConfig;
+        return this;
+    }
+
     @Override
     @Schema(hidden = true)
     public Map<String, String> getClaims() {
@@ -282,6 +315,14 @@ public class ConsentContext implements Tokenizable {
         claims.put("preview", Boolean.toString(this.isPreview()));
         if (author != null) {
             claims.put("author", this.getAuthor());
+        }
+        if (confirmation != null) {
+            claims.put("confirmation", this.getConfirmation().toString());
+        }
+        if (confirmationConfig != null && !confirmationConfig.isEmpty()) {
+            for (Map.Entry<String, String> entry : confirmationConfig.entrySet()) {
+                claims.put(ATTRIBUTES_PREFIX + entry.getKey(), entry.getValue());
+            }
         }
         return claims;
     }
@@ -331,6 +372,12 @@ public class ConsentContext implements Tokenizable {
         if (claims.containsKey("author")) {
             this.setAuthor(claims.get("author"));
         }
+        if (claims.containsKey("confirmation")) {
+            this.setConfirmation(Confirmation.valueOf(claims.get("confirmation")));
+        }
+        claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(CONFIRMATION_PREFIX)).forEach(
+                entry -> this.getUserinfos().put(entry.getKey().substring(CONFIRMATION_PREFIX.length()), entry.getValue())
+        );
         return this;
     }
 
@@ -351,6 +398,8 @@ public class ConsentContext implements Tokenizable {
                 ", layoutData=" + layoutData +
                 ", preview=" + preview +
                 ", author='" + author + '\'' +
+                ", confirmation=" + confirmation +
+                ", confirmationConfig=" + confirmationConfig +
                 '}';
     }
 }

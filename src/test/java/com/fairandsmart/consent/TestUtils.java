@@ -220,4 +220,17 @@ public class TestUtils {
         }
         return values;
     }
+
+    public static Map<String, String> readConfirmationInputs(Document html) {
+        Elements inputs = html.getAllElements();
+        List<FormElement> forms = inputs.forms();
+        Map<String, String> values = new HashMap<>();
+        for (FormElement form : forms) {
+            // Select consent form
+            if (form.id().equals("confirm")) {
+                values = form.formData().stream().collect(Collectors.toMap(Connection.KeyVal::key, Connection.KeyVal::value));
+            }
+        }
+        return values;
+    }
 }
