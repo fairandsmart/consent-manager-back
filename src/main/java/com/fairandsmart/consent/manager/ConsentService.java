@@ -26,7 +26,6 @@ import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.manager.filter.RecordFilter;
-import com.fairandsmart.consent.manager.model.Receipt;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
@@ -89,11 +88,11 @@ public interface ConsentService {
 
     /* Forms */
 
-    String buildToken(ConsentContext ctx) throws AccessDeniedException;
+    String buildFormToken(ConsentContext ctx) throws AccessDeniedException;
 
     ConsentForm generateForm(String token) throws TokenExpiredException, InvalidTokenException, ConsentServiceException, GenerateFormException;
 
-    ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException;
+    ConsentReceipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException;
 
     /* Records */
 
@@ -122,11 +121,15 @@ public interface ConsentService {
 
     Subject updateSubject(String id, String email) throws AccessDeniedException, EntityNotFoundException;
 
+    String buildSubjectToken(SubjectContext ctx) throws AccessDeniedException;
+
     /* Receipts */
 
-    Receipt getReceipt(String token, String id) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException;
+    ConsentReceipt getReceipt(String id) throws ReceiptNotFoundException, ConsentManagerException;
 
-    byte[] renderReceipt(String token, String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, TokenServiceException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException;
+    String buildReceiptToken(ReceiptContext ctx) throws AccessDeniedException, ReceiptStoreException, ReceiptNotFoundException;
+
+    byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException;
 
     byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, IOException, JAXBException, RenderingException, ModelDataSerializationException, EntityNotFoundException;
 }

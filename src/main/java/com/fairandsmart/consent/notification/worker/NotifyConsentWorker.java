@@ -19,13 +19,11 @@ package com.fairandsmart.consent.notification.worker;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.ConsentElementIdentifier;
-import com.fairandsmart.consent.manager.ConsentNotification;
-import com.fairandsmart.consent.manager.ConsentService;
+import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.model.Email;
+import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.template.TemplateModel;
@@ -104,17 +102,23 @@ public class NotifyConsentWorker implements Runnable {
             }
             if (clientConfig.isUserPageEnabled() && clientConfig.userPagePublicUrl().isPresent()) {
                 ctx.setOrigin(ConsentContext.Origin.USER);
-                notification.setUrl(clientConfig.userPagePublicUrl().get());
+                SubjectContext subCtx = new SubjectContext();
+                subCtx.withSubject(ctx.getSubject());
+                notification.setToken(this.tokenService.generateToken(subCtx));
+                URI notificationUri = UriBuilder.fromUri(clientConfig.userPagePublicUrl().get()).queryParam("t", notification.getToken()).build();
+                notification.setUrl(notificationUri.toString());
             } else {
                 ctx.setOrigin(ConsentContext.Origin.EMAIL);
-                notification.setToken(this.tokenService.generateToken(ctx,
-                        Date.from(ZonedDateTime.ofInstant(Instant.now(), ZoneId.of("UTC")).plus(ctx.getValidityInMillis(), ChronoUnit.MILLIS).toInstant())));
+                notification.setToken(this.tokenService.generateToken(ctx));
                 URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
                 notification.setUrl(notificationUri.toString());
             }
-            notification.setReceiptName("receipt.pdf");
-            notification.setReceiptType("application/pdf");
-            notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getTransaction(), "application/pdf", (notification.getTheme() != null)?notification.getTheme().entry.key:""));
+            try {
+                notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getTransaction(), "application/pdf", (notification.getTheme() != null) ? notification.getTheme().entry.key : ""));
+                notification.setReceiptName("receipt.pdf");
+                notification.setReceiptType("application/pdf");
+            } catch (ReceiptNotFoundException e) { //
+            }
 
             TemplateModel<ConsentNotification> model = new TemplateModel("email.ftl", notification, notification.getLanguage());
             ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));

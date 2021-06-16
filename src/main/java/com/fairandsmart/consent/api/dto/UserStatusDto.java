@@ -18,19 +18,23 @@ package com.fairandsmart.consent.api.dto;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-@Schema(name = "User", description = "A representation of connected user information")
-public class UserDto {
+@Schema(name = "User", description = "A representation of connected user status")
+public class UserStatusDto {
 
     @Schema(description = "The username", readOnly = true)
     private String username;
-    @Schema(description = "Is user in 'admin' group ?", readOnly = true)
-    private boolean admin;
-    @Schema(description = "Is user in 'operator' group ?", readOnly = true)
-    private boolean operator;
+    private ModelEntryDto infos;
+    private List<ModelEntryDto> entries;
+    private Map<String, RecordDto> records;
 
-    public UserDto() {
+    public UserStatusDto() {
+        entries = new ArrayList<>();
+        records = new HashMap<>();
     }
 
     public String getUsername() {
@@ -41,28 +45,27 @@ public class UserDto {
         this.username = username;
     }
 
-    public boolean isAdmin() {
-        return admin;
+    public ModelEntryDto getInfos() {
+        return infos;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public void setInfos(ModelEntryDto infos) {
+        this.infos = infos;
     }
 
-    public boolean isOperator() {
-        return operator;
+    public List<ModelEntryDto> getEntries() {
+        return entries;
     }
 
-    public void setOperator(boolean operator) {
-        this.operator = operator;
+    public void setEntries(List<ModelEntryDto> entries) {
+        this.entries = entries;
     }
 
-    @Override
-    public String toString() {
-        return "UserDto{" +
-                "username='" + username + '\'' +
-                ", admin=" + admin +
-                ", operator=" + operator +
-                '}';
+    public Map<String, RecordDto> getRecords() {
+        return records;
+    }
+
+    public void setRecords(Map<String, RecordDto> records) {
+        this.records = records;
     }
 }

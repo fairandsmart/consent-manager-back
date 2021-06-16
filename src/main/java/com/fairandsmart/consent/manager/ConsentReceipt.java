@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.manager.model;
+package com.fairandsmart.consent.manager;
 
 /*-
  * #%L
@@ -20,6 +20,7 @@ import com.fairandsmart.consent.common.util.ZonedDateTimeAdapter;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.entity.Record;
+import com.fairandsmart.consent.manager.model.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.xml.bind.annotation.*;
@@ -31,9 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@XmlRootElement
+@XmlRootElement(name = "receipt")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Receipt {
+public class ConsentReceipt {
 
     private String transaction;
     private String jurisdiction;
@@ -71,14 +72,14 @@ public class Receipt {
     private String notificationType;
     private String notificationRecipient;
 
-    public Receipt() {
+    public ConsentReceipt() {
         subjectDetails = new ArrayList<>();
         consents = new ArrayList<>();
         attributes = new ArrayList<>();
         attachments = new ArrayList<>();
     }
 
-    public Receipt(Receipt receipt) {
+    public ConsentReceipt(ConsentReceipt receipt) {
         this.transaction = receipt.transaction;
         this.jurisdiction = receipt.jurisdiction;
         this.language = receipt.language;
@@ -261,8 +262,8 @@ public class Receipt {
         this.notificationRecipient = notificationRecipient;
     }
 
-    public static Receipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, List<Pair<ModelData, Record>> records) throws DatatypeConfigurationException {
-        Receipt receipt = new Receipt();
+    public static ConsentReceipt build(String transaction, String processor, ZonedDateTime date, ConsentContext ctx, BasicInfo info, List<Pair<ModelData, Record>> records) throws DatatypeConfigurationException {
+        ConsentReceipt receipt = new ConsentReceipt();
         receipt.setTransaction(transaction);
         receipt.setLanguage(ctx.getLanguage());
         receipt.setDate(date);
