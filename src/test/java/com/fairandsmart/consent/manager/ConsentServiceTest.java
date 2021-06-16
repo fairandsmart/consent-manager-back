@@ -19,9 +19,10 @@ package com.fairandsmart.consent.manager;
 import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.SubjectDto;
-import com.fairandsmart.consent.common.exception.ConsentManagerException;
+import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -54,7 +55,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testModelEntryLifecycle() throws ConsentManagerException, EntityNotFoundException, EntityAlreadyExistsException, InvalidStatusException {
+    public void testModelEntryLifecycle() throws UnexpectedException, EntityNotFoundException, EntityAlreadyExistsException, InvalidStatusException, AccessDeniedException {
         LOGGER.info("#### Test BasicInfo entry lifecycle");
         String key = UUID.randomUUID().toString();
         String language = "fr";
@@ -177,7 +178,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testModelVersionLifecycle() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, ModelDataSerializationException, InvalidStatusException {
+    public void testModelVersionLifecycle() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, ModelDataSerializationException, InvalidStatusException, AccessDeniedException {
         LOGGER.info("#### Test BasicInfo version lifecycle");
         String key = UUID.randomUUID().toString();
         String language = "fr";
@@ -241,17 +242,17 @@ public class ConsentServiceTest {
 
         LOGGER.info("Check version type cannot be changed for a version which is not DRAFT");
         String versionId = version.id;
-        assertThrows(ConsentManagerException.class, () -> service.updateVersionType(versionId, ModelVersion.Type.MINOR));
+        assertThrows(UnexpectedException.class, () -> service.updateVersionType(versionId, ModelVersion.Type.MINOR));
 
         LOGGER.info("Check version content cannot be changed for a version which is not DRAFT");
         basicInfo.setTitle("New title");
-        assertThrows(ConsentManagerException.class, () -> service.updateVersion(versionId, language, Collections.singletonMap(language, basicInfo)));
+        assertThrows(UnexpectedException.class, () -> service.updateVersion(versionId, language, Collections.singletonMap(language, basicInfo)));
 
         LOGGER.info("Check version content cannot be updated with a different type");
-        assertThrows(ConsentManagerException.class, () -> service.updateVersion(versionId, language, Collections.singletonMap(language, TestUtils.generateConditions(key))));
+        assertThrows(UnexpectedException.class, () -> service.updateVersion(versionId, language, Collections.singletonMap(language, TestUtils.generateConditions(key))));
 
         LOGGER.info("Check version content cannot be updated with an undeclared language");
-        assertThrows(ConsentManagerException.class, () -> service.updateVersion(versionId, language, Collections.singletonMap("en", basicInfo)));
+        assertThrows(UnexpectedException.class, () -> service.updateVersion(versionId, language, Collections.singletonMap("en", basicInfo)));
 
         LOGGER.info("Find version for serial");
         version = service.findVersionForSerial(version.serial);
@@ -291,7 +292,7 @@ public class ConsentServiceTest {
 
         LOGGER.info("Check deleting ACTIVE last version is forbidden");
         String oldVersionId = version.id;
-        assertThrows(ConsentManagerException.class, () -> service.deleteVersion(oldVersionId));
+        assertThrows(UnexpectedException.class, () -> service.deleteVersion(oldVersionId));
 
         // CREATE NEW VERSION
         LOGGER.info("Create last version for key " + key);
@@ -311,23 +312,23 @@ public class ConsentServiceTest {
         assertEquals(((BasicInfo) versions.get(1).getData(language)).getTitle(), "Last version title");
 
         LOGGER.info("Check deleting a version which is not the last one is forbidden");
-        assertThrows(ConsentManagerException.class, () -> service.deleteVersion(oldVersionId));
+        assertThrows(UnexpectedException.class, () -> service.deleteVersion(oldVersionId));
 
         LOGGER.info("Check changing the type of a version which is not the last one is forbidden");
-        assertThrows(ConsentManagerException.class, () -> service.updateVersionType(oldVersionId, ModelVersion.Type.MAJOR));
+        assertThrows(UnexpectedException.class, () -> service.updateVersionType(oldVersionId, ModelVersion.Type.MAJOR));
 
         LOGGER.info("Check changing the status of a version which is not the last one is forbidden");
-        assertThrows(ConsentManagerException.class, () -> service.updateVersionStatus(oldVersionId, ModelVersion.Status.ACTIVE));
+        assertThrows(UnexpectedException.class, () -> service.updateVersionStatus(oldVersionId, ModelVersion.Status.ACTIVE));
 
         LOGGER.info("Check changing the content of a version which is not the last one is forbidden");
         basicInfo.setTitle("Different title");
-        assertThrows(ConsentManagerException.class, () -> service.updateVersion(oldVersionId, language, Collections.singletonMap(language, basicInfo)));
+        assertThrows(UnexpectedException.class, () -> service.updateVersion(oldVersionId, language, Collections.singletonMap(language, basicInfo)));
     }
 
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testEntryVersionsHistory() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException {
+    public void testEntryVersionsHistory() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, AccessDeniedException {
         LOGGER.info("#### Test BasicInfo versions history");
         LOGGER.info("Create entry");
         String key = UUID.randomUUID().toString();
@@ -421,7 +422,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testRecordLifecycle() throws TokenExpiredException, InvalidValuesException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, GenerateFormException, ConsentManagerException, InvalidStatusException, EntityNotFoundException, SubmitConsentException {
+    public void testRecordLifecycle() throws TokenExpiredException, InvalidTokenException, EntityAlreadyExistsException, GenerateFormException, UnexpectedException, InvalidStatusException, EntityNotFoundException, SubmitConsentException, AccessDeniedException {
         LOGGER.info("#### Test record lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -612,7 +613,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testFormGeneration() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, ConsentServiceException, InvalidTokenException, TokenExpiredException, InvalidValuesException, GenerateFormException, SubmitConsentException {
+    public void testFormGeneration() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, InvalidTokenException, TokenExpiredException, GenerateFormException, SubmitConsentException, AccessDeniedException {
         LOGGER.info("#### Test form generation");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -753,7 +754,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubjectLifecycle() throws TokenExpiredException, InvalidValuesException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException, GenerateFormException, SubmitConsentException {
+    public void testSubjectLifecycle() throws TokenExpiredException, InvalidTokenException, EntityAlreadyExistsException, EntityNotFoundException, UnexpectedException, InvalidStatusException, GenerateFormException, SubmitConsentException, AccessDeniedException {
         LOGGER.info("#### Test subject lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -902,7 +903,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubjectRecords() throws TokenExpiredException, InvalidValuesException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, EntityNotFoundException, ConsentManagerException, InvalidStatusException, GenerateFormException, SubmitConsentException {
+    public void testSubjectRecords() throws TokenExpiredException, InvalidTokenException, EntityAlreadyExistsException, EntityNotFoundException, UnexpectedException, InvalidStatusException, GenerateFormException, SubmitConsentException, AccessDeniedException {
         LOGGER.info("#### Test subject records");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -1048,7 +1049,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testFormGenerationErrors() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException {
+    public void testFormGenerationErrors() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, AccessDeniedException {
         LOGGER.info("#### Test form generation errors");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -1099,7 +1100,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubmitConsentErrors() throws ConsentManagerException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, ConsentServiceException, InvalidTokenException, TokenExpiredException, InvalidValuesException, GenerateFormException, SubmitConsentException {
+    public void testSubmitConsentErrors() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, InvalidTokenException, TokenExpiredException, GenerateFormException, SubmitConsentException, AccessDeniedException {
         LOGGER.info("#### Test submit consent errors ");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -1168,7 +1169,7 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
-                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
+                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Collections.singletonList(t2Key)).withExistingElementsVisible(true));
         String readToken2 = service.buildToken(readCtx2);
 
         LOGGER.info("Generate new consent form");
@@ -1192,7 +1193,7 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
-                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
+                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Collections.singletonList(t2Key)).withExistingElementsVisible(true));
         String readToken3 = service.buildToken(readCtx3);
 
         LOGGER.info("Generate new consent form");
@@ -1215,7 +1216,7 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
-                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t2Key)).withExistingElementsVisible(true));
+                .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Collections.singletonList(t2Key)).withExistingElementsVisible(true));
         String readToken5 = service.buildToken(readCtx5);
 
         LOGGER.info("Generate new consent form");
