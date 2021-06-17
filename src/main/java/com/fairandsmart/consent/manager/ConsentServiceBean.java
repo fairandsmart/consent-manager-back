@@ -486,12 +486,14 @@ public class ConsentServiceBean implements ConsentService {
     /* CONSENT MANAGEMENT */
 
     @Override
-    public String buildToken(ConsentContext ctx) throws AccessDeniedException {
+    public String buildFormToken(ConsentContext ctx) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Building generate form token for context: " + ctx);
+        authentication.ensureIsIdentified();
         if (ctx.getSubject() == null || ctx.getSubject().isEmpty()) {
             ctx.setSubject(authentication.getConnectedIdentifier());
-        } else if (!ctx.getSubject().equals(authentication.getConnectedIdentifier()) && !authentication.isConnectedIdentifierApi()) {
-            throw new AccessDeniedException("Only admin, operator or api can generate token for other identifier than connected one");
+        }
+        if (!ctx.getSubject().equals(authentication.getConnectedIdentifier())) {
+            authentication.ensureConnectedIdentifierIsApi();
         }
         return tokenService.generateToken(ctx);
     }
@@ -555,7 +557,7 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public ConsentTransaction submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, UnexpectedException, SubmitConsentException {
+    public ConsentReceipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, UnexpectedException, SubmitConsentException {
         LOGGER.log(Level.FINE, "Submitting consent");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
@@ -591,6 +593,7 @@ public class ConsentServiceBean implements ConsentService {
                     info = (BasicInfo) ModelVersion.SystemHelper.findModelVersionForSerial(infoId.getSerial(), false).getData(ctx.getLanguage());
                 } else {
                     //If consent is submitted without basic info, we populate it with the first one.
+                    //TODO Add a property to define a default BasicInfo
                     ModelEntry infoEntry = ModelEntry.find("type", BasicInfo.TYPE).firstResult();
                     ModelVersion infoVersion = ModelVersion.SystemHelper.findActiveVersionByEntryId(infoEntry.id);
                     infoId = infoVersion.getIdentifier();
@@ -616,7 +619,8 @@ public class ConsentServiceBean implements ConsentService {
                         trecords.add(new ImmutablePair<>(version.getData(ctx.getLanguage()), record));
                     }
                 }
-                Receipt receipt = Receipt.build(ctx.getTransaction(), config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
+
+                ConsentReceipt receipt = ConsentReceipt.build(ctx.getTransaction(), config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, info, trecords);
                 ctx.setOrigin(ConsentContext.Origin.RECEIPT);
                 String updateToken = tokenService.generateToken(ctx, Date.from(receipt.getExpirationDate().toInstant()));
                 receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
@@ -637,7 +641,7 @@ public class ConsentServiceBean implements ConsentService {
                 Event<ConsentContext> event = new Event<ConsentContext>().addChannel(Event.NOTIFICATION_CHANNEL).withEventType(EventType.CONSENT_SUBMIT).withSourceType(ConsentContext.class.getName()).withSourceId(ctx.getTransaction()).withAuthor(connectedIdentifier).withData(ctx);
                 this.notification.publish(event);
 
-                return new ConsentTransaction(ctx.getTransaction());
+                return receipt;
             } catch (InvalidValuesException | EntityNotFoundException e) {
                 //TODO Try to fix context with upgraded elements (separate EntityNotFoundException exception treatment)
                 // Maybe use a specific exception for different cases or add an error type inside that exception
@@ -654,17 +658,16 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public List<Subject> findSubjects(String name) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Searching subjects");
-        if (!authentication.isConnectedIdentifierOperator()) {
-            throw new AccessDeniedException("You must be operator to search for subjects");
-        }
+        authentication.ensureConnectedIdentifierIsOperator();
         return Subject.list("name like ?1", Sort.by("name", Sort.Direction.Descending), "%" + name + "%");
     }
 
     @Override
     public Subject getSubject(String name) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Getting subject for name: " + name);
-        if (!authentication.isConnectedIdentifierOperator()) {
-            throw new AccessDeniedException("You must be operator to search for subjects");
+        authentication.ensureIsIdentified();
+        if (!authentication.getConnectedIdentifier().equals(name)) {
+            authentication.ensureConnectedIdentifierIsOperator();
         }
         Optional<Subject> optional = Subject.find("name = ?1", name).singleResultOptional();
         if (optional.isPresent()) {
@@ -680,11 +683,12 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public Subject createSubject(String name, String email) throws UnexpectedException, EntityAlreadyExistsException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Creating subject with name: " + name);
-        if (!authentication.isConnectedIdentifierOperator()) {
-            throw new AccessDeniedException("You must be operator to create subjects");
-        }
         if (StringUtils.isEmpty(name)) {
             throw new UnexpectedException("Subject name cannot be empty");
+        }
+        authentication.ensureIsIdentified();
+        if (!authentication.getConnectedIdentifier().equals(name)) {
+            authentication.ensureConnectedIdentifierIsOperator();
         }
         Optional<Subject> optional = Subject.find("name = ?1", name).singleResultOptional();
         if (optional.isPresent()) {
@@ -705,9 +709,7 @@ public class ConsentServiceBean implements ConsentService {
     @Transactional
     public Subject updateSubject(String id, String email) throws EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Updating subject with id: " + id);
-        if (!authentication.isConnectedIdentifierOperator()) {
-            throw new AccessDeniedException("You must be operator to update subjects");
-        }
+        authentication.ensureConnectedIdentifierIsOperator();
         Optional<Subject> optional = Subject.findByIdOptional(id);
         Subject subject = optional.orElseThrow(() -> new EntityNotFoundException("Unable to find a subject for id: " + id));
         subject.emailAddress = email;
@@ -717,13 +719,24 @@ public class ConsentServiceBean implements ConsentService {
         return subject;
     }
 
+    @Override
+    public String buildSubjectToken(SubjectContext ctx) throws AccessDeniedException {
+        LOGGER.log(Level.FINE, "Building access token for subject with id: " + ctx.getSubject());
+        authentication.ensureIsIdentified();
+        if (!authentication.getConnectedIdentifier().equals(ctx.getSubject())) {
+            authentication.ensureConnectedIdentifierIsOperator();
+        }
+        return tokenService.generateToken(ctx);
+    }
+
     /* RECORDS */
 
     @Override
     public Map<String, List<Record>> listSubjectRecords(RecordFilter filter) throws AccessDeniedException {
         LOGGER.log(Level.FINE, "Listing records for subject");
-        if (!authentication.isConnectedIdentifierOperator() && !filter.getSubject().equals(authentication.getConnectedIdentifier())) {
-            throw new AccessDeniedException("You must be operator to perform records search or search your own subject records");
+        authentication.ensureIsIdentified();
+        if (!authentication.getConnectedIdentifier().equals(filter.getSubject())) {
+            authentication.ensureConnectedIdentifierIsOperator();
         }
         this.notification.publish(EventType.SUBJECT_LIST_RECORDS, Subject.class.getName(), filter.getSubject(), authentication.getConnectedIdentifier());
         return this.listRecordsWithStatus(filter);
@@ -747,9 +760,7 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException, EntityNotFoundException {
         LOGGER.log(Level.FINE, "Extracting valid records with key: " + key + " and value: " + value + ((regexpValue) ? " (regexp)" : " (exact match)"));
-        if (!authentication.isConnectedIdentifierAdmin()) {
-            throw new AccessDeniedException("You must be admin to search subjects");
-        }
+        authentication.ensureConnectedIdentifierIsAdmin();
         Map<Subject, Record> result = new HashMap<>();
         ModelEntry entry = findEntryForKey(key);
         List<String> serials = ModelVersion.SystemHelper.findActiveSerialsForKey(key);
@@ -797,48 +808,52 @@ public class ConsentServiceBean implements ConsentService {
     /* RECEIPTS */
 
     @Override
-    public Receipt getReceipt(String token, String id) throws ReceiptNotFoundException, UnexpectedException, TokenExpiredException, InvalidTokenException {
+    public ConsentReceipt getReceipt(String id) throws UnexpectedException, AccessDeniedException, ReceiptNotFoundException {
         LOGGER.log(Level.FINE, "Getting receipt for id: " + id);
         try {
-            Receipt receipt = store.get(id);
-            if (!authentication.getConnectedIdentifier().equals(receipt.getSubject()) && !authentication.isConnectedIdentifierOperator()) {
-                if (StringUtils.isNotEmpty(token)) {
-                    ConsentTransaction tx = (ConsentTransaction) tokenService.readToken(token);
-                    if (!tx.getTransaction().equals(receipt.getTransaction())) {
-                        throw new AccessDeniedException("Token transaction is not the same as receipt");
-                    }
-                } else {
-                    throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
-                }
+            ConsentReceipt receipt = store.get(id);
+            if (authentication.getConnectedIdentifier().equals(receipt.getTransaction()) || authentication.getConnectedIdentifier().equals(receipt.getSubject()) || authentication.isConnectedIdentifierOperator()) {
+                this.notification.publish(EventType.RECEIPT_READ, ConsentReceipt.class.getName(), id, authentication.getConnectedIdentifier());
+                return receipt;
             }
-            this.notification.publish(EventType.RECEIPT_READ, Receipt.class.getName(), id, authentication.getConnectedIdentifier());
-            return receipt;
-        } catch (UnexpectedException | AccessDeniedException e) {
+            throw new AccessDeniedException("You must be operator to retrieve receipts of other subjects");
+        } catch (UnexpectedException e) {
             throw new UnexpectedException("Unable to read receipt from store", e);
         }
     }
 
     @Override
-    public byte[] renderReceipt(String token, String id, String format, String themeKey) throws ReceiptNotFoundException, UnexpectedException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException {
+    public byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, UnexpectedException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException, AccessDeniedException {
         LOGGER.log(Level.FINE, "Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
-        Receipt receipt = getReceipt(token, id);
+        ConsentReceipt receipt = getReceipt(id);
         byte[] result =  this.internalRenderReceipt(receipt, format, themeKey);
-        this.notification.publish(EventType.RECEIPT_READ, Receipt.class.getName(), id, authentication.getConnectedIdentifier(), EventArgs.build("format", format).addArg("theme", themeKey));
+        this.notification.publish(EventType.RECEIPT_READ, ConsentReceipt.class.getName(), id, authentication.getConnectedIdentifier(), EventArgs.build("format", format).addArg("theme", themeKey));
         return result;
     }
 
     @Override
     public byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptNotFoundException, UnexpectedException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
         LOGGER.log(Level.FINE, "##SYSTEM## Rendering receipt for id: " + id + " and format: " + format + " and theme: " + themeKey);
-        Receipt receipt = store.get(id);
+        ConsentReceipt receipt = store.get(id);
         byte[] result =  this.internalRenderReceipt(receipt, format, themeKey);
-        this.notification.publish(EventType.RECEIPT_READ, Receipt.class.getName(), id, authentication.getConnectedIdentifier(), EventArgs.build("format", format).addArg("theme", themeKey));
+        this.notification.publish(EventType.RECEIPT_READ, ConsentReceipt.class.getName(), id, authentication.getConnectedIdentifier(), EventArgs.build("format", format).addArg("theme", themeKey));
         return result;
+    }
+
+    @Override
+    public String buildReceiptToken(ReceiptContext ctx) throws AccessDeniedException, UnexpectedException, ReceiptNotFoundException {
+        LOGGER.log(Level.FINE, "Building receipt token for transaction id: " + ctx.getTransaction());
+        authentication.ensureIsIdentified();
+        ConsentReceipt receipt = store.get(ctx.getTransaction());
+        if (authentication.getConnectedIdentifier().equals(receipt.getTransaction()) || authentication.getConnectedIdentifier().equals(receipt.getSubject()) || authentication.isConnectedIdentifierOperator()) {
+            return tokenService.generateToken(ctx);
+        }
+        throw new AccessDeniedException("You must be operator to build token for receipts of other subjects");
     }
 
     /* INTERNAL */
 
-    private byte[] internalRenderReceipt(Receipt receipt, String format, String themeKey) throws ReceiptRendererNotFoundException, ModelDataSerializationException, EntityNotFoundException, RenderingException {
+    private byte[] internalRenderReceipt(ConsentReceipt receipt, String format, String themeKey) throws ModelDataSerializationException, EntityNotFoundException, RenderingException, ReceiptRendererNotFoundException {
         Optional<ReceiptRenderer> renderer = renderers.stream().filter(r -> r.format().equals(format)).findFirst();
         if (renderer.isPresent()) {
             RenderableReceipt rreceipt = new RenderableReceipt(receipt, buildThemeInfo(themeKey, receipt.getLanguage()));
@@ -939,9 +954,9 @@ public class ConsentServiceBean implements ConsentService {
                         try (InputStream inputStream = Files.newInputStream(path)) {
                             String fileName = path.getFileName().toString();
                             LOGGER.log(Level.INFO, "Importing receipt file: " + fileName);
-                            JAXBContext jaxbContext = JAXBContext.newInstance(Receipt.class);
+                            JAXBContext jaxbContext = JAXBContext.newInstance(ConsentReceipt.class);
                             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-                            this.store.put((Receipt) unmarshaller.unmarshal(inputStream));
+                            this.store.put((ConsentReceipt) unmarshaller.unmarshal(inputStream));
                         } catch (IOException | UnexpectedException | JAXBException e) {
                             LOGGER.log(Level.SEVERE, "Unable to import receipt: " + e.getMessage(), e);
                         } catch (ReceiptAlreadyExistsException e) {

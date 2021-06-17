@@ -40,6 +40,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.net.URI;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -67,15 +68,17 @@ public class ConsentsResource {
     @Path("token")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
+    @Deprecated
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "thin token has been generated", content = @Content(example = "a token")),
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE)
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(summary = "Generate a thin token from a given context")
-    public String generateToken(@Valid ConsentContext ctx) throws AccessDeniedException {
+    @Operation(summary = "Generate a form token from a given context")
+    public Response generateFormToken(@Valid ConsentContext ctx, @Context UriInfo uriInfo) {
         LOGGER.log(Level.INFO, "POST /consents/token");
-        return consentService.buildToken(ctx);
+        URI uri = uriInfo.getBaseUriBuilder().path(TokensResource.class).path("consent").build();
+        return Response.temporaryRedirect(uri).entity(ctx).build();
     }
 
     @GET
@@ -139,8 +142,8 @@ public class ConsentsResource {
     }
 
     private ConsentFormResult internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws UnexpectedException, TokenExpiredException, InvalidTokenException, SubmitConsentException {
-        ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
-        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction()).queryParam("t", tokenService.generateToken(tx));
+        ConsentReceipt receipt = consentService.submitConsent(values.get("token").get(0), values);
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(receipt.getTransaction()).queryParam("t", tokenService.generateToken(new ReceiptContext().setSubject(receipt.getSubject())));
         ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
         ConsentFormResult consentFormResult = new ConsentFormResult();
         consentFormResult.setContext(ctx);

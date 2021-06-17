@@ -17,17 +17,17 @@ package com.fairandsmart.consent.manager.store;
  */
 
 import com.fairandsmart.consent.common.exception.UnexpectedException;
-import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.manager.ConsentReceipt;
 
 public interface ReceiptStore {
 
     boolean exists(String id) throws UnexpectedException;
 
-    void put(Receipt receipt) throws UnexpectedException, ReceiptAlreadyExistsException;
+    void put(ConsentReceipt receipt) throws UnexpectedException, ReceiptAlreadyExistsException;
 
     long size(String id) throws UnexpectedException, ReceiptNotFoundException;
 
-    Receipt get(String id) throws UnexpectedException, ReceiptNotFoundException;
+    ConsentReceipt get(String id) throws UnexpectedException, ReceiptNotFoundException;
 
     void delete(String id) throws UnexpectedException, ReceiptNotFoundException;
 

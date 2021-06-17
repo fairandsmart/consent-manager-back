@@ -100,7 +100,7 @@ public class SupportServiceBean implements SupportService {
             try {
                 this.latestVersion = this.remoteCheckLatestVersion();
             } catch (SupportUnreachableException e) {
-                LOGGER.log(Level.WARNING, "Error while checking latest version available", e);
+                LOGGER.log(Level.WARNING, "Error while checking latest version available: " + e.getMessage());
                 this.supportStatus = e.getMessage();
             }
         }

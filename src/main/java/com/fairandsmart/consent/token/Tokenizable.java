@@ -28,7 +28,7 @@ public interface Tokenizable {
 
     Tokenizable setClaims(Map<String, String> claims);
 
-    default int expirationDelay() {
+    default long expirationDelay() {
         return 4 * 60 * 60 * 1000;
     }
 

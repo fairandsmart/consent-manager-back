@@ -20,16 +20,24 @@ import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
+import com.fairandsmart.consent.common.config.ClientConfig;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.SubjectContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
-import com.fairandsmart.consent.manager.model.*;
+import com.fairandsmart.consent.manager.model.BasicInfo;
+import com.fairandsmart.consent.manager.model.Email;
+import com.fairandsmart.consent.manager.model.FormLayout;
+import com.fairandsmart.consent.manager.model.Processing;
+import com.fairandsmart.consent.profile.AlternateProfile;
+import com.fairandsmart.consent.token.*;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,6 +45,11 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.validation.Validation;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -49,36 +62,38 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class CollectWithEmailAndThemeTest {
+@TestProfile(AlternateProfile.class)
+public class CollectWithEmailAndUserPageTest {
 
-    private static final Logger LOGGER = Logger.getLogger(CollectWithEmailAndThemeTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CollectWithEmailAndUserPageTest.class.getName());
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
 
     private static final String language = "fr";
-    private static final String biKey = "cweatt_bi1";
-    private static final String t1Key = "cweatt_t1";
-    private static final String t2Key = "cweatt_t2";
-    private static final String eKey = "cweatt_e1";
-    private static final String thKey = "cweatt_th1";
+    private static final String biKey = "cweupt_bi1";
+    private static final String t1Key = "cweupt_t1";
+    private static final String t2Key = "cweupt_t2";
+    private static final String eKey = "cweupt_e1";
     private static final String recipient = "mmichu@localhost";
 
     @Inject
     MockMailbox mailbox;
 
-    @ConfigProperty(name = "consent.public.url")
-    String publicUrl;
+    @Inject
+    ClientConfig clientConfig;
+
+    @Inject
+    TokenService tokenService;
 
     /**
      * 1 : l'orga génère un context de collecte qui contient entre autres un email de notification
      * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
      * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
-     * 4 : le user (anonyme) reçoit un email de confirmation
-     * 5 : le user (anonyme) clique sur le lien d'opt-out
+     * 4 : le user (anonyme) reçoit un email de confirmation avec un lien vers la page user
      */
     @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testCollectWithEmailAndTheme() throws InterruptedException {
+    public void testCollectWithEmail() throws InterruptedException, MalformedURLException, InvalidTokenException, TokenExpiredException, UnexpectedException {
         //SETUP
         LOGGER.log(Level.INFO, "Initial setup");
         //Check that the app is running
@@ -93,8 +108,8 @@ public class CollectWithEmailAndThemeTest {
 
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
-        List<String> keys = List.of(biKey, t1Key, t2Key, eKey, thKey);
-        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE, Email.TYPE, Theme.TYPE);
+        List<String> keys = List.of(biKey, t1Key, t2Key, eKey);
+        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE, Email.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);
@@ -137,14 +152,14 @@ public class CollectWithEmailAndThemeTest {
                 .setSubject("mmichu")
                 .setValidity("P2Y")
                 .setLanguage(language)
-                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey).withTheme(thKey))
+                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey))
                 .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
                 .when().post("/tokens/consent").asString();
         assertNotNull(token);
-        LOGGER.log(Level.INFO, "Token :" + token);
+        LOGGER.log(Level.INFO, "Token : " + token);
 
         //PART 2
         Response response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
@@ -173,17 +188,17 @@ public class CollectWithEmailAndThemeTest {
         assertTrue(received.contains("Body " + eKey));
         assertTrue(received.contains("Footer " + eKey));
         assertTrue(received.contains("Signature " + eKey));
-        assertTrue(received.contains(publicUrl + "/consents?t="));
-        assertTrue(received.contains("CSS " + thKey));
         assertFalse(sent.get(0).getAttachments().isEmpty());
         assertEquals("Sender " + eKey, sent.get(0).getFrom());
 
-        //PART 5
         html = Jsoup.parse(received);
         Optional<Element> notificationLink = html.select("a[href]").stream().filter(l -> l.id().equals("form-url")).findFirst();
         if (notificationLink.isPresent()) {
-            response = given().accept(ContentType.HTML).when().get(notificationLink.get().attr("abs:href"));
-            response.then().contentType("text/html").assertThat().statusCode(200);
+            URL url = new URL(notificationLink.get().attr("href"));
+            assertTrue(url.toString().startsWith(clientConfig.userPagePublicUrl().get()));
+            String stoken = URLDecoder.decode(url.getQuery().substring(url.getQuery().indexOf("=") + 1), StandardCharsets.UTF_8);
+            Tokenizable tokenizable = tokenService.readToken(stoken);
+            assertTrue(tokenizable instanceof SubjectContext);
         } else {
             fail("notificationLink link not found");
         }

@@ -118,7 +118,7 @@ public class FormErrorTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/consents/token").asString();
+                .when().post("/tokens/consent").asString();
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token: " + token);
 

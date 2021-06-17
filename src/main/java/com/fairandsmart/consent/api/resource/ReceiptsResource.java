@@ -22,26 +22,22 @@ import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.common.validation.ReceiptMediaType;
 import com.fairandsmart.consent.manager.ConsentService;
-import com.fairandsmart.consent.manager.ConsentTransaction;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
-import com.fairandsmart.consent.token.InvalidTokenException;
-import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenService;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.logging.Level;
@@ -56,37 +52,21 @@ public class ReceiptsResource {
     @Inject
     ConsentService consentService;
 
-    @Inject
-    TokenService tokenService;
-
-    @POST
-    @Path("token")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "thin token has been generated", content = @Content(example = "a token")),
-    })
-    @Operation(summary = "Generate a thin token from a given transaction")
-    public String generateReceiptToken(@NotNull @Valid ConsentTransaction transaction) {
-        LOGGER.log(Level.INFO, "POST /receipts/token");
-        return tokenService.generateToken(transaction);
-    }
-
     @GET
-    @Path("{tid}")
+    @Path("{rid}")
     @APIResponses(value = {
             @APIResponse(responseCode = "404", description = "Unable to find the receipt due to un-existing transaction, format renderer or theme"),
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE),
             @APIResponse(responseCode = "200", description = "receipt has been generated")})
     @Operation(summary = "Get a receipt from a thin token")
     public Response getReceipt(
-            @Parameter(name = "tid", description = "The receipt's transaction id", example = Placeholders.NIL_UUID) @PathParam("tid") String transaction,
+            @Parameter(name = "rid", description = "The receipt's transaction id", example = Placeholders.NIL_UUID) @PathParam("rid") String transaction,
             @Parameter(name = "t", description = "The receipt access token", required = true) @QueryParam("t") @NotEmpty String token,
             @Parameter(name = "format", description = "The desired receipt format", example = MediaType.TEXT_PLAIN, required = true) @QueryParam("format") @NotEmpty @ReceiptMediaType String format,
-            @Parameter(name = "theme", description = "The required theme ID") @QueryParam("theme") String theme) throws UnexpectedException, ReceiptNotFoundException, TokenExpiredException, InvalidTokenException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
+            @Parameter(name = "theme", description = "The required theme ID") @QueryParam("theme") String theme) throws UnexpectedException, ReceiptNotFoundException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /receipts/{0}", transaction);
         String mimeType = format != null ? format : MediaType.TEXT_HTML;
-        byte[] receipt = consentService.renderReceipt(token, transaction, mimeType, theme);
+        byte[] receipt = consentService.renderReceipt(transaction, mimeType, theme);
         return Response.ok(receipt, mimeType).build();
     }
 

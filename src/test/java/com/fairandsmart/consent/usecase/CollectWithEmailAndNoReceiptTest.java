@@ -22,7 +22,10 @@ import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
-import com.fairandsmart.consent.manager.model.*;
+import com.fairandsmart.consent.manager.model.BasicInfo;
+import com.fairandsmart.consent.manager.model.Email;
+import com.fairandsmart.consent.manager.model.FormLayout;
+import com.fairandsmart.consent.manager.model.Processing;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
@@ -49,18 +52,17 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class CollectWithEmailAndThemeTest {
+public class CollectWithEmailAndNoReceiptTest {
 
-    private static final Logger LOGGER = Logger.getLogger(CollectWithEmailAndThemeTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CollectWithEmailAndNoReceiptTest.class.getName());
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
 
     private static final String language = "fr";
-    private static final String biKey = "cweatt_bi1";
-    private static final String t1Key = "cweatt_t1";
-    private static final String t2Key = "cweatt_t2";
-    private static final String eKey = "cweatt_e1";
-    private static final String thKey = "cweatt_th1";
+    private static final String biKey = "cwenrt_bi1";
+    private static final String t1Key = "cwenrt_t1";
+    private static final String t2Key = "cwenrt_t2";
+    private static final String eKey = "cwenrt_e1";
     private static final String recipient = "mmichu@localhost";
 
     @Inject
@@ -78,7 +80,7 @@ public class CollectWithEmailAndThemeTest {
      */
     @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testCollectWithEmailAndTheme() throws InterruptedException {
+    public void testCollectWithEmail() throws InterruptedException {
         //SETUP
         LOGGER.log(Level.INFO, "Initial setup");
         //Check that the app is running
@@ -93,8 +95,8 @@ public class CollectWithEmailAndThemeTest {
 
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
-        List<String> keys = List.of(biKey, t1Key, t2Key, eKey, thKey);
-        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE, Email.TYPE, Theme.TYPE);
+        List<String> keys = List.of(biKey, t1Key, t2Key, eKey);
+        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE, Email.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);
@@ -137,7 +139,7 @@ public class CollectWithEmailAndThemeTest {
                 .setSubject("mmichu")
                 .setValidity("P2Y")
                 .setLanguage(language)
-                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey).withTheme(thKey))
+                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey))
                 .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
@@ -174,7 +176,6 @@ public class CollectWithEmailAndThemeTest {
         assertTrue(received.contains("Footer " + eKey));
         assertTrue(received.contains("Signature " + eKey));
         assertTrue(received.contains(publicUrl + "/consents?t="));
-        assertTrue(received.contains("CSS " + thKey));
         assertFalse(sent.get(0).getAttachments().isEmpty());
         assertEquals("Sender " + eKey, sent.get(0).getFrom());
 

@@ -26,9 +26,9 @@ public interface AuthenticationService {
 
     boolean isIdentified();
 
-    String getConnectedIdentifier();
+    void ensureIsIdentified() throws AccessDeniedException;
 
-    Set<String> listConnectedIdentifierRoles();
+    String getConnectedIdentifier();
 
     boolean isConnectedIdentifierAdmin();
 

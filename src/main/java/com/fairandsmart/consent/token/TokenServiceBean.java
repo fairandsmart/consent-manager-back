@@ -59,7 +59,8 @@ public class TokenServiceBean implements TokenService {
     @Override
     @Transactional
     public String generateToken(Tokenizable tokenizable, Date expirationDate) {
-        LOGGER.log(Level.INFO, "Generating token");
+        LOGGER.log(Level.INFO, "Generating token of type: " + tokenizable.getClass() );
+        LOGGER.log(Level.FINE, "Token will expires at : " + expirationDate.toString() );
         JWTCreator.Builder builder = JWT.create().withIssuer(config.instance());
         builder.withExpiresAt(expirationDate);
         builder.withSubject(tokenizable.getSubject());
@@ -84,7 +85,6 @@ public class TokenServiceBean implements TokenService {
     @Override
     @Transactional
     public String generateToken(Tokenizable tokenizable, int calendarField, int calendarAmount) {
-        LOGGER.log(Level.INFO, "Generating token");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.add(calendarField, calendarAmount);
@@ -94,10 +94,7 @@ public class TokenServiceBean implements TokenService {
     @Override
     @Transactional
     public String generateToken(Tokenizable tokenizable) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.add(Calendar.MILLISECOND, tokenizable.expirationDelay());
-        return this.generateToken(tokenizable, calendar.getTime());
+        return this.generateToken(tokenizable, new Date(System.currentTimeMillis() + tokenizable.expirationDelay()));
     }
 
     @Override

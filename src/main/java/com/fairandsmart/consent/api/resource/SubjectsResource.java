@@ -139,5 +139,4 @@ public class SubjectsResource {
         URI other = uriInfo.getBaseUriBuilder().path(RecordsResource.class).queryParam("subject", subject).build();
         return Response.seeOther(other).build();
     }
-
 }
