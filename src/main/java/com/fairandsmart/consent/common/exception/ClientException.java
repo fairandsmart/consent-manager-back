@@ -20,7 +20,6 @@ import com.fairandsmart.consent.manager.ConsentContext;
 
 public abstract class ClientException extends GenericException {
 
-    private String key;
     private ConsentContext ctx;
     private String retryURI;
 
@@ -37,14 +36,6 @@ public abstract class ClientException extends GenericException {
 
     public ClientException(Throwable cause) {
         super(cause);
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public ConsentContext getContext() {

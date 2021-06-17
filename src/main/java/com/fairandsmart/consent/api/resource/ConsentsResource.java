@@ -7,10 +7,10 @@ package com.fairandsmart.consent.api.resource;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -88,7 +88,7 @@ public class ConsentsResource {
             @APIResponse(responseCode = "401", description = "thin token is either invalid or missing")
     })
     @Operation(summary = "Generate a form from a given thin token")
-    public TemplateModel getFormHtml(@QueryParam("t") @NotNull String token, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
+    public TemplateModel getFormHtml(@QueryParam("t") @NotNull String token, @HeaderParam("Accept-Language") String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "GET /consents (html)");
         try {
             ConsentForm form = consentService.generateForm(token);
@@ -115,7 +115,7 @@ public class ConsentsResource {
             @APIResponse(responseCode = "200", description = "form result has been recorded", content = @Content(example = "consent receipt HTML code")),
             @APIResponse(responseCode = "401", description = "thin token is either invalid or missing")
     })
-    public TemplateModel postConsent(MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
+    public TemplateModel postConsent(MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam("Accept-Language") String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "POST /consents");
         try {
             if (!values.containsKey("token")) {
@@ -158,7 +158,13 @@ public class ConsentsResource {
 
     private String getLanguage(String acceptLanguage) {
         LOGGER.log(Level.FINE, "extracting language from header Accept-Language: " + acceptLanguage);
-        return (StringUtils.isNotEmpty(acceptLanguage))?new Locale(acceptLanguage).getLanguage():config.language();
+        String language;
+        try {
+            language = Locale.LanguageRange.parse(acceptLanguage).get(0).getRange();
+        } catch (Exception e) {
+            language = config.language();
+        }
+        return language;
     }
 
 }

@@ -35,5 +35,8 @@ public abstract class GenericException extends Exception {
         super(cause);
     }
 
+    abstract public String getKey();
+
     abstract public ApiError.Type getType();
+
 }

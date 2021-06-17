@@ -20,8 +20,15 @@ import com.fairandsmart.consent.api.error.ApiError;
 
 public class EntityNotFoundException extends GenericException {
 
+    public static final String KEY = "entityNotFound";
+
     public EntityNotFoundException(String message) {
         super(message);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
     }
 
     @Override

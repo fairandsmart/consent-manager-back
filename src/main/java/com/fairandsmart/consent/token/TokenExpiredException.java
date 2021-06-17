@@ -17,9 +17,9 @@ package com.fairandsmart.consent.token;
  */
 
 import com.fairandsmart.consent.api.error.ApiError;
-import com.fairandsmart.consent.common.exception.ClientException;
+import com.fairandsmart.consent.common.exception.GenericException;
 
-public class TokenExpiredException extends ClientException {
+public class TokenExpiredException extends GenericException {
 
     public static final String KEY = "tokenExpired";
 
@@ -32,7 +32,9 @@ public class TokenExpiredException extends ClientException {
         return KEY;
     }
 
+    @Override
     public ApiError.Type getType() {
         return ApiError.Type.TOKEN_EXPIRED;
     }
+
 }

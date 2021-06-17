@@ -21,8 +21,15 @@ import com.fairandsmart.consent.common.exception.GenericException;
 
 public class ReceiptAlreadyExistsException extends GenericException {
 
+    public static final String KEY = "receiptAlreadyExists";
+
     public ReceiptAlreadyExistsException(String s) {
         super(s);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
     }
 
     @Override

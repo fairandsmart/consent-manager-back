@@ -17,9 +17,9 @@ package com.fairandsmart.consent.token;
  */
 
 import com.fairandsmart.consent.api.error.ApiError;
-import com.fairandsmart.consent.common.exception.ClientException;
+import com.fairandsmart.consent.common.exception.GenericException;
 
-public class InvalidTokenException extends ClientException {
+public class InvalidTokenException extends GenericException {
 
     public static final String KEY = "tokenInvalid";
 
@@ -36,7 +36,9 @@ public class InvalidTokenException extends ClientException {
         return KEY;
     }
 
+    @Override
     public ApiError.Type getType() {
         return ApiError.Type.INVALID_TOKEN;
     }
+
 }

@@ -21,12 +21,19 @@ import com.fairandsmart.consent.common.exception.GenericException;
 
 public class ModelDataSerializationException extends GenericException {
 
+    public static final String KEY = "serializationError";
+
     public ModelDataSerializationException(String s) {
         super(s);
     }
 
     public ModelDataSerializationException(String s, Throwable throwable) {
         super(s, throwable);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
     }
 
     @Override

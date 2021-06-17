@@ -41,7 +41,9 @@ public class GenerateFormException extends ClientException {
         return KEY;
     }
 
+    @Override
     public ApiError.Type getType() {
         return ApiError.Type.UNEXPECTED_ERROR;
     }
+
 }

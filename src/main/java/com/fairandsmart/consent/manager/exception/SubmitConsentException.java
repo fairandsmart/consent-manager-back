@@ -54,7 +54,9 @@ public class SubmitConsentException extends ClientException {
         return retryUri;
     }
 
+    @Override
     public ApiError.Type getType() {
         return ApiError.Type.UNEXPECTED_ERROR;
     }
+
 }

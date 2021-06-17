@@ -21,8 +21,15 @@ import com.fairandsmart.consent.common.exception.GenericException;
 
 public class ReceiptNotFoundException extends GenericException {
 
+    public static final String KEY = "receiptNotFound";
+
     public ReceiptNotFoundException(String s) {
         super(s);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
     }
 
     public ApiError.Type getType() {

@@ -21,6 +21,8 @@ import com.fairandsmart.consent.common.exception.GenericException;
 
 public class RenderingException extends GenericException {
 
+    public static final String KEY = "rendererError";
+
     public RenderingException(String message) {
         super(message);
     }
@@ -30,7 +32,13 @@ public class RenderingException extends GenericException {
     }
 
     @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
     public ApiError.Type getType() {
         return ApiError.Type.RENDERER_ERROR;
     }
+
 }

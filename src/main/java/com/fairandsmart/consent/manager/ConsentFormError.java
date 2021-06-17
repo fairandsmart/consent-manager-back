@@ -1,6 +1,7 @@
 package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.common.exception.ClientException;
+import com.fairandsmart.consent.common.exception.GenericException;
 
 public class ConsentFormError {
 
@@ -10,11 +11,12 @@ public class ConsentFormError {
     private ConsentContext context;
     private String retryURI;
 
-
     public ConsentFormError(Throwable e) {
         this.error = e;
+        if (e instanceof GenericException) {
+            this.key = ((GenericException) e).getKey();
+        }
         if (e instanceof ClientException) {
-            this.key = ((ClientException)e).getKey();
             this.context = ((ClientException)e).getContext();
             this.retryURI = ((ClientException)e).getRetryURI();
         }

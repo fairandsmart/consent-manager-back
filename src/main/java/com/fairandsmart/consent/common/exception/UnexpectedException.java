@@ -20,6 +20,8 @@ import com.fairandsmart.consent.api.error.ApiError;
 
 public class UnexpectedException extends GenericException {
 
+    public static final String KEY = "unexpectedError";
+
     public UnexpectedException() {
     }
 
@@ -36,7 +38,13 @@ public class UnexpectedException extends GenericException {
     }
 
     @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
     public ApiError.Type getType() {
         return ApiError.Type.UNEXPECTED_ERROR;
     }
+
 }
