@@ -18,7 +18,6 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.manager.model.FormLayout;
-import com.fairandsmart.consent.token.Tokenizable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -26,17 +25,16 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 @Schema(description = "Consent form context object")
-public class ConsentContext implements Tokenizable {
+public class ConsentContext {
 
     private static final String DEFAULT_VALIDITY = "P6M";
     private static final long DEFAULT_VALIDITY_MILLIS = 15778800000L;
-    private static final String USERINFOS_PREFIX = "userinfos_";
-    private static final String ATTRIBUTES_PREFIX = "attributes_";
-    private static final String CONFIRMATION_PREFIX = "confirmation_";
 
     @NotNull
     @Schema(description = "The customer unique identifier", example = Placeholders.SHELDON)
@@ -57,8 +55,6 @@ public class ConsentContext implements Tokenizable {
     private Map<String, String> userinfos; // TODO : doc this
     @Schema(example = "{}")
     private Map<String, String> attributes; // TODO : doc this
-    @Schema(hidden = true)
-    private String transaction;
     @Schema(description = "Consent form layout key to use", example = "layout.001")
     private String layout;
     @Schema(description = "Consent form layout data to use")
@@ -207,15 +203,6 @@ public class ConsentContext implements Tokenizable {
         return this;
     }
 
-    public String getTransaction() {
-        return transaction;
-    }
-
-    public ConsentContext setTransaction(String transaction) {
-        this.transaction = transaction;
-        return this;
-    }
-
     public String getLayout() {
         return layout;
     }
@@ -271,117 +258,6 @@ public class ConsentContext implements Tokenizable {
     }
 
     @Override
-    @Schema(hidden = true)
-    public Map<String, String> getClaims() {
-        Map<String, String> claims = new HashMap<>();
-        if (language != null) {
-            claims.put("language", this.getLanguage());
-        }
-        if (validity != null) {
-            claims.put("validity", this.getValidity());
-        }
-        if (callback != null) {
-            claims.put("callback", this.getCallback());
-        }
-        if (iframeOrigin != null) {
-            claims.put("iframeOrigin", this.getIframeOrigin());
-        }
-        if (notificationRecipient != null) {
-            claims.put("notificationRecipient", this.getNotificationRecipient());
-        }
-        if (origin != null) {
-            claims.put("origin", this.getOrigin().toString());
-        }
-        if (userinfos != null && !userinfos.isEmpty()) {
-            for (Map.Entry<String, String> entry : userinfos.entrySet()) {
-                claims.put(USERINFOS_PREFIX + entry.getKey(), entry.getValue());
-            }
-        }
-        if (attributes != null && !attributes.isEmpty()) {
-            for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                claims.put(ATTRIBUTES_PREFIX + entry.getKey(), entry.getValue());
-            }
-        }
-        if (transaction != null) {
-            claims.put("transaction", this.getTransaction());
-        }
-        if (layout != null) {
-            claims.put("layout", this.getLayout());
-        }
-        if (layoutData != null) {
-            Map<String, String> layout = this.getLayoutData().getClaims();
-            claims.putAll(layout.entrySet().stream().collect(Collectors.toMap(entry -> "layout.".concat(entry.getKey()),Map.Entry::getValue)));
-        }
-        claims.put("preview", Boolean.toString(this.isPreview()));
-        if (author != null) {
-            claims.put("author", this.getAuthor());
-        }
-        if (confirmation != null) {
-            claims.put("confirmation", this.getConfirmation().toString());
-        }
-        if (confirmationConfig != null && !confirmationConfig.isEmpty()) {
-            for (Map.Entry<String, String> entry : confirmationConfig.entrySet()) {
-                claims.put(ATTRIBUTES_PREFIX + entry.getKey(), entry.getValue());
-            }
-        }
-        return claims;
-    }
-
-    @Override
-    @Schema(hidden = true)
-    public Tokenizable setClaims(Map<String, String> claims) {
-        if (claims.containsKey("language")) {
-            this.setLanguage(claims.get("language"));
-        }
-        if (claims.containsKey("validity")) {
-            this.setValidity(claims.get("validity"));
-        }
-        if (claims.containsKey("callback")) {
-            this.setCallback(claims.get("callback"));
-        }
-        if (claims.containsKey("iframeOrigin")) {
-            this.setIframeOrigin(claims.get("iframeOrigin"));
-        }
-        if (claims.containsKey("notificationRecipient")) {
-            this.setNotificationRecipient(claims.get("notificationRecipient"));
-        }
-        if (claims.containsKey("origin")) {
-            this.setOrigin(Origin.valueOf(claims.get("origin")));
-        }
-        claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(USERINFOS_PREFIX)).forEach(
-                entry -> this.getUserinfos().put(entry.getKey().substring(USERINFOS_PREFIX.length()), entry.getValue())
-        );
-        claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(ATTRIBUTES_PREFIX)).forEach(
-                entry -> this.getAttributes().put(entry.getKey().substring(ATTRIBUTES_PREFIX.length()), entry.getValue())
-        );
-        if (claims.containsKey("transaction")) {
-            this.setTransaction(claims.get("transaction"));
-        }
-        if (claims.containsKey("layout")) {
-            this.setLayout(claims.get("layout"));
-        }
-        Map<String, String> overlayingClaims = claims.entrySet().stream().filter(e -> e.getKey().startsWith("layout.")).collect(Collectors.toMap(e -> e.getKey().substring("layout.".length()), Map.Entry::getValue));
-        if (!overlayingClaims.isEmpty()) {
-            FormLayout overlaying = new FormLayout();
-            overlaying.setClaims(overlayingClaims);
-            this.setLayoutData(overlaying);
-        }
-        if (claims.containsKey("preview")) {
-            this.setPreview(Boolean.parseBoolean(claims.get("preview")));
-        }
-        if (claims.containsKey("author")) {
-            this.setAuthor(claims.get("author"));
-        }
-        if (claims.containsKey("confirmation")) {
-            this.setConfirmation(Confirmation.valueOf(claims.get("confirmation")));
-        }
-        claims.entrySet().stream().filter(entry -> entry.getKey().startsWith(CONFIRMATION_PREFIX)).forEach(
-                entry -> this.getUserinfos().put(entry.getKey().substring(CONFIRMATION_PREFIX.length()), entry.getValue())
-        );
-        return this;
-    }
-
-    @Override
     public String toString() {
         return "ConsentContext{" +
                 "subject='" + subject + '\'' +
@@ -393,7 +269,6 @@ public class ConsentContext implements Tokenizable {
                 ", validity='" + validity + '\'' +
                 ", userinfos=" + userinfos +
                 ", attributes=" + attributes +
-                ", transaction='" + transaction + '\'' +
                 ", layout='" + layout + '\'' +
                 ", layoutData=" + layoutData +
                 ", preview=" + preview +

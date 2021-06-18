@@ -36,14 +36,14 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
             if (!authenticationService.isIdentified()) {
                 LOGGER.log(Level.FINE, "User is not authentified, trying to extract authentication information from token");
                 try {
-                    Tokenizable tokenizeable = tokenService.readToken(token);
+                    AccessToken accessToken = tokenService.readToken(token);
                     requestContext.setSecurityContext(new SecurityContext() {
                         @Override
                         public Principal getUserPrincipal() {
                             return new Principal() {
                                 @Override
                                 public String getName() {
-                                    return tokenizeable.getSubject();
+                                    return accessToken.getSubject();
                                 }
                             };
                         }
@@ -63,7 +63,7 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
                             return SecurityContext.BASIC_AUTH;
                         }
                     });
-                    LOGGER.log(Level.FINE, "User is now connected with token subject: " + tokenizeable.getSubject());
+                    LOGGER.log(Level.FINE, "User is now connected with token subject: " + accessToken.getSubject());
                 } catch (TokenExpiredException | TokenServiceException | InvalidTokenException e) {
                     LOGGER.log(Level.INFO, "Unable to retrieve token: " + e.getMessage() + ", avoiding token authentication");
                 }

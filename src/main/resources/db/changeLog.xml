@@ -347,4 +347,31 @@
                        schemaName="PUBLIC"
                        tableName="${instance}_RECORD"/>
     </changeSet>
+    <changeSet author="jayblanc" id="10">
+        <dropTable tableName="${instance}_THINTOKEN"
+                   schemaName="PUBLIC"/>
+        <createTable tableName="${instance}_TRANSACTION" schemaName="PUBLIC" >
+            <column name="ID" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="VERSION" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SUBJECT" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTEXT" type="VARCHAR(25000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATIONTIMESTAMP" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EXPIRATONTIMESTAMP" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

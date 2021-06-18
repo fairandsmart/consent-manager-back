@@ -21,19 +21,14 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.common.util.Base58;
-import com.fairandsmart.consent.token.entity.ThinToken;
-import io.quarkus.scheduler.Scheduled;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,75 +51,35 @@ public class TokenServiceBean implements TokenService {
     }
 
     @Override
-    @Transactional
-    public String generateToken(Tokenizable tokenizable, Date expirationDate) {
-        LOGGER.log(Level.INFO, "Generating token of type: " + tokenizable.getClass() );
+    public String generateToken(AccessToken token, Date expirationDate) {
+        LOGGER.log(Level.INFO, "Generating access token: " + token);
         LOGGER.log(Level.FINE, "Token will expires at : " + expirationDate.toString() );
-        JWTCreator.Builder builder = JWT.create().withIssuer(config.instance());
+        JWTCreator.Builder builder = JWT.create();
         builder.withExpiresAt(expirationDate);
-        builder.withSubject(tokenizable.getSubject());
-        builder.withClaim("payloadClass", tokenizable.getClass().getName());
-        builder.withIssuer(config.instance());
-        tokenizable.getClaims().forEach(builder::withClaim);
-        String token = builder.sign(algorithm);
-        if (config.useThinToken()) {
-            String key = Base58.encodeUUID(UUID.randomUUID().toString());
-            LOGGER.log(Level.FINE, "Storing short token with key: " + key);
-            ThinToken thinToken = new ThinToken();
-            thinToken.id = key;
-            thinToken.value = token;
-            thinToken.expires = expirationDate.getTime();
-            thinToken.persist();
-            return thinToken.id;
-        } else {
-            return token;
+        builder.withSubject(token.getSubject());
+        if (token.getScopes() != null && !token.getScopes().isEmpty()) {
+            builder.withClaim("scopes", token.getScopes());
         }
+        String stoken = builder.sign(algorithm);
+        return stoken;
     }
 
     @Override
     @Transactional
-    public String generateToken(Tokenizable tokenizable, int calendarField, int calendarAmount) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.add(calendarField, calendarAmount);
-        return generateToken(tokenizable, calendar.getTime());
+    public String generateToken(AccessToken token) {
+        return this.generateToken(token, new Date(System.currentTimeMillis() + token.getExpirationDelay()));
     }
 
     @Override
-    @Transactional
-    public String generateToken(Tokenizable tokenizable) {
-        return this.generateToken(tokenizable, new Date(System.currentTimeMillis() + tokenizable.expirationDelay()));
-    }
-
-    @Override
-    public Tokenizable readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException {
+    public AccessToken readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "Reading token");
-        String fullToken = token;
-        if (token.length() < 25) {
-            LOGGER.log(Level.FINE, "Token is a thin one");
-            Optional<ThinToken> entry = ThinToken.findByIdOptional(token);
-            fullToken = entry.map(e -> e.value).orElseThrow(() -> new InvalidTokenException("Unable to find a thin token with key: " + token));
+        DecodedJWT decodedJWT = getDecodedToken(token);
+        AccessToken accessToken = new AccessToken();
+        accessToken.setSubject(decodedJWT.getSubject());
+        if (decodedJWT.getClaims().containsKey("scopes")) {
+            accessToken.setScopes(decodedJWT.getClaim("scopes").asList(String.class));
         }
-        DecodedJWT decodedJWT = getDecodedToken(fullToken);
-
-        if (!decodedJWT.getClaims().containsKey("payloadClass")) {
-            throw new InvalidTokenException("token must contains a payloadClass claim");
-        }
-        try {
-            Class<?> clazz = Class.forName(decodedJWT.getClaim("payloadClass").asString());
-            Tokenizable tokenizable = (Tokenizable) clazz.getDeclaredConstructor().newInstance();
-            tokenizable.setSubject(decodedJWT.getSubject());
-            Map<String, String> claims = new HashMap<>();
-            for (Map.Entry<String, Claim> claim :  decodedJWT.getClaims().entrySet() ) {
-                claims.put(claim.getKey(), claim.getValue().asString());
-            }
-            tokenizable.setClaims(claims);
-            return tokenizable;
-        } catch (ClassNotFoundException e) {
-            throw new TokenServiceException("Unable to load class of tokenized object");
-        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
-            throw new TokenServiceException("Unable to build tokenizable", e);
-        }
+        return accessToken;
     }
 
     private DecodedJWT getDecodedToken(String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException {
@@ -145,11 +100,14 @@ public class TokenServiceBean implements TokenService {
         throw new TokenServiceException("token verifier is null");
     }
 
+    /*
     @Scheduled(cron="0 0 1 * * ?")
     @Transactional
     public void purgeExpiredToken() {
         LOGGER.log(Level.INFO, "Deleting expired thin tokens");
         ThinToken.delete("expires > ?1", System.currentTimeMillis()-40000000);
     }
+
+     */
 
 }

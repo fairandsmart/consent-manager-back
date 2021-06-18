@@ -16,7 +16,8 @@ package com.fairandsmart.consent.template.builder;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.ConsentAcknowledgment;
+import com.fairandsmart.consent.api.dto.TransactionDto;
+import com.fairandsmart.consent.manager.ConsentFormResult;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateModelBuilder;
 
@@ -33,14 +34,14 @@ public class ConsentFormResultTemplateModelBuilder implements TemplateModelBuild
 
     @Override
     public boolean canBuild(Object data) {
-        return data instanceof ConsentAcknowledgment;
+        return data instanceof TransactionDto;
     }
 
     @Override
-    public TemplateModel<ConsentAcknowledgment> build(Object data) {
-        ConsentAcknowledgment consentSubmissionData = (ConsentAcknowledgment) data;
+    public TemplateModel<ConsentFormResult> build(Object data) {
+        ConsentFormResult consentSubmissionData = (ConsentFormResult) data;
 
-        TemplateModel<ConsentAcknowledgment> model = new TemplateModel<>();
+        TemplateModel<ConsentFormResult> model = new TemplateModel<>();
         model.setLanguage(consentSubmissionData.getContext().getLanguage());
         ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
         model.setBundle(bundle);

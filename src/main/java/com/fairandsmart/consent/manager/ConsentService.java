@@ -86,13 +86,25 @@ public interface ConsentService {
 
     void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
 
-    /* Forms */
+    /* Transactions */
 
-    String buildFormToken(ConsentContext ctx) throws AccessDeniedException;
+    Transaction createTransaction(ConsentContext ctx) throws AccessDeniedException, ConsentContextSerializationException;
 
-    ConsentForm generateForm(String token) throws TokenExpiredException, InvalidTokenException, ConsentServiceException, GenerateFormException;
+    Transaction getTransaction(String txId) throws AccessDeniedException, EntityNotFoundException;
 
-    ConsentReceipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException;
+    boolean isTransactionExists(String txId);
+
+    List<Transaction> listTransactions() throws AccessDeniedException;
+
+    long countTransactions(long from, long to) throws AccessDeniedException;
+
+    ConsentForm getConsentForm(String txId) throws GenerateFormException, ConsentServiceException, AccessDeniedException, EntityNotFoundException;
+
+    ConsentReceipt submitConsentValues(String txId, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException, AccessDeniedException, EntityNotFoundException, ConsentContextSerializationException;
+
+    ConsentForm getConfirmationForm(String txId) throws TokenExpiredException, InvalidTokenException, ConsentServiceException, GenerateFormException;
+
+    ConsentReceipt submitConfirmationValues(String txId, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException;
 
     /* Records */
 
@@ -101,15 +113,6 @@ public interface ConsentService {
     Map<String, Record> systemListValidRecords(String subject, String infoKey, List<String> elementsKeys) throws AccessDeniedException;
 
     Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException, EntityNotFoundException;
-
-    /* Transactions */
-
-    Record.State getTransactionState(String transaction);
-
-    boolean isTransactionExists(String transaction);
-
-    long countTransactionsCreatedBetween(long from, long to);
-
 
     /* Subjects */
 
@@ -121,13 +124,9 @@ public interface ConsentService {
 
     Subject updateSubject(String id, String email) throws AccessDeniedException, EntityNotFoundException;
 
-    String buildSubjectToken(SubjectContext ctx) throws AccessDeniedException;
-
     /* Receipts */
 
     ConsentReceipt getReceipt(String id) throws ReceiptNotFoundException, ConsentManagerException;
-
-    String buildReceiptToken(ReceiptContext ctx) throws AccessDeniedException, ReceiptStoreException, ReceiptNotFoundException;
 
     byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException;
 

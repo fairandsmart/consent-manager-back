@@ -424,7 +424,7 @@ public class ConsentServiceTest {
     @Test
     @Transactional
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testRecordLifecycle() throws TokenExpiredException, InvalidValuesException, InvalidTokenException, ConsentServiceException, EntityAlreadyExistsException, GenerateFormException, ConsentManagerException, InvalidStatusException, EntityNotFoundException, SubmitConsentException {
+    public void testRecordLifecycle() throws EntityAlreadyExistsException, ConsentManagerException, InvalidStatusException, EntityNotFoundException, ConsentContextSerializationException, ConsentServiceException, GenerateFormException, InvalidTokenException, SubmitConsentException, TokenExpiredException {
         LOGGER.info("#### Test record lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -467,7 +467,7 @@ public class ConsentServiceTest {
         assertEquals(entriesCount + 4, entries.getTotalCount());
 
         //Count initial transactions
-        long txCountInitial = service.countTransactionsCreatedBetween(0, System.currentTimeMillis());
+        long txCountInitial = service.countTransactions(0, System.currentTimeMillis());
         LOGGER.info("Initial transaction count: " + txCountInitial);
 
         LOGGER.info("Creating READ context and token");
@@ -476,14 +476,14 @@ public class ConsentServiceTest {
                 .setSubject(subject)
                 .setLanguage(language)
                 .setLayout(lKey);
-        String readToken = service.buildFormToken(readCtx);
+        Transaction readTx = service.createTransaction(readCtx);
 
         LOGGER.info("Reading consent records before submit");
         Map<String, Record> records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
         assertEquals(0, records.size());
 
         LOGGER.info("First consent form");
-        ConsentForm form = service.generateForm(readToken);
+        ConsentForm form = service.getConsentForm(readTx.id);
         assertEquals(2, form.getElements().size());
         assertEquals(0, form.getPreviousValues().size());
 
@@ -492,7 +492,7 @@ public class ConsentServiceTest {
         values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
         values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
         values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(readTx.id, values);
 
         LOGGER.info("Reading consent records after submit");
         records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
@@ -511,7 +511,7 @@ public class ConsentServiceTest {
         assertEquals("refused", record.value);
 
         //Count transactions after first consent submit
-        long txCountCurrent = service.countTransactionsCreatedBetween(0, System.currentTimeMillis());
+        long txCountCurrent = service.countTransactions(0, System.currentTimeMillis());
         LOGGER.info("Current transactions count: " + txCountCurrent);
         assertEquals(txCountInitial+1, txCountCurrent);
 

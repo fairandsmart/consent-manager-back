@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.token.entity;
+package com.fairandsmart.consent.manager.exception;
 
 /*-
  * #%L
@@ -16,19 +16,14 @@ package com.fairandsmart.consent.token.entity;
  * #L%
  */
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+public class ConsentContextSerializationException extends Exception {
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+    public ConsentContextSerializationException(String s) {
+        super(s);
+    }
 
-@Entity
-public class ThinToken extends PanacheEntityBase {
-
-    @Id
-    public String id;
-    @Column(length = 25000)
-    public String value;
-    public long expires;
+    public ConsentContextSerializationException(String s, Throwable throwable) {
+        super(s, throwable);
+    }
 
 }

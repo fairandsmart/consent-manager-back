@@ -19,7 +19,10 @@ package com.fairandsmart.consent.notification.worker;
 import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.manager.*;
+import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.ConsentElementIdentifier;
+import com.fairandsmart.consent.manager.ConsentNotification;
+import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.model.Email;
@@ -29,6 +32,7 @@ import com.fairandsmart.consent.notification.entity.NotificationReport;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.template.TemplateServiceException;
+import com.fairandsmart.consent.token.AccessToken;
 import com.fairandsmart.consent.token.TokenService;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
@@ -39,11 +43,6 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -75,6 +74,7 @@ public class NotifyConsentWorker implements Runnable {
     @Inject
     ClientConfig clientConfig;
 
+    private String txid;
     private ConsentContext ctx;
 
     public NotifyConsentWorker() {
@@ -85,11 +85,15 @@ public class NotifyConsentWorker implements Runnable {
         this.ctx = ctx;
     }
 
+    public void setTransactionId(String txid) {
+        this.txid = txid;
+    }
+
     @Override
     @Transactional
     public void run() {
         LOGGER.log(Level.FINE, "Notify Consent worker started for ctx: " + ctx);
-        NotificationReport report = new NotificationReport(ctx.getTransaction(), NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
+        NotificationReport report = new NotificationReport(txid, NotificationReport.Type.EMAIL, NotificationReport.Status.SENT);
         try {
             ConsentNotification notification = new ConsentNotification();
             notification.setLanguage(ctx.getLanguage());
@@ -100,21 +104,19 @@ public class NotifyConsentWorker implements Runnable {
                 ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getLayoutData().getTheme()).get().getSerial(), true);
                 notification.setTheme(theme);
             }
+            AccessToken token = new AccessToken().withSubject(ctx.getSubject()).withValidity(ctx.getValidity());
+            notification.setToken(this.tokenService.generateToken(token));
             if (clientConfig.isUserPageEnabled() && clientConfig.userPagePublicUrl().isPresent()) {
                 ctx.setOrigin(ConsentContext.Origin.USER);
-                SubjectContext subCtx = new SubjectContext();
-                subCtx.withSubject(ctx.getSubject());
-                notification.setToken(this.tokenService.generateToken(subCtx));
                 URI notificationUri = UriBuilder.fromUri(clientConfig.userPagePublicUrl().get()).queryParam("t", notification.getToken()).build();
                 notification.setUrl(notificationUri.toString());
             } else {
                 ctx.setOrigin(ConsentContext.Origin.EMAIL);
-                notification.setToken(this.tokenService.generateToken(ctx));
                 URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
                 notification.setUrl(notificationUri.toString());
             }
             try {
-                notification.setReceipt(this.consentService.systemRenderReceipt(ctx.getTransaction(), "application/pdf", (notification.getTheme() != null) ? notification.getTheme().entry.key : ""));
+                notification.setReceipt(this.consentService.systemRenderReceipt(txid, "application/pdf", (notification.getTheme() != null) ? notification.getTheme().entry.key : ""));
                 notification.setReceiptName("receipt.pdf");
                 notification.setReceiptType("application/pdf");
             } catch (ReceiptNotFoundException e) { //

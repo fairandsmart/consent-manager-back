@@ -46,6 +46,7 @@ public class NotifyConsentListener {
         if (event.getEventType().equals(EventType.CONSENT_SUBMIT)) {
             ConsentContext ctx = (ConsentContext) event.getData();
             if (StringUtils.isNotEmpty(ctx.getNotificationRecipient())) {
+                worker.setTransactionId(event.getSourceId());
                 worker.setCtx(ctx);
                 executor.submit(worker);
             }

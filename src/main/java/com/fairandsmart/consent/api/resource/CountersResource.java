@@ -17,6 +17,7 @@ package com.fairandsmart.consent.api.resource;
  */
 
 import com.fairandsmart.consent.api.dto.CounterDto;
+import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.manager.ConsentService;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -47,9 +48,9 @@ public class CountersResource {
     public CounterDto getTransactionCounter(
             @Parameter(description = "timestamp when to start counting") @QueryParam("from") @DefaultValue("0") long from,
             @Parameter(description = "timestamp when to stop counting") @QueryParam("to") @NotEmpty long to
-            ) {
+            ) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /counters/transaction");
-        long value = consentService.countTransactionsCreatedBetween(from, to);
+        long value = consentService.countTransactions(from, to);
         CounterDto dto = new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
         return dto;
     }

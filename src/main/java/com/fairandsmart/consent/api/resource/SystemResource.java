@@ -96,21 +96,6 @@ public class SystemResource {
     }
 
     @GET
-    @Path("/counters/transaction")
-    @Produces(MediaType.APPLICATION_JSON)
-    @APIResponse(responseCode = "200", description = "Transaction counter")
-    @Operation(summary = "Get the Transaction count between timestamp interval")
-    public CounterDto getTransactionCounter(
-            @Parameter(description = "timestamp when to start counting") @QueryParam("from") @DefaultValue("0") long from,
-            @Parameter(description = "timestamp when to stop counting") @QueryParam("to") @NotEmpty long to
-            ) {
-        LOGGER.log(Level.INFO, "GET /counters/transaction");
-        long value = consentService.countTransactionsCreatedBetween(from, to);
-        CounterDto dto = new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
-        return dto;
-    }
-
-    @GET
     @Path("/events")
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponse(responseCode = "200", description = "System events list")

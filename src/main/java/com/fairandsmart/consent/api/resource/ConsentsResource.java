@@ -16,35 +16,26 @@ package com.fairandsmart.consent.api.resource;
  * #L%
  */
 
+import com.fairandsmart.consent.api.dto.TransactionDto;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.manager.*;
+import com.fairandsmart.consent.manager.entity.Transaction;
+import com.fairandsmart.consent.manager.exception.ConsentContextSerializationException;
 import com.fairandsmart.consent.manager.exception.ConsentServiceException;
 import com.fairandsmart.consent.manager.exception.GenerateFormException;
-import com.fairandsmart.consent.manager.exception.SubmitConsentException;
-import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
-import com.fairandsmart.consent.template.TemplateServiceException;
+import com.fairandsmart.consent.token.AccessToken;
 import com.fairandsmart.consent.token.InvalidTokenException;
-import com.fairandsmart.consent.token.TokenExpiredException;
 import com.fairandsmart.consent.token.TokenService;
-import com.fairandsmart.consent.token.TokenServiceException;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
-import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
-import java.util.Locale;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,24 +58,34 @@ public class ConsentsResource {
     TemplateService templateService;
 
     @POST
-    @Path("token")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    @Deprecated
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "thin token has been generated", content = @Content(example = "a token")),
-            @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE)
-    })
-    @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(summary = "Generate a form token from a given context")
-    public Response generateFormToken(@Valid ConsentContext ctx, @Context UriInfo uriInfo) {
-        LOGGER.log(Level.INFO, "POST /consents/token");
-        URI uri = uriInfo.getBaseUriBuilder().path(TokensResource.class).path("consent").build();
-        return Response.temporaryRedirect(uri).entity(ctx).build();
+    @Produces(MediaType.APPLICATION_JSON)
+    public TransactionDto createTransactionJson(@Valid ConsentContext ctx, @Context UriInfo uriInfo) throws AccessDeniedException, ConsentContextSerializationException {
+        LOGGER.log(Level.INFO, "POST /consents (json)");
+        Transaction tx = consentService.createTransaction(ctx);
+        TransactionDto dto = TransactionDto.fromTransaction(tx);
+        //TODO Ensure that a SubjectToken is the right one because validity is long (1 year) maybe a TransactionToken (or a new FormToken) could be better
+        String token = tokenService.generateToken(new AccessToken().withSubject(dto.getSubject()));
+        URI form = uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(dto.getId()).path("submit").queryParam("t", token).build();
+        dto.setFormURI(form);
+        return dto;
     }
 
     @GET
-    @Path("form")
+    @Path("{txid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public TransactionDto getTransaction(@PathParam("txid") String txid, @Context UriInfo uriInfo) throws AccessDeniedException, EntityNotFoundException, ConsentContextSerializationException {
+        LOGGER.log(Level.INFO, "GET /consents/" + txid + " (json)");
+        Transaction tx = consentService.getTransaction(txid);
+        TransactionDto dto = TransactionDto.fromTransaction(tx);
+        //TODO Depending on the transaction state, the action should be another
+        String token = tokenService.generateToken(new AccessToken().withSubject(dto.getSubject()));
+        URI form = uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(dto.getId()).path("submit").queryParam("t", token).build();
+        dto.setFormURI(form);
+        return dto;
+    }
+
+    /*
+    @GET
     @Produces(MediaType.TEXT_HTML)
     @APIResponses(value = {
             @APIResponse(responseCode = "200", description = "form has been generated", content = @Content(example = "consent form HTML code")),
@@ -103,16 +104,7 @@ public class ConsentsResource {
         }
     }
 
-    @GET
-    @Path("form")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ConsentForm getConsentFormJson(@QueryParam("t") @NotNull String token) throws TokenExpiredException, ConsentServiceException, InvalidTokenException, GenerateFormException {
-        LOGGER.log(Level.INFO, "GET /consents/form (json)");
-        return consentService.generateForm(token);
-    }
-
     @POST
-    @Path("values")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
     @Operation(summary = "Submit consent form values")
@@ -120,13 +112,13 @@ public class ConsentsResource {
             @APIResponse(responseCode = "200", description = "consent values has been recorded", content = @Content(example = "consent acknowledgment")),
             @APIResponse(responseCode = "401", description = "token is either invalid or missing")
     })
-    public TemplateModel postConsentValues(MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws TemplateServiceException {
+    public TemplateModel submitConsentValues(MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws TemplateServiceException {
         LOGGER.log(Level.INFO, "POST /consents/values (html)");
         try {
             if (!values.containsKey("token")) {
                 throw new AccessDeniedException("unable to find token in values");
             }
-            ConsentAcknowledgment result = this.internalPostConsent(values, uriInfo);
+            ConsentFormResult result = this.internalPostConsent(values, uriInfo);
             return templateService.buildModel(result);
         } catch (AccessDeniedException | TokenExpiredException | InvalidTokenException | ConsentServiceException | TokenServiceException | SubmitConsentException e) {
             ConsentFormError error = new ConsentFormError(e);
@@ -136,10 +128,9 @@ public class ConsentsResource {
     }
 
     @POST
-    @Path("values")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public ConsentAcknowledgment postConsentValuesJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, ConsentServiceException, TokenServiceException, SubmitConsentException {
+    public ConsentFormResult postConsentValuesJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws AccessDeniedException, TokenExpiredException, InvalidTokenException, ConsentServiceException, TokenServiceException, SubmitConsentException {
         LOGGER.log(Level.INFO, "POST /consents/values (json)");
         if (!values.containsKey("token")) {
             throw new AccessDeniedException("unable to find token in form");
@@ -147,44 +138,11 @@ public class ConsentsResource {
         return this.internalPostConsent(values, uriInfo);
     }
 
-    @POST
-    @Path("confirmation")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_HTML)
-    @Operation(summary = "Confirm a consent transaction")
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "confirm consent transaction", content = @Content(example = "consent receipt")),
-            @APIResponse(responseCode = "401", description = "token is either invalid or missing")
-    })
-    public TemplateModel postConsentConfirmation(MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws TemplateServiceException {
-        LOGGER.log(Level.INFO, "POST /consents/confirmation (html)");
-        try {
-            if (!values.containsKey("token")) {
-                throw new AccessDeniedException("unable to find token in values");
-            }
-            throw new ConsentServiceException("NOT IMPLEMENTED");
-        } catch (AccessDeniedException | ConsentServiceException e) {
-            ConsentFormError error = new ConsentFormError(e);
-            error.setLanguage(getLanguage(acceptLanguage));
-            return templateService.buildModel(error);
-        }
-    }
-
-    @POST
-    @Path("values")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    public ConsentAcknowledgment postConsentConfirmationJson(MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws ConsentServiceException {
-        LOGGER.log(Level.INFO, "POST /consents/confirmation (json)");
-        throw new ConsentServiceException("NOT IMPLEMENTED");
-    }
-
-
-    private ConsentAcknowledgment internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws TokenServiceException, TokenExpiredException, InvalidTokenException, ConsentServiceException, SubmitConsentException {
-        ConsentTransaction tx = consentService.submitConsent(values.get("token").get(0), values);
-        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.getTransaction()).queryParam("t", tokenService.generateToken(new ReceiptContext().setSubject(receipt.getSubject())));
+    private ConsentFormResult internalPostConsent(MultivaluedMap<String, String> values, UriInfo uriInfo) throws TokenServiceException, TokenExpiredException, InvalidTokenException, ConsentServiceException, SubmitConsentException {
+        ConsentReceipt receipt = consentService.submitConsent(values.get("token").get(0), values);
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(receipt.getTransaction()).queryParam("t", tokenService.generateToken(new ReceiptContext().setSubject(receipt.getSubject())));
         ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
-        ConsentAcknowledgment consentFormResult = new ConsentAcknowledgment();
+        ConsentFormResult consentFormResult = new ConsentFormResult();
         consentFormResult.setContext(ctx);
         if (StringUtils.isNotEmpty(ctx.getLayoutData().getDesiredReceiptMimeType())) {
             uri.queryParam("format", ctx.getLayoutData().getDesiredReceiptMimeType());
@@ -200,4 +158,5 @@ public class ConsentsResource {
         return (StringUtils.isNotEmpty(acceptLanguage))?new Locale(acceptLanguage).getLanguage():config.language();
     }
 
+     */
 }
