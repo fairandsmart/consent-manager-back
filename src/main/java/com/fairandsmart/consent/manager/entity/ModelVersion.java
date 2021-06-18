@@ -16,8 +16,8 @@ package com.fairandsmart.consent.manager.entity;
  * #L%
  */
 
-import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.ConsentElementIdentifier;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -148,15 +148,15 @@ public class ModelVersion extends PanacheEntityBase {
 
     public static class HistoryHelper {
 
-        public static ModelVersion findRootVersion(List<ModelVersion> versions) throws ConsentManagerException {
-            return versions.stream().filter(v -> v.parent.isEmpty()).findFirst().orElseThrow(() -> new ConsentManagerException("unable to find root version"));
+        public static ModelVersion findRootVersion(List<ModelVersion> versions) throws UnexpectedException {
+            return versions.stream().filter(v -> v.parent.isEmpty()).findFirst().orElseThrow(() -> new UnexpectedException("unable to find root version"));
         }
 
         public static ModelVersion findVersion(String id, List<ModelVersion> versions) {
             return versions.stream().filter(v -> v.id.equals(id)).findFirst().orElse(null);
         }
 
-        public static List<ModelVersion> orderVersions(List<ModelVersion> versions) throws ConsentManagerException {
+        public static List<ModelVersion> orderVersions(List<ModelVersion> versions) throws UnexpectedException {
             if (versions.isEmpty()) {
                 return versions;
             }
@@ -169,7 +169,7 @@ public class ModelVersion extends PanacheEntityBase {
                 next = version.child;
             }
             if (ordered.size() != versions.size()) {
-                throw new ConsentManagerException("error while ordering versions");
+                throw new UnexpectedException("error while ordering versions");
             }
             return ordered;
         }

@@ -18,20 +18,22 @@ package com.fairandsmart.consent.api.mapper;
 
 import com.fairandsmart.consent.api.error.ApiError;
 import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.manager.render.RenderingException;
+import com.fairandsmart.consent.common.exception.GenericException;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-public class RenderingExceptionMapper implements ExceptionMapper<RenderingException> {
+@Provider
+public class GenericExceptionMapper implements ExceptionMapper<GenericException> {
 
     @Inject
     MainConfig config;
 
     @Override
-    public Response toResponse(RenderingException exception) {
-        ApiError error = new ApiError(ApiError.Type.RENDERER_ERROR).withInstance(config.instance()).withException(exception);
+    public Response toResponse(GenericException exception) {
+        ApiError error = new ApiError(exception.getType()).withInstance(config.instance()).withException(exception);
         return Response.status(error.getStatus())
                 .header(ApiError.API_ERROR_HEADER, error.getType())
                 .header("access-control-expose-headers", ApiError.API_ERROR_HEADER)

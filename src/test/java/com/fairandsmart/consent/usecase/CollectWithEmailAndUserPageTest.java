@@ -21,6 +21,7 @@ import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.common.config.ClientConfig;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.SubjectContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
@@ -36,9 +37,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
-import io.restassured.internal.http.URIBuilder;
 import io.restassured.response.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -46,12 +45,11 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.validation.Validation;
-import javax.ws.rs.core.UriBuilder;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +57,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
@@ -96,7 +93,7 @@ public class CollectWithEmailAndUserPageTest {
      */
     @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testCollectWithEmail() throws InterruptedException, MalformedURLException, UnsupportedEncodingException, InvalidTokenException, TokenExpiredException, TokenServiceException {
+    public void testCollectWithEmail() throws InterruptedException, MalformedURLException, InvalidTokenException, TokenExpiredException, UnexpectedException {
         //SETUP
         LOGGER.log(Level.INFO, "Initial setup");
         //Check that the app is running
@@ -199,7 +196,7 @@ public class CollectWithEmailAndUserPageTest {
         if (notificationLink.isPresent()) {
             URL url = new URL(notificationLink.get().attr("href"));
             assertTrue(url.toString().startsWith(clientConfig.userPagePublicUrl().get()));
-            String stoken = URLDecoder.decode(url.getQuery().substring(url.getQuery().indexOf("=") + 1), "UTF-8");
+            String stoken = URLDecoder.decode(url.getQuery().substring(url.getQuery().indexOf("=") + 1), StandardCharsets.UTF_8);
             Tokenizable tokenizable = tokenService.readToken(stoken);
             assertTrue(tokenizable instanceof SubjectContext);
         } else {

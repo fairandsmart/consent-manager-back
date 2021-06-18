@@ -1,8 +1,7 @@
 package com.fairandsmart.consent.manager;
 
-import com.fairandsmart.consent.common.exception.ReportableException;
-import com.fairandsmart.consent.common.exception.NamedException;
-import com.fairandsmart.consent.common.exception.RetryableException;
+import com.fairandsmart.consent.common.exception.ClientException;
+import com.fairandsmart.consent.common.exception.GenericException;
 
 public class ConsentFormError {
 
@@ -12,17 +11,14 @@ public class ConsentFormError {
     private ConsentContext context;
     private String retryURI;
 
-
     public ConsentFormError(Throwable e) {
         this.error = e;
-        if (e instanceof NamedException) {
-            this.key = ((NamedException)e).getKey();
+        if (e instanceof GenericException) {
+            this.key = ((GenericException) e).getKey();
         }
-        if (e instanceof ReportableException) {
-            this.context = ((ReportableException)e).getContext();
-        }
-        if (e instanceof RetryableException) {
-            this.retryURI = ((RetryableException)e).getRetryURI();
+        if (e instanceof ClientException) {
+            this.context = ((ClientException)e).getContext();
+            this.retryURI = ((ClientException)e).getRetryURI();
         }
     }
 

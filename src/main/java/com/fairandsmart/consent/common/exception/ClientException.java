@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.manager.exception;
+package com.fairandsmart.consent.common.exception;
 
 /*-
  * #%L
@@ -16,34 +16,42 @@ package com.fairandsmart.consent.manager.exception;
  * #L%
  */
 
-import com.fairandsmart.consent.api.error.ApiError;
-import com.fairandsmart.consent.common.exception.ClientException;
 import com.fairandsmart.consent.manager.ConsentContext;
 
-public class GenerateFormException extends ClientException {
-
-    public static final String KEY = "generateForm";
+public abstract class ClientException extends GenericException {
 
     private ConsentContext ctx;
+    private String retryURI;
 
-    public GenerateFormException(ConsentContext ctx, String message) {
-        super(message);
-        this.ctx = ctx;
+    public ClientException() {
     }
 
-    @Override
+    public ClientException(String message) {
+        super(message);
+    }
+
+    public ClientException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ClientException(Throwable cause) {
+        super(cause);
+    }
+
     public ConsentContext getContext() {
         return ctx;
     }
 
-    @Override
-    public String getKey() {
-        return KEY;
+    public void setContext(ConsentContext ctx) {
+        this.ctx = ctx;
     }
 
-    @Override
-    public ApiError.Type getType() {
-        return ApiError.Type.UNEXPECTED_ERROR;
+    public String getRetryURI() {
+        return retryURI;
+    }
+
+    public void setRetryURI(String retryURI) {
+        this.retryURI = retryURI;
     }
 
 }

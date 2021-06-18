@@ -1,12 +1,12 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.ReceiptContext;
 import com.fairandsmart.consent.manager.SubjectContext;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
-import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -73,7 +73,7 @@ public class TokensResource {
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
     @Operation(summary = "Create receipt token for accessing a specific receipt")
-    public String createSubjectToken(@Valid ReceiptContext ctx) throws AccessDeniedException, ReceiptStoreException, ReceiptNotFoundException {
+    public String createSubjectToken(@Valid ReceiptContext ctx) throws AccessDeniedException, UnexpectedException, ReceiptNotFoundException {
         LOGGER.log(Level.INFO, "POST /tokens/receipt");
         return consentService.buildReceiptToken(ctx);
     }

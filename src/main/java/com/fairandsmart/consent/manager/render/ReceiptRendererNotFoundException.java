@@ -16,10 +16,25 @@ package com.fairandsmart.consent.manager.render;
  * #L%
  */
 
-public class ReceiptRendererNotFoundException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.GenericException;
+
+public class ReceiptRendererNotFoundException extends GenericException {
+
+    public static final String KEY = "rendererNotFound";
 
     public ReceiptRendererNotFoundException(String message) {
         super(message);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.RENDERER_NOT_FOUND;
     }
 
 }

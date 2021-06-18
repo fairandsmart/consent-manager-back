@@ -16,13 +16,29 @@ package com.fairandsmart.consent.support;
  * #L%
  */
 
-public class SupportServiceException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.GenericException;
 
-    public SupportServiceException(String message) {
+public class SupportUnreachableException extends GenericException {
+
+    public static final String KEY = "supportError";
+
+    public SupportUnreachableException(String message) {
         super(message);
     }
 
-    public SupportServiceException(String message, Throwable cause) {
+    public SupportUnreachableException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.SUPPORT_SERVICE_ERROR;
+    }
+
 }
