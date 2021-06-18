@@ -18,10 +18,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
-import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.ConsentManagerException;
-import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
-import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.*;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -29,10 +26,8 @@ import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
-import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenServiceException;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
@@ -46,7 +41,7 @@ public interface ConsentService {
 
     CollectionPage<ModelEntry> listEntries(ModelFilter filter);
 
-    ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, ConsentManagerException;
+    ModelEntry createEntry(String key, String name, String description, String type) throws EntityAlreadyExistsException, UnexpectedException, AccessDeniedException;
 
     ModelEntry getEntry(String entryId) throws EntityNotFoundException, AccessDeniedException;
 
@@ -54,11 +49,11 @@ public interface ConsentService {
 
     ModelEntry updateEntry(String entryId, String name, String description) throws EntityNotFoundException, AccessDeniedException;
 
-    void deleteEntry(String entryId) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException;
+    void deleteEntry(String entryId) throws UnexpectedException, EntityNotFoundException, InvalidStatusException, AccessDeniedException;
 
     /* Versions */
 
-    ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion createVersion(String entryId, String defaultLanguage, Map<String, ModelData> data) throws UnexpectedException, EntityNotFoundException, AccessDeniedException;
 
     ModelVersion findActiveVersionForKey(String key) throws EntityNotFoundException;
 
@@ -72,19 +67,19 @@ public interface ConsentService {
 
     ModelVersion getVersion(String versionId) throws EntityNotFoundException, AccessDeniedException;
 
-    List<ModelVersion> getVersionHistoryForKey(String key) throws ConsentManagerException;
+    List<ModelVersion> getVersionHistoryForKey(String key) throws UnexpectedException;
 
-    List<ModelVersion> getVersionHistoryForEntry(String entryId) throws ConsentManagerException;
+    List<ModelVersion> getVersionHistoryForEntry(String entryId) throws UnexpectedException;
 
-    ModelVersion updateVersion(String versionId, String defaultLanguage, Map<String, ModelData> data) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion updateVersion(String versionId, String defaultLanguage, Map<String, ModelData> data) throws UnexpectedException, EntityNotFoundException, AccessDeniedException;
 
-    ModelVersion updateVersionType(String versionId, ModelVersion.Type type) throws ConsentManagerException, EntityNotFoundException;
+    ModelVersion updateVersionType(String versionId, ModelVersion.Type type) throws UnexpectedException, EntityNotFoundException, AccessDeniedException;
 
-    ModelVersion updateVersionStatus(String versionId, ModelVersion.Status status) throws ConsentManagerException, EntityNotFoundException, InvalidStatusException;
+    ModelVersion updateVersionStatus(String versionId, ModelVersion.Status status) throws UnexpectedException, EntityNotFoundException, InvalidStatusException, AccessDeniedException;
 
     PreviewDto previewVersion(String entryId, String versionId, PreviewDto dto) throws AccessDeniedException, EntityNotFoundException, ModelDataSerializationException;
 
-    void deleteVersion(String versionId) throws ConsentManagerException, EntityNotFoundException;
+    void deleteVersion(String versionId) throws UnexpectedException, EntityNotFoundException, AccessDeniedException;
 
     /* Transactions */
 
@@ -100,11 +95,11 @@ public interface ConsentService {
 
     ConsentForm getConsentForm(String txId) throws GenerateFormException, ConsentServiceException, AccessDeniedException, EntityNotFoundException;
 
-    ConsentReceipt submitConsentValues(String txId, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException, AccessDeniedException, EntityNotFoundException, ConsentContextSerializationException;
+    ConsentReceipt submitConsentValues(String txId, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException, ConsentContextSerializationException;
 
-    ConsentForm getConfirmationForm(String txId) throws TokenExpiredException, InvalidTokenException, ConsentServiceException, GenerateFormException;
+    ConsentForm getConfirmationForm(String txId) throws TokenExpiredException, InvalidTokenException, UnexpectedException, GenerateFormException;
 
-    ConsentReceipt submitConfirmationValues(String txId, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, ConsentServiceException, SubmitConsentException;
+    ConsentReceipt submitConfirmationValues(String txId, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, UnexpectedException, SubmitConsentException;
 
     /* Records */
 
@@ -120,15 +115,15 @@ public interface ConsentService {
 
     Subject getSubject(String name) throws AccessDeniedException;
 
-    Subject createSubject(String name, String email) throws ConsentManagerException, EntityAlreadyExistsException;
+    Subject createSubject(String name, String email) throws UnexpectedException, EntityAlreadyExistsException, AccessDeniedException;
 
     Subject updateSubject(String id, String email) throws AccessDeniedException, EntityNotFoundException;
 
     /* Receipts */
 
-    ConsentReceipt getReceipt(String id) throws ReceiptNotFoundException, ConsentManagerException;
+    ConsentReceipt getReceipt(String id) throws ReceiptNotFoundException, UnexpectedException, AccessDeniedException;
 
-    byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, ConsentManagerException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException;
+    byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, UnexpectedException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException;
 
-    byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptStoreException, ReceiptNotFoundException, IOException, JAXBException, RenderingException, ModelDataSerializationException, EntityNotFoundException;
+    byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptNotFoundException, UnexpectedException, IOException, JAXBException, RenderingException, ModelDataSerializationException, EntityNotFoundException;
 }

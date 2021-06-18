@@ -7,30 +7,44 @@ package com.fairandsmart.consent.common.exception;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
  */
 
-public class ConsentManagerException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
 
-    public ConsentManagerException() {
+public class UnexpectedException extends GenericException {
+
+    public static final String KEY = "unexpectedError";
+
+    public UnexpectedException() {
     }
 
-    public ConsentManagerException(String message) {
+    public UnexpectedException(String message) {
         super(message);
     }
 
-    public ConsentManagerException(String message, Throwable cause) {
+    public UnexpectedException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ConsentManagerException(Throwable cause) {
+    public UnexpectedException(Throwable cause) {
         super(cause);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.UNEXPECTED_ERROR;
     }
 
 }

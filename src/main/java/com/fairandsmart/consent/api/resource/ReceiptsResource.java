@@ -18,17 +18,14 @@ package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.common.validation.ReceiptMediaType;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
-import com.fairandsmart.consent.token.InvalidTokenException;
-import com.fairandsmart.consent.token.TokenExpiredException;
-import com.fairandsmart.consent.token.TokenServiceException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -66,7 +63,7 @@ public class ReceiptsResource {
             @Parameter(name = "rid", description = "The receipt's transaction id", example = Placeholders.NIL_UUID) @PathParam("rid") String transaction,
             @Parameter(name = "t", description = "The receipt access token", required = true) @QueryParam("t") @NotEmpty String token,
             @Parameter(name = "format", description = "The desired receipt format", example = MediaType.TEXT_PLAIN, required = true) @QueryParam("format") @NotEmpty @ReceiptMediaType String format,
-            @Parameter(name = "theme", description = "The required theme ID") @QueryParam("theme") String theme) throws ConsentManagerException, ReceiptNotFoundException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException {
+            @Parameter(name = "theme", description = "The required theme ID") @QueryParam("theme") String theme) throws UnexpectedException, ReceiptNotFoundException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /receipts/{0}", transaction);
         String mimeType = format != null ? format : MediaType.TEXT_HTML;
         byte[] receipt = consentService.renderReceipt(transaction, mimeType, theme);

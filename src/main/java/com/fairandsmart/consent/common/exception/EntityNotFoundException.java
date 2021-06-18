@@ -16,10 +16,24 @@ package com.fairandsmart.consent.common.exception;
  * #L%
  */
 
-public class EntityNotFoundException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+
+public class EntityNotFoundException extends GenericException {
+
+    public static final String KEY = "entityNotFound";
 
     public EntityNotFoundException(String message) {
         super(message);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.ENTITY_NOT_FOUND;
     }
 
 }

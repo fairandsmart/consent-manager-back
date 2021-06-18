@@ -80,7 +80,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
         if (identity.hasRole(securityConfig.adminRoleName())) {
             return;
         }
-        throw new AccessDeniedException("Connected Identifier doest not has required " + securityConfig.adminRoleName() + " role.");
+        throw new AccessDeniedException("Connected Identifier does not have required " + securityConfig.adminRoleName() + " role.");
     }
 
     @Override
@@ -93,7 +93,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
         if (identity.hasRole(securityConfig.adminRoleName()) || identity.hasRole(securityConfig.operatorRoleName())) {
             return;
         }
-        throw new AccessDeniedException("Connected Identifier doest not has required " + securityConfig.operatorRoleName() + " role.");
+        throw new AccessDeniedException("Connected Identifier does not have required " + securityConfig.operatorRoleName() + " role.");
     }
 
     @Override
@@ -106,7 +106,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
         if (identity.hasRole(securityConfig.adminRoleName()) || identity.hasRole(securityConfig.operatorRoleName()) || identity.hasRole(securityConfig.apiRoleName())) {
             return;
         }
-        throw new AccessDeniedException("Connected Identifier doest not has required " + securityConfig.apiRoleName() + " role.");
+        throw new AccessDeniedException("Connected Identifier does not have required " + securityConfig.apiRoleName() + " role.");
     }
 
     @Override

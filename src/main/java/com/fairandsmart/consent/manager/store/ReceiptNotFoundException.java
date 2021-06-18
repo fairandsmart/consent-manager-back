@@ -16,10 +16,24 @@ package com.fairandsmart.consent.manager.store;
  * #L%
  */
 
-public class ReceiptNotFoundException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.GenericException;
+
+public class ReceiptNotFoundException extends GenericException {
+
+    public static final String KEY = "receiptNotFound";
 
     public ReceiptNotFoundException(String s) {
         super(s);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    public ApiError.Type getType() {
+        return ApiError.Type.RECEIPT_NOT_FOUND;
     }
 
 }

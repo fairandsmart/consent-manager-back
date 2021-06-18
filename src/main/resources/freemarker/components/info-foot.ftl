@@ -36,7 +36,7 @@
                 </#if>
             </div>
 
-            <@toggleSwitch "accept-all"></@toggleSwitch>
+            <@toggleSwitch key="accept-all"></@toggleSwitch>
         </div>
     </#if>
 

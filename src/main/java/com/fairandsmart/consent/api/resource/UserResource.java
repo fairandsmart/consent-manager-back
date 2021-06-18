@@ -3,17 +3,15 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.ModelEntry;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.exception.ModelDataSerializationException;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
-import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.security.AuthenticationService;
-import org.apache.logging.log4j.message.StringFormattedMessage;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
@@ -30,7 +28,6 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,7 +69,7 @@ public class UserResource {
             @APIResponse(responseCode = "200", description = "The users status")
     })
     @Operation(summary = "Get connected user records")
-    public UserStatusDto status(@Context UriInfo info) throws ConsentManagerException, ModelDataSerializationException, EntityNotFoundException {
+    public UserStatusDto status(@Context UriInfo info) throws UnexpectedException, ModelDataSerializationException, EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /user/status");
         UserStatusDto dto = new UserStatusDto();
         dto.setUsername(authenticationService.getConnectedIdentifier());
@@ -87,7 +84,7 @@ public class UserResource {
         //TODO if config for user page elements is empty, return all entries
         if (config.userPageElements().isPresent()) {
             Map<String, Record> records = consentService.systemListValidRecords(dto.getUsername(), infoKey, Arrays.asList(config.userPageElements().get().split(",")));
-            dto.setRecords(records.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> RecordDto.fromRecord(e.getValue()))));
+            dto.setRecords(records.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> RecordDto.fromRecord(e.getValue()))));
             for (String key: config.userPageElements().get().split(",")) {
                 ModelEntry entry = consentService.findEntryForKey(key);
                 if (entry.status.equals(ModelEntry.Status.ACTIVE)) {

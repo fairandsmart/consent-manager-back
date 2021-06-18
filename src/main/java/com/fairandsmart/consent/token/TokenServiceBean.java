@@ -82,7 +82,7 @@ public class TokenServiceBean implements TokenService {
         return accessToken;
     }
 
-    private DecodedJWT getDecodedToken(String token) throws TokenServiceException, InvalidTokenException, TokenExpiredException {
+    private DecodedJWT getDecodedToken(String token) throws UnexpectedException, InvalidTokenException, TokenExpiredException {
         LOGGER.log(Level.INFO, "Decoding token: " + token);
         if (verifier != null) {
             LOGGER.log(Level.FINE, "Verifier is not null");
@@ -97,7 +97,7 @@ public class TokenServiceBean implements TokenService {
                 throw new InvalidTokenException(ex);
             }
         }
-        throw new TokenServiceException("token verifier is null");
+        throw new UnexpectedException("token verifier is null");
     }
 
     /*

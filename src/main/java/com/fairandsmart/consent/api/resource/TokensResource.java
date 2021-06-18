@@ -1,8 +1,12 @@
 package com.fairandsmart.consent.api.resource;
 
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.token.AccessToken;
-import com.fairandsmart.consent.token.TokenService;
+import com.fairandsmart.consent.manager.ConsentContext;
+import com.fairandsmart.consent.manager.ConsentService;
+import com.fairandsmart.consent.manager.ReceiptContext;
+import com.fairandsmart.consent.manager.SubjectContext;
+import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
+import com.fairandsmart.consent.manager.store.ReceiptStoreException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;

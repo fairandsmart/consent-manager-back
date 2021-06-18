@@ -16,9 +16,9 @@ package com.fairandsmart.consent.api.writer;
  * #L%
  */
 
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
-import com.fairandsmart.consent.template.TemplateServiceException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -59,7 +59,7 @@ public class TemplateBodyWriter implements MessageBodyWriter<TemplateModel> {
         try {
             LOGGER.log(Level.FINEST, "Applying template to model: " + model);
             template.render(model, entityStream);
-        } catch ( TemplateServiceException e ) {
+        } catch ( UnexpectedException e ) {
             throw new WebApplicationException(e);
         }
     }

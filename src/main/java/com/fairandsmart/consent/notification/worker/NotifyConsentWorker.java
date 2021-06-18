@@ -142,7 +142,7 @@ public class NotifyConsentWorker implements Runnable {
             LOGGER.log(Level.SEVERE, "unable to read email model data", e);
             report.status = NotificationReport.Status.ERROR;
             report.explanation = e.getMessage();
-        } catch (TemplateServiceException e) {
+        } catch (UnexpectedException e) {
             LOGGER.log(Level.SEVERE, "error while calculating template for email", e);
             report.status = NotificationReport.Status.ERROR;
             report.explanation = e.getMessage();

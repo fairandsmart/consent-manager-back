@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.api.filter;
 
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.token.*;
 
@@ -7,7 +8,6 @@ import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
                         }
                     });
                     LOGGER.log(Level.FINE, "User is now connected with token subject: " + accessToken.getSubject());
-                } catch (TokenExpiredException | TokenServiceException | InvalidTokenException e) {
+                } catch (TokenExpiredException | UnexpectedException | InvalidTokenException e) {
                     LOGGER.log(Level.INFO, "Unable to retrieve token: " + e.getMessage() + ", avoiding token authentication");
                 }
             } else {

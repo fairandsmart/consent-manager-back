@@ -7,10 +7,10 @@ package com.fairandsmart.consent.api.resource;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -19,7 +19,7 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.api.dto.TransactionDto;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.*;
 import com.fairandsmart.consent.manager.entity.Transaction;
 import com.fairandsmart.consent.manager.exception.ConsentContextSerializationException;
@@ -29,6 +29,12 @@ import com.fairandsmart.consent.template.TemplateService;
 import com.fairandsmart.consent.token.AccessToken;
 import com.fairandsmart.consent.token.InvalidTokenException;
 import com.fairandsmart.consent.token.TokenService;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;

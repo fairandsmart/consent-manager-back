@@ -21,6 +21,7 @@ import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.common.config.ClientConfig;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.BasicInfo;
@@ -47,6 +48,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +92,7 @@ public class CollectWithEmailAndUserPageTest {
      */
     @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testCollectWithEmail() throws InterruptedException, MalformedURLException, UnsupportedEncodingException, InvalidTokenException, TokenExpiredException, TokenServiceException {
+    public void testCollectWithEmail() throws InterruptedException, MalformedURLException, InvalidTokenException, TokenExpiredException, UnexpectedException {
         //SETUP
         LOGGER.log(Level.INFO, "Initial setup");
         //Check that the app is running
@@ -193,7 +195,7 @@ public class CollectWithEmailAndUserPageTest {
         if (notificationLink.isPresent()) {
             URL url = new URL(notificationLink.get().attr("href"));
             assertTrue(url.toString().startsWith(clientConfig.userPagePublicUrl().get()));
-            String stoken = URLDecoder.decode(url.getQuery().substring(url.getQuery().indexOf("=") + 1), "UTF-8");
+            String stoken = URLDecoder.decode(url.getQuery().substring(url.getQuery().indexOf("=") + 1), StandardCharsets.UTF_8);
             AccessToken accessToken = tokenService.readToken(stoken);
             assertEquals("mmichu", accessToken.getSubject());
         } else {

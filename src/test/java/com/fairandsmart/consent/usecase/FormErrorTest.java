@@ -143,19 +143,19 @@ public class FormErrorTest {
         page = response.asString();
         response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Consent form error page: " + page);
-        assertTrue(page.contains("Jeton Invalide"));
+        assertTrue(page.contains("Jeton invalide"));
 
-        response = given().accept(ContentType.HTML).header("Accept-Language", "en_US").when().get("/consents?t=NotH3re" + token);
+        response = given().accept(ContentType.HTML).header("Accept-Language", "en").when().get("/consents?t=NotH3re" + token);
         page = response.asString();
         response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Consent form error page: " + page);
-        assertTrue(page.contains("Invalid Token"));
+        assertTrue(page.contains("Invalid token"));
 
         //DELETE ENTRY t1KEY
         given().auth().basic(TEST_USER, TEST_PASSWORD).when().delete("/models/" + ids.get(t1Key));
 
         //Check consent form with embedded error
-        response = given().accept(ContentType.HTML).header("Accept-Language", "en_US").when().get("/consents?t=" + token);
+        response = given().accept(ContentType.HTML).header("Accept-Language", "en").when().get("/consents?t=" + token);
         page = response.asString();
         response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
 

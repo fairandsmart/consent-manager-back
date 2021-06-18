@@ -16,6 +16,7 @@ package com.fairandsmart.consent.serial;
  * #L%
  */
 
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ public class SerialGeneratorTest {
     SerialGenerator generator;
 
     @Test
-    public void testSimpleGeneration() throws SerialGeneratorException {
+    public void testSimpleGeneration() throws UnexpectedException {
         String serial = generator.next("dadaduc");
 
         Assertions.assertNotNull(serial);
@@ -96,7 +97,7 @@ public class SerialGeneratorTest {
                 for (int i = 0; i < 100; i++) {
                     serials.add(generator.next("SerialTest"));
                 }
-            } catch (SerialGeneratorException e) {
+            } catch (UnexpectedException e) {
                 throw new RuntimeException("Unable to generate next serial");
             }
         }

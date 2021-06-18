@@ -16,6 +16,8 @@ package com.fairandsmart.consent.token;
  * #L%
  */
 
+import com.fairandsmart.consent.common.exception.UnexpectedException;
+
 import java.util.Date;
 
 public interface TokenService {
@@ -24,7 +26,7 @@ public interface TokenService {
 
     String generateToken(AccessToken token, Date expirationDate);
 
-    AccessToken readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException;
+    AccessToken readToken(String token) throws UnexpectedException, TokenExpiredException, InvalidTokenException;
 
 
 
