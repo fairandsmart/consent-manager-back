@@ -38,7 +38,7 @@
                     <#assign isChecked=false>
                 </#if>
                 <@toggleSwitch key="${identifier}" isChecked=isChecked acceptText=elementContent.options[1]
-                refuseText=elementContent.options[0]></@toggleSwitch>
+                refuseText=elementContent.options[0] oneLine=true></@toggleSwitch>
             </#if>
         </div>
 
