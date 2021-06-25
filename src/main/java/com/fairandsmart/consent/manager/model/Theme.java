@@ -18,7 +18,10 @@ package com.fairandsmart.consent.manager.model;
 
 import com.fairandsmart.consent.manager.entity.ModelData;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class Theme extends ModelData {
 
@@ -117,6 +120,11 @@ public class Theme extends ModelData {
     public Theme withLogoPosition(LogoPosition logoPosition) {
         this.logoPosition = logoPosition;
         return this;
+    }
+
+    @Override
+    public List<Pattern> getAllowedValuesPatterns() {
+        return Collections.emptyList();
     }
 
     @Override

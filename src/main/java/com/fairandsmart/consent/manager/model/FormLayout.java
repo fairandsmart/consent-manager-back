@@ -6,6 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class FormLayout extends ModelData {
 
@@ -274,6 +275,11 @@ public class FormLayout extends ModelData {
             this.setFooterOnTop(Boolean.parseBoolean(claims.get("footerOnTop")));
         }
         return this;
+    }
+
+    @Override
+    public List<Pattern> getAllowedValuesPatterns() {
+        return Collections.emptyList();
     }
 
     @Override

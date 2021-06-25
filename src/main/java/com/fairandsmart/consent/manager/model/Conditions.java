@@ -22,11 +22,17 @@ import org.jsoup.safety.Whitelist;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class Conditions extends ModelData {
 
     public static final String TYPE = "conditions";
+    public static final List<Pattern> ALLOWED_VALUES_PATTERNS = new ArrayList<>();
+    static {
+        ALLOWED_VALUES_PATTERNS.add(Pattern.compile("accepted"));
+        ALLOWED_VALUES_PATTERNS.add(Pattern.compile("refused"));
+    }
 
     private String title;
     private String body;
@@ -91,6 +97,11 @@ public class Conditions extends ModelData {
     public Conditions withRejectLabel(String rejectLabel) {
         this.rejectLabel = rejectLabel;
         return this;
+    }
+
+    @Override
+    public List<Pattern> getAllowedValuesPatterns() {
+        return ALLOWED_VALUES_PATTERNS;
     }
 
     @Override

@@ -23,10 +23,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class Processing extends ModelData {
 
     public static final String TYPE = "processing";
+    public static final List<Pattern> ALLOWED_VALUES_PATTERNS = new ArrayList<>();
+    static {
+        ALLOWED_VALUES_PATTERNS.clear();
+        ALLOWED_VALUES_PATTERNS.add(Pattern.compile("accepted"));
+        ALLOWED_VALUES_PATTERNS.add(Pattern.compile("refused"));
+    }
 
     private String title;
     private String data;
@@ -199,6 +206,11 @@ public class Processing extends ModelData {
         CONSENT_MARKETING,
         CONSENT_THIRD_PART_SHARING,
         CONSENT_RESEARCH
+    }
+
+    @Override
+    public List<Pattern> getAllowedValuesPatterns() {
+        return ALLOWED_VALUES_PATTERNS;
     }
 
     @Override

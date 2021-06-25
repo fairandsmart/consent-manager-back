@@ -140,6 +140,7 @@ public class TestUtils {
                 .withLabel("Label " + key)
                 .withDescription("Description " + key)
                 .withOptions(options)
+                .withValuePatterns(Arrays.asList("Option1", "Option2", "Option3"))
                 .withValueType(Preference.ValueType.RADIO_BUTTONS)
                 .withIncludeDefault(true)
                 .withDefaultValues(Collections.singletonList("Option3"));

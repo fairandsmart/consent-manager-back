@@ -16,6 +16,7 @@ public class EventType {
     public static final String SUBJECT_LIST_RECORDS = "subject.records.list";
 
     public static final String CONSENT_SUBMIT = "consent.submit";
+    public static final String CONSENT_CONFIRM = "consent.confirm";
 
     public static final String RECEIPT_READ = "receipt.read";
     public static final String RECEIPT_STORE = "receipt.store";

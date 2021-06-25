@@ -19,10 +19,7 @@ package com.fairandsmart.consent.manager;
 import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.SubjectDto;
-import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
-import com.fairandsmart.consent.common.exception.EntityNotFoundException;
-import com.fairandsmart.consent.common.exception.UnexpectedException;
+import com.fairandsmart.consent.common.exception.*;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -31,8 +28,6 @@ import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.manager.model.Preference;
 import com.fairandsmart.consent.manager.model.Processing;
-import com.fairandsmart.consent.token.InvalidTokenException;
-import com.fairandsmart.consent.token.TokenExpiredException;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.Test;
@@ -56,9 +51,9 @@ public class ConsentServiceTest {
     ConsentService service;
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testModelEntryLifecycle() throws UnexpectedException, EntityNotFoundException, EntityAlreadyExistsException, InvalidStatusException, AccessDeniedException {
+    public void testModelEntryLifecycle() throws GenericException {
         LOGGER.info("#### Test BasicInfo entry lifecycle");
         String key = UUID.randomUUID().toString();
         String language = "fr";
@@ -179,9 +174,9 @@ public class ConsentServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testModelVersionLifecycle() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, ModelDataSerializationException, InvalidStatusException, AccessDeniedException {
+    public void testModelVersionLifecycle() throws GenericException {
         LOGGER.info("#### Test BasicInfo version lifecycle");
         String key = UUID.randomUUID().toString();
         String language = "fr";
@@ -329,9 +324,9 @@ public class ConsentServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testEntryVersionsHistory() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, AccessDeniedException {
+    public void testEntryVersionsHistory() throws GenericException {
         LOGGER.info("#### Test BasicInfo versions history");
         LOGGER.info("Create entry");
         String key = UUID.randomUUID().toString();
@@ -423,9 +418,9 @@ public class ConsentServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testRecordLifecycle() throws TokenExpiredException, InvalidTokenException, EntityAlreadyExistsException, GenerateFormException, UnexpectedException, InvalidStatusException, EntityNotFoundException, SubmitConsentException, AccessDeniedException {
+    public void testRecordLifecycle() throws GenericException {
         LOGGER.info("#### Test record lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -471,20 +466,20 @@ public class ConsentServiceTest {
         long txCountInitial = service.countTransactions(0, System.currentTimeMillis());
         LOGGER.info("Initial transaction count: " + txCountInitial);
 
-        LOGGER.info("Creating READ context and token");
+        LOGGER.info("Creating context and transaction");
         String subject = "lmichu";
-        ConsentContext readCtx = new ConsentContext()
+        ConsentContext ctx = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setLayout(lKey);
-        Transaction readTx = service.createTransaction(readCtx);
+        Transaction tx = service.createTransaction(ctx);
 
         LOGGER.info("Reading consent records before submit");
         Map<String, Record> records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
         assertEquals(0, records.size());
 
         LOGGER.info("First consent form");
-        ConsentForm form = service.getConsentForm(readTx.id);
+        ConsentSubmitForm form = service.getConsentForm(tx.id);
         assertEquals(2, form.getElements().size());
         assertEquals(0, form.getPreviousValues().size());
 
@@ -493,7 +488,7 @@ public class ConsentServiceTest {
         values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
         values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
         values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
-        service.submitConsentValues(readTx.id, values);
+        service.submitConsentValues(tx.id, values);
 
         LOGGER.info("Reading consent records after submit");
         records = service.systemListValidRecords(subject, biKey, Arrays.asList(t1Key, t2Key));
@@ -516,12 +511,13 @@ public class ConsentServiceTest {
         LOGGER.info("Current transactions count: " + txCountCurrent);
         assertEquals(txCountInitial+1, txCountCurrent);
 
-        LOGGER.info("Second consent form");
-        form = service.generateForm(readToken);
-        assertEquals(2, form.getElements().size());
-        assertEquals(2, form.getPreviousValues().size());
-        assertEquals("accepted", form.getPreviousValues().get(v1t1.serial));
-        assertEquals("refused", form.getPreviousValues().get(v1t2.serial));
+        LOGGER.info("Second transaction");
+        Transaction tx2 = service.createTransaction(ctx);
+        ConsentSubmitForm form2 = service.getConsentForm(tx2.id);
+        assertEquals(2, form2.getElements().size());
+        assertEquals(2, form2.getPreviousValues().size());
+        assertEquals("accepted", form2.getPreviousValues().get(v1t1.serial));
+        assertEquals("refused", form2.getPreviousValues().get(v1t2.serial));
 
         LOGGER.info("Create new version of T2 (minor version)");
         ModelVersion v2t2 = service.createVersion(et2.id, language, Collections.singletonMap(language, TestUtils.generateProcessing("t2.2")));
@@ -560,14 +556,15 @@ public class ConsentServiceTest {
         assertEquals("accepted", record.value);
         assertFalse(records.containsKey(et2.key));
 
-        LOGGER.info("Third consent form");
-        form = service.generateForm(readToken);
-        assertEquals(2, form.getElements().size());
-        assertEquals(1, form.getPreviousValues().size());
-        assertEquals("accepted", form.getPreviousValues().get(v1t1.serial));
+        LOGGER.info("Third transaction");
+        Transaction tx3 = service.createTransaction(ctx);
+        ConsentSubmitForm form3 = service.getConsentForm(tx3.id);
+        assertEquals(2, form3.getElements().size());
+        assertEquals(1, form3.getPreviousValues().size());
+        assertEquals("accepted", form3.getPreviousValues().get(v1t1.serial));
 
         LOGGER.info("New consent form");
-        readCtx = new ConsentContext()
+        ctx = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setLayoutData(new FormLayout()
@@ -576,21 +573,21 @@ public class ConsentServiceTest {
                         .withElements(Collections.singletonList(t1Key))
                         .withExistingElementsVisible(true))
                 .setOrigin(ConsentContext.Origin.WEBFORM);
-        readToken = service.buildFormToken(readCtx);
-        form = service.generateForm(readToken);
-        assertEquals(1, form.getElements().size());
-        assertEquals(1, form.getPreviousValues().size());
-        assertEquals("accepted", form.getPreviousValues().get(v1t1.serial));
+        Transaction tx4 = service.createTransaction(ctx);
+        ConsentSubmitForm form4 = service.getConsentForm(tx4.id);
+        assertEquals(1, form4.getElements().size());
+        assertEquals(1, form4.getPreviousValues().size());
+        assertEquals("accepted", form4.getPreviousValues().get(v1t1.serial));
 
         LOGGER.info("Submitting new consent (creating record)");
         values = new MultivaluedHashMap<>();
         values.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
         values.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "refused");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(tx4.id, values);
 
-        txCountCurrent = service.countTransactionsCreatedBetween(0, System.currentTimeMillis());
+        txCountCurrent = service.countTransactions(0, System.currentTimeMillis());
         LOGGER.info("Current transactions count: " + txCountCurrent);
-        assertEquals(txCountInitial+2, txCountCurrent);
+        assertEquals(txCountInitial+4, txCountCurrent);
 
         LOGGER.info("Reading consent records history for subject");
         Map<String, List<Record>> subjectRecords = service.listSubjectRecords(new RecordFilter().withSubject(subject));
@@ -614,9 +611,9 @@ public class ConsentServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testFormGeneration() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, InvalidTokenException, TokenExpiredException, GenerateFormException, SubmitConsentException, AccessDeniedException {
+    public void testFormGeneration() throws GenericException {
         LOGGER.info("#### Test form generation");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -701,16 +698,16 @@ public class ConsentServiceTest {
         entries = service.listEntries(new ModelFilter().withTypes(types).withPage(1).withSize(5));
         assertEquals(entriesCount + 10, entries.getTotalCount());
 
-        LOGGER.info("Creating READ context and token");
+        LOGGER.info("Creating context and transaction");
         String subject = "nmichu";
-        ConsentContext readCtx = new ConsentContext()
+        ConsentContext ctx = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setLayout(l2Key);
-        String readToken = service.buildFormToken(readCtx);
+        Transaction tx = service.createTransaction(ctx);
 
         LOGGER.info("First consent form");
-        ConsentForm form = service.generateForm(readToken);
+        ConsentSubmitForm form = service.getConsentForm(tx.id);
         assertEquals(4, form.getElements().size());
         assertEquals(0, form.getPreviousValues().size());
         assertEquals(t1Key, form.getElements().get(0).entry.key);
@@ -725,17 +722,17 @@ public class ConsentServiceTest {
         values.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
         values.putSingle("element/preference/" + p2Key + "/" + v1p2.serial, "Option3");
         values.putSingle("element/preference/" + p1Key + "/" + v1p1.serial, "Option2");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(tx.id, values);
 
-        LOGGER.info("Creating second READ context and token");
-        readCtx = new ConsentContext()
+        LOGGER.info("Creating second context and transaction");
+        ctx = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setLayout(l3Key);
-        readToken = service.buildFormToken(readCtx);
+        Transaction tx2 = service.createTransaction(ctx);
 
         LOGGER.info("Second consent form");
-        form = service.generateForm(readToken);
+        form = service.getConsentForm(tx2.id);
         assertEquals(2, form.getElements().size());
         assertEquals(4, form.getPreviousValues().size());
         assertEquals(t3Key, form.getElements().get(0).entry.key);
@@ -755,9 +752,9 @@ public class ConsentServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubjectLifecycle() throws TokenExpiredException, InvalidTokenException, EntityAlreadyExistsException, EntityNotFoundException, UnexpectedException, InvalidStatusException, GenerateFormException, SubmitConsentException, AccessDeniedException {
+    public void testSubjectLifecycle() throws GenericException {
         LOGGER.info("#### Test subject lifecycle");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -808,39 +805,41 @@ public class ConsentServiceTest {
                 .setSubject("sheldon")
                 .setLanguage(language)
                 .setLayout(l1Key);
-        String token = service.buildFormToken(ctx);
-        ConsentForm form = service.generateForm(token);
+        Transaction tx = service.createTransaction(ctx);
+
+        LOGGER.info("First consent form");
+        ConsentSubmitForm form = service.getConsentForm(tx.id);
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
         values.putSingle(t1Identifier, "accepted");
         values.putSingle(t2Identifier, "refused");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(tx.id, values);
 
         LOGGER.info("Submitting a consent for penny");
         ctx = new ConsentContext()
                 .setSubject("penny")
                 .setLanguage(language)
                 .setLayout(l1Key);
-        token = service.buildFormToken(ctx);
-        form = service.generateForm(token);
+        tx = service.createTransaction(ctx);
+        form = service.getConsentForm(tx.id);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
         values.putSingle(t1Identifier, "refused");
         values.putSingle(t2Identifier, "refused");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(tx.id, values);
 
         LOGGER.info("Submitting a consent for leonard");
         ctx = new ConsentContext()
                 .setSubject("leonard")
                 .setLanguage(language)
                 .setLayout(l1Key);
-        token = service.buildFormToken(ctx);
-        form = service.generateForm(token);
+        tx = service.createTransaction(ctx);
+        form = service.getConsentForm(tx.id);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
         values.putSingle(t1Identifier, "accepted");
         values.putSingle(t2Identifier, "accepted");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(tx.id, values);
 
         LOGGER.info("Testing find subjects");
         List<Subject> subjects = service.findSubjects("e");
@@ -904,9 +903,9 @@ public class ConsentServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubjectRecords() throws TokenExpiredException, InvalidTokenException, EntityAlreadyExistsException, EntityNotFoundException, UnexpectedException, InvalidStatusException, GenerateFormException, SubmitConsentException, AccessDeniedException {
+    public void testSubjectRecords() throws GenericException {
         LOGGER.info("#### Test subject records");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -962,39 +961,39 @@ public class ConsentServiceTest {
                 .setSubject(user1)
                 .setLanguage(language)
                 .setLayout(l1Key);
-        String token = service.buildFormToken(ctx);
-        ConsentForm form = service.generateForm(token);
+        Transaction tx = service.createTransaction(ctx);
+        ConsentSubmitForm form = service.getConsentForm(tx.id);
         MultivaluedMap<String, String> values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
         values.putSingle(t1Identifier, "accepted");
         values.putSingle(t2Identifier, "refused");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(tx.id, values);
 
         LOGGER.info("Submitting a consent for user2");
         ctx = new ConsentContext()
                 .setSubject(user2)
                 .setLanguage(language)
                 .setLayout(l1Key);
-        token = service.buildFormToken(ctx);
-        form = service.generateForm(token);
+        tx = service.createTransaction(ctx);
+        form = service.getConsentForm(tx.id);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
         values.putSingle(t1Identifier, "refused");
         values.putSingle(t2Identifier, "refused");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(tx.id, values);
 
         LOGGER.info("Submitting a consent for user3");
         ctx = new ConsentContext()
                 .setSubject(user3)
                 .setLanguage(language)
                 .setLayout(l1Key);
-        token = service.buildFormToken(ctx);
-        form = service.generateForm(token);
+        tx = service.createTransaction(ctx);
+        form = service.getConsentForm(tx.id);
         values = new MultivaluedHashMap<>();
         values.putSingle("info", biIdentifier);
         values.putSingle(t1Identifier, "accepted");
         values.putSingle(t2Identifier, "accepted");
-        service.submitConsent(form.getToken(), values);
+        service.submitConsentValues(tx.id, values);
 
         LOGGER.info("Create subject user4 (no records)");
         SubjectDto subjectDto = new SubjectDto();
@@ -1050,9 +1049,9 @@ public class ConsentServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testFormGenerationErrors() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, AccessDeniedException {
+    public void testFormGenerationErrors() throws GenericException {
         LOGGER.info("#### Test form generation errors");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -1089,21 +1088,21 @@ public class ConsentServiceTest {
 
         LOGGER.info("Creating context and token that include a unknown key");
         String subject = "omichu";
-        ConsentContext readCtx = new ConsentContext()
+        ConsentContext ctx = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key, "unknown.key")).withExistingElementsVisible(true));
-        String readToken = service.buildFormToken(readCtx);
+        Transaction tx = service.createTransaction(ctx);
 
         LOGGER.info("Generate consent form");
-        assertThrows(GenerateFormException.class, () -> service.generateForm(readToken));
+        assertThrows(GenerateFormException.class, () -> service.getConsentForm(tx.id));
     }
 
     @Test
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSubmitConsentErrors() throws UnexpectedException, EntityAlreadyExistsException, EntityNotFoundException, InvalidStatusException, InvalidTokenException, TokenExpiredException, GenerateFormException, SubmitConsentException, AccessDeniedException {
+    public void testSubmitConsentErrors() throws GenericException {
         LOGGER.info("#### Test submit consent errors ");
         List<String> types = new ArrayList<>();
         types.add(BasicInfo.TYPE);
@@ -1142,15 +1141,15 @@ public class ConsentServiceTest {
         //First error case, an element of the submission context reference an entry that has been deleted between form generation and submission
         LOGGER.info("Creating context and token");
         String subject = "omichu";
-        ConsentContext readCtx = new ConsentContext()
+        ConsentContext ctx = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Arrays.asList(t1Key, t2Key)).withExistingElementsVisible(true));
-        String readToken = service.buildFormToken(readCtx);
+        Transaction tx = service.createTransaction(ctx);
 
         LOGGER.info("Generate consent form");
-        ConsentForm form = service.generateForm(readToken);
+        ConsentSubmitForm form = service.getConsentForm(tx.id);
         assertEquals(2, form.getElements().size());
         assertEquals(0, form.getPreviousValues().size());
         assertEquals(t1Key, form.getElements().get(0).entry.key);
@@ -1163,20 +1162,20 @@ public class ConsentServiceTest {
         values1.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
         values1.putSingle("element/processing/" + t1Key + "/" + v1t1.serial, "accepted");
         values1.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
-        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form.getToken(), values1));
+        assertThrows(SubmitConsentException.class, () -> service.submitConsentValues(tx.id, values1));
 
 
         //Second error case, a new version of one (or more) form element is created between form generation and submission
         LOGGER.info("Creating new context and token");
-        ConsentContext readCtx2 = new ConsentContext()
+        ConsentContext ctx2 = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Collections.singletonList(t2Key)).withExistingElementsVisible(true));
-        String readToken2 = service.buildFormToken(readCtx2);
+        Transaction tx2 = service.createTransaction(ctx2);
 
         LOGGER.info("Generate new consent form");
-        ConsentForm form2 = service.generateForm(readToken2);
+        ConsentSubmitForm form2 = service.getConsentForm(tx2.id);
         assertEquals(1, form2.getElements().size());
         assertEquals(0, form2.getPreviousValues().size());
         assertEquals(t2Key, form2.getElements().get(0).entry.key);
@@ -1187,20 +1186,20 @@ public class ConsentServiceTest {
         LOGGER.info("Submit consent");
         MultivaluedMap<String, String> values2 = new MultivaluedHashMap<>();
         values2.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
-        values2.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "refused");
-        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form2.getToken(), values2));
+        values2.putSingle("element/processing/" + t2Key + "/" + v1t2.serial, "refused");
+        assertThrows(SubmitConsentException.class, () -> service.submitConsentValues(tx2.id, values2));
 
         //Third error case, send bad values
         LOGGER.info("Creating new context and token");
-        ConsentContext readCtx3 = new ConsentContext()
+        ConsentContext ctx3 = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Collections.singletonList(t2Key)).withExistingElementsVisible(true));
-        String readToken3 = service.buildFormToken(readCtx3);
+        Transaction tx3 = service.createTransaction(ctx3);
 
         LOGGER.info("Generate new consent form");
-        ConsentForm form3 = service.generateForm(readToken3);
+        ConsentSubmitForm form3 = service.getConsentForm(tx3.id);
         assertEquals(1, form3.getElements().size());
         assertEquals(0, form3.getPreviousValues().size());
         assertEquals(t2Key, form3.getElements().get(0).entry.key);
@@ -1209,21 +1208,21 @@ public class ConsentServiceTest {
         MultivaluedMap<String, String> values3 = new MultivaluedHashMap<>();
         values3.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
         values3.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "blabla");
-        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form3.getToken(), values3));
+        assertThrows(SubmitConsentException.class, () -> service.submitConsentValues(tx3.id, values3));
 
         //Fourth error case, send values of en element that does not exists
 
         //Fifth error case, send values twice
         LOGGER.info("Creating new context and token");
-        ConsentContext readCtx5 = new ConsentContext()
+        ConsentContext ctx5 = new ConsentContext()
                 .setSubject(subject)
                 .setLanguage(language)
                 .setOrigin(ConsentContext.Origin.WEBFORM)
                 .setLayoutData(new FormLayout().withOrientation(FormLayout.Orientation.VERTICAL).withInfo(biKey).withElements(Collections.singletonList(t2Key)).withExistingElementsVisible(true));
-        String readToken5 = service.buildFormToken(readCtx5);
+        final Transaction tx5 = service.createTransaction(ctx5);
 
         LOGGER.info("Generate new consent form");
-        ConsentForm form5 = service.generateForm(readToken5);
+        ConsentSubmitForm form5 = service.getConsentForm(tx5.id);
         assertEquals(1, form5.getElements().size());
         assertEquals(0, form5.getPreviousValues().size());
         assertEquals(t2Key, form5.getElements().get(0).entry.key);
@@ -1232,9 +1231,9 @@ public class ConsentServiceTest {
         MultivaluedMap<String, String> values5 = new MultivaluedHashMap<>();
         values5.putSingle("info", "element/basicinfo/" + biKey + "/" + v1bi1.serial);
         values5.putSingle("element/processing/" + t2Key + "/" + v2t2.serial, "refused");
-        ConsentReceipt receipt = service.submitConsent(form5.getToken(), values5);
-        assertNotNull(receipt.getTransaction());
-        assertThrows(SubmitConsentException.class, () -> service.submitConsent(form5.getToken(), values5));
+        service.submitConsentValues(tx5.id, values5);
+        assertEquals(Transaction.State.COMMITTED, service.getTransaction(tx5.id).state);
+        assertThrows(SubmitConsentException.class, () -> service.submitConsentValues(tx5.id, values5));
     }
 
 }

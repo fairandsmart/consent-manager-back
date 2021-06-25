@@ -67,6 +67,7 @@ public class ConsentReceipt {
     private List<Attachment> attachments;
     private String privacyPolicyUrl;
     private String collectionMethod;
+    private String confirmation;
     private String updateUrl;
     private String updateUrlQrCode;
     private String notificationType;
@@ -92,6 +93,7 @@ public class ConsentReceipt {
         this.headerNotice = receipt.headerNotice;
         this.consents = receipt.consents;
         this.footerNotice = receipt.footerNotice;
+        this.confirmation = receipt.confirmation;
         this.attributes = receipt.attributes;
         this.attachments = receipt.attachments;
         this.privacyPolicyUrl = receipt.privacyPolicyUrl;
@@ -230,6 +232,14 @@ public class ConsentReceipt {
         this.collectionMethod = collectionMethod;
     }
 
+    public String getConfirmation() {
+        return confirmation;
+    }
+
+    public void setConfirmation(String confirmation) {
+        this.confirmation = confirmation;
+    }
+
     public String getUpdateUrl() {
         return updateUrl;
     }
@@ -280,6 +290,7 @@ public class ConsentReceipt {
             receipt.setFooterNotice(info.getFooter());
         }
         receipt.setCollectionMethod(ctx.getOrigin().toString());
+        receipt.setConfirmation(ctx.getConfirmation().toString());
 
         for (Pair<ModelData, Record> pair : records) {
             if (Processing.TYPE.equals(pair.getLeft().getType())) {

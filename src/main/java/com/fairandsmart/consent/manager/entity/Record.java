@@ -101,21 +101,11 @@ public class Record extends PanacheEntityBase implements Comparable<Record> {
         record.value = value;
         record.creationTimestamp = now.toEpochMilli();
         record.expirationTimestamp = Conditions.TYPE.equals(record.type) ? 0 : now.plusMillis(ctx.getValidityInMillis()).toEpochMilli();
-        record.state = Record.State.COMMITTED;
+        record.state = State.PENDING;
         record.origin = ctx.getOrigin().toString();
         record.author = StringUtils.isNotEmpty(ctx.getAuthor()) ? ctx.getAuthor() : defaultAuthor;
         record.comment = comment;
         return record;
-    }
-
-    public static Record.State findTransactionState(String transaction){
-        //We only get the first because all records state should be identical in the same transaction
-        Optional<Record> result = Record.find("transaction = ?1", transaction).firstResultOptional();
-        if (result.isPresent()) {
-            return result.get().state;
-        } else {
-            return State.NOTFOUND;
-        }
     }
 
     @Override

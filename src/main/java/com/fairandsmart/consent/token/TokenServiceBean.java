@@ -23,6 +23,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fairandsmart.consent.common.config.MainConfig;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -47,7 +48,7 @@ public class TokenServiceBean implements TokenService {
     public void init() {
         LOGGER.log(Level.FINE, "Initializing Token Verifier");
         algorithm = Algorithm.HMAC256(config.secret());
-        verifier = JWT.require(algorithm).withIssuer(config.instance()).build();
+        verifier = JWT.require(algorithm).build();
     }
 
     @Override
@@ -71,7 +72,7 @@ public class TokenServiceBean implements TokenService {
     }
 
     @Override
-    public AccessToken readToken(String token) throws TokenServiceException, TokenExpiredException, InvalidTokenException {
+    public AccessToken readToken(String token) throws UnexpectedException, TokenExpiredException, InvalidTokenException {
         LOGGER.log(Level.INFO, "Reading token");
         DecodedJWT decodedJWT = getDecodedToken(token);
         AccessToken accessToken = new AccessToken();

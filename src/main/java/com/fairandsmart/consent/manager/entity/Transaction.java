@@ -8,10 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
-
 import javax.persistence.*;
 import java.time.Duration;
-import java.util.logging.Logger;
 
 @Entity
 public class Transaction extends PanacheEntityBase {
@@ -57,9 +55,9 @@ public class Transaction extends PanacheEntityBase {
         }
     }
 
-    public void setExpiresIn(String duration) {
+    public void setValidity(String duration) {
         Duration d = Duration.parse(duration);
-        this.expirationTimestamp = System.currentTimeMillis() + d.toMillis();
+        this.expirationTimestamp = creationTimestamp + d.toMillis();
     }
 
     public enum State {
@@ -70,4 +68,15 @@ public class Transaction extends PanacheEntityBase {
         TIMEOUT
     }
 
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "id='" + id + '\'' +
+                ", version=" + version +
+                ", subject='" + subject + '\'' +
+                ", creationTimestamp=" + creationTimestamp +
+                ", expirationTimestamp=" + expirationTimestamp +
+                ", state=" + state +
+                '}';
+    }
 }

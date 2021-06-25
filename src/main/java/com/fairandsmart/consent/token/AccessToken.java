@@ -16,7 +16,7 @@ public class AccessToken {
     private List<String> scopes;
     @NotNull
     @Schema(description = "The token validity (format: PnDTnHnMn.nS)", example = Placeholders.DURATION_2D_20H, defaultValue = "P1085D")
-    private String validity = "P4H";
+    private String validity = "PT4H";
 
     public AccessToken() {
     }
@@ -63,5 +63,14 @@ public class AccessToken {
     public long getExpirationDelay() {
         Duration duration = Duration.parse(validity);
         return duration.toMillis();
+    }
+
+    @Override
+    public String toString() {
+        return "AccessToken{" +
+                "subject='" + subject + '\'' +
+                ", scopes=" + scopes +
+                ", validity='" + validity + '\'' +
+                '}';
     }
 }

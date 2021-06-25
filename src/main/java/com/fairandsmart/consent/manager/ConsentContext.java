@@ -78,12 +78,13 @@ public class ConsentContext {
 
     public enum Confirmation {
         NONE,
-        BUTTON,
+        FORM_CODE,
         EMAIL_CODE,
         SMS_CODE,
-        SIGNED_RECEIPT,
+        SIGNATURE,
         AUDIO_RECORD,
-        DIGITAL_SIGNED_RECEIPT
+        VIDEO_RECORD,
+        DIGITAL_SIGNATURE
     }
 
     public ConsentContext() {

@@ -136,6 +136,7 @@ public class ApiError {
         SUPPORT_SERVICE_ERROR(HttpStatus.SC_NO_CONTENT, "support-error", "Unable to contact support service"),
 
         MODEL_DATA_SERIALIZATION_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "serialization-error", "Unexpected Data Serialization Error"),
+        CONSENT_CONTEXT_SERIALIZATION_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "serialization-error", "Unexpected Consent Context Serialization Error"),
         RENDERER_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "renderer-error", "Unexpected Renderer Error"),
         UNEXPECTED_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Error");
 

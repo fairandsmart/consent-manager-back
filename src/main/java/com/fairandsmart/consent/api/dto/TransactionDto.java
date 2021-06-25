@@ -28,7 +28,7 @@ public class TransactionDto {
     private String subject;
     private Transaction.State state;
     private ConsentContext context;
-    private URI formURI;
+    private URI actionURI;
 
     public TransactionDto() {
     }
@@ -65,12 +65,12 @@ public class TransactionDto {
         this.context = context;
     }
 
-    public URI getFormURI() {
-        return formURI;
+    public URI getActionURI() {
+        return actionURI;
     }
 
-    public void setFormURI(URI formURI) {
-        this.formURI = formURI;
+    public void setActionURI(URI formURI) {
+        this.actionURI = actionURI;
     }
 
     public static TransactionDto fromTransaction(Transaction tx) throws ConsentContextSerializationException {
@@ -89,7 +89,7 @@ public class TransactionDto {
                 ", subject='" + subject + '\'' +
                 ", state=" + state +
                 ", context=" + context +
-                ", formURI=" + formURI +
+                ", actionURI=" + actionURI +
                 '}';
     }
 }

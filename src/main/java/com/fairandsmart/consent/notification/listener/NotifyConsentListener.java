@@ -43,7 +43,7 @@ public class NotifyConsentListener {
     @ConsumeEvent(value = Event.NOTIFICATION_CHANNEL)
     public void consume(Event event) {
         LOGGER.log(Level.FINE, "Event received: " + event.toString());
-        if (event.getEventType().equals(EventType.CONSENT_SUBMIT)) {
+        if (event.getEventType().equals(EventType.CONSENT_CONFIRM)) {
             ConsentContext ctx = (ConsentContext) event.getData();
             if (StringUtils.isNotEmpty(ctx.getNotificationRecipient())) {
                 worker.setTransactionId(event.getSourceId());

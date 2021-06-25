@@ -35,7 +35,6 @@ import io.restassured.response.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -143,7 +142,7 @@ public class CollectWithConfirmationButtonTest {
                 .setValidity("P2Y")
                 .setLanguage(language)
                 .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey))
-                .setConfirmation(ConsentContext.Confirmation.BUTTON)
+                .setConfirmation(ConsentContext.Confirmation.FORM_CODE)
                 .setConfirmationConfig(Collections.singletonMap("button_secret", "tagada54"))
                 .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
@@ -154,7 +153,7 @@ public class CollectWithConfirmationButtonTest {
         LOGGER.log(Level.INFO, "Transaction :" + transaction);
 
         //PART 2
-        Response response = given().accept(ContentType.JSON).when().get(transaction.getFormURI());
+        Response response = given().accept(ContentType.JSON).when().get(transaction.getActionURI());
         String formPage = response.asString();
         response.then().contentType(ContentType.JSON.toString()).assertThat().statusCode(200);
 

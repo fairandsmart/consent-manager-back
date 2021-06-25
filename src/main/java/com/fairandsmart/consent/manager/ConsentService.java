@@ -18,7 +18,10 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
-import com.fairandsmart.consent.common.exception.*;
+import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -26,8 +29,6 @@ import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
-import com.fairandsmart.consent.token.InvalidTokenException;
-import com.fairandsmart.consent.token.TokenExpiredException;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
@@ -93,13 +94,13 @@ public interface ConsentService {
 
     long countTransactions(long from, long to) throws AccessDeniedException;
 
-    ConsentForm getConsentForm(String txId) throws GenerateFormException, ConsentServiceException, AccessDeniedException, EntityNotFoundException;
+    ConsentSubmitForm getConsentForm(String txId) throws GenerateFormException, UnexpectedException, AccessDeniedException, EntityNotFoundException;
 
-    ConsentReceipt submitConsentValues(String txId, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException, ConsentContextSerializationException;
+    void submitConsentValues(String txId, MultivaluedMap<String, String> values) throws UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException;
 
-    ConsentForm getConfirmationForm(String txId) throws TokenExpiredException, InvalidTokenException, UnexpectedException, GenerateFormException;
+    ConsentConfirmForm getConfirmationForm(String txId) throws UnexpectedException, GenerateFormException, AccessDeniedException, EntityNotFoundException;
 
-    ConsentReceipt submitConfirmationValues(String txId, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, UnexpectedException, SubmitConsentException;
+    void submitConfirmationValues(String txId, MultivaluedMap<String, String> values) throws UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException;
 
     /* Records */
 
@@ -123,7 +124,7 @@ public interface ConsentService {
 
     ConsentReceipt getReceipt(String id) throws ReceiptNotFoundException, UnexpectedException, AccessDeniedException;
 
-    byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, UnexpectedException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException;
+    byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, UnexpectedException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException, AccessDeniedException;
 
     byte[] systemRenderReceipt(String id, String format, String themeKey) throws ReceiptRendererNotFoundException, ReceiptNotFoundException, UnexpectedException, IOException, JAXBException, RenderingException, ModelDataSerializationException, EntityNotFoundException;
 }
