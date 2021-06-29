@@ -34,10 +34,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotEmpty;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.logging.Level;
@@ -53,16 +50,15 @@ public class ReceiptsResource {
     ConsentService consentService;
 
     @GET
-    @Path("{rid}")
+    @Path("{tid}")
     @APIResponses(value = {
             @APIResponse(responseCode = "404", description = "Unable to find the receipt due to un-existing transaction, format renderer or theme"),
             @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE),
             @APIResponse(responseCode = "200", description = "receipt has been generated")})
-    @Operation(summary = "Get a receipt from a thin token")
+    @Operation(summary = "Get a receipt for that transaction id")
     public Response getReceipt(
-            @Parameter(name = "rid", description = "The receipt's transaction id", example = Placeholders.NIL_UUID) @PathParam("rid") String transaction,
-            @Parameter(name = "t", description = "The receipt access token", required = true) @QueryParam("t") @NotEmpty String token,
-            @Parameter(name = "format", description = "The desired receipt format", example = MediaType.TEXT_PLAIN, required = true) @QueryParam("format") @NotEmpty @ReceiptMediaType String format,
+            @Parameter(name = "tid", description = "The receipt's transaction id", example = Placeholders.NIL_UUID) @PathParam("tid") String transaction,
+            @Parameter(name = "format", description = "The desired receipt format", example = MediaType.TEXT_PLAIN, required = true) @QueryParam("format") @NotEmpty @ReceiptMediaType @DefaultValue("text/html") String format,
             @Parameter(name = "theme", description = "The required theme ID") @QueryParam("theme") String theme) throws UnexpectedException, ReceiptNotFoundException, ReceiptRendererNotFoundException, RenderingException, ModelDataSerializationException, EntityNotFoundException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /receipts/{0}", transaction);
         String mimeType = format != null ? format : MediaType.TEXT_HTML;

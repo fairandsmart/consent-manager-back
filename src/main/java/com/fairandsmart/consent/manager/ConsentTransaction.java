@@ -1,4 +1,4 @@
-package com.fairandsmart.consent.api.dto;
+package com.fairandsmart.consent.manager;
 
 /*-
  * #%L
@@ -16,21 +16,24 @@ package com.fairandsmart.consent.api.dto;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Transaction;
 import com.fairandsmart.consent.manager.exception.ConsentContextSerializationException;
 
 import java.net.URI;
 
-public class TransactionDto {
+public class ConsentTransaction {
 
     private String id;
     private String subject;
-    private Transaction.State state;
+    private String state;
     private ConsentContext context;
-    private URI actionURI;
+    private String token;
+    private URI task;
+    private URI receipt;
+    private URI create;
+    private URI cpp;
 
-    public TransactionDto() {
+    public ConsentTransaction() {
     }
 
     public String getId() {
@@ -49,11 +52,11 @@ public class TransactionDto {
         this.subject = subject;
     }
 
-    public Transaction.State getState() {
+    public String getState() {
         return state;
     }
 
-    public void setState(Transaction.State state) {
+    public void setState(String state) {
         this.state = state;
     }
 
@@ -65,31 +68,67 @@ public class TransactionDto {
         this.context = context;
     }
 
-    public URI getActionURI() {
-        return actionURI;
+    public String getToken() {
+        return token;
     }
 
-    public void setActionURI(URI formURI) {
-        this.actionURI = actionURI;
+    public void setToken(String token) {
+        this.token = token;
     }
 
-    public static TransactionDto fromTransaction(Transaction tx) throws ConsentContextSerializationException {
-        TransactionDto dto = new TransactionDto();
+    public URI getTask() {
+        return task;
+    }
+
+    public void setTask(URI formURI) {
+        this.task = task;
+    }
+
+    public URI getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(URI receipt) {
+        this.receipt = receipt;
+    }
+
+    public URI getCreate() {
+        return create;
+    }
+
+    public void setCreate(URI create) {
+        this.create = create;
+    }
+
+    public URI getCpp() {
+        return cpp;
+    }
+
+    public void setCpp(URI cpp) {
+        this.cpp = cpp;
+    }
+
+    public static ConsentTransaction fromTransaction(Transaction tx) throws ConsentContextSerializationException {
+        ConsentTransaction dto = new ConsentTransaction();
         dto.setId(tx.id);
         dto.setSubject(tx.subject);
-        dto.setState(tx.state);
+        dto.setState(tx.state.toString().toLowerCase());
         dto.setContext(tx.getConsentContext());
         return dto;
     }
 
     @Override
     public String toString() {
-        return "TransactionDto{" +
+        return "ConsentTransaction{" +
                 "id='" + id + '\'' +
                 ", subject='" + subject + '\'' +
-                ", state=" + state +
+                ", state='" + state + '\'' +
                 ", context=" + context +
-                ", actionURI=" + actionURI +
+                ", token='" + token + '\'' +
+                ", task=" + task +
+                ", receipt=" + receipt +
+                ", create=" + create +
+                ", cpp=" + cpp +
                 '}';
     }
 }

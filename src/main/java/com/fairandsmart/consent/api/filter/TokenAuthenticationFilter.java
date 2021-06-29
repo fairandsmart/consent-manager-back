@@ -1,5 +1,6 @@
 package com.fairandsmart.consent.api.filter;
 
+import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.token.*;
@@ -22,6 +23,9 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
     private static final Logger LOGGER = Logger.getLogger(TokenAuthenticationFilter.class.getName());
 
     @Inject
+    SecurityConfig config;
+
+    @Inject
     AuthenticationService authenticationService;
 
     @Inject
@@ -33,8 +37,8 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
         String token = requestContext.getUriInfo().getQueryParameters().getFirst("t");
         if (token != null) {
             LOGGER.log(Level.FINE, "Found token parameter in request: " + token);
-            if (!authenticationService.isIdentified()) {
-                LOGGER.log(Level.FINE, "User is not authentified, trying to extract authentication information from token");
+            if (config.tokenOverride() || !authenticationService.isIdentified()) {
+                LOGGER.log(Level.FINE, "Trying to extract authentication information from token");
                 try {
                     AccessToken accessToken = tokenService.readToken(token);
                     requestContext.setSecurityContext(new SecurityContext() {

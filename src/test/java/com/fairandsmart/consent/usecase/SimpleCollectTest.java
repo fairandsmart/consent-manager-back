@@ -36,12 +36,15 @@ import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,14 +62,19 @@ public class SimpleCollectTest {
     private static final String t2Key = "sct_t2";
 
     /**
-     * 1 : le user appel l'url de génération du formulaire de collecte en passant le token contenant le context en paramètre (header ou query)
+     * 1 : Le operator crée une transaction à partir du context de consentement
+     *     il fournit l'url de cette transaction au user cible.
+     * 2 : le user appelle l'url de génération du formulaire de collecte
      *     le sujet est inconnu car il n'y a encore pas eu de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
-     * 2 : le user poste le formulaire avec ses réponses et le token de context sur l'url de collecte
-     *     tout est bon, un reçu est généré et renvoyé en réponse au user
-     * 3 : le user retourne à son url initiale qui devrait être contenue dans le reçu ou dans le context
+     * 3 : le user poste le formulaire avec ses réponses sur l'url intégrée au formulaire
+     *     aucune confirmation n'est nécessaire, l'utilisateur est redirigé vers l'url de la transaction
+     *     la transaction étant terminée, l'utilisateur est redirigé sur le reçu
+     * 4 : le user utilise l'url intégrée au reçu pour générer une nouvelle transaction liée au même contexte
+     *     il est redirigé vers la nouvelle transaction créée
      *     le sujet est connu car il y a eu une collecte précédente, on génère un formulaire pré-rempli avec les éléments demandés dans le context et un nouveau token
-     * 4 : le user poste le formulaire avec ses réponses et le token de context sur l'url de collecte
-     *     tout est bon, un nouveau reçu est généré et renvoyé en réponse au user
+     * 5 : le user poste le formulaire avec ses réponses sur l'url intégrée au formulaire
+     *     aucune confirmation n'est nécessaire, l'utilisateur est redirigé vers l'url de la transaction
+     *     la transaction étant terminée, l'utilisateur est redirigé sur le reçu
      */
     @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
@@ -117,7 +125,9 @@ public class SimpleCollectTest {
             assertEquals(ModelVersion.Status.ACTIVE, dto.getStatus());
         }
 
-        LOGGER.log(Level.INFO, "Creating context & token");
+        //PART 1
+        //Generate initial transaction (as operator)
+        LOGGER.log(Level.INFO, "Create transaction from contexte");
         ConsentContext ctx = new ConsentContext()
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
@@ -125,21 +135,19 @@ public class SimpleCollectTest {
                 .setLanguage(language);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/tokens/consent").asString();
-        assertNotNull(token);
-        LOGGER.log(Level.INFO, "Token: " + token);
+        Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx).when().post("/consents");
+        response.then().header("location", containsStringIgnoringCase("/consents")).assertThat().statusCode(201);
+        String txLocation = response.getHeader("location");
+        LOGGER.log(Level.INFO, "Transaction URI: " + txLocation);
 
-        //PART 1
-        //Check consent form
-        Response response = given().accept(ContentType.JSON).queryParam("t", token).when().get("/consents");
-        response.then().contentType("application/json").assertThat().statusCode(200);
-
-        response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
+        //PART 2
+        //Call consent form (enduser)
+        LOGGER.log(Level.INFO, "Consult transaction location in HTML, should redirect to consent form view");
+        response = given().accept(ContentType.HTML).when().get(txLocation);
         String page = response.asString();
         response.then().contentType("text/html").assertThat().statusCode(200);
-
         LOGGER.log(Level.INFO, "Consent form page: " + page);
+
         //Orientation
         assertFalse(page.contains("class=\"right\"")); // Vertical
         //BasicInfo
@@ -162,6 +170,8 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Partage à des tierces-parties"));
 
         Document html = Jsoup.parse(page);
+        String action = TestUtils.extractFormAction(html);
+        LOGGER.log(Level.INFO, "Form Action: " + action);
         Map<String, String> values = TestUtils.readFormInputs(html);
         LOGGER.log(Level.INFO, "Form Values: " + values);
         List<String> elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
@@ -171,15 +181,19 @@ public class SimpleCollectTest {
             values.replace(key, "accepted"); //User accepts every processing
         }
 
-        //PART 2
-        //Post user answer
-        LOGGER.log(Level.INFO, "Posting user answer");
+
+        //PART 3
+        //Post consent answers (enduser)
+        String postUrl = txLocation.substring(0, txLocation.indexOf("?"));
+        LOGGER.log(Level.INFO, "Post URL: " + postUrl);
         Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
-                .formParams(values).when().post("/consents");
+                .formParams(values).when().post(postUrl + "/" + action);
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
 
-        LOGGER.log(Level.INFO, "Consent Response page: " + postPage);
+        LOGGER.log(Level.INFO, "Consent Submit Response page: " + postPage);
+
+
         assertTrue(postPage.contains("Merci"));
         assertTrue(postPage.contains("Cliquez ici"));
         assertTrue(postPage.contains("&format=text%2Fhtml"));
@@ -207,8 +221,9 @@ public class SimpleCollectTest {
         assertFalse(receiptPage.contains("<div class=\"processing-response accepted\">Refus&eacute;</div>"));
         assertTrue(receiptPage.contains(SUBJECT));
 
-        //PART 3
-        //Check previous values are loaded on new consent form
+        //PART 4
+        //Generate new transaction from previous one
+        /*
         response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
         page = response.asString();
         response.then().contentType("text/html").assertThat().statusCode(200);
@@ -308,6 +323,8 @@ public class SimpleCollectTest {
         assertFalse(receiptPage.contains("<value>accepted</value>"));
         assertTrue(receiptPage.contains("<subject>" + SUBJECT + "</subject>"));
         assertTrue(receiptPage.contains("<info>Info " + biKey + "_dc</info>"));
+
+         */
     }
 
 }

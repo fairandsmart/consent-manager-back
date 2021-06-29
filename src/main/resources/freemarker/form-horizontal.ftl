@@ -36,7 +36,7 @@
 <#if data.preview>
 <div class="consent-form">
     <#else>
-    <form method="post" id="consent" action="?t=${data.token}" class="consent-form">
+    <form method="post" id="consent" action="submit?t=${data.token}" class="consent-form">
         </#if>
 
         <#if data.info?? && data.info?has_content>

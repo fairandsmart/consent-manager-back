@@ -16,7 +16,7 @@ package com.fairandsmart.consent.api.resource;
  * #L%
  */
 
-import com.fairandsmart.consent.api.dto.TransactionDto;
+import com.fairandsmart.consent.manager.ConsentTransaction;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
@@ -67,41 +67,66 @@ public class ConsentsResource {
 
     @POST
     @Transactional
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
-    public Response createTransactionJson(@Valid ConsentContext ctx, @Context UriInfo uriInfo) throws AccessDeniedException, ConsentContextSerializationException {
-        LOGGER.log(Level.INFO, "POST /consents (json)");
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    public Response createTransaction(@Valid ConsentContext ctx, @Context UriInfo uriInfo) throws AccessDeniedException, ConsentContextSerializationException {
+        LOGGER.log(Level.INFO, "POST /consents");
         Transaction tx = consentService.createTransaction(ctx);
         String token = tokenService.generateToken(new AccessToken().withSubject(tx.id));
         URI uri = uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(tx.id).queryParam("t", token).build();
-        return Response.seeOther(uri).build();
+        return Response.created(uri).build();
     }
 
     @GET
     @Path("{txid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public TransactionDto getTransaction(@PathParam("txid") String txid, @Context UriInfo uriInfo) throws AccessDeniedException, EntityNotFoundException, ConsentContextSerializationException {
+    public ConsentTransaction getTransactionJson(@PathParam("txid") String txid, @Context UriInfo uriInfo) throws AccessDeniedException, EntityNotFoundException, ConsentContextSerializationException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + " (json)");
         Transaction tx = consentService.getTransaction(txid);
-        TransactionDto dto = TransactionDto.fromTransaction(tx);
+        ConsentTransaction dto = ConsentTransaction.fromTransaction(tx);
         String token = tokenService.generateToken(new AccessToken().withSubject(txid));
-        if (tx.state.equals(Transaction.State.NEW)) {
-            dto.setActionURI(uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(dto.getId()).path("submit").queryParam("t", token).build());
-        }
-        if (tx.state.equals(Transaction.State.SUBMITTED)) {
-            dto.setActionURI(uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(dto.getId()).path("confirm").queryParam("t", token).build());
+        if (tx.state.getTask()!= null) {
+            dto.setToken(token);
+            dto.setTask(uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(dto.getId()).path(tx.state.getTask()).build());
         }
         return dto;
+    }
+
+    @GET
+    @Path("{txid}")
+    @Produces(MediaType.TEXT_HTML)
+    public Response getTransactionHtml(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
+        LOGGER.log(Level.INFO, "GET /consents/" + txid + " (html)");
+        try {
+            Transaction tx = consentService.getTransaction(txid);
+            String token = tokenService.generateToken(new AccessToken().withSubject(txid));
+            if (tx.state.getTask()!= null) {
+                LOGGER.log(Level.FINE, "Transaction task exists, redirecting to task uri");
+                return Response.seeOther(uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(txid).path(tx.state.getTask()).queryParam("t", token).build()).build();
+            } else {
+                LOGGER.log(Level.FINE, "Transaction task not found, building transaction view");
+                ConsentTransaction dto = ConsentTransaction.fromTransaction(tx);
+                dto.setToken(token);
+                dto.setCreate(uriInfo.getBaseUriBuilder().path(ConsentsResource.class).build());
+                dto.setReceipt(uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(tx.id).build());
+                TemplateModel template = templateService.buildModel(dto);
+                return Response.ok(template).build();
+            }
+        } catch (UnexpectedException | AccessDeniedException | EntityNotFoundException | ConsentContextSerializationException e) {
+            ConsentFormError error = new ConsentFormError(e);
+            error.setLanguage(getLanguage(acceptLanguage));
+            return Response.ok(templateService.buildModel(error)).build();
+        }
     }
 
     @GET
     @Path("{txid}/submit")
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "generated form representation", content = @Content(example = "consent form JSON representation")),
+            @APIResponse(responseCode = "200", description = "submission form representation", content = @Content(example = "submission form JSON representation")),
             @APIResponse(responseCode = "401", description = "token is either invalid or missing")
     })
-    @Operation(summary = "Generate the consent submit form for the given transaction")
-    public ConsentSubmitForm getConsentFormJson(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException, AccessDeniedException, EntityNotFoundException, GenerateFormException {
+    @Operation(summary = "Generate the consent submission form for the given transaction")
+    public ConsentSubmitForm getSubmissionFormJson(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException, AccessDeniedException, EntityNotFoundException, GenerateFormException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/submit (json)");
         return consentService.getConsentForm(txid);
     }
@@ -110,11 +135,11 @@ public class ConsentsResource {
     @Path("{txid}/submit")
     @Produces(MediaType.TEXT_HTML)
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "generated form representation", content = @Content(example = "consent form HTML representation")),
+            @APIResponse(responseCode = "200", description = "submission form representation", content = @Content(example = "submission form HTML representation")),
             @APIResponse(responseCode = "401", description = "token is either invalid or missing")
     })
-    @Operation(summary = "Generate the consent submit form for the given transaction")
-    public TemplateModel getConsentFormHtml(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
+    @Operation(summary = "Generate the consent submission form for the given transaction")
+    public TemplateModel getSubmissionFormHtml(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/submit (html)");
         try {
             ConsentSubmitForm form = consentService.getConsentForm(txid);
@@ -130,9 +155,9 @@ public class ConsentsResource {
     @Transactional
     @Path("{txid}/submit")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response postConsentValuesJson(@PathParam("txid") String txid, MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws UnexpectedException, AccessDeniedException, SubmitConsentException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "POST /consents/" + txid + "/submit (json)");
+    @Produces({MediaType.TEXT_HTML, MediaType.APPLICATION_JSON})
+    public Response postSubmissionValues(@PathParam("txid") String txid, MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws UnexpectedException, AccessDeniedException, SubmitConsentException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "POST /consents/" + txid + "/submit");
         consentService.submitConsentValues(txid, values);
         String token = tokenService.generateToken(new AccessToken().withSubject(txid));
         URI uri = uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(txid).queryParam("t", token).build();
@@ -141,12 +166,25 @@ public class ConsentsResource {
 
     @GET
     @Path("{txid}/confirm")
-    @Produces(MediaType.TEXT_HTML)
+    @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "generated form representation", content = @Content(example = "confirm form HTML representation")),
+            @APIResponse(responseCode = "200", description = "confirmation form representation", content = @Content(example = "confirmation form JSON representation")),
             @APIResponse(responseCode = "401", description = "token is either invalid or missing")
     })
-    @Operation(summary = "Generate the consent submit form for the given transaction")
+    @Operation(summary = "Generate the consent confirmation form for the given transaction")
+    public ConsentConfirmForm getConfirmationFormJson(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException, AccessDeniedException, EntityNotFoundException, GenerateFormException {
+        LOGGER.log(Level.INFO, "GET /consents/" + txid + "/confirm (json)");
+        return consentService.getConfirmationForm(txid);
+    }
+
+    @GET
+    @Path("{txid}/confirm")
+    @Produces(MediaType.TEXT_HTML)
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "confirmation form representation", content = @Content(example = "confirmation form HTML representation")),
+            @APIResponse(responseCode = "401", description = "token is either invalid or missing")
+    })
+    @Operation(summary = "Generate the consent confirmation form for the given transaction")
     public TemplateModel getConfirmationFormHtml(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/confirm (html)");
         try {
@@ -163,53 +201,13 @@ public class ConsentsResource {
     @Transactional
     @Path("{txid}/confirm")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response postConfirmValuesJson(@PathParam("txid") String txid, MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws UnexpectedException, AccessDeniedException, SubmitConsentException, EntityNotFoundException {
-        LOGGER.log(Level.INFO, "GET /consents/" + txid + "/confirm (json)");
+    public Response postConfirmationValues(@PathParam("txid") String txid, MultivaluedMap<String, String> values, @Context UriInfo uriInfo) throws UnexpectedException, AccessDeniedException, SubmitConsentException, EntityNotFoundException {
+        LOGGER.log(Level.INFO, "POST /consents/" + txid + "/confirm");
         consentService.submitConsentValues(txid, values);
         String token = tokenService.generateToken(new AccessToken().withSubject(txid));
         URI uri = uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(txid).queryParam("t", token).build();
         return Response.seeOther(uri).build();
     }
-
-    /*
-    @POST
-    @Path("{txid}/submit")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_HTML)
-    @Operation(summary = "Submit consent form values")
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "consent values has been recorded", content = @Content(example = "consent acknowledgment")),
-            @APIResponse(responseCode = "401", description = "token is either invalid or missing")
-    })
-    public TemplateModel submitConsentValues(@PathParam("txid") String txid, MultivaluedMap<String, String> values, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
-        LOGGER.log(Level.INFO, "POST /consents/values (html)");
-        try {
-            ConsentFormResult result = this.internalPostConsent(txid, values, uriInfo);
-            return templateService.buildModel(result);
-        } catch (InvalidTokenException | AccessDeniedException | SubmitConsentException | TokenExpiredException | ConsentContextSerializationException | EntityNotFoundException e) {
-            ConsentFormError error = new ConsentFormError(e);
-            error.setLanguage(getLanguage(acceptLanguage));
-            return templateService.buildModel(error);
-        }
-    }
-
-    /*
-    private ConsentFormResult internalPostConsent(String txid, MultivaluedMap<String, String> values, UriInfo uriInfo) throws UnexpectedException, InvalidTokenException, AccessDeniedException, SubmitConsentException, TokenExpiredException, ConsentContextSerializationException, EntityNotFoundException {
-        ConsentReceipt receipt = consentService.submitConsentValues(txid, values);
-        UriBuilder uri = uriInfo.getBaseUriBuilder().path(ReceiptsResource.class).path(receipt.getTransaction()).queryParam("t", tokenService.generateToken(new ReceiptContext().setSubject(receipt.getSubject())));
-        ConsentContext ctx = (ConsentContext) tokenService.readToken(values.get("token").get(0));
-        ConsentFormResult consentFormResult = new ConsentFormResult();
-        consentFormResult.setContext(ctx);
-        if (StringUtils.isNotEmpty(ctx.getLayoutData().getDesiredReceiptMimeType())) {
-            uri.queryParam("format", ctx.getLayoutData().getDesiredReceiptMimeType());
-            Optional<ConsentElementIdentifier> themeId = ConsentElementIdentifier.deserialize(ctx.getLayoutData().getTheme());
-            themeId.ifPresent(consentElementIdentifier -> uri.queryParam("theme", consentElementIdentifier.getKey()));
-        }
-        consentFormResult.setReceiptURI(uri.build());
-        return consentFormResult;
-    }
-     */
 
     private String getLanguage(String acceptLanguage) {
         LOGGER.log(Level.FINEST, "extracting language from header Accept-Language: " + acceptLanguage);

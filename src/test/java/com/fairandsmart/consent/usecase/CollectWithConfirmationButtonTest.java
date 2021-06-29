@@ -20,7 +20,7 @@ import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
-import com.fairandsmart.consent.api.dto.TransactionDto;
+import com.fairandsmart.consent.manager.ConsentTransaction;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.BasicInfo;
@@ -147,13 +147,13 @@ public class CollectWithConfirmationButtonTest {
                 .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        TransactionDto transaction = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/consents").as(TransactionDto.class);
+        ConsentTransaction transaction = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
+                .when().post("/consents").as(ConsentTransaction.class);
         assertNotNull(transaction);
         LOGGER.log(Level.INFO, "Transaction :" + transaction);
 
         //PART 2
-        Response response = given().accept(ContentType.JSON).when().get(transaction.getActionURI());
+        Response response = given().accept(ContentType.JSON).when().get(transaction.getTask());
         String formPage = response.asString();
         response.then().contentType(ContentType.JSON.toString()).assertThat().statusCode(200);
 

@@ -501,7 +501,7 @@ public class ConsentServiceBean implements ConsentService {
         Transaction tx = new Transaction();
         tx.id = Base58.encodeUUID(UUID.randomUUID().toString());
         tx.subject = ctx.getSubject();
-        tx.state = Transaction.State.NEW;
+        tx.state = Transaction.State.CREATED;
         tx.creationTimestamp = System.currentTimeMillis();
         tx.setConsentContext(ctx);
         tx.setValidity("PT6H");
@@ -543,7 +543,7 @@ public class ConsentServiceBean implements ConsentService {
             LOGGER.log(Level.FINEST, "Transaction loaded: " + tx);
             ConsentContext ctx = tx.getConsentContext();
             LOGGER.log(Level.FINEST, "Transaction context: " + tx.context);
-            if (tx.state != Transaction.State.NEW) {
+            if (tx.state != Transaction.State.CREATED) {
                 throw new GenerateFormException(ctx, "Unable to generate form, incompatible transaction state: " + tx.state);
             }
 
@@ -601,7 +601,7 @@ public class ConsentServiceBean implements ConsentService {
             LOGGER.log(Level.FINEST, "Transaction loaded: " + tx);
             ConsentContext ctx = tx.getConsentContext();
             LOGGER.log(Level.FINEST, "Transaction context: " + tx.context);
-            if (tx.state != Transaction.State.NEW) {
+            if (tx.state != Transaction.State.CREATED) {
                 throw new SubmitConsentException(ctx, null, "Consent cannot be submitted, wrong transaction state: " + tx.state);
             }
 

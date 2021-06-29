@@ -61,11 +61,21 @@ public class Transaction extends PanacheEntityBase {
     }
 
     public enum State {
-        NEW,
-        SUBMITTED,
-        COMMITTED,
-        CANCELLED,
-        TIMEOUT
+        CREATED ("submit"),
+        SUBMITTED ("confirm"),
+        COMMITTED (null),
+        CANCELLED (null),
+        TIMEOUT (null);
+
+        private String task;
+
+        State(String task) {
+            this.task = task;
+        }
+
+        public String getTask() {
+            return task;
+        }
     }
 
     @Override

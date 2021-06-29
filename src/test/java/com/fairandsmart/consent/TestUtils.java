@@ -193,6 +193,17 @@ public class TestUtils {
                 .withPhoneNumber("0123456789");
     }
 
+    public static String extractFormAction(Document html) {
+        Elements inputs = html.getAllElements();
+        List<FormElement> forms = inputs.forms();
+        for (FormElement form : forms) {
+            if (form.id().equals("consent")) {
+                return form.attr("action");
+            }
+        }
+        return "";
+    }
+
     public static Map<String, String> readFormInputs(Document html) {
         Elements inputs = html.getAllElements();
         List<FormElement> forms = inputs.forms();
