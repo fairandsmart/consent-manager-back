@@ -10,6 +10,8 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 import javax.persistence.*;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 public class Transaction extends PanacheEntityBase {
@@ -22,10 +24,13 @@ public class Transaction extends PanacheEntityBase {
     public String subject;
     @Column(length = 25000)
     public String context;
+    public String parent;
     public long creationTimestamp;
     public long expirationTimestamp;
     @Enumerated(EnumType.STRING)
     public State state;
+    @ElementCollection
+    public Map<String, String> params = new HashMap<>();
 
     public ConsentContext getConsentContext() throws ConsentContextSerializationException {
         try {
@@ -61,20 +66,26 @@ public class Transaction extends PanacheEntityBase {
     }
 
     public enum State {
-        CREATED ("submit"),
-        SUBMITTED ("confirm"),
-        COMMITTED (null),
-        CANCELLED (null),
-        TIMEOUT (null);
+        CREATED ("submit", false),
+        SUBMITTED ("confirm", false),
+        COMMITTED (null, true),
+        CANCELLED (null, true),
+        TIMEOUT (null, true);
 
         private String task;
+        private boolean endOfLife;
 
-        State(String task) {
+        State(String task, boolean endOfLife) {
             this.task = task;
+            this.endOfLife = endOfLife;
         }
 
         public String getTask() {
             return task;
+        }
+
+        public boolean isEndOfLife() {
+            return endOfLife;
         }
     }
 
@@ -84,9 +95,11 @@ public class Transaction extends PanacheEntityBase {
                 "id='" + id + '\'' +
                 ", version=" + version +
                 ", subject='" + subject + '\'' +
+                ", parent='" + parent + '\'' +
                 ", creationTimestamp=" + creationTimestamp +
                 ", expirationTimestamp=" + expirationTimestamp +
                 ", state=" + state +
+                ", params=" + params +
                 '}';
     }
 }

@@ -100,7 +100,9 @@ public interface ConsentService {
 
     ConsentConfirmForm getConfirmationForm(String txId) throws UnexpectedException, GenerateFormException, AccessDeniedException, EntityNotFoundException;
 
-    void submitConfirmationValues(String txId, MultivaluedMap<String, String> values) throws UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException;
+    void submitConfirmationValues(String txId, MultivaluedMap<String, String> values) throws UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException, ConfirmationException;
+
+    Transaction breedTransaction(String txId) throws AccessDeniedException, ConsentContextSerializationException, EntityNotFoundException;
 
     /* Records */
 

@@ -46,7 +46,7 @@ public class ConsentConfirmFormTemplateModelBuilder implements TemplateModelBuil
         ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
         model.setBundle(bundle);
         model.setData(form);
-        model.setTemplate("form-confirm.ftl");
+        model.setTemplate("consent-form-" + form.getType() + "-confirm.ftl");
 
         LOGGER.log(Level.FINEST, model.toString());
         return model;

@@ -30,7 +30,7 @@ public class ConsentTransaction {
     private String token;
     private URI task;
     private URI receipt;
-    private URI create;
+    private URI breed;
     private URI cpp;
 
     public ConsentTransaction() {
@@ -92,12 +92,12 @@ public class ConsentTransaction {
         this.receipt = receipt;
     }
 
-    public URI getCreate() {
-        return create;
+    public URI getBreed() {
+        return breed;
     }
 
-    public void setCreate(URI create) {
-        this.create = create;
+    public void setBreed(URI breed) {
+        this.breed = breed;
     }
 
     public URI getCpp() {
@@ -127,7 +127,7 @@ public class ConsentTransaction {
                 ", token='" + token + '\'' +
                 ", task=" + task +
                 ", receipt=" + receipt +
-                ", create=" + create +
+                ", breed=" + breed +
                 ", cpp=" + cpp +
                 '}';
     }

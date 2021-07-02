@@ -2,6 +2,9 @@ package com.fairandsmart.consent.manager;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ConsentConfirmForm {
 
     @Schema(description = "The form attached token", example = "")
@@ -9,6 +12,8 @@ public class ConsentConfirmForm {
     @Schema(description = "The expected confirmation type", example = "")
     private String type;
     private String language;
+    private Map<String, String> params = new HashMap<>();
+    private ConsentReceipt receipt;
 
     public ConsentConfirmForm() {
     }
@@ -41,6 +46,27 @@ public class ConsentConfirmForm {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
+
+    public ConsentConfirmForm withParam(String key, String value) {
+        this.params.put(key, value);
+        return this;
+    }
+
+    public ConsentReceipt getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(ConsentReceipt receipt) {
+        this.receipt = receipt;
     }
 
     @Override

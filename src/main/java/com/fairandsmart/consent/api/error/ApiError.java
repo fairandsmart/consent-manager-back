@@ -134,6 +134,7 @@ public class ApiError {
         RENDERER_NOT_FOUND(HttpStatus.SC_NOT_FOUND, "renderer-not-found", "Renderer Not Found"),
 
         SUPPORT_SERVICE_ERROR(HttpStatus.SC_NO_CONTENT, "support-error", "Unable to contact support service"),
+        CONFIRMATION_ERROR(HttpStatus.SC_BAD_REQUEST, "confirmation-error", "Unable to confirm consent submission"),
 
         MODEL_DATA_SERIALIZATION_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "serialization-error", "Unexpected Data Serialization Error"),
         CONSENT_CONTEXT_SERIALIZATION_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "serialization-error", "Unexpected Consent Context Serialization Error"),

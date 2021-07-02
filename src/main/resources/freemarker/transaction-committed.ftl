@@ -42,16 +42,13 @@
     </div>
     <div class="info-footer">
         <div class="submit-container">
-            <a href="${data.receipt}?t=${data.token}" target="_self"><button type="submit" class="submit-button"><@readBundle "txReceiptLink" "missingValue"></@readBundle></button></a>
-            <form action="${data.create}?t=${data.token}">
-                <input type="hidden" name="ctx" value="${data.context}"/>
-                <button type="submit" class="submit-button"><@readBundle "txCreateLink" "missingValue"></@readBundle></button>
-            </form>
+            <a id="receipt-link" href="${data.receipt}?t=${data.token}" target="_self"><button type="submit" class="submit-button"><@readBundle "txReceiptLink" "missingValue"></@readBundle></button></a>
+            <a id="breed-link" href="${data.breed}?t=${data.token}" target="_self"><button type="submit" class="submit-button"><@readBundle "txCreateLink" "missingValue"></@readBundle></button></a>
             <#if data.context.callback?has_content>
-                <a href="${data.create}?t=${data.token}" target="_self"><button type="submit" class="submit-button"><@readBundle "txCallbackLink" "missingValue"></@readBundle></button></a>
+                <a id="callback-link" href="${data.create}?t=${data.token}" target="_self"><button type="submit" class="submit-button"><@readBundle "txCallbackLink" "missingValue"></@readBundle></button></a>
             </#if>
             <#if data.cpp?has_content>
-                <a href="${data.cpp}?t=${data.token}" target="_self"><button type="submit" class="submit-button"><@readBundle "cppLink" "missingValue"></@readBundle></button></a>
+                <a id="cpp-link" href="${data.cpp}?t=${data.token}" target="_self"><button type="submit" class="submit-button"><@readBundle "cppLink" "missingValue"></@readBundle></button></a>
             </#if>
         </div>
     </div>

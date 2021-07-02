@@ -77,14 +77,24 @@ public class ConsentContext {
     }
 
     public enum Confirmation {
-        NONE,
-        FORM_CODE,
-        EMAIL_CODE,
-        SMS_CODE,
-        SIGNATURE,
-        AUDIO_RECORD,
-        VIDEO_RECORD,
-        DIGITAL_SIGNATURE
+        NONE (""),
+        FORM_CODE ("code"),
+        EMAIL_CODE ("code"),
+        SMS_CODE ("code"),
+        SIGNATURE ("sign"),
+        AUDIO_RECORD ("audio"),
+        VIDEO_RECORD ("video"),
+        DIGITAL_SIGNATURE("digital-sign");
+
+        private String type;
+
+        Confirmation(String type) {
+            this.type = type;
+        }
+
+        public String getType() {
+            return type;
+        }
     }
 
     public ConsentContext() {

@@ -27,6 +27,7 @@ import com.fairandsmart.consent.common.util.Base58;
 import com.fairandsmart.consent.common.util.PageUtil;
 import com.fairandsmart.consent.common.util.SortUtil;
 import com.fairandsmart.consent.manager.cache.PreviewCache;
+import com.fairandsmart.consent.manager.confirmation.ConfirmationHandler;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -121,6 +122,9 @@ public class ConsentServiceBean implements ConsentService {
 
     @Inject
     Instance<ReceiptRenderer> renderers;
+
+    @Inject
+    Instance<ConfirmationHandler> confirmationHandlers;
 
     /* MODELS MANAGEMENT */
 
@@ -498,11 +502,33 @@ public class ConsentServiceBean implements ConsentService {
         if (!ctx.getSubject().equals(authentication.getConnectedIdentifier())) {
             authentication.ensureConnectedIdentifierIsApi();
         }
+        return internalCreateTransaction(ctx, null);
+    }
+
+    @Override
+    @Transactional
+    public Transaction breedTransaction(String txid) throws AccessDeniedException, ConsentContextSerializationException, EntityNotFoundException {
+        LOGGER.log(Level.FINE, "Create child for transaction with id: " + txid);
+        authentication.ensureIsIdentified();
+        Transaction tx = internalFindTransaction(txid);
+        ConsentContext ctx = tx.getConsentContext();
+        if (!txid.equals(authentication.getConnectedIdentifier()) && !ctx.getSubject().equals(authentication.getConnectedIdentifier())) {
+            authentication.ensureConnectedIdentifierIsApi();
+        }
+        if (!tx.state.isEndOfLife()) {
+            throw new AccessDeniedException("Unable to breed a transaction that is not finished");
+        }
+        return internalCreateTransaction(ctx, txid);
+    }
+
+    @Transactional
+    private Transaction internalCreateTransaction(ConsentContext ctx, String parent) throws ConsentContextSerializationException {
         Transaction tx = new Transaction();
         tx.id = Base58.encodeUUID(UUID.randomUUID().toString());
         tx.subject = ctx.getSubject();
         tx.state = Transaction.State.CREATED;
         tx.creationTimestamp = System.currentTimeMillis();
+        tx.parent = parent;
         tx.setConsentContext(ctx);
         tx.setValidity("PT6H");
         tx.persist();
@@ -512,7 +538,11 @@ public class ConsentServiceBean implements ConsentService {
     @Override
     public Transaction getTransaction(String txid) throws AccessDeniedException, EntityNotFoundException {
         LOGGER.log(Level.FINE, "Get transaction with id: " + txid);
-        return internalFindTransaction(txid);
+        Transaction tx = internalFindTransaction(txid);
+        if (!authentication.getConnectedIdentifier().equals(tx.id) && !authentication.getConnectedIdentifier().equals(tx.subject)) {
+            authentication.ensureConnectedIdentifierIsApi();
+        }
+        return tx;
     }
 
     @Override
@@ -540,6 +570,9 @@ public class ConsentServiceBean implements ConsentService {
         LOGGER.log(Level.FINE, "Generating consent form");
         try {
             Transaction tx = internalFindTransaction(txid);
+            if (!authentication.getConnectedIdentifier().equals(tx.id) && !authentication.getConnectedIdentifier().equals(tx.subject)) {
+                authentication.ensureConnectedIdentifierIsApi();
+            }
             LOGGER.log(Level.FINEST, "Transaction loaded: " + tx);
             ConsentContext ctx = tx.getConsentContext();
             LOGGER.log(Level.FINEST, "Transaction context: " + tx.context);
@@ -598,6 +631,9 @@ public class ConsentServiceBean implements ConsentService {
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
             Transaction tx = internalFindTransaction(txid);
+            if (!authentication.getConnectedIdentifier().equals(tx.id) && !authentication.getConnectedIdentifier().equals(tx.subject)) {
+                authentication.ensureConnectedIdentifierIsApi();
+            }
             LOGGER.log(Level.FINEST, "Transaction loaded: " + tx);
             ConsentContext ctx = tx.getConsentContext();
             LOGGER.log(Level.FINEST, "Transaction context: " + tx.context);
@@ -648,10 +684,9 @@ public class ConsentServiceBean implements ConsentService {
                     record.persist();
                 }
 
-                //TODO Change the embedded receipt token to a read only one and find a better way to update subject consent
                 ConsentReceipt receipt = ConsentReceipt.build(txid, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, (BasicInfo) info.getData(ctx.getLanguage()), trecords);
-                String updateToken = tokenService.generateToken(new AccessToken().withSubject(tx.id), Date.from(receipt.getExpirationDate().toInstant()));
-                receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + updateToken);
+                String token = tokenService.generateToken(new AccessToken().withSubject(tx.id), Date.from(receipt.getExpirationDate().toInstant()));
+                receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
                 receipt.setUpdateUrlQrCode(generateQRCode(receipt.getUpdateUrl()));
                 store.put(receipt);
 
@@ -667,7 +702,7 @@ public class ConsentServiceBean implements ConsentService {
                     this.submitConfirmationValues(txid, values);
                 }
 
-            } catch (InvalidValuesException | EntityNotFoundException e) {
+            } catch (InvalidValuesException | EntityNotFoundException | ConfirmationException e) {
                 //TODO Now just refresh the form should fix the version
                 throw new SubmitConsentException(ctx, null, e);
             }
@@ -677,11 +712,15 @@ public class ConsentServiceBean implements ConsentService {
     }
 
     @Override
+    @Transactional
     public ConsentConfirmForm getConfirmationForm(String txid) throws UnexpectedException, GenerateFormException, AccessDeniedException, EntityNotFoundException {
         LOGGER.log(Level.FINE, "Generating consent form");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
             Transaction tx = internalFindTransaction(txid);
+            if (!authentication.getConnectedIdentifier().equals(tx.id) && !authentication.getConnectedIdentifier().equals(tx.subject)) {
+                authentication.ensureConnectedIdentifierIsApi();
+            }
             LOGGER.log(Level.FINEST, "Transaction loaded: " + tx);
             ConsentContext ctx = tx.getConsentContext();
             LOGGER.log(Level.FINEST, "Transaction context: " + tx.context);
@@ -689,28 +728,27 @@ public class ConsentServiceBean implements ConsentService {
                 throw new GenerateFormException(ctx, "Unable to generate confirmation form, incompatible transaction state: " + tx.state);
             }
 
-            //try {
-                //TODO according to the confirmation type, send or generate needed informations (SMS, EMAIL, ....)
-                // If a value is expected (like confirmation code, store it in the transaction)
-                // Store also the number of retries for generating form
-                // Include receipt in the confirm form
-
+            try {
+                ConsentReceipt receipt = this.getReceipt(tx.id);
                 // Initialize form using context
                 ConsentConfirmForm form = new ConsentConfirmForm(ctx);
+                form.setReceipt(receipt);
+                form.setLanguage(ctx.getLanguage());
+                form.setType(ctx.getConfirmation().getType());
                 form.setToken(this.tokenService.generateToken(new AccessToken().withSubject(txid).withValidity("PT5H")));
 
-                // According to the confirmation type, make what is needed
-
-                switch (ctx.getConfirmation()) {
-                    case NONE: break;
-                    case FORM_CODE:
-
+                // Find a confirmation handler according to the context
+                Optional<ConfirmationHandler> handler = confirmationHandlers.stream().filter(h -> h.canHandle(ctx.getConfirmation())).findFirst();
+                if (handler.isPresent()) {
+                    form.setParams(handler.get().prepare(tx));
+                } else {
+                    throw new UnexpectedException("Unable to find a handler for confirmation: " + ctx.getConfirmation());
                 }
 
                 return form;
-            //} catch (EntityNotFoundException e) {
-            //    throw new GenerateFormException(ctx, e.getMessage());
-            //}
+            } catch (ReceiptNotFoundException e) {
+                throw new GenerateFormException(ctx, e.getMessage());
+            }
         } catch (ConsentContextSerializationException e) {
             throw new UnexpectedException("Unable to generate consent form", e);
         }
@@ -718,11 +756,14 @@ public class ConsentServiceBean implements ConsentService {
 
     @Override
     @Transactional
-    public void submitConfirmationValues(String txid, MultivaluedMap<String, String> values) throws UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException {
+    public void submitConfirmationValues(String txid, MultivaluedMap<String, String> values) throws UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException, ConfirmationException {
         LOGGER.log(Level.FINE, "Submitting confirmation");
         String connectedIdentifier = authentication.getConnectedIdentifier();
         try {
             Transaction tx = internalFindTransaction(txid);
+            if (!authentication.getConnectedIdentifier().equals(tx.id) && !authentication.getConnectedIdentifier().equals(tx.subject)) {
+                authentication.ensureConnectedIdentifierIsApi();
+            }
             LOGGER.log(Level.FINEST, "Transaction loaded: " + tx);
             ConsentContext ctx = tx.getConsentContext();
             LOGGER.log(Level.FINEST, "Transaction context: " + tx.context);
@@ -730,7 +771,14 @@ public class ConsentServiceBean implements ConsentService {
                 throw new SubmitConsentException(ctx, null, "Consent cannot be confirmed, wrong transaction state: " + tx.state);
             }
 
-            //TODO create a project to reproduce Record.update() problem
+            // Find a confirmation handler according to the context
+            Optional<ConfirmationHandler> handler = confirmationHandlers.stream().filter(h -> h.canHandle(ctx.getConfirmation())).findFirst();
+            if (handler.isPresent()) {
+                handler.get().validate(tx, ctx, values);
+            } else {
+                throw new UnexpectedException("Unable to find a handler for confirmation: " + ctx.getConfirmation());
+            }
+
             List<Record> records = Record.find("transaction", tx.id).list();
             LOGGER.log(Level.FINEST,  "Found " + records.size() + " records for transaction: " + txid);
             for (Record record : records) {
@@ -929,11 +977,7 @@ public class ConsentServiceBean implements ConsentService {
         if (!opt.isPresent()) {
             throw new EntityNotFoundException("Unable to find a transaction for id: " + txid);
         }
-        Transaction tx = opt.get();
-        if (!authentication.getConnectedIdentifier().equals(tx.id) && !authentication.getConnectedIdentifier().equals(tx.subject)) {
-            authentication.ensureConnectedIdentifierIsApi();
-        }
-        return tx;
+        return opt.get();
     }
 
     private byte[] internalRenderReceipt(ConsentReceipt receipt, String format, String themeKey) throws ModelDataSerializationException, EntityNotFoundException, RenderingException, ReceiptRendererNotFoundException {

@@ -37,15 +37,20 @@
         <h2><@readBundle "thankYou" "missingValue"></@readBundle></h2>
         <p><@readBundle "changesConfirmation" "missingValue"></@readBundle></p>
     </div>
+    <div class="receipt-content">
+        <!-- TODO Find  a way to include receipt here (IFrame, specific html template (like preview) -->
+    </div>
     <div class="info-footer">
         <div class="submit-container">
-            <a href="${data.confirmURI}" target="_self"><button type="submit" class="submit-button"><@readBundle "confirmButton" "missingValue"></@readBundle></button></a>
+            <form method="post" id="confirm" action="confirm?t=${data.token}" class="confirm-form">
+                <input id="confirm-code" type="hidden" name="ConfirmCodeValue" value="${data.params['ConfirmCodeValue']}"/>
+                <button type="submit" class="submit-button"><@readBundle "confirmButton" "missingValue"></@readBundle></button>
+            </form>
         </div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.2.11/iframeResizer.contentWindow.min.js" integrity="sha512-FOf4suFgz7OrWmBiyyWW48u/+6GaaAFSDHagh2EBu/GH/1+OQSYc0NFGeGeZK0gZ3vuU1ovmzVzD6bxmT4vayg==" crossorigin="anonymous"></script>
-<script src="/assets/js/callback.js" onload="init('${data.context.iframeOrigin!""}', '${data.context.callback!""}')"></script>
 
 </body>
 </html>

@@ -374,4 +374,20 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet author="jayblanc" id="11">
+        <addColumn tableName="${instance}_TRANSACTION" schemaName="PUBLIC" >
+            <column name="PARENT" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="jayblanc" id="12">
+        <createTable tableName="${instance}_TRANSACTION_PARAMS" schemaName="PUBLIC" >
+            <column name="TRANSACTION_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARAMS_KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARAMS" type="VARCHAR(5000)"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

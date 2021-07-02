@@ -35,16 +35,20 @@ import io.restassured.response.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.validation.Validation;
+import javax.ws.rs.core.MediaType;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,61 +58,65 @@ public class CollectWithConfirmationButtonTest {
     private static final Logger LOGGER = Logger.getLogger(CollectWithConfirmationButtonTest.class.getName());
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
+    private static final String SUBJECT = "mmichu";
 
     private static final String language = "fr";
-    private static final String biKey = "cwct_bi1";
-    private static final String t1Key = "cwct_t1";
-    private static final String t2Key = "cwct_t2";
-    private static final String eKey = "cwct_e1";
+    private static final String biKey = "cwcbt_bi1";
+    private static final String t1Key = "cwcbt_t1";
+    private static final String t2Key = "cwcbt_t2";
+    private static final String eKey = "cwcbt_e1";
     private static final String recipient = "mmichu@localhost";
 
-    @Inject
-    MockMailbox mailbox;
-
-    @ConfigProperty(name = "consent.public.url")
-    String publicUrl;
-
-    @BeforeEach
+    /**
+     * 1 : Le operator crée une transaction à partir du context de consentement
+     *     il fournit l'url de cette transaction au user cible.
+     * 2 : le user appelle l'url de la transaction
+     *     le sujet est inconnu car il n'y a encore pas eu de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
+     * 3 : le user poste le formulaire avec ses réponses sur l'url intégrée au formulaire
+     *     une confirmation html simple est demandée, l'utilisateur est redirigé vers l'url de la transaction
+     *     la transaction attends la confirmation, l'utilisateur est redirigé sur le formulaire de confirmation
+     * 4 : le user poste le formulaire de confirmation de ses choix
+     *     la confirmation est acceptée, l'utilisateur est redirigé vers l'url de la transaction
+     *     la transaction étant terminée, l'utilisateur est redirigé sur le reçu
+     * 5 : le user peut constater que le reçu contient une pièce jointe de confirmation
+     *     la pièce jointe correspond au code HTML de confirmation
+     */
+    @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void init() {
-        //SETUP
-        LOGGER.log(Level.INFO, "Initial setup");
+    public void testSimpleCollectHtml() {
+        //INITIAL SETUP
         //Check that the app is running
+        LOGGER.log(Level.INFO, "Initial setup");
         given().contentType(ContentType.JSON).
                 when().get("/health").
                 then().body("status", equalTo("UP"));
 
-        //Purge mailbox
-        LOGGER.log(Level.INFO, "Purge mailbox");
-        mailbox.clear();
-        assertEquals(mailbox.getTotalMessagesSent(), 0);
-
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
-        List<String> keys = List.of(biKey, t1Key, t2Key, eKey);
-        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE, Email.TYPE);
+        List<String> keys = List.of(biKey, t1Key, t2Key);
+        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);
             String type = types.get(index);
             LOGGER.log(Level.INFO, "Creating " + type + " entry");
-            ModelEntryDto entryDto = TestUtils.generateModelEntryDto(key, type);
-            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(entryDto).size());
+            ModelEntryDto model = TestUtils.generateModelEntryDto(key, type);
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(model).size());
             Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.JSON).body(entryDto).
+                    contentType(ContentType.JSON).body(model).
                     when().post("/models");
             response.then().statusCode(200);
-            entryDto = response.body().as(ModelEntryDto.class);
+            ModelEntryDto entry = response.body().as(ModelEntryDto.class);
 
             //Create model version
             LOGGER.log(Level.INFO, "Creating " + type + " version");
-            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(key, type, language);
-            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(versionDto).size());
+            ModelVersionDto dto = TestUtils.generateModelVersionDto(key, type, language);
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(dto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.JSON).body(versionDto).
-                    when().post("/models/" + entryDto.getId() + "/versions");
+                    contentType(ContentType.JSON).body(dto).
+                    when().post("/models/" + entry.getId() + "/versions");
             response.then().statusCode(200);
-            versionDto = response.body().as(ModelVersionDto.class);
+            dto = response.body().as(ModelVersionDto.class);
 
             //Activate model version
             LOGGER.log(Level.INFO, "Activating " + type + " version");
@@ -116,74 +124,84 @@ public class CollectWithConfirmationButtonTest {
             statusDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(statusDto).
-                    when().put("/models/" + entryDto.getId() + "/versions/" + versionDto.getId() + "/status");
+                    when().put("/models/" + entry.getId() + "/versions/" + dto.getId() + "/status");
             response.then().statusCode(200);
-            versionDto = response.body().as(ModelVersionDto.class);
-            assertEquals(ModelVersion.Status.ACTIVE, versionDto.getStatus());
+            dto = response.body().as(ModelVersionDto.class);
+            assertEquals(ModelVersion.Status.ACTIVE, dto.getStatus());
         }
-    }
 
-    /**
-     * Confirmation HTML Simple (bouton avec secret)
-     *
-     * 1 : l'orga démarre une transaction de collecte avec un context configuré pour une confirmation HTML
-     * 2 : Le user (anonyme) consulte l'URL du formulaire attaché à la transaction
-     * 3 : le user (anonyme) poste les réponses au formulaire
-     * 4 : le user (anonyme) confirm le reçu en postant le secret contenu dans le bouton "je confirme"
-     * 5 : le user (anonyme) visualise le reçu
-     */
-    @Test
-    @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testCollectWithEmail() {
         //PART 1
-        LOGGER.log(Level.INFO, "Creating context & token");
+        //Generate initial transaction (as operator)
+        LOGGER.log(Level.INFO, "Create transaction from contexte");
         ConsentContext ctx = new ConsentContext()
-                .setSubject("mmichu@localhost")
+                .setSubject(SUBJECT)
                 .setValidity("P2Y")
+                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withDesiredReceiptMimeType(MediaType.TEXT_HTML).withAcceptAllVisible(true))
                 .setLanguage(language)
-                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey))
-                .setConfirmation(ConsentContext.Confirmation.FORM_CODE)
-                .setConfirmationConfig(Collections.singletonMap("button_secret", "tagada54"))
-                .setNotificationRecipient(recipient);
+                .setConfirmation(ConsentContext.Confirmation.FORM_CODE);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        ConsentTransaction transaction = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/consents").as(ConsentTransaction.class);
-        assertNotNull(transaction);
-        LOGGER.log(Level.INFO, "Transaction :" + transaction);
+        Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx).when().post("/consents");
+        response.then().header("location", containsStringIgnoringCase("/consents")).assertThat().statusCode(201);
+        String txLocation = response.getHeader("location");
+        LOGGER.log(Level.INFO, "Transaction URI: " + txLocation);
 
         //PART 2
-        Response response = given().accept(ContentType.JSON).when().get(transaction.getTask());
-        String formPage = response.asString();
-        response.then().contentType(ContentType.JSON.toString()).assertThat().statusCode(200);
+        //Call consent form (enduser)
+        LOGGER.log(Level.INFO, "Consult transaction location in HTML, should redirect to consent form view");
+        response = given().accept(ContentType.HTML).when().get(txLocation);
+        String page = response.asString();
+        response.then().contentType("text/html").assertThat().statusCode(200);
+        LOGGER.log(Level.INFO, "Consent form page: " + page);
 
-        LOGGER.log(Level.INFO, "Consent form page: " + formPage);
-        Document form = Jsoup.parse(formPage);
-        Map<String, String> values = TestUtils.readFormInputs(form);
+        Document html = Jsoup.parse(page);
+        String action = TestUtils.extractFormAction(html);
+        LOGGER.log(Level.INFO, "Form Action: " + action);
+        Map<String, String> values = TestUtils.readFormInputs(html);
         LOGGER.log(Level.INFO, "Form Values: " + values);
+        List<String> elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
+        assertEquals(2, elementsKeys.size());
+        for (String key : elementsKeys) {
+            assertEquals("refused", values.get(key));
+            values.replace(key, "accepted"); //User accepts every processing
+        }
 
-        /*
         //PART 3
-        LOGGER.log(Level.INFO, "Posting user answer");
-        Response consentResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC).formParams(values).when().post("/consents/values");
-        String confirmPage = consentResponse.asString();
-        consentResponse.then().assertThat().statusCode(200);
+        //Post consent answers (enduser)
+        String postUrl = txLocation.substring(0, txLocation.indexOf("?"));
+        LOGGER.log(Level.INFO, "Post URL: " + postUrl);
+        Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
+                .formParams(values).when().post(postUrl + "/" + action);
+        String postPage = postResponse.asString();
+        postResponse.then().assertThat().statusCode(200);
+        LOGGER.log(Level.INFO, "Consent Confirmation page: " + postPage);
 
-        LOGGER.log(Level.INFO, "Confirmation page: " + confirmPage);
-        Document confirmation = Jsoup.parse(confirmPage);
-        Map<String, String> confirmationValues = TestUtils.readConfirmationInputs(confirmation);
-        LOGGER.log(Level.INFO, "Confirmation Values: " + values);
+        assertTrue(postPage.contains("Merci de bien vouloir confirmer vos choix"));
+
+        html = Jsoup.parse(postPage);
+        action = TestUtils.extractConfirmationAction(html);
+        LOGGER.log(Level.INFO, "Confirm Action: " + action);
+        values = TestUtils.readConfirmationInputs(html);
+        LOGGER.log(Level.INFO, "Confirm Values: " + values);
 
         //PART 4
-        LOGGER.log(Level.INFO, "Posting confirmation answer");
-        Response confirmationResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC).formParams(values).when().post("/consents/confirm");
-        String receiptPage = confirmationResponse.asString();
-        confirmationResponse.then().assertThat().statusCode(200);
+        //Post consent confirmation (enduser)
+        postUrl = txLocation.substring(0, txLocation.indexOf("?"));
+        LOGGER.log(Level.INFO, "Post URL: " + postUrl);
+        postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
+                .formParams(values).when().post(postUrl + "/" + action);
+        postPage = postResponse.asString();
+        postResponse.then().assertThat().statusCode(200);
 
-        //PART 5
-        Document receipt = Jsoup.parse(receiptPage);
-        //TODO Check that receipt contains confirmation content
-         */
+        LOGGER.log(Level.INFO, "Consent Confirm Response page: " + postPage);
+
+        assertTrue(postPage.contains("Merci"));
+        assertTrue(postPage.contains("Voir le reçu"));
+        html = Jsoup.parse(postPage);
+        Elements receiptlinks = html.getElementsByAttributeValue("id", "receipt-link");
+        String receiptLink = receiptlinks.get(0).attr("href");
+
+        LOGGER.log(Level.INFO, "Receipt page link: " + receiptLink);
     }
 
 }

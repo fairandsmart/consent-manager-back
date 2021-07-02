@@ -204,6 +204,17 @@ public class TestUtils {
         return "";
     }
 
+    public static String extractConfirmationAction(Document html) {
+        Elements inputs = html.getAllElements();
+        List<FormElement> forms = inputs.forms();
+        for (FormElement form : forms) {
+            if (form.id().equals("confirm")) {
+                return form.attr("action");
+            }
+        }
+        return "";
+    }
+
     public static Map<String, String> readFormInputs(Document html) {
         Elements inputs = html.getAllElements();
         List<FormElement> forms = inputs.forms();
@@ -228,6 +239,19 @@ public class TestUtils {
                         }
                     }
                 }
+            }
+        }
+        return values;
+    }
+
+    public static Map<String, String> readConfirmInputs(Document html) {
+        Elements inputs = html.getAllElements();
+        List<FormElement> forms = inputs.forms();
+        Map<String, String> values = new HashMap<>();
+        for (FormElement form : forms) {
+            // Select consent form
+            if (form.id().equals("confirm")) {
+                values = form.formData().stream().collect(Collectors.toMap(Connection.KeyVal::key, Connection.KeyVal::value));
             }
         }
         return values;
