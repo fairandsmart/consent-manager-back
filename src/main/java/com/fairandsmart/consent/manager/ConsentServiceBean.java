@@ -772,11 +772,13 @@ public class ConsentServiceBean implements ConsentService {
             }
 
             // Find a confirmation handler according to the context
-            Optional<ConfirmationHandler> handler = confirmationHandlers.stream().filter(h -> h.canHandle(ctx.getConfirmation())).findFirst();
-            if (handler.isPresent()) {
-                handler.get().validate(tx, ctx, values);
-            } else {
-                throw new UnexpectedException("Unable to find a handler for confirmation: " + ctx.getConfirmation());
+            if (!ctx.getConfirmation().equals(ConsentContext.Confirmation.NONE)) {
+                Optional<ConfirmationHandler> handler = confirmationHandlers.stream().filter(h -> h.canHandle(ctx.getConfirmation())).findFirst();
+                if (handler.isPresent()) {
+                    handler.get().validate(tx, ctx, values);
+                } else {
+                    throw new UnexpectedException("Unable to find a handler for confirmation: " + ctx.getConfirmation());
+                }
             }
 
             List<Record> records = Record.find("transaction", tx.id).list();
