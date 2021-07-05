@@ -81,7 +81,7 @@ public class ConsentTransaction {
     }
 
     public void setTask(URI formURI) {
-        this.task = task;
+        this.task = formURI;
     }
 
     public URI getReceipt() {

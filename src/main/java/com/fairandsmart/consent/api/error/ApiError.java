@@ -141,9 +141,9 @@ public class ApiError {
         RENDERER_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "renderer-error", "Unexpected Renderer Error"),
         UNEXPECTED_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Error");
 
-        private int status;
-        private String type;
-        private String title;
+        private final int status;
+        private final String type;
+        private final String title;
 
         Type(int status, String type, String title) {
             this.status = status;

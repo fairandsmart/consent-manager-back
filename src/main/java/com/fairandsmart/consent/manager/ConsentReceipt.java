@@ -17,7 +17,6 @@ package com.fairandsmart.consent.manager;
  */
 
 import com.fairandsmart.consent.common.util.ZonedDateTimeAdapter;
-import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.model.*;

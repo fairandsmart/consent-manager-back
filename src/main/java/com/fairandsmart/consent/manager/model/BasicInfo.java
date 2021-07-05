@@ -20,7 +20,6 @@ import com.fairandsmart.consent.manager.entity.ModelData;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;

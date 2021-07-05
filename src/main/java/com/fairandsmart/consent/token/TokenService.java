@@ -28,6 +28,4 @@ public interface TokenService {
 
     AccessToken readToken(String token) throws UnexpectedException, TokenExpiredException, InvalidTokenException;
 
-
-
 }

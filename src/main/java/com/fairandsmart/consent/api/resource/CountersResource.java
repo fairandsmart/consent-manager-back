@@ -51,8 +51,7 @@ public class CountersResource {
             ) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /counters/transaction");
         long value = consentService.countTransactions(from, to);
-        CounterDto dto = new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
-        return dto;
+        return new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
     }
 
 }

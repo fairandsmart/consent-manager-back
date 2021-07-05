@@ -17,8 +17,6 @@ package com.fairandsmart.consent.template.builder;
  */
 
 import com.fairandsmart.consent.manager.ConsentConfirmForm;
-import com.fairandsmart.consent.manager.ConsentSubmitForm;
-import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateModelBuilder;
 

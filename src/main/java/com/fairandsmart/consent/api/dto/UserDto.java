@@ -18,8 +18,6 @@ package com.fairandsmart.consent.api.dto;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import java.util.Set;
-
 @Schema(name = "User", description = "A representation of connected user information")
 public class UserDto {
 

@@ -61,8 +61,7 @@ public class TokenServiceBean implements TokenService {
         if (token.getScopes() != null && !token.getScopes().isEmpty()) {
             builder.withClaim("scopes", token.getScopes());
         }
-        String stoken = builder.sign(algorithm);
-        return stoken;
+        return builder.sign(algorithm);
     }
 
     @Override
