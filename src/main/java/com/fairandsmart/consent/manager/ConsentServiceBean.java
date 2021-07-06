@@ -495,6 +495,7 @@ public class ConsentServiceBean implements ConsentService {
         if (!ctx.getSubject().equals(authentication.getConnectedIdentifier())) {
             authentication.ensureConnectedIdentifierIsApi();
         }
+        ctx.setDefaultLanguage(config.language());
         return tokenService.generateToken(ctx);
     }
 
@@ -505,6 +506,8 @@ public class ConsentServiceBean implements ConsentService {
             ConsentContext ctx = (ConsentContext) this.tokenService.readToken(token);
             //Assign transaction id
             ctx.setTransaction(Base58.encodeUUID(UUID.randomUUID().toString()));
+            //Assign default language
+            ctx.setDefaultLanguage(config.language());
 
             try {
                 //Load layout model if exists
