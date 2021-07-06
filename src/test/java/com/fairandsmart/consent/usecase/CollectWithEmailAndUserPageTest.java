@@ -67,6 +67,7 @@ public class CollectWithEmailAndUserPageTest {
     private static final Logger LOGGER = Logger.getLogger(CollectWithEmailAndUserPageTest.class.getName());
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
+    private static final String SUBJECT = "mmichu";
 
     private static final String language = "fr";
     private static final String biKey = "cweupt_bi1";
@@ -148,7 +149,7 @@ public class CollectWithEmailAndUserPageTest {
         //Use basic consent context for first generation
         LOGGER.log(Level.INFO, "Creating context & token");
         ConsentContext ctx = new ConsentContext()
-                .setSubject("mmichu")
+                .setSubject(SUBJECT)
                 .setValidity("P2Y")
                 .setLanguage(language)
                 .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey))
@@ -156,14 +157,14 @@ public class CollectWithEmailAndUserPageTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/tokens/consent").asString();
+                .when().post("/tokens").asString();
         assertNotNull(token);
         LOGGER.log(Level.INFO, "Token : " + token);
 
         //PART 2
         Response response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
         String page = response.asString();
-        response.then().contentType("text/html").assertThat().statusCode(200);
+        response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
 
         LOGGER.log(Level.INFO, "Consent form page: " + page);
         Document html = Jsoup.parse(page);
@@ -197,7 +198,7 @@ public class CollectWithEmailAndUserPageTest {
             assertTrue(url.toString().startsWith(clientConfig.userPagePublicUrl().get()));
             String stoken = URLDecoder.decode(url.getQuery().substring(url.getQuery().indexOf("=") + 1), StandardCharsets.UTF_8);
             AccessToken accessToken = tokenService.readToken(stoken);
-            assertEquals("mmichu", accessToken.getSubject());
+            assertEquals(SUBJECT, accessToken.getSubject());
         } else {
             fail("notificationLink link not found");
         }

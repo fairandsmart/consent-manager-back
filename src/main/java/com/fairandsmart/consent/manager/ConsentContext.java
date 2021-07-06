@@ -49,7 +49,7 @@ public class ConsentContext {
     private Origin origin;
     @Schema(description = "Email recipient (mandatory when email notification is needed)", example = Placeholders.SHELDON_AT_LOCALHOST)
     private String notificationRecipient;
-    @Schema(description = "Consent lifetime", example = "P6M") // TODO : explain the format
+    @Schema(description = "Consent lifetime (format: PnYnMnDTnHnMnS - XML Schema 1.0 section 3.2.6.1)", example = "P6M")
     private String validity;
     @Schema(example = "{}")
     private Map<String, String> userinfos; // TODO : doc this

@@ -54,7 +54,7 @@ public class TokenServiceBean implements TokenService {
     @Override
     public String generateToken(AccessToken token, Date expirationDate) {
         LOGGER.log(Level.INFO, "Generating access token: " + token);
-        LOGGER.log(Level.FINE, "Token will expires at : " + expirationDate.toString() );
+        LOGGER.log(Level.FINE, "Token will expire at : " + expirationDate.toString() );
         JWTCreator.Builder builder = JWT.create();
         builder.withExpiresAt(expirationDate);
         builder.withSubject(token.getSubject());
@@ -107,7 +107,6 @@ public class TokenServiceBean implements TokenService {
         LOGGER.log(Level.INFO, "Deleting expired thin tokens");
         ThinToken.delete("expires > ?1", System.currentTimeMillis()-40000000);
     }
-
-     */
+    */
 
 }

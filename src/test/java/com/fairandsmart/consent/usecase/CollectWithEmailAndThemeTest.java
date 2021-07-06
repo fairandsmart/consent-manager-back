@@ -54,6 +54,7 @@ public class CollectWithEmailAndThemeTest {
     private static final Logger LOGGER = Logger.getLogger(CollectWithEmailAndThemeTest.class.getName());
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
+    private static final String SUBJECT = "mmichu";
 
     private static final String language = "fr";
     private static final String biKey = "cweatt_bi1";
@@ -134,7 +135,7 @@ public class CollectWithEmailAndThemeTest {
         //Use basic consent context for first generation
         LOGGER.log(Level.INFO, "Creating context & token");
         ConsentContext ctx = new ConsentContext()
-                .setSubject("mmichu")
+                .setSubject(SUBJECT)
                 .setValidity("P2Y")
                 .setLanguage(language)
                 .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey).withTheme(thKey))
@@ -142,14 +143,14 @@ public class CollectWithEmailAndThemeTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/tokens/consent").asString();
+                .when().post("/tokens").asString();
         assertNotNull(token);
-        LOGGER.log(Level.INFO, "Token :" + token);
+        LOGGER.log(Level.INFO, "Token : " + token);
 
         //PART 2
         Response response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
         String page = response.asString();
-        response.then().contentType("text/html").assertThat().statusCode(200);
+        response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
 
         LOGGER.log(Level.INFO, "Consent form page: " + page);
         Document html = Jsoup.parse(page);
@@ -183,7 +184,7 @@ public class CollectWithEmailAndThemeTest {
         Optional<Element> notificationLink = html.select("a[href]").stream().filter(l -> l.id().equals("form-url")).findFirst();
         if (notificationLink.isPresent()) {
             response = given().accept(ContentType.HTML).when().get(notificationLink.get().attr("abs:href"));
-            response.then().contentType("text/html").assertThat().statusCode(200);
+            response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         } else {
             fail("notificationLink link not found");
         }

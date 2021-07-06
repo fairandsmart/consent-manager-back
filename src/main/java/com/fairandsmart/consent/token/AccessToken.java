@@ -20,10 +20,15 @@ import com.fairandsmart.consent.common.consts.Placeholders;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.NotNull;
-import java.time.Duration;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import java.util.Date;
 import java.util.List;
 
 public class AccessToken {
+
+    private static final String DEFAULT_VALIDITY = "PT4H";
+    private static final long DEFAULT_VALIDITY_MILLIS = 14400000L;
 
     @NotNull
     @Schema(description = "The token subject or transaction", example = Placeholders.SHELDON)
@@ -31,8 +36,8 @@ public class AccessToken {
     @Schema(description = "The token allowed scopes", example = Placeholders.SCOPES)
     private List<String> scopes;
     @NotNull
-    @Schema(description = "The token validity (format: PnDTnHnMn.nS)", example = Placeholders.DURATION_2D_20H, defaultValue = "P1085D")
-    private String validity = "PT4H";
+    @Schema(description = "The token validity (format: PnYnMnDTnHnMnS - XML Schema 1.0 section 3.2.6.1)", example = Placeholders.DURATION_2D_12H, defaultValue = "PT4H")
+    private String validity = DEFAULT_VALIDITY;
 
     public AccessToken() {
     }
@@ -77,8 +82,11 @@ public class AccessToken {
     }
 
     public long getExpirationDelay() {
-        Duration duration = Duration.parse(validity);
-        return duration.toMillis();
+        try {
+            return DatatypeFactory.newInstance().newDuration(validity).getTimeInMillis(new Date(0));
+        } catch (DatatypeConfigurationException e) {
+            return DEFAULT_VALIDITY_MILLIS;
+        }
     }
 
     @Override

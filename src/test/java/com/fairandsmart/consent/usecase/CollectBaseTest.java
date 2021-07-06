@@ -127,7 +127,7 @@ public class CollectBaseTest {
 
         //PART 1
         //Generate initial transaction (as operator)
-        LOGGER.log(Level.INFO, "Create transaction from contexte");
+        LOGGER.log(Level.INFO, "Create transaction from context");
         ConsentContext ctx = new ConsentContext()
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
@@ -145,7 +145,7 @@ public class CollectBaseTest {
         LOGGER.log(Level.INFO, "Consult transaction location in HTML, should redirect to consent form view");
         response = given().accept(ContentType.HTML).when().get(txLocation);
         String page = response.asString();
-        response.then().contentType("text/html").assertThat().statusCode(200);
+        response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Consent form page: " + page);
 
         //Orientation
@@ -203,7 +203,7 @@ public class CollectBaseTest {
         // Check that embed link redirect to the correct receipt mime type (html)
         Response receiptResponse = given().contentType(ContentType.URLENC).when().get(receiptLink.replace("%2F", "/"));
         String receiptPage = receiptResponse.asString();
-        receiptResponse.then().contentType("text/html").assertThat().statusCode(200);
+        receiptResponse.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Receipt page HTML: " + receiptPage);
         assertTrue(receiptPage.contains("<html"));
         assertTrue(receiptPage.contains("RE&Ccedil;U"));
@@ -230,7 +230,7 @@ public class CollectBaseTest {
         //Get the new transaction submit form
         response = given().accept(ContentType.HTML).when().get(newTxLocation);
         page = response.asString();
-        response.then().contentType("text/html").assertThat().statusCode(200);
+        response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Consent form page: " + page);
 
         html = Jsoup.parse(page);

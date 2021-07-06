@@ -42,7 +42,7 @@
                     </span>
                     <span class="list-value">
                         <#if receipt.language?has_content>
-                            <@readBundle "language_"+ receipt.language?html "missingValue"></@readBundle>
+                            <@readBundle "language_"+receipt.language?html "missingValue"></@readBundle>
                         <#else>
                             <@writeError "missingValue"></@writeError>
                         </#if>

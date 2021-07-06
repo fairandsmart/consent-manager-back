@@ -39,7 +39,6 @@ public class Preference extends ModelData {
     private List<String> valuePatterns;
     private boolean optional;
 
-
     public Preference() {
         this.setType(TYPE);
         this.options = new ArrayList<>();

@@ -132,7 +132,7 @@ public class CollectWithConfirmationButtonTest {
 
         //PART 1
         //Generate initial transaction (as operator)
-        LOGGER.log(Level.INFO, "Create transaction from contexte");
+        LOGGER.log(Level.INFO, "Create transaction from context");
         ConsentContext ctx = new ConsentContext()
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
@@ -151,7 +151,7 @@ public class CollectWithConfirmationButtonTest {
         LOGGER.log(Level.INFO, "Consult transaction location in HTML, should redirect to consent form view");
         response = given().accept(ContentType.HTML).when().get(txLocation);
         String page = response.asString();
-        response.then().contentType("text/html").assertThat().statusCode(200);
+        response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Consent form page: " + page);
 
         Document html = Jsoup.parse(page);

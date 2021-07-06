@@ -70,7 +70,7 @@ public class ConsentsResource {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createTransactionJson(@Valid ConsentContext ctx, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws AccessDeniedException, ConsentContextSerializationException {
+    public Response createTransactionJson(@Valid ConsentContext ctx, @Context UriInfo uriInfo, @HeaderParam("Accept-Language") String acceptLanguage) throws AccessDeniedException, ConsentContextSerializationException {
         LOGGER.log(Level.INFO, "POST /consents (json)");
         if (ctx.getLanguage() == null || ctx.getLanguage().isEmpty()) {
             ctx.setLanguage(getLanguage(acceptLanguage));
@@ -90,7 +90,7 @@ public class ConsentsResource {
         ConsentTransaction dto = ConsentTransaction.fromTransaction(tx);
         String token = tokenService.generateToken(new AccessToken().withSubject(txid));
         dto.setToken(token);
-        if (tx.state.getTask()!= null) {
+        if (tx.state.getTask() != null) {
             dto.setTask(uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(dto.getId()).path(tx.state.getTask()).build());
         }
         return dto;
@@ -99,12 +99,12 @@ public class ConsentsResource {
     @GET
     @Path("{txid}")
     @Produces(MediaType.TEXT_HTML)
-    public Response getTransactionHtml(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
+    public Response getTransactionHtml(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam("Accept-Language") String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + " (html)");
         try {
             Transaction tx = consentService.getTransaction(txid);
             String token = tokenService.generateToken(new AccessToken().withSubject(txid));
-            if (tx.state.getTask()!= null) {
+            if (tx.state.getTask() != null) {
                 LOGGER.log(Level.FINE, "Transaction task exists, redirecting to task uri");
                 return Response.seeOther(uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(txid).path(tx.state.getTask()).queryParam("t", token).build()).build();
             } else {
@@ -144,7 +144,7 @@ public class ConsentsResource {
             @APIResponse(responseCode = "401", description = "token is either invalid or missing")
     })
     @Operation(summary = "Generate the consent submission form for the given transaction")
-    public TemplateModel getSubmissionFormHtml(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
+    public TemplateModel getSubmissionFormHtml(@PathParam("txid") String txid, @HeaderParam("Accept-Language") String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/submit (html)");
         try {
             ConsentSubmitForm form = consentService.getConsentForm(txid);
@@ -191,7 +191,7 @@ public class ConsentsResource {
             @APIResponse(responseCode = "401", description = "token is either invalid or missing")
     })
     @Operation(summary = "Generate the consent confirmation form for the given transaction")
-    public ConsentConfirmForm getConfirmationFormJson(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException, AccessDeniedException, EntityNotFoundException, GenerateFormException {
+    public ConsentConfirmForm getConfirmationFormJson(@PathParam("txid") String txid, @HeaderParam("Accept-Language") String acceptLanguage) throws UnexpectedException, AccessDeniedException, EntityNotFoundException, GenerateFormException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/confirm (json)");
         return consentService.getConfirmationForm(txid);
     }
@@ -205,7 +205,7 @@ public class ConsentsResource {
             @APIResponse(responseCode = "401", description = "token is either invalid or missing")
     })
     @Operation(summary = "Generate the consent confirmation form for the given transaction")
-    public TemplateModel getConfirmationFormHtml(@PathParam("txid") String txid, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws UnexpectedException {
+    public TemplateModel getConfirmationFormHtml(@PathParam("txid") String txid, @HeaderParam("Accept-Language") String acceptLanguage) throws UnexpectedException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/confirm (html)");
         try {
             ConsentConfirmForm form = consentService.getConfirmationForm(txid);
@@ -245,7 +245,7 @@ public class ConsentsResource {
     @Transactional
     @Path("{txid}/child")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response breedTransactionJson(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws AccessDeniedException, ConsentContextSerializationException, IOException, EntityNotFoundException {
+    public Response breedTransactionJson(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam("Accept-Language") String acceptLanguage) throws AccessDeniedException, ConsentContextSerializationException, IOException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "POST /consents/" + txid + "/child (json)");
         Transaction tx = consentService.breedTransaction(txid);
         String token = tokenService.generateToken(new AccessToken().withSubject(tx.id));
@@ -257,7 +257,7 @@ public class ConsentsResource {
     @Transactional
     @Path("{txid}/child")
     @Produces(MediaType.TEXT_HTML)
-    public Response breedTransactionHtml(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam( "Accept-Language" ) String acceptLanguage) throws AccessDeniedException, ConsentContextSerializationException, IOException, EntityNotFoundException {
+    public Response breedTransactionHtml(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam("Accept-Language") String acceptLanguage) throws AccessDeniedException, ConsentContextSerializationException, IOException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/child (html)");
         Transaction tx = consentService.breedTransaction(txid);
         String token = tokenService.generateToken(new AccessToken().withSubject(tx.id));
@@ -267,6 +267,6 @@ public class ConsentsResource {
 
     private String getLanguage(String acceptLanguage) {
         LOGGER.log(Level.FINEST, "extracting language from header Accept-Language: " + acceptLanguage);
-        return (StringUtils.isNotEmpty(acceptLanguage))?new Locale(acceptLanguage).getLanguage():config.language();
+        return (StringUtils.isNotEmpty(acceptLanguage)) ? new Locale(acceptLanguage).getLanguage() : config.language();
     }
 }

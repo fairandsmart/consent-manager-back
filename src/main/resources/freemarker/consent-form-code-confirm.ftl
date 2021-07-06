@@ -38,7 +38,7 @@
         <p><@readBundle "changesConfirmation" "missingValue"></@readBundle></p>
     </div>
     <div class="receipt-content">
-        <!-- TODO Find  a way to include receipt here (IFrame, specific html template (like preview) -->
+        <!-- TODO Find  a way to include receipt here (IFrame, specific html template (like preview)) -->
     </div>
     <div class="info-footer">
         <div class="submit-container">

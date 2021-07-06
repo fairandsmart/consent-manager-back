@@ -974,7 +974,7 @@ public class ConsentServiceBean implements ConsentService {
 
     /* INTERNAL */
 
-    private Transaction internalFindTransaction(String txid) throws EntityNotFoundException, AccessDeniedException {
+    private Transaction internalFindTransaction(String txid) throws EntityNotFoundException {
         Optional<Transaction> opt = Transaction.findByIdOptional(txid);
         if (!opt.isPresent()) {
             throw new EntityNotFoundException("Unable to find a transaction for id: " + txid);
@@ -1003,7 +1003,7 @@ public class ConsentServiceBean implements ConsentService {
                 for (String value: values.get(identifier)) {
                     if (data.getAllowedValuesPatterns().stream().noneMatch(p -> p.matcher(value).matches())) {
                         throw new InvalidValuesException("wrong value for submitted element",
-                                identifier.concat(":").concat("(").concat(data.getAllowedValuesPatterns().stream().map(p -> p.toString()).collect(Collectors.joining("|"))).concat(")"),
+                                identifier.concat(":").concat("(").concat(data.getAllowedValuesPatterns().stream().map(Pattern::toString).collect(Collectors.joining("|"))).concat(")"),
                                 identifier.concat(":").concat(value));
                     }
                 }

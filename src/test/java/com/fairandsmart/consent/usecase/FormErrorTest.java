@@ -118,9 +118,9 @@ public class FormErrorTest {
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/tokens/consent").asString();
+                .when().post("/tokens").asString();
         assertNotNull(token);
-        LOGGER.log(Level.INFO, "Token: " + token);
+        LOGGER.log(Level.INFO, "Token : " + token);
 
         //Test submission of bad values
         Response response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
@@ -137,8 +137,7 @@ public class FormErrorTest {
         Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC).formParams(values).when().post("/consents");
         postResponse.then().assertThat().statusCode(200);
 
-
-        //Test invalid token (expired token is hard to generate
+        //Test invalid token (expired token is hard to generate)
         response = given().accept(ContentType.HTML).when().get("/consents?t=NotH3re" + token);
         page = response.asString();
         response.then().contentType(ContentType.HTML).assertThat().statusCode(200);

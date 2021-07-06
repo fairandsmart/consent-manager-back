@@ -21,7 +21,6 @@ import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.ConsentElementIdentifier;
 import com.fairandsmart.consent.manager.ConsentNotification;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
@@ -98,10 +97,10 @@ public class NotifyConsentWorker implements Runnable {
             ConsentNotification notification = new ConsentNotification();
             notification.setLanguage(ctx.getLanguage());
             notification.setRecipient(ctx.getNotificationRecipient());
-            ModelVersion notificationModel = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getLayoutData().getNotification()).get().getSerial(), true);
+            ModelVersion notificationModel = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getLayoutData().getNotification());
             notification.setModel(notificationModel);
             if (StringUtils.isNotEmpty(ctx.getLayoutData().getTheme())) {
-                ModelVersion theme = ModelVersion.SystemHelper.findModelVersionForSerial(ConsentElementIdentifier.deserialize(ctx.getLayoutData().getTheme()).get().getSerial(), true);
+                ModelVersion theme = ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getLayoutData().getTheme());
                 notification.setTheme(theme);
             }
             AccessToken token = new AccessToken().withSubject(ctx.getSubject()).withValidity(ctx.getValidity());
