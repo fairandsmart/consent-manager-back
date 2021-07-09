@@ -191,7 +191,7 @@ public class ConsentsResource {
             @APIResponse(responseCode = "401", description = "token is either invalid or missing")
     })
     @Operation(summary = "Generate the consent confirmation form for the given transaction")
-    public ConsentConfirmForm getConfirmationFormJson(@PathParam("txid") String txid, @HeaderParam("Accept-Language") String acceptLanguage) throws UnexpectedException, AccessDeniedException, EntityNotFoundException, GenerateFormException {
+    public ConsentConfirmForm getConfirmationFormJson(@PathParam("txid") String txid) throws UnexpectedException, AccessDeniedException, EntityNotFoundException, GenerateFormException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/confirm (json)");
         return consentService.getConfirmationForm(txid);
     }
@@ -245,7 +245,7 @@ public class ConsentsResource {
     @Transactional
     @Path("{txid}/child")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response breedTransactionJson(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam("Accept-Language") String acceptLanguage) throws AccessDeniedException, ConsentContextSerializationException, IOException, EntityNotFoundException {
+    public Response breedTransactionJson(@PathParam("txid") String txid, @Context UriInfo uriInfo) throws AccessDeniedException, ConsentContextSerializationException, IOException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "POST /consents/" + txid + "/child (json)");
         Transaction tx = consentService.breedTransaction(txid);
         String token = tokenService.generateToken(new AccessToken().withSubject(tx.id));
@@ -257,7 +257,7 @@ public class ConsentsResource {
     @Transactional
     @Path("{txid}/child")
     @Produces(MediaType.TEXT_HTML)
-    public Response breedTransactionHtml(@PathParam("txid") String txid, @Context UriInfo uriInfo, @HeaderParam("Accept-Language") String acceptLanguage) throws AccessDeniedException, ConsentContextSerializationException, IOException, EntityNotFoundException {
+    public Response breedTransactionHtml(@PathParam("txid") String txid, @Context UriInfo uriInfo) throws AccessDeniedException, ConsentContextSerializationException, IOException, EntityNotFoundException {
         LOGGER.log(Level.INFO, "GET /consents/" + txid + "/child (html)");
         Transaction tx = consentService.breedTransaction(txid);
         String token = tokenService.generateToken(new AccessToken().withSubject(tx.id));

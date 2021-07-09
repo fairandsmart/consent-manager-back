@@ -7,10 +7,10 @@ package com.fairandsmart.consent;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -18,7 +18,6 @@ package com.fairandsmart.consent;
 
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
-import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.model.*;
 import org.jsoup.Connection;
@@ -269,4 +268,10 @@ public class TestUtils {
         }
         return values;
     }
+
+    public static String extractTransactionId(String postUrl) {
+        String[] postUrlParts = postUrl.split("/");
+        return postUrlParts[postUrlParts.length - 1];
+    }
+
 }

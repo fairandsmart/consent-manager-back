@@ -111,7 +111,7 @@ public class NotifyConsentWorker implements Runnable {
                 notification.setUrl(notificationUri.toString());
             } else {
                 ctx.setOrigin(ConsentContext.Origin.EMAIL);
-                URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).queryParam("t", notification.getToken()).build();
+                URI notificationUri = UriBuilder.fromUri(mainConfig.publicUrl()).path(ConsentsResource.class).path(txid).queryParam("t", notification.getToken()).build();
                 notification.setUrl(notificationUri.toString());
             }
             try {

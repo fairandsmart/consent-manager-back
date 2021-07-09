@@ -18,6 +18,7 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
+import com.fairandsmart.consent.api.resource.ConsentsResource;
 import com.fairandsmart.consent.common.config.MainConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
@@ -64,6 +65,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -71,6 +73,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
@@ -686,7 +689,8 @@ public class ConsentServiceBean implements ConsentService {
 
                 ConsentReceipt receipt = ConsentReceipt.build(txid, config.processor(), ZonedDateTime.ofInstant(now, ZoneId.of("UTC")), ctx, (BasicInfo) info.getData(ctx.getLanguage()), trecords);
                 String token = tokenService.generateToken(new AccessToken().withSubject(tx.id), Date.from(receipt.getExpirationDate().toInstant()));
-                receipt.setUpdateUrl(config.publicUrl() + "/consents?t=" + token);
+                URI updateUri = UriBuilder.fromUri(config.publicUrl()).path(ConsentsResource.class).path(txid).queryParam("t", token).build();
+                receipt.setUpdateUrl(updateUri.toString());
                 receipt.setUpdateUrlQrCode(generateQRCode(receipt.getUpdateUrl()));
                 store.put(receipt);
 

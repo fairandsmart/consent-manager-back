@@ -7,10 +7,10 @@ package com.fairandsmart.consent.usecase;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -115,7 +115,7 @@ public class CollectBaseTest {
 
             //Activate model version
             LOGGER.log(Level.INFO, "Activating " + type + " version");
-            ModelVersionStatusDto statusDto =  new ModelVersionStatusDto();
+            ModelVersionStatusDto statusDto = new ModelVersionStatusDto();
             statusDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(statusDto).

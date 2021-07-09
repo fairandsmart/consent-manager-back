@@ -7,10 +7,10 @@ package com.fairandsmart.consent.usecase;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -28,7 +28,7 @@ import com.fairandsmart.consent.manager.model.BasicInfo;
 import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.manager.model.Processing;
-import com.fairandsmart.consent.profile.AlternateProfile;
+import com.fairandsmart.consent.profile.UserPageProfile;
 import com.fairandsmart.consent.token.*;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
@@ -44,7 +44,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.validation.Validation;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -55,13 +54,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-@TestProfile(AlternateProfile.class)
+@TestProfile(UserPageProfile.class)
 public class CollectWithEmailAndUserPageTest {
 
     private static final Logger LOGGER = Logger.getLogger(CollectWithEmailAndUserPageTest.class.getName());
@@ -135,7 +136,7 @@ public class CollectWithEmailAndUserPageTest {
 
             //Activate model version
             LOGGER.log(Level.INFO, "Activating " + type + " version");
-            ModelVersionStatusDto statusDto =  new ModelVersionStatusDto();
+            ModelVersionStatusDto statusDto = new ModelVersionStatusDto();
             statusDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(statusDto).
@@ -156,25 +157,43 @@ public class CollectWithEmailAndUserPageTest {
                 .setNotificationRecipient(recipient);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/tokens").asString();
-        assertNotNull(token);
-        LOGGER.log(Level.INFO, "Token : " + token);
+        Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx).when().post("/consents");
+        response.then().header("location", containsStringIgnoringCase("/consents")).assertThat().statusCode(201);
+        String txLocation = response.getHeader("location");
+        LOGGER.log(Level.INFO, "Transaction URI: " + txLocation);
 
         //PART 2
-        Response response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
+        //Call consent form (enduser)
+        LOGGER.log(Level.INFO, "Consult transaction location in HTML, should redirect to consent form view");
+        response = given().accept(ContentType.HTML).when().get(txLocation);
         String page = response.asString();
         response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
-
         LOGGER.log(Level.INFO, "Consent form page: " + page);
+
         Document html = Jsoup.parse(page);
+        String action = TestUtils.extractFormAction(html);
+        LOGGER.log(Level.INFO, "Form Action: " + action);
         Map<String, String> values = TestUtils.readFormInputs(html);
         LOGGER.log(Level.INFO, "Form Values: " + values);
+        List<String> elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
+        assertEquals(2, elementsKeys.size());
+        for (String key : elementsKeys) {
+            assertEquals("refused", values.get(key));
+            values.replace(key, "accepted"); //User accepts every processing
+        }
 
         //PART 3
-        LOGGER.log(Level.INFO, "Posting user answer");
-        Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC).formParams(values).when().post("/consents");
+        //Post consent answers (enduser)
+        String postUrl = txLocation.substring(0, txLocation.indexOf("?"));
+        String txid = TestUtils.extractTransactionId(postUrl);
+        LOGGER.log(Level.INFO, "Post URL: " + postUrl);
+        Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
+                .formParams(values).when().post(postUrl + "/" + action);
+        String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
+        LOGGER.log(Level.INFO, "Consent Submit Response page: " + postPage);
+        assertTrue(postPage.contains("Merci"));
+        assertTrue(postPage.contains("Voir le reçu"));
 
         //PART 4
         Thread.sleep(5000);
@@ -184,10 +203,13 @@ public class CollectWithEmailAndUserPageTest {
         assertEquals(1, sent.size());
         assertEquals("Subject " + eKey, sent.get(0).getSubject());
         String received = sent.get(0).getHtml();
+        LOGGER.log(Level.INFO, "Received email : " + received);
         assertTrue(received.contains("Title " + eKey));
         assertTrue(received.contains("Body " + eKey));
         assertTrue(received.contains("Footer " + eKey));
         assertTrue(received.contains("Signature " + eKey));
+        assertTrue(received.contains(clientConfig.userPagePublicUrl().get() + "?t="));
+        assertFalse(received.contains("CSS "));
         assertFalse(sent.get(0).getAttachments().isEmpty());
         assertEquals("Sender " + eKey, sent.get(0).getFrom());
 

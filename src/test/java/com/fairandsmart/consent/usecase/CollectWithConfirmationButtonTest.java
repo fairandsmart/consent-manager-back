@@ -7,10 +7,10 @@ package com.fairandsmart.consent.usecase;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -20,26 +20,20 @@ import com.fairandsmart.consent.TestUtils;
 import com.fairandsmart.consent.api.dto.ModelEntryDto;
 import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
-import com.fairandsmart.consent.manager.ConsentTransaction;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
 import com.fairandsmart.consent.manager.model.BasicInfo;
-import com.fairandsmart.consent.manager.model.Email;
 import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.manager.model.Processing;
-import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
 import javax.validation.Validation;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
@@ -120,7 +114,7 @@ public class CollectWithConfirmationButtonTest {
 
             //Activate model version
             LOGGER.log(Level.INFO, "Activating " + type + " version");
-            ModelVersionStatusDto statusDto =  new ModelVersionStatusDto();
+            ModelVersionStatusDto statusDto = new ModelVersionStatusDto();
             statusDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(statusDto).
