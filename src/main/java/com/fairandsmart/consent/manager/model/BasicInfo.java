@@ -20,10 +20,7 @@ import com.fairandsmart.consent.manager.entity.ModelData;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 public class BasicInfo extends ModelData {
 
@@ -217,11 +214,6 @@ public class BasicInfo extends ModelData {
     public BasicInfo withCustomPrivacyPolicyText(String customPrivacyPolicyText) {
         this.customPrivacyPolicyText = customPrivacyPolicyText;
         return this;
-    }
-
-    @Override
-    public List<Pattern> getAllowedValuesPatterns() {
-        return Collections.emptyList();
     }
 
     @Override

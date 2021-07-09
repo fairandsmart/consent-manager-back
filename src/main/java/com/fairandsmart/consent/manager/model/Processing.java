@@ -21,16 +21,14 @@ import com.fairandsmart.consent.manager.entity.ModelData;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Processing extends ModelData {
 
     public static final String TYPE = "processing";
-    public static final String[] ALLOWED_VALUES_PATTERNS = {"accepted", "refused"};
+    public static final Pattern ALLOWED_VALUES_PATTERN = Pattern.compile("^accepted|refused$");
 
     private String title;
     private String data;
@@ -206,8 +204,8 @@ public class Processing extends ModelData {
     }
 
     @Override
-    public List<Pattern> getAllowedValuesPatterns() {
-        return Arrays.stream(ALLOWED_VALUES_PATTERNS).map(Pattern::compile).collect(Collectors.toList());
+    public Pattern allowedValuesPattern() {
+        return ALLOWED_VALUES_PATTERN;
     }
 
     @Override

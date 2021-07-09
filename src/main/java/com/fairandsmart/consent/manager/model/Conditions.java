@@ -24,12 +24,11 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Conditions extends ModelData {
 
     public static final String TYPE = "conditions";
-    public static final String[] ALLOWED_VALUES_PATTERNS = {"accepted", "refused"};
+    public static final Pattern ALLOWED_VALUES_PATTERN = Pattern.compile("^accepted|refused$");
 
     private String title;
     private String body;
@@ -97,8 +96,8 @@ public class Conditions extends ModelData {
     }
 
     @Override
-    public List<Pattern> getAllowedValuesPatterns() {
-        return Arrays.stream(ALLOWED_VALUES_PATTERNS).map(Pattern::compile).collect(Collectors.toList());
+    public Pattern allowedValuesPattern() {
+        return ALLOWED_VALUES_PATTERN;
     }
 
     @Override

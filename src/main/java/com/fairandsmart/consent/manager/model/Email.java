@@ -22,10 +22,7 @@ import org.jsoup.safety.Whitelist;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 public class Email extends ModelData {
 
@@ -132,11 +129,6 @@ public class Email extends ModelData {
     public Email withSignature(String signature) {
         this.signature = Jsoup.clean(signature, Whitelist.relaxed());
         return this;
-    }
-
-    @Override
-    public List<Pattern> getAllowedValuesPatterns() {
-        return Collections.emptyList();
     }
 
     @Override

@@ -1005,9 +1005,9 @@ public class ConsentServiceBean implements ConsentService {
             if (values.containsKey(identifier)) {
                 ModelData data = element.getData(language);
                 for (String value: values.get(identifier)) {
-                    if (data.getAllowedValuesPatterns().stream().noneMatch(p -> p.matcher(value).matches())) {
+                    if (!data.allowedValuesPattern().matcher(value).matches()) {
                         throw new InvalidValuesException("wrong value for submitted element",
-                                identifier.concat(":").concat("(").concat(data.getAllowedValuesPatterns().stream().map(Pattern::toString).collect(Collectors.joining("|"))).concat(")"),
+                                identifier.concat(":").concat(data.allowedValuesPattern().pattern()),
                                 identifier.concat(":").concat(value));
                     }
                 }
