@@ -676,7 +676,7 @@ public class ConsentServiceBean implements ConsentService {
                 String comment = values.containsKey("comment") ? values.getFirst("comment") : "";
                 List<Pair<ModelData, Record>> trecords = new ArrayList<>();
                 List<Record> records = elements.stream().filter(element -> values.containsKey(element.getIdentifier().serialize())).map(
-                        element -> Record.build(ctx, txid, authentication.getConnectedIdentifier(), now, info.getIdentifier(), element.getIdentifier(), values.get(element.getIdentifier().serialize()).stream().collect(Collectors.joining(",")), comment)
+                        element -> Record.build(ctx, txid, authentication.getConnectedIdentifier(), now, info.getIdentifier(), element.getIdentifier(), String.join(",", values.get(element.getIdentifier().serialize())), comment)
                 ).collect(Collectors.toList());
                 for (Record record : records) {
                     ModelVersion version = ModelVersion.SystemHelper.findModelVersionForSerial(record.bodySerial, false);
@@ -980,7 +980,7 @@ public class ConsentServiceBean implements ConsentService {
 
     private Transaction internalFindTransaction(String txid) throws EntityNotFoundException {
         Optional<Transaction> opt = Transaction.findByIdOptional(txid);
-        if (!opt.isPresent()) {
+        if (opt.isEmpty()) {
             throw new EntityNotFoundException("Unable to find a transaction for id: " + txid);
         }
         return opt.get();
@@ -1011,7 +1011,7 @@ public class ConsentServiceBean implements ConsentService {
                                 identifier.concat(":").concat(value));
                     }
                 }
-            } else if (!element.type.equals(Preference.TYPE) || !((Preference)element.getData(language)).isOptional()) {
+            } else if (!element.entry.type.equals(Preference.TYPE) || !((Preference)element.getData(language)).isOptional()) {
                 throw new InvalidValuesException("missing mandatory element value", identifier, "");
             }
         }

@@ -30,6 +30,8 @@ public class ModelVersionDtoLight{
     private String id;
     @Schema(description = "the model entry UUID", readOnly = true)
     private String entry;
+    @Schema(description = "the model entry key", readOnly = true)
+    private String key;
     @Schema(description = "the version serial", readOnly = true)
     private String serial;
     @Schema(description = "the previous version UUID", readOnly = true)
@@ -50,6 +52,7 @@ public class ModelVersionDtoLight{
     private long creationDate;
     @Schema(description = "the version last modification date (epoch in millisec)", readOnly = true, example = Placeholders.TS_2021_01_01)
     private long modificationDate;
+    @Schema(readOnly = true)
     private String identifier;
 
     public ModelVersionDtoLight() {
@@ -59,6 +62,7 @@ public class ModelVersionDtoLight{
         ModelVersionDtoLight dto = new ModelVersionDtoLight();
         dto.setId(version.id);
         dto.setEntry(version.entry.id);
+        dto.setKey(version.entry.key);
         dto.setAuthor(version.author);
         dto.setParent(version.parent);
         dto.setChild(version.child);
@@ -87,6 +91,14 @@ public class ModelVersionDtoLight{
 
     public void setEntry(String entry) {
         this.entry = entry;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getSerial() {
@@ -182,6 +194,7 @@ public class ModelVersionDtoLight{
         return "ModelVersionDtoLight{" +
                 "id='" + id + '\'' +
                 ", entry='" + entry + '\'' +
+                ", key='" + key + '\'' +
                 ", serial='" + serial + '\'' +
                 ", parent='" + parent + '\'' +
                 ", child='" + child + '\'' +

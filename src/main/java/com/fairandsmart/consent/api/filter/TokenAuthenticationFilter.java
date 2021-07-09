@@ -49,7 +49,6 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-
         String token = requestContext.getUriInfo().getQueryParameters().getFirst("t");
         if (token != null) {
             LOGGER.log(Level.FINE, "Found token parameter in request: " + token);
@@ -88,7 +87,7 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
                     LOGGER.log(Level.INFO, "Unable to retrieve token: " + e.getMessage() + ", avoiding token authentication");
                 }
             } else {
-                LOGGER.log(Level.INFO, "User is already authentified as: " + authenticationService.getConnectedIdentifier());
+                LOGGER.log(Level.INFO, "User is already authenticated as: " + authenticationService.getConnectedIdentifier());
             }
         }
     }

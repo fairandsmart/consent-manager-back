@@ -195,7 +195,7 @@ public class CollectWithEmailAndThemeTest {
         assertTrue(received.contains("Body " + eKey));
         assertTrue(received.contains("Footer " + eKey));
         assertTrue(received.contains("Signature " + eKey));
-        assertTrue(received.contains(publicUrl + "/userpage/" + txid + "?t="));
+        assertTrue(received.contains(publicUrl + "/consents/" + txid + "?t="));
         assertTrue(received.contains("CSS " + thKey));
         assertFalse(sent.get(0).getAttachments().isEmpty());
         assertEquals("Sender " + eKey, sent.get(0).getFrom());

@@ -36,14 +36,12 @@ public class Preference extends ModelData {
     private ValueType valueType;
     private boolean includeDefault;
     private List<String> defaultValues;
-    private List<String> valuePatterns;
     private boolean optional;
 
     public Preference() {
         this.setType(TYPE);
         this.options = new ArrayList<>();
         this.defaultValues = new ArrayList<>();
-        this.valuePatterns = new ArrayList<>();
     }
 
     public String getLabel() {
@@ -124,19 +122,6 @@ public class Preference extends ModelData {
         return this;
     }
 
-    public List<String> getValuePatterns() {
-        return valuePatterns;
-    }
-
-    public void setValuePatterns(List<String> valuePatterns) {
-        this.valuePatterns = valuePatterns;
-    }
-
-    public Preference withValuePatterns(List<String> valuePatterns) {
-        this.valuePatterns = valuePatterns;
-        return this;
-    }
-
     public boolean isOptional() {
         return optional;
     }
@@ -161,7 +146,7 @@ public class Preference extends ModelData {
 
     @Override
     public List<Pattern> getAllowedValuesPatterns() {
-        return valuePatterns.stream().map(Pattern::compile).collect(Collectors.toList());
+        return options.stream().map(Pattern::compile).collect(Collectors.toList());
     }
 
     @Override
@@ -179,12 +164,12 @@ public class Preference extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Preference that = (Preference) o;
-        return includeDefault == that.includeDefault && optional == that.optional && Objects.equals(label, that.label) && Objects.equals(description, that.description) && Objects.equals(options, that.options) && valueType == that.valueType && Objects.equals(defaultValues, that.defaultValues) && Objects.equals(valuePatterns, that.valuePatterns);
+        return includeDefault == that.includeDefault && optional == that.optional && Objects.equals(label, that.label) && Objects.equals(description, that.description) && Objects.equals(options, that.options) && valueType == that.valueType && Objects.equals(defaultValues, that.defaultValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, description, options, valueType, includeDefault, defaultValues, valuePatterns, optional);
+        return Objects.hash(label, description, options, valueType, includeDefault, defaultValues, optional);
     }
 
     @Override
@@ -196,7 +181,6 @@ public class Preference extends ModelData {
                 ", valueType=" + valueType +
                 ", includeDefault=" + includeDefault +
                 ", defaultValues=" + defaultValues +
-                ", valuePatterns=" + valuePatterns +
                 ", optional=" + optional +
                 '}';
     }

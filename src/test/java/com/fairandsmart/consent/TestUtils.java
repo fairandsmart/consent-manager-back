@@ -139,7 +139,6 @@ public class TestUtils {
                 .withLabel("Label " + key)
                 .withDescription("Description " + key)
                 .withOptions(options)
-                .withValuePatterns(Arrays.asList("Option1", "Option2", "Option3"))
                 .withValueType(Preference.ValueType.RADIO_BUTTONS)
                 .withIncludeDefault(true)
                 .withDefaultValues(Collections.singletonList("Option3"));
@@ -180,7 +179,6 @@ public class TestUtils {
                 .withOrientation(FormLayout.Orientation.VERTICAL)
                 .withExistingElementsVisible(true)
                 .withValidityVisible(false);
-
     }
 
     private static Controller generateDataController(String key) {
