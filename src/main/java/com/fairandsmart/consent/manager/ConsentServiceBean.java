@@ -505,6 +505,7 @@ public class ConsentServiceBean implements ConsentService {
         if (!ctx.getSubject().equals(authentication.getConnectedIdentifier())) {
             authentication.ensureConnectedIdentifierIsApi();
         }
+        ctx.setDefaultLanguage(config.language());
         return internalCreateTransaction(ctx, null);
     }
 
@@ -515,6 +516,7 @@ public class ConsentServiceBean implements ConsentService {
         authentication.ensureIsIdentified();
         Transaction tx = internalFindTransaction(txid);
         ConsentContext ctx = tx.getConsentContext();
+        ctx.setDefaultLanguage(config.language());
         if (!txid.equals(authentication.getConnectedIdentifier()) && !ctx.getSubject().equals(authentication.getConnectedIdentifier())) {
             authentication.ensureConnectedIdentifierIsApi();
         }
@@ -584,41 +586,7 @@ public class ConsentServiceBean implements ConsentService {
             }
 
             try {
-                //Load layout model if exists
-                if (StringUtils.isNotEmpty(ctx.getLayout())) {
-                    ctx.setLayoutData((FormLayout) ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getLayout()).getData(ctx.getLanguage()));
-                    LOGGER.log(Level.FINE, "Context data loaded from layout: " + ctx.getLayoutData());
-                }
-                if (ctx.getLayoutData() == null) {
-                    throw new GenerateFormException(ctx, "Unable to generate consent form: layout data is null");
-                }
-
-                // Initialize form using context
-                ConsentSubmitForm form = new ConsentSubmitForm(ctx);
-
-                // Fetch elements from context
-                List<ModelVersion> elements = ModelVersion.SystemHelper.findActiveVersionsForKeys(ctx.getLayoutData().getElements());
-
-                // Fetch previous records
-                if (!ctx.isPreview()) {
-                    final Map<String, Record> previousRecords = systemListValidRecords(ctx.getSubject(), ctx.getLayoutData().getInfo(), ctx.getLayoutData().getElements());
-                    form.setPreviousValues(elements.stream().filter(version -> previousRecords.containsKey(version.entry.key)).collect(Collectors.toMap((v) -> v.serial, (v) -> previousRecords.get(v.entry.key).value)));
-                }
-
-                // Set form elements, infos, theme and token
-                form.setElements(elements.stream().filter(version -> (ctx.getLayoutData().isExistingElementsVisible() || !form.getPreviousValues().containsKey(version.serial))).collect(Collectors.toList()));
-                if (StringUtils.isNotEmpty(ctx.getLayoutData().getInfo())) {
-                    form.setInfo(ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getLayoutData().getInfo()));
-                } else {
-                    ModelEntry infoEntry = ModelEntry.find("type", BasicInfo.TYPE).firstResult();
-                    form.setInfo(ModelVersion.SystemHelper.findActiveVersionByEntryId(infoEntry.id));
-                }
-                if (StringUtils.isNotEmpty(ctx.getLayoutData().getTheme())) {
-                    form.setTheme(ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getLayoutData().getTheme()));
-                }
-                form.setToken(this.tokenService.generateToken(new AccessToken().withSubject(txid).withValidity("PT5H")));
-
-                return form;
+                return this.internalCreateForm(ctx, txid);
             } catch (ModelDataSerializationException | EntityNotFoundException e) {
                 throw new GenerateFormException(ctx, e.getMessage());
             }
@@ -727,6 +695,7 @@ public class ConsentServiceBean implements ConsentService {
             }
             LOGGER.log(Level.FINEST, "Transaction loaded: " + tx);
             ConsentContext ctx = tx.getConsentContext();
+            ctx.setDefaultLanguage(config.language());
             LOGGER.log(Level.FINEST, "Transaction context: " + tx.context);
             if (tx.state != Transaction.State.SUBMITTED) {
                 throw new GenerateFormException(ctx, "Unable to generate confirmation form, incompatible transaction state: " + tx.state);
@@ -770,6 +739,7 @@ public class ConsentServiceBean implements ConsentService {
             }
             LOGGER.log(Level.FINEST, "Transaction loaded: " + tx);
             ConsentContext ctx = tx.getConsentContext();
+            ctx.setDefaultLanguage(config.language());
             LOGGER.log(Level.FINEST, "Transaction context: " + tx.context);
             if (tx.state != Transaction.State.SUBMITTED) {
                 throw new SubmitConsentException(ctx, null, "Consent cannot be confirmed, wrong transaction state: " + tx.state);
@@ -878,6 +848,19 @@ public class ConsentServiceBean implements ConsentService {
 
         this.notification.publish(EventType.SUBJECT_UPDATE, Subject.class.getName(), subject.id, authentication.getConnectedIdentifier(), EventArgs.build("email", email));
         return subject;
+    }
+
+    /* PREVIEW */
+
+    @Override
+    public ConsentSubmitForm getConsentFormPreview(ConsentContext ctx) throws GenerateFormException {
+        LOGGER.log(Level.FINE, "Generating consent form preview");
+        try {
+            ctx.setSubject("PREVIEW");
+            return this.internalCreateForm(ctx, null);
+        } catch (ModelDataSerializationException | EntityNotFoundException e) {
+            throw new GenerateFormException(ctx, e.getMessage());
+        }
     }
 
     /* RECORDS */
@@ -993,6 +976,49 @@ public class ConsentServiceBean implements ConsentService {
             return renderer.get().render(rreceipt);
         }
         throw new ReceiptRendererNotFoundException("unable to find a receipt renderer for format: " + format);
+    }
+
+    private ConsentSubmitForm internalCreateForm(ConsentContext ctx, String txid) throws EntityNotFoundException, GenerateFormException, ModelDataSerializationException {
+        ctx.setDefaultLanguage(config.language());
+
+        //Load layout model if exists
+        if (StringUtils.isNotEmpty(ctx.getLayout())) {
+            ctx.setLayoutData((FormLayout) ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getLayout()).getData(ctx.getLanguage()));
+            LOGGER.log(Level.FINE, "Context data loaded from layout: " + ctx.getLayoutData());
+        }
+        if (ctx.getLayoutData() == null) {
+            throw new GenerateFormException(ctx, "Unable to generate consent form: layout data is null");
+        }
+
+        // Initialize form using context
+        ConsentSubmitForm form = new ConsentSubmitForm(ctx, txid == null);
+
+        // Fetch elements from context
+        List<ModelVersion> elements = ModelVersion.SystemHelper.findActiveVersionsForKeys(ctx.getLayoutData().getElements());
+
+        // Fetch previous records
+        if (txid != null) {
+            final Map<String, Record> previousRecords = systemListValidRecords(ctx.getSubject(), ctx.getLayoutData().getInfo(), ctx.getLayoutData().getElements());
+            form.setPreviousValues(elements.stream().filter(version -> previousRecords.containsKey(version.entry.key)).collect(Collectors.toMap((v) -> v.serial, (v) -> previousRecords.get(v.entry.key).value)));
+        }
+
+        // Set form elements, infos, theme and token
+        form.setElements(elements.stream().filter(version -> (ctx.getLayoutData().isExistingElementsVisible() || !form.getPreviousValues().containsKey(version.serial))).collect(Collectors.toList()));
+        if (StringUtils.isNotEmpty(ctx.getLayoutData().getInfo())) {
+            form.setInfo(ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getLayoutData().getInfo()));
+        } else {
+            ModelEntry infoEntry = ModelEntry.find("type", BasicInfo.TYPE).firstResult();
+            form.setInfo(ModelVersion.SystemHelper.findActiveVersionByEntryId(infoEntry.id));
+        }
+        if (StringUtils.isNotEmpty(ctx.getLayoutData().getTheme())) {
+            form.setTheme(ModelVersion.SystemHelper.findActiveVersionByKey(ctx.getLayoutData().getTheme()));
+        }
+
+        if (txid != null) {
+            form.setToken(this.tokenService.generateToken(new AccessToken().withSubject(txid).withValidity("PT5H")));
+        }
+
+        return form;
     }
 
     private void checkValues(ModelVersion info, List<ModelVersion> elements, MultivaluedMap<String, String> values, String language) throws InvalidValuesException, ModelDataSerializationException {

@@ -269,4 +269,24 @@ public class ConsentsResource {
         LOGGER.log(Level.FINEST, "extracting language from header Accept-Language: " + acceptLanguage);
         return (StringUtils.isNotEmpty(acceptLanguage)) ? new Locale(acceptLanguage).getLanguage() : config.language();
     }
+
+    @POST
+    @Path("preview")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_HTML)
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "submission form representation", content = @Content(example = "submission form HTML representation"))
+    })
+    @Operation(summary = "Generate the consent submission form for the given transaction")
+    public TemplateModel getSubmissionFormPreview(@Valid ConsentContext ctx, @Context UriInfo uriInfo, @HeaderParam("Accept-Language") String acceptLanguage) throws UnexpectedException {
+        LOGGER.log(Level.INFO, "GET /consents/preview (html)");
+        try {
+            ConsentSubmitForm form = consentService.getConsentFormPreview(ctx);
+            return templateService.buildModel(form);
+        } catch (GenerateFormException | UnexpectedException | AccessDeniedException | EntityNotFoundException e) {
+            ConsentFormError error = new ConsentFormError(e);
+            error.setLanguage(getLanguage(acceptLanguage));
+            return templateService.buildModel(error);
+        }
+    }
 }

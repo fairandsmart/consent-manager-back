@@ -104,6 +104,10 @@ public interface ConsentService {
 
     Transaction breedTransaction(String txId) throws AccessDeniedException, ConsentContextSerializationException, EntityNotFoundException;
 
+    /* Preview */
+
+    ConsentSubmitForm getConsentFormPreview(ConsentContext ctx) throws GenerateFormException, UnexpectedException, AccessDeniedException, EntityNotFoundException;
+
     /* Records */
 
     Map<String, List<Record>> listSubjectRecords(RecordFilter filter) throws AccessDeniedException;

@@ -29,7 +29,7 @@ public class ConsentSubmitForm {
 
     //TODO Increase this field with a complete object that could create a nice display (and maybe some behaviour : repost, propagate to support, ...)
     private String error;
-    @Schema(description = "The form attached token", example = "")
+    @Schema(description = "The form attached token")
     private String token;
     private ModelVersion info;
     private List<ModelVersion> elements;
@@ -48,10 +48,10 @@ public class ConsentSubmitForm {
         previousValues = new HashMap<>();
     }
 
-    public ConsentSubmitForm(ConsentContext ctx) {
+    public ConsentSubmitForm(ConsentContext ctx, boolean isPreview) {
         this();
         this.language = ctx.getLanguage();
-        this.preview = ctx.isPreview();
+        this.preview = isPreview;
         this.orientation = ctx.getLayoutData().getOrientation();
         this.acceptAllVisible = ctx.getLayoutData().isAcceptAllVisible();
         this.acceptAllText = ctx.getLayoutData().getAcceptAllText();

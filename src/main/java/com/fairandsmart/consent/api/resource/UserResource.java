@@ -65,12 +65,11 @@ public class UserResource {
     ClientConfig config;
 
     @GET
-    @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponse(responseCode = "200", description = "Information for the connected user")
     @Operation(summary = "Get connected user information")
     public UserDto me() {
-        LOGGER.log(Level.INFO, "GET /user/me");
+        LOGGER.log(Level.INFO, "GET /user");
         UserDto user = new UserDto();
         user.setUsername(authenticationService.getConnectedIdentifier());
         user.setAdmin(authenticationService.isConnectedIdentifierAdmin());

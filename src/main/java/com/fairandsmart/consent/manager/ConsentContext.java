@@ -19,7 +19,6 @@ package com.fairandsmart.consent.manager;
 import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import javax.validation.constraints.NotNull;
@@ -27,7 +26,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 @Schema(description = "Consent form context object")
@@ -59,8 +57,6 @@ public class ConsentContext {
     private String layout;
     @Schema(description = "Consent form layout data to use")
     private FormLayout layoutData;
-    @Schema(description = "This context will be used to generate a form preview", example = "false")
-    private boolean preview = false;
     @Schema(description = "The consent author (in case the consent is set by an operator)")
     private String author;
     @Schema(description = "This context will need a user confirmation to commit transaction", example = Placeholders.CONFIRM_NONE)
@@ -132,14 +128,18 @@ public class ConsentContext {
     }
 
     public String getLanguage() {
-        if (StringUtils.isEmpty(language)) {
-            return Locale.getDefault().toLanguageTag();
-        }
         return language;
     }
 
     public ConsentContext setLanguage(String language) {
         this.language = language;
+        return this;
+    }
+
+    public ConsentContext setDefaultLanguage(String language) {
+        if (this.language == null || this.language.isEmpty()) {
+            this.language = language;
+        }
         return this;
     }
 
@@ -232,15 +232,6 @@ public class ConsentContext {
         return this;
     }
 
-    public boolean isPreview() {
-        return preview;
-    }
-
-    public ConsentContext setPreview(boolean preview) {
-        this.preview = preview;
-        return this;
-    }
-
     public String getAuthor() {
         return author;
     }
@@ -282,7 +273,6 @@ public class ConsentContext {
                 ", attributes=" + attributes +
                 ", layout='" + layout + '\'' +
                 ", layoutData=" + layoutData +
-                ", preview=" + preview +
                 ", author='" + author + '\'' +
                 ", confirmation=" + confirmation +
                 ", confirmationConfig=" + confirmationConfig +
