@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -40,6 +41,8 @@ import java.io.IOException;
 })
 public abstract class ModelData {
 
+    public static final Pattern DEFAULT_PATTERN = Pattern.compile("^$");
+
     private String type;
 
     public String getType() {
@@ -53,6 +56,10 @@ public abstract class ModelData {
     public abstract String extractDataMimeType();
 
     public abstract String toMimeContent() throws IOException;
+
+    public Pattern allowedValuesPattern() {
+        return DEFAULT_PATTERN;
+    }
 
     public String toJson() throws IOException {
         ObjectMapper mapper = new ObjectMapper();

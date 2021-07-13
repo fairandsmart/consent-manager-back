@@ -23,7 +23,6 @@ import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
 import com.fairandsmart.consent.common.validation.SortDirection;
-import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.manager.entity.Record;
 import com.fairandsmart.consent.manager.filter.RecordFilter;

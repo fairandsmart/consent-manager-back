@@ -1,15 +1,26 @@
 package com.fairandsmart.consent.manager.exception;
 
-import com.fairandsmart.consent.common.exception.NamedException;
-import com.fairandsmart.consent.common.exception.ReportableException;
-import com.fairandsmart.consent.common.exception.RetryableException;
+/*-
+ * #%L
+ * Right Consents, a Universal Consents & Preferences Management Platform.
+ * %%
+ * Copyright (C) 2020 - 2021 Fair And Smart
+ * %%
+ * This file is part of Right Consents Community Edition.
+ *
+ * Right Consents Community Edition is published by FAIR AND SMART under the
+ * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
+ *
+ * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
+ * files, or see https://www.fairandsmart.com/opensource/.
+ * #L%
+ */
+
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.ClientException;
 import com.fairandsmart.consent.manager.ConsentContext;
 
-public class SubmitConsentException extends Exception implements NamedException, ReportableException, RetryableException {
-
-    //TODO Use a super exception that includes all fields that could produce a specific html template and avoid those useless interfaces :
-    //   JAX-RS allows to write a Mapper for super class
-    //   We should create a global mapper and an exception handler that would be able to produce the
+public class SubmitConsentException extends ClientException {
 
     public static final String KEY = "submitForm";
 
@@ -42,4 +53,10 @@ public class SubmitConsentException extends Exception implements NamedException,
     public String getRetryURI() {
         return retryUri;
     }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.UNEXPECTED_ERROR;
+    }
+
 }

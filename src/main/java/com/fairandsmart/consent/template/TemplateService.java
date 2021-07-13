@@ -16,14 +16,16 @@ package com.fairandsmart.consent.template;
  * #L%
  */
 
+import com.fairandsmart.consent.common.exception.UnexpectedException;
+
 import java.io.OutputStream;
 
 public interface TemplateService {
 
-    String render(TemplateModel model) throws TemplateServiceException;
+    String render(TemplateModel model) throws UnexpectedException;
 
-    void render(TemplateModel model, OutputStream output) throws TemplateServiceException;
+    void render(TemplateModel model, OutputStream output) throws UnexpectedException;
 
-    <T> TemplateModel<T> buildModel(T data) throws TemplateServiceException;
+    <T> TemplateModel<T> buildModel(T data) throws UnexpectedException;
 
 }

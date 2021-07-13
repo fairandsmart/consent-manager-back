@@ -34,8 +34,8 @@
 
 <div class="main-container">
     <div class="main-content">
-        <h2><@readBundle "${data.key!'defaultError'}Title" "missingValue"></@readBundle></h2>
-        <p><@readBundle "${data.key!'defaultError'}Message" "missingValue"></@readBundle></p>
+        <h2><@readBundle "${data.key!'unexpectedError'}Title" "missingValue"></@readBundle></h2>
+        <p><@readBundle "${data.key!'unexpectedError'}Message" "missingValue"></@readBundle></p>
     </div>
     <#if data.retryURI?has_content>
         <div class="info-footer">

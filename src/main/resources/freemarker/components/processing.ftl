@@ -22,7 +22,7 @@
             <#if !data.preview>
                 <#assign isChecked=!data.preview && data.previousValues[element.serial]?has_content && data.previousValues[element.serial]=="accepted">
             </#if>
-            <@toggleSwitch "${identifier}" isChecked></@toggleSwitch>
+            <@toggleSwitch key="${identifier}" isChecked=isChecked></@toggleSwitch>
         </div>
 
         <#-- Data -->

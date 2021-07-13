@@ -18,7 +18,6 @@ package com.fairandsmart.consent.manager.filter;
 
 import com.fairandsmart.consent.common.filter.QueryableFilter;
 import com.fairandsmart.consent.common.filter.SortableFilter;
-import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.Record;
 
 import java.util.ArrayList;

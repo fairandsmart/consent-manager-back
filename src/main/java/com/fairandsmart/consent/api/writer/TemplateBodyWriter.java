@@ -16,9 +16,9 @@ package com.fairandsmart.consent.api.writer;
  * #L%
  */
 
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
-import com.fairandsmart.consent.template.TemplateServiceException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -57,9 +57,9 @@ public class TemplateBodyWriter implements MessageBodyWriter<TemplateModel> {
     @Override
     public void writeTo(TemplateModel model, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws WebApplicationException {
         try {
-            LOGGER.log(Level.FINE, "Applying template to model: " + model);
+            LOGGER.log(Level.FINEST, "Applying template to model: " + model);
             template.render(model, entityStream);
-        } catch ( TemplateServiceException e ) {
+        } catch ( UnexpectedException e ) {
             throw new WebApplicationException(e);
         }
     }

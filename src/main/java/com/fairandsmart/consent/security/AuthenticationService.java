@@ -20,15 +20,14 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.security.entity.Key;
 
 import java.util.List;
-import java.util.Set;
 
 public interface AuthenticationService {
 
     boolean isIdentified();
 
-    String getConnectedIdentifier();
+    void ensureIsIdentified() throws AccessDeniedException;
 
-    Set<String> listConnectedIdentifierRoles();
+    String getConnectedIdentifier();
 
     boolean isConnectedIdentifierAdmin();
 

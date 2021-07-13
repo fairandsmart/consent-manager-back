@@ -45,7 +45,7 @@ public class ModelPreviewTemplateModelBuilder implements TemplateModelBuilder {
         template.setBundle(bundle);
         template.setData(dto);
         template.setTemplate("preview/version.ftl");
-        LOGGER.log(Level.FINE, template.toString());
+        LOGGER.log(Level.FINEST, template.toString());
         return template;
     }
 }

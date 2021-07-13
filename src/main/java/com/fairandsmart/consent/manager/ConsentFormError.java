@@ -1,8 +1,23 @@
 package com.fairandsmart.consent.manager;
 
-import com.fairandsmart.consent.common.exception.ReportableException;
-import com.fairandsmart.consent.common.exception.NamedException;
-import com.fairandsmart.consent.common.exception.RetryableException;
+/*-
+ * #%L
+ * Right Consents, a Universal Consents & Preferences Management Platform.
+ * %%
+ * Copyright (C) 2020 - 2021 Fair And Smart
+ * %%
+ * This file is part of Right Consents Community Edition.
+ *
+ * Right Consents Community Edition is published by FAIR AND SMART under the
+ * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
+ *
+ * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
+ * files, or see https://www.fairandsmart.com/opensource/.
+ * #L%
+ */
+
+import com.fairandsmart.consent.common.exception.ClientException;
+import com.fairandsmart.consent.common.exception.GenericException;
 
 public class ConsentFormError {
 
@@ -12,17 +27,14 @@ public class ConsentFormError {
     private ConsentContext context;
     private String retryURI;
 
-
     public ConsentFormError(Throwable e) {
         this.error = e;
-        if (e instanceof NamedException) {
-            this.key = ((NamedException)e).getKey();
+        if (e instanceof GenericException) {
+            this.key = ((GenericException) e).getKey();
         }
-        if (e instanceof ReportableException) {
-            this.context = ((ReportableException)e).getContext();
-        }
-        if (e instanceof RetryableException) {
-            this.retryURI = ((RetryableException)e).getRetryURI();
+        if (e instanceof ClientException) {
+            this.context = ((ClientException)e).getContext();
+            this.retryURI = ((ClientException)e).getRetryURI();
         }
     }
 

@@ -1,5 +1,21 @@
 package com.fairandsmart.consent.notification.entity;
 
+/*-
+ * #%L
+ * Right Consents, a Universal Consents & Preferences Management Platform.
+ * %%
+ * Copyright (C) 2020 - 2021 Fair And Smart
+ * %%
+ * This file is part of Right Consents Community Edition.
+ *
+ * Right Consents Community Edition is published by FAIR AND SMART under the
+ * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
+ *
+ * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
+ * files, or see https://www.fairandsmart.com/opensource/.
+ * #L%
+ */
+
 public class EventType {
     
     public static final String MODEL_CREATE = "model.create";
@@ -16,6 +32,7 @@ public class EventType {
     public static final String SUBJECT_LIST_RECORDS = "subject.records.list";
 
     public static final String CONSENT_SUBMIT = "consent.submit";
+    public static final String CONSENT_CONFIRM = "consent.confirm";
 
     public static final String RECEIPT_READ = "receipt.read";
     public static final String RECEIPT_STORE = "receipt.store";
@@ -27,5 +44,4 @@ public class EventType {
 
     public static final String STATS_GENERATE = "stats.generate";
 
-    
 }

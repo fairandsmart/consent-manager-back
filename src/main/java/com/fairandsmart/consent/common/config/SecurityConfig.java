@@ -25,6 +25,9 @@ public interface SecurityConfig {
     @ConfigProperty(name = "auth.unauthenticated")
     String anonymousIdentifierName();
 
+    @ConfigProperty(name = "auth.tokenOverride", defaultValue = "false")
+    boolean tokenOverride();
+
     @ConfigProperty(name = "roles.admin")
     String adminRoleName();
 

@@ -18,30 +18,20 @@ package com.fairandsmart.consent.manager.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Consent {
+abstract public class Consent {
 
+    private String type;
     private String serial;
-    private String data;
-    private RetentionInfo retention;
-    private String title;
-    private String usage;
-    private Controller controller;
-    @XmlElementWrapper(name="purposes")
-    @XmlElement(name="purpose")
-    private List<String> purposes;
-    @XmlElementWrapper(name="thirdParties")
-    @XmlElement(name="thirdParty")
-    private List<NameValuePair> thirdParties;
     private String value;
-    private boolean containsSensitiveData;
-    private boolean containsMedicalData;
 
-    public Consent() {
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getSerial() {
@@ -52,38 +42,6 @@ public class Consent {
         this.serial = serial;
     }
 
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
-
-    public String getUsage() {
-        return usage;
-    }
-
-    public void setUsage(String usage) {
-        this.usage = usage;
-    }
-
-    public List<String> getPurposes() {
-        return purposes;
-    }
-
-    public void setPurposes(List<String> purposes) {
-        this.purposes = purposes;
-    }
-
-    public Controller getController() {
-        return controller;
-    }
-
-    public void setController(Controller controller) {
-        this.controller = controller;
-    }
-
     public String getValue() {
         return value;
     }
@@ -92,43 +50,4 @@ public class Consent {
         this.value = value;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public boolean isContainsMedicalData() {
-        return containsMedicalData;
-    }
-
-    public void setContainsMedicalData(boolean containsMedicalData) {
-        this.containsMedicalData = containsMedicalData;
-    }
-
-    public boolean isContainsSensitiveData() {
-        return containsSensitiveData;
-    }
-
-    public void setContainsSensitiveData(boolean containsSensitiveData) {
-        this.containsSensitiveData = containsSensitiveData;
-    }
-
-    public List<NameValuePair> getThirdParties() {
-        return thirdParties;
-    }
-
-    public void setThirdParties(List<NameValuePair> thirdParties) {
-        this.thirdParties = thirdParties;
-    }
-
-    public RetentionInfo getRetention() {
-        return retention;
-    }
-
-    public void setRetention(RetentionInfo retention) {
-        this.retention = retention;
-    }
 }
