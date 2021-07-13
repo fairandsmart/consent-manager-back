@@ -1,14 +1,25 @@
 package com.fairandsmart.consent.api.resource;
 
+/*-
+ * #%L
+ * Right Consents, a Universal Consents & Preferences Management Platform.
+ * %%
+ * Copyright (C) 2020 - 2021 Fair And Smart
+ * %%
+ * This file is part of Right Consents Community Edition.
+ *
+ * Right Consents Community Edition is published by FAIR AND SMART under the
+ * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
+ *
+ * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
+ * files, or see https://www.fairandsmart.com/opensource/.
+ * #L%
+ */
+
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.UnexpectedException;
-import com.fairandsmart.consent.manager.ConsentContext;
-import com.fairandsmart.consent.manager.ConsentService;
-import com.fairandsmart.consent.manager.ReceiptContext;
-import com.fairandsmart.consent.manager.SubjectContext;
-import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
+import com.fairandsmart.consent.token.AccessToken;
+import com.fairandsmart.consent.token.TokenService;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
@@ -25,31 +36,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Path("tokens")
-@Tag(name = "Tokens", description = "Token generation")
+@Tag(name = "Tokens", description = "Access Token generation")
 public class TokensResource {
 
     private static final Logger LOGGER = Logger.getLogger(TokensResource.class.getName());
 
     @Inject
-    ConsentService consentService;
+    TokenService tokenService;
 
     @POST
-    @Path("consent")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The generated token", content = @Content(example = "a token")),
-            @APIResponse(responseCode = "401", description = AccessDeniedException.ACCESS_TOKEN_ISSUE)
-    })
-    @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(summary = "Generate a form token from a given context")
-    public String generateFormToken(@Valid ConsentContext ctx) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "POST /tokens/consent");
-        return consentService.buildFormToken(ctx);
-    }
-
-    @POST
-    @Path("subject")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @APIResponses(value = {
@@ -57,25 +52,11 @@ public class TokensResource {
             @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
     })
     @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(summary = "Create subject token for accessing API")
-    public String createSubjectToken(@Valid SubjectContext ctx) throws AccessDeniedException {
-        LOGGER.log(Level.INFO, "POST /tokens/subject");
-        return consentService.buildSubjectToken(ctx);
-    }
-
-    @POST
-    @Path("receipt")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    @APIResponses(value = {
-            @APIResponse(responseCode = "200", description = "The generated token"),
-            @APIResponse(responseCode = "401", description = AccessDeniedException.NO_OPERATOR_ROLE),
-    })
-    @SecurityRequirement(name = "access token", scopes = {"profile"})
-    @Operation(summary = "Create receipt token for accessing a specific receipt")
-    public String createSubjectToken(@Valid ReceiptContext ctx) throws AccessDeniedException, UnexpectedException, ReceiptNotFoundException {
-        LOGGER.log(Level.INFO, "POST /tokens/receipt");
-        return consentService.buildReceiptToken(ctx);
+    @Operation(summary = "Create Access token for API")
+    public String createToken(@Valid AccessToken token) {
+        LOGGER.log(Level.INFO, "POST /tokens");
+        //TODO Handle token creation security
+        return tokenService.generateToken(token);
     }
 
 }

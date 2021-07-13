@@ -16,7 +16,6 @@ package com.fairandsmart.consent.api.dto;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.ConsentForm;
 import com.fairandsmart.consent.manager.entity.ModelData;
 import com.fairandsmart.consent.manager.model.FormLayout;
 

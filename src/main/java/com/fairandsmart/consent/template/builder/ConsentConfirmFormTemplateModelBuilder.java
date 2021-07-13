@@ -16,8 +16,7 @@ package com.fairandsmart.consent.template.builder;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.ConsentForm;
-import com.fairandsmart.consent.manager.model.FormLayout;
+import com.fairandsmart.consent.manager.ConsentConfirmForm;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateModelBuilder;
 
@@ -28,26 +27,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
-public class ConsentFormTemplateModelBuilder implements TemplateModelBuilder {
+public class ConsentConfirmFormTemplateModelBuilder implements TemplateModelBuilder {
 
-    private static final Logger LOGGER = Logger.getLogger(ConsentFormTemplateModelBuilder.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConsentConfirmFormTemplateModelBuilder.class.getName());
 
     @Override
     public boolean canBuild(Object data) {
-        return data instanceof ConsentForm;
+        return data instanceof ConsentConfirmForm;
     }
 
     @Override
     public TemplateModel build(Object data) {
-        ConsentForm form = (ConsentForm) data;
-        TemplateModel<ConsentForm> model = new TemplateModel<>();
+        ConsentConfirmForm form = (ConsentConfirmForm) data;
+        TemplateModel<ConsentConfirmForm> model = new TemplateModel<>();
         model.setLanguage(form.getLanguage());
         ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
         model.setBundle(bundle);
         model.setData(form);
-
-        String orientation = form.getOrientation().equals(FormLayout.Orientation.HORIZONTAL) ? "horizontal" : "vertical";
-        model.setTemplate("form-" + orientation + ".ftl");
+        model.setTemplate("consent-form-" + form.getType() + "-confirm.ftl");
 
         LOGGER.log(Level.FINEST, model.toString());
         return model;

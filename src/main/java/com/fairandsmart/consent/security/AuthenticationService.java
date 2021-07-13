@@ -20,7 +20,6 @@ import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.security.entity.Key;
 
 import java.util.List;
-import java.util.Set;
 
 public interface AuthenticationService {
 

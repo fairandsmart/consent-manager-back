@@ -1,5 +1,21 @@
 package com.fairandsmart.consent.api.resource;
 
+/*-
+ * #%L
+ * Right Consents, a Universal Consents & Preferences Management Platform.
+ * %%
+ * Copyright (C) 2020 - 2021 Fair And Smart
+ * %%
+ * This file is part of Right Consents Community Edition.
+ *
+ * Right Consents Community Edition is published by FAIR AND SMART under the
+ * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
+ *
+ * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
+ * files, or see https://www.fairandsmart.com/opensource/.
+ * #L%
+ */
+
 import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
@@ -49,12 +65,11 @@ public class UserResource {
     ClientConfig config;
 
     @GET
-    @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponse(responseCode = "200", description = "Information for the connected user")
     @Operation(summary = "Get connected user information")
     public UserDto me() {
-        LOGGER.log(Level.INFO, "GET /user/me");
+        LOGGER.log(Level.INFO, "GET /user");
         UserDto user = new UserDto();
         user.setUsername(authenticationService.getConnectedIdentifier());
         user.setAdmin(authenticationService.isConnectedIdentifierAdmin());

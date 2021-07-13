@@ -27,7 +27,7 @@ public class InvalidValuesException extends GenericException {
     private String found;
 
     public InvalidValuesException(String message, String expected, String found) {
-        super(message);
+        super(message.concat(" (expected: ").concat(expected).concat(", found: ").concat(found).concat(")"));
         this.expected = expected;
         this.found = found;
     }

@@ -7,10 +7,10 @@ package com.fairandsmart.consent.usecase;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -36,41 +36,49 @@ import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class SimpleCollectTest {
+public class CollectBaseTest {
 
-    private static final Logger LOGGER = Logger.getLogger(SimpleCollectTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CollectBaseTest.class.getName());
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
     private static final String SUBJECT = "mmichu";
 
     private static final String language = "fr";
-    private static final String biKey = "sct_bi1";
-    private static final String t1Key = "sct_t1";
-    private static final String t2Key = "sct_t2";
+    private static final String biKey = "cbt_bi1";
+    private static final String t1Key = "cbt_t1";
+    private static final String t2Key = "cbt_t2";
 
     /**
-     * 1 : le user appel l'url de génération du formulaire de collecte en passant le token contenant le context en paramètre (header ou query)
+     * 1 : Le operator crée une transaction à partir du context de consentement
+     *     il fournit l'url de cette transaction au user cible.
+     * 2 : le user appelle l'url de la transaction
      *     le sujet est inconnu car il n'y a encore pas eu de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
-     * 2 : le user poste le formulaire avec ses réponses et le token de context sur l'url de collecte
-     *     tout est bon, un reçu est généré et renvoyé en réponse au user
-     * 3 : le user retourne à son url initiale qui devrait être contenue dans le reçu ou dans le context
+     * 3 : le user poste le formulaire avec ses réponses sur l'url intégrée au formulaire
+     *     aucune confirmation n'est nécessaire, l'utilisateur est redirigé vers l'url de la transaction
+     *     la transaction étant terminée, l'utilisateur est redirigé sur le reçu
+     * 4 : le user utilise l'url intégrée au reçu pour générer une nouvelle transaction liée au même contexte
+     *     il est redirigé vers la nouvelle transaction créée
      *     le sujet est connu car il y a eu une collecte précédente, on génère un formulaire pré-rempli avec les éléments demandés dans le context et un nouveau token
-     * 4 : le user poste le formulaire avec ses réponses et le token de context sur l'url de collecte
-     *     tout est bon, un nouveau reçu est généré et renvoyé en réponse au user
+     * 5 : le user poste le formulaire avec ses réponses sur l'url intégrée au formulaire
+     *     aucune confirmation n'est nécessaire, l'utilisateur est redirigé vers l'url de la transaction
+     *     la transaction étant terminée, l'utilisateur est redirigé sur le reçu
      */
     @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testSimpleCollect() {
+    public void testSimpleCollectHtml() {
         //INITIAL SETUP
         //Check that the app is running
         LOGGER.log(Level.INFO, "Initial setup");
@@ -107,7 +115,7 @@ public class SimpleCollectTest {
 
             //Activate model version
             LOGGER.log(Level.INFO, "Activating " + type + " version");
-            ModelVersionStatusDto statusDto =  new ModelVersionStatusDto();
+            ModelVersionStatusDto statusDto = new ModelVersionStatusDto();
             statusDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(statusDto).
@@ -117,7 +125,9 @@ public class SimpleCollectTest {
             assertEquals(ModelVersion.Status.ACTIVE, dto.getStatus());
         }
 
-        LOGGER.log(Level.INFO, "Creating context & token");
+        //PART 1
+        //Generate initial transaction (as operator)
+        LOGGER.log(Level.INFO, "Create transaction from context");
         ConsentContext ctx = new ConsentContext()
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
@@ -125,21 +135,19 @@ public class SimpleCollectTest {
                 .setLanguage(language);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
-        String token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/tokens/consent").asString();
-        assertNotNull(token);
-        LOGGER.log(Level.INFO, "Token: " + token);
+        Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx).when().post("/consents");
+        response.then().header("location", containsStringIgnoringCase("/consents")).assertThat().statusCode(201);
+        String txLocation = response.getHeader("location");
+        LOGGER.log(Level.INFO, "Transaction URI: " + txLocation);
 
-        //PART 1
-        //Check consent form
-        Response response = given().accept(ContentType.JSON).queryParam("t", token).when().get("/consents");
-        response.then().contentType("application/json").assertThat().statusCode(200);
-
-        response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
+        //PART 2
+        //Call consent form (enduser)
+        LOGGER.log(Level.INFO, "Consult transaction location in HTML, should redirect to consent form view");
+        response = given().accept(ContentType.HTML).when().get(txLocation);
         String page = response.asString();
-        response.then().contentType("text/html").assertThat().statusCode(200);
-
+        response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Consent form page: " + page);
+
         //Orientation
         assertFalse(page.contains("class=\"right\"")); // Vertical
         //BasicInfo
@@ -162,6 +170,8 @@ public class SimpleCollectTest {
         assertTrue(page.contains("Partage à des tierces-parties"));
 
         Document html = Jsoup.parse(page);
+        String action = TestUtils.extractFormAction(html);
+        LOGGER.log(Level.INFO, "Form Action: " + action);
         Map<String, String> values = TestUtils.readFormInputs(html);
         LOGGER.log(Level.INFO, "Form Values: " + values);
         List<String> elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
@@ -171,29 +181,29 @@ public class SimpleCollectTest {
             values.replace(key, "accepted"); //User accepts every processing
         }
 
-        //PART 2
-        //Post user answer
-        LOGGER.log(Level.INFO, "Posting user answer");
+        //PART 3
+        //Post consent answers (enduser)
+        String postUrl = txLocation.substring(0, txLocation.indexOf("?"));
+        LOGGER.log(Level.INFO, "Post URL: " + postUrl);
         Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
-                .formParams(values).when().post("/consents");
+                .formParams(values).when().post(postUrl + "/" + action);
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
 
-        LOGGER.log(Level.INFO, "Consent Response page: " + postPage);
+        LOGGER.log(Level.INFO, "Consent Submit Response page: " + postPage);
+
         assertTrue(postPage.contains("Merci"));
-        assertTrue(postPage.contains("Cliquez ici"));
-        assertTrue(postPage.contains("&format=text%2Fhtml"));
-
+        assertTrue(postPage.contains("Voir le reçu"));
         html = Jsoup.parse(postPage);
-        Elements links = html.getElementsByTag("a");
-        String link = links.get(0).attr("href");
+        Elements receiptlinks = html.getElementsByAttributeValue("id", "receipt-link");
+        String receiptLink = receiptlinks.get(0).attr("href");
 
-        LOGGER.log(Level.INFO, "Receipt page link: " + link);
+        LOGGER.log(Level.INFO, "Receipt page link: " + receiptLink);
 
         // Check that embed link redirect to the correct receipt mime type (html)
-        Response receiptResponse = given().contentType(ContentType.URLENC).when().get(link.replace("%2F", "/"));
+        Response receiptResponse = given().contentType(ContentType.URLENC).when().get(receiptLink.replace("%2F", "/"));
         String receiptPage = receiptResponse.asString();
-        receiptResponse.then().contentType("text/html").assertThat().statusCode(200);
+        receiptResponse.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Receipt page HTML: " + receiptPage);
         assertTrue(receiptPage.contains("<html"));
         assertTrue(receiptPage.contains("RE&Ccedil;U"));
@@ -207,14 +217,25 @@ public class SimpleCollectTest {
         assertFalse(receiptPage.contains("<div class=\"processing-response accepted\">Refus&eacute;</div>"));
         assertTrue(receiptPage.contains(SUBJECT));
 
-        //PART 3
-        //Check previous values are loaded on new consent form
-        response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
-        page = response.asString();
-        response.then().contentType("text/html").assertThat().statusCode(200);
+        //PART 4
+        //Generate new transaction from previous one
+        LOGGER.log(Level.INFO, "Breed the transaction for changing user choices");
+        Elements breedlinks = html.getElementsByAttributeValue("id", "breed-link");
+        String breedlink = breedlinks.get(0).attr("href");
+        LOGGER.log(Level.INFO, "Breed TX Link: " + breedlink);
+        response = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx).when().post(breedlink);
+        response.then().header("location", containsStringIgnoringCase("/consents")).assertThat().statusCode(201);
+        String newTxLocation = response.getHeader("location");
 
+        //Get the new transaction submit form
+        response = given().accept(ContentType.HTML).when().get(newTxLocation);
+        page = response.asString();
+        response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
         LOGGER.log(Level.INFO, "Consent form page: " + page);
+
         html = Jsoup.parse(page);
+        action = TestUtils.extractFormAction(html);
+        LOGGER.log(Level.INFO, "Form Action: " + action);
         values = TestUtils.readFormInputs(html);
         LOGGER.log(Level.INFO, "Form Values: " + values);
         elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
@@ -224,90 +245,19 @@ public class SimpleCollectTest {
             values.replace(key, "refused"); //User refuses every processing
         }
 
-        //PART 4
-        //Post user new answer in new context with different receipt mime type
-        LOGGER.log(Level.INFO, "Posting new user answer in new context");
-        ctx = new ConsentContext()
-                .setSubject(SUBJECT)
-                .setValidity("P2Y")
-                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withDesiredReceiptMimeType(MediaType.APPLICATION_XML).withAcceptAllVisible(true))
-                .setLanguage(language);
-        LOGGER.log(Level.INFO, "New context" + ctx.toString());
-        assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
-
-        token = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx)
-                .when().post("/tokens/consent").asString();
-        assertNotNull(token);
-        LOGGER.log(Level.INFO, "Token: " + token);
-
-        //PART 1
-        //Check consent form
-        response = given().accept(ContentType.HTML).when().get("/consents?t=" + token);
-        page = response.asString();
-        response.then().contentType("text/html").assertThat().statusCode(200);
-
-        LOGGER.log(Level.INFO, "Consent form page: " + page);
-        //Orientation
-        assertFalse(page.contains("class=\"right\"")); // Vertical
-        //BasicInfo
-        assertTrue(page.contains("Title " + biKey));
-        assertTrue(page.contains("Header " + biKey));
-        assertTrue(page.contains("Privacy policy label " + biKey));
-        assertTrue(page.contains("Footer " + biKey));
-        assertTrue(page.contains("accept-all-switch"));
-        //Processing 1
-        assertTrue(page.contains("Processing title " + t1Key));
-        assertTrue(page.contains("Data body " + t1Key));
-        assertTrue(page.contains("Retention body " + t1Key));
-        assertTrue(page.contains("Usage body " + t1Key));
-        assertTrue(page.contains("Service principal"));
-        //Processing 2
-        assertTrue(page.contains("Processing title " + t2Key));
-        assertTrue(page.contains("Data body " + t2Key));
-        assertTrue(page.contains("Retention body " + t2Key));
-        assertTrue(page.contains("Usage body " + t2Key));
-        assertTrue(page.contains("Partage à des tierces-parties"));
-
-        html = Jsoup.parse(page);
-        values = TestUtils.readFormInputs(html);
-        LOGGER.log(Level.INFO, "Form Values: " + values);
-        elementsKeys = values.keySet().stream().filter(key -> key.startsWith("element")).collect(Collectors.toList());
-        assertEquals(2, elementsKeys.size());
-        for (String key : elementsKeys) {
-            assertEquals("accepted", values.get(key));
-            values.replace(key, "refused"); //User refuse every processing
-        }
-
+        //PART 5
+        //Post consent answers (enduser)
+        postUrl = newTxLocation.substring(0, txLocation.indexOf("?"));
+        LOGGER.log(Level.INFO, "Post URL: " + postUrl);
         postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
-                .formParams(values).when().post("/consents");
+                .formParams(values).when().post(postUrl + "/" + action);
         postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
 
-        LOGGER.log(Level.INFO, "Consent Response page: " + postPage);
+        LOGGER.log(Level.INFO, "Consent Submit Response page: " + postPage);
+
         assertTrue(postPage.contains("Merci"));
-        assertTrue(postPage.contains("Cliquez ici"));
-        assertTrue(postPage.contains("&format=application%2Fxml"));
-
-
-        html = Jsoup.parse(postPage);
-        links = html.getElementsByTag("a");
-        link = links.get(0).attr("href");
-
-        // Check that embed link redirect to the correct receipt display type (xml)
-        receiptResponse = given().contentType(ContentType.URLENC).when().get(link.replace("%2F", "/"));
-        receiptPage = receiptResponse.asString();
-        receiptResponse.then().contentType("application/xml").assertThat().statusCode(200);
-        LOGGER.log(Level.INFO, "Receipt page XML: " + receiptPage);
-        assertTrue(receiptPage.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
-        assertTrue(receiptPage.contains("<receipt>"));
-        assertTrue(receiptPage.contains("<language>fr</language>"));
-        assertTrue(receiptPage.contains("<collectionMethod>" + ConsentContext.Origin.WEBFORM.toString() + "</collectionMethod>"));
-        assertTrue(receiptPage.contains("<data>Data body " + t1Key + "</data>"));
-        assertTrue(receiptPage.contains("<data>Data body " + t2Key + "</data>"));
-        assertTrue(receiptPage.contains("<value>refused</value>"));
-        assertFalse(receiptPage.contains("<value>accepted</value>"));
-        assertTrue(receiptPage.contains("<subject>" + SUBJECT + "</subject>"));
-        assertTrue(receiptPage.contains("<info>Info " + biKey + "_dc</info>"));
+        assertTrue(postPage.contains("Voir le reçu"));
     }
 
 }

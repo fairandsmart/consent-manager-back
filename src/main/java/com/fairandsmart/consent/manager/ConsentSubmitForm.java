@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConsentForm {
+public class ConsentSubmitForm {
 
     //TODO Increase this field with a complete object that could create a nice display (and maybe some behaviour : repost, propagate to support, ...)
     private String error;
-    @Schema(description = "The form attached token", example = "")
+    @Schema(description = "The form attached token")
     private String token;
     private ModelVersion info;
     private List<ModelVersion> elements;
@@ -43,15 +43,15 @@ public class ConsentForm {
     private String acceptAllText;
     private boolean footerOnTop = false;
 
-    public ConsentForm() {
+    public ConsentSubmitForm() {
         elements = new ArrayList<>();
         previousValues = new HashMap<>();
     }
 
-    public ConsentForm(ConsentContext ctx) {
+    public ConsentSubmitForm(ConsentContext ctx, boolean isPreview) {
         this();
         this.language = ctx.getLanguage();
-        this.preview = ctx.isPreview();
+        this.preview = isPreview;
         this.orientation = ctx.getLayoutData().getOrientation();
         this.acceptAllVisible = ctx.getLayoutData().isAcceptAllVisible();
         this.acceptAllText = ctx.getLayoutData().getAcceptAllText();
@@ -172,7 +172,7 @@ public class ConsentForm {
 
     @Override
     public String toString() {
-        return "ConsentForm{" +
+        return "ConsentSubmitForm{" +
                 "token='" + token + '\'' +
                 ", info=" + info +
                 ", elements=" + elements +

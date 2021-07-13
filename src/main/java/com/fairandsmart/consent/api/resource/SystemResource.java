@@ -20,11 +20,9 @@ import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.validation.SortDirection;
-import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.filter.EventFilter;
-import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.support.SupportService;
 import com.fairandsmart.consent.support.SupportUnreachableException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -35,7 +33,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -54,9 +51,6 @@ public class SystemResource {
 
     @Inject
     NotificationService notificationService;
-
-    @Inject
-    ConsentService consentService;
 
     @Inject
     ClientConfig config;
@@ -93,20 +87,6 @@ public class SystemResource {
         dto.addSecurityRole("operator", securityConfig.operatorRoleName());
         dto.addSecurityRole("api", securityConfig.apiRoleName());
         return dto;
-    }
-
-    @GET
-    @Path("/counters/transaction")
-    @Produces(MediaType.APPLICATION_JSON)
-    @APIResponse(responseCode = "200", description = "Transaction counter")
-    @Operation(summary = "Get the Transaction count between timestamp interval")
-    public CounterDto getTransactionCounter(
-            @Parameter(description = "timestamp when to start counting") @QueryParam("from") @DefaultValue("0") long from,
-            @Parameter(description = "timestamp when to stop counting") @QueryParam("to") @NotEmpty long to
-            ) {
-        LOGGER.log(Level.INFO, "GET /counters/transaction");
-        long value = consentService.countTransactionsCreatedBetween(from, to);
-        return new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
     }
 
     @GET

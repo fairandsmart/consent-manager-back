@@ -22,25 +22,21 @@ import com.fairandsmart.consent.api.dto.ModelVersionDto;
 import com.fairandsmart.consent.api.dto.ModelVersionStatusDto;
 import com.fairandsmart.consent.manager.ConsentContext;
 import com.fairandsmart.consent.manager.entity.ModelVersion;
-import com.fairandsmart.consent.manager.model.*;
-import io.quarkus.mailer.Mail;
-import io.quarkus.mailer.MockMailbox;
+import com.fairandsmart.consent.manager.model.BasicInfo;
+import com.fairandsmart.consent.manager.model.FormLayout;
+import com.fairandsmart.consent.manager.model.Processing;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
 import javax.validation.Validation;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -51,75 +47,70 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class CollectWithEmailAndThemeTest {
+public class CollectWithConfirmationButtonTest {
 
-    private static final Logger LOGGER = Logger.getLogger(CollectWithEmailAndThemeTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CollectWithConfirmationButtonTest.class.getName());
     private static final String TEST_USER = "sheldon";
     private static final String TEST_PASSWORD = "password";
     private static final String SUBJECT = "mmichu";
 
     private static final String language = "fr";
-    private static final String biKey = "cweatt_bi1";
-    private static final String t1Key = "cweatt_t1";
-    private static final String t2Key = "cweatt_t2";
-    private static final String eKey = "cweatt_e1";
-    private static final String thKey = "cweatt_th1";
+    private static final String biKey = "cwcbt_bi1";
+    private static final String t1Key = "cwcbt_t1";
+    private static final String t2Key = "cwcbt_t2";
+    private static final String eKey = "cwcbt_e1";
     private static final String recipient = "mmichu@localhost";
 
-    @Inject
-    MockMailbox mailbox;
-
-    @ConfigProperty(name = "consent.public.url")
-    String publicUrl;
-
     /**
-     * 1 : l'orga génère un context de collecte qui contient entre autres un email de notification
-     * 2 : Le user (anonyme) appelle une URL avec le context en paramètre (header ou query param),
-     * 3 : le user (anonyme) poste le formulaire avec ses réponses sur une autre URL
-     * 4 : le user (anonyme) reçoit un email de confirmation
-     * 5 : le user (anonyme) clique sur le lien d'opt-out
+     * 1 : Le operator crée une transaction à partir du context de consentement
+     *     il fournit l'url de cette transaction au user cible.
+     * 2 : le user appelle l'url de la transaction
+     *     le sujet est inconnu car il n'y a encore pas eu de collecte précédente, on génère un formulaire vide avec les éléments demandés dans le context et un nouveau token
+     * 3 : le user poste le formulaire avec ses réponses sur l'url intégrée au formulaire
+     *     une confirmation html simple est demandée, l'utilisateur est redirigé vers l'url de la transaction
+     *     la transaction attends la confirmation, l'utilisateur est redirigé sur le formulaire de confirmation
+     * 4 : le user poste le formulaire de confirmation de ses choix
+     *     la confirmation est acceptée, l'utilisateur est redirigé vers l'url de la transaction
+     *     la transaction étant terminée, l'utilisateur est redirigé sur le reçu
+     * 5 : le user peut constater que le reçu contient une pièce jointe de confirmation
+     *     la pièce jointe correspond au code HTML de confirmation
      */
     @Test
     @TestSecurity(user = "sheldon", roles = {"admin"})
-    public void testCollectWithEmailAndTheme() throws InterruptedException {
-        //SETUP
-        LOGGER.log(Level.INFO, "Initial setup");
+    public void testSimpleCollectHtml() {
+        //INITIAL SETUP
         //Check that the app is running
+        LOGGER.log(Level.INFO, "Initial setup");
         given().contentType(ContentType.JSON).
                 when().get("/health").
                 then().body("status", equalTo("UP"));
 
-        //Purge mailbox
-        LOGGER.log(Level.INFO, "Purge mailbox");
-        mailbox.clear();
-        assertEquals(mailbox.getTotalMessagesSent(), 0);
-
         //Generate test elements
         LOGGER.log(Level.INFO, "Generating entries");
-        List<String> keys = List.of(biKey, t1Key, t2Key, eKey, thKey);
-        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE, Email.TYPE, Theme.TYPE);
+        List<String> keys = List.of(biKey, t1Key, t2Key);
+        List<String> types = List.of(BasicInfo.TYPE, Processing.TYPE, Processing.TYPE);
         for (int index = 0; index < keys.size(); index++) {
             //Create model
             String key = keys.get(index);
             String type = types.get(index);
             LOGGER.log(Level.INFO, "Creating " + type + " entry");
-            ModelEntryDto entryDto = TestUtils.generateModelEntryDto(key, type);
-            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(entryDto).size());
+            ModelEntryDto model = TestUtils.generateModelEntryDto(key, type);
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(model).size());
             Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.JSON).body(entryDto).
+                    contentType(ContentType.JSON).body(model).
                     when().post("/models");
             response.then().statusCode(200);
-            entryDto = response.body().as(ModelEntryDto.class);
+            ModelEntryDto entry = response.body().as(ModelEntryDto.class);
 
             //Create model version
             LOGGER.log(Level.INFO, "Creating " + type + " version");
-            ModelVersionDto versionDto = TestUtils.generateModelVersionDto(key, type, language);
-            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(versionDto).size());
+            ModelVersionDto dto = TestUtils.generateModelVersionDto(key, type, language);
+            assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(dto).size());
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
-                    contentType(ContentType.JSON).body(versionDto).
-                    when().post("/models/" + entryDto.getId() + "/versions");
+                    contentType(ContentType.JSON).body(dto).
+                    when().post("/models/" + entry.getId() + "/versions");
             response.then().statusCode(200);
-            versionDto = response.body().as(ModelVersionDto.class);
+            dto = response.body().as(ModelVersionDto.class);
 
             //Activate model version
             LOGGER.log(Level.INFO, "Activating " + type + " version");
@@ -127,21 +118,21 @@ public class CollectWithEmailAndThemeTest {
             statusDto.setStatus(ModelVersion.Status.ACTIVE);
             response = given().auth().basic(TEST_USER, TEST_PASSWORD).
                     contentType(ContentType.JSON).body(statusDto).
-                    when().put("/models/" + entryDto.getId() + "/versions/" + versionDto.getId() + "/status");
+                    when().put("/models/" + entry.getId() + "/versions/" + dto.getId() + "/status");
             response.then().statusCode(200);
-            versionDto = response.body().as(ModelVersionDto.class);
-            assertEquals(ModelVersion.Status.ACTIVE, versionDto.getStatus());
+            dto = response.body().as(ModelVersionDto.class);
+            assertEquals(ModelVersion.Status.ACTIVE, dto.getStatus());
         }
 
         //PART 1
-        //Use basic consent context for first generation
-        LOGGER.log(Level.INFO, "Creating context & token");
+        //Generate initial transaction (as operator)
+        LOGGER.log(Level.INFO, "Create transaction from context");
         ConsentContext ctx = new ConsentContext()
                 .setSubject(SUBJECT)
                 .setValidity("P2Y")
+                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withDesiredReceiptMimeType(MediaType.TEXT_HTML).withAcceptAllVisible(true))
                 .setLanguage(language)
-                .setLayoutData(TestUtils.generateFormLayout(biKey, Arrays.asList(t1Key, t2Key)).withOrientation(FormLayout.Orientation.VERTICAL).withNotification(eKey).withTheme(thKey))
-                .setNotificationRecipient(recipient);
+                .setConfirmation(ConsentContext.Confirmation.FORM_CODE);
         assertEquals(0, Validation.buildDefaultValidatorFactory().getValidator().validate(ctx).size());
 
         Response response = given().auth().basic(TEST_USER, TEST_PASSWORD).contentType(ContentType.JSON).body(ctx).when().post("/consents");
@@ -172,43 +163,39 @@ public class CollectWithEmailAndThemeTest {
         //PART 3
         //Post consent answers (enduser)
         String postUrl = txLocation.substring(0, txLocation.indexOf("?"));
-        String txid = TestUtils.extractTransactionId(postUrl);
         LOGGER.log(Level.INFO, "Post URL: " + postUrl);
         Response postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
                 .formParams(values).when().post(postUrl + "/" + action);
         String postPage = postResponse.asString();
         postResponse.then().assertThat().statusCode(200);
-        LOGGER.log(Level.INFO, "Consent Submit Response page: " + postPage);
-        assertTrue(postPage.contains("Merci"));
-        assertTrue(postPage.contains("Voir le reçu"));
+        LOGGER.log(Level.INFO, "Consent Confirmation page: " + postPage);
+
+        assertTrue(postPage.contains("Merci de bien vouloir confirmer vos choix"));
+
+        html = Jsoup.parse(postPage);
+        action = TestUtils.extractConfirmationAction(html);
+        LOGGER.log(Level.INFO, "Confirm Action: " + action);
+        values = TestUtils.readConfirmationInputs(html);
+        LOGGER.log(Level.INFO, "Confirm Values: " + values);
 
         //PART 4
-        Thread.sleep(5000);
-        LOGGER.log(Level.INFO, "Checking email");
-        assertTrue(mailbox.getTotalMessagesSent() > 0);
-        List<Mail> sent = mailbox.getMessagesSentTo(recipient);
-        assertEquals(1, sent.size());
-        assertEquals("Subject " + eKey, sent.get(0).getSubject());
-        String received = sent.get(0).getHtml();
-        LOGGER.log(Level.INFO, "Received email : " + received);
-        assertTrue(received.contains("Title " + eKey));
-        assertTrue(received.contains("Body " + eKey));
-        assertTrue(received.contains("Footer " + eKey));
-        assertTrue(received.contains("Signature " + eKey));
-        assertTrue(received.contains(publicUrl + "/consents/" + txid + "?t="));
-        assertTrue(received.contains("CSS " + thKey));
-        assertFalse(sent.get(0).getAttachments().isEmpty());
-        assertEquals("Sender " + eKey, sent.get(0).getFrom());
+        //Post consent confirmation (enduser)
+        postUrl = txLocation.substring(0, txLocation.indexOf("?"));
+        LOGGER.log(Level.INFO, "Post URL: " + postUrl);
+        postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
+                .formParams(values).when().post(postUrl + "/" + action);
+        postPage = postResponse.asString();
+        postResponse.then().assertThat().statusCode(200);
 
-        //PART 5
-        html = Jsoup.parse(received);
-        Optional<Element> notificationLink = html.select("a[href]").stream().filter(l -> l.id().equals("form-url")).findFirst();
-        if (notificationLink.isPresent()) {
-            response = given().accept(ContentType.HTML).when().get(notificationLink.get().attr("abs:href"));
-            response.then().contentType(ContentType.HTML).assertThat().statusCode(200);
-        } else {
-            fail("notificationLink link not found");
-        }
+        LOGGER.log(Level.INFO, "Consent Confirm Response page: " + postPage);
+
+        assertTrue(postPage.contains("Merci"));
+        assertTrue(postPage.contains("Voir le reçu"));
+        html = Jsoup.parse(postPage);
+        Elements receiptlinks = html.getElementsByAttributeValue("id", "receipt-link");
+        String receiptLink = receiptlinks.get(0).attr("href");
+
+        LOGGER.log(Level.INFO, "Receipt page link: " + receiptLink);
     }
 
 }

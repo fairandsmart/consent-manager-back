@@ -1,5 +1,22 @@
 package com.fairandsmart.consent.api.filter;
 
+/*-
+ * #%L
+ * Right Consents, a Universal Consents & Preferences Management Platform.
+ * %%
+ * Copyright (C) 2020 - 2021 Fair And Smart
+ * %%
+ * This file is part of Right Consents Community Edition.
+ *
+ * Right Consents Community Edition is published by FAIR AND SMART under the
+ * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
+ *
+ * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
+ * files, or see https://www.fairandsmart.com/opensource/.
+ * #L%
+ */
+
+import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.token.*;
@@ -22,6 +39,9 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
     private static final Logger LOGGER = Logger.getLogger(TokenAuthenticationFilter.class.getName());
 
     @Inject
+    SecurityConfig config;
+
+    @Inject
     AuthenticationService authenticationService;
 
     @Inject
@@ -29,18 +49,22 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-
         String token = requestContext.getUriInfo().getQueryParameters().getFirst("t");
         if (token != null) {
             LOGGER.log(Level.FINE, "Found token parameter in request: " + token);
-            if (!authenticationService.isIdentified()) {
-                LOGGER.log(Level.FINE, "User is not authentified, trying to extract authentication information from token");
+            if (config.tokenOverride() || !authenticationService.isIdentified()) {
+                LOGGER.log(Level.FINE, "Trying to extract authentication information from token");
                 try {
-                    Tokenizable tokenizeable = tokenService.readToken(token);
+                    AccessToken accessToken = tokenService.readToken(token);
                     requestContext.setSecurityContext(new SecurityContext() {
                         @Override
                         public Principal getUserPrincipal() {
-                            return tokenizeable::getSubject;
+                            return new Principal() {
+                                @Override
+                                public String getName() {
+                                    return accessToken.getSubject();
+                                }
+                            };
                         }
 
                         @Override
@@ -58,12 +82,12 @@ public class TokenAuthenticationFilter implements ContainerRequestFilter {
                             return SecurityContext.BASIC_AUTH;
                         }
                     });
-                    LOGGER.log(Level.FINE, "User is now connected with token subject: " + tokenizeable.getSubject());
+                    LOGGER.log(Level.FINE, "User is now connected with token subject: " + accessToken.getSubject());
                 } catch (TokenExpiredException | UnexpectedException | InvalidTokenException e) {
                     LOGGER.log(Level.INFO, "Unable to retrieve token: " + e.getMessage() + ", avoiding token authentication");
                 }
             } else {
-                LOGGER.log(Level.INFO, "User is already authentified as: " + authenticationService.getConnectedIdentifier());
+                LOGGER.log(Level.INFO, "User is already authenticated as: " + authenticationService.getConnectedIdentifier());
             }
         }
     }

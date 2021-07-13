@@ -16,7 +16,8 @@ package com.fairandsmart.consent.template.builder;
  * #L%
  */
 
-import com.fairandsmart.consent.manager.ConsentFormResult;
+import com.fairandsmart.consent.manager.ConsentSubmitForm;
+import com.fairandsmart.consent.manager.model.FormLayout;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateModelBuilder;
 
@@ -27,30 +28,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
-public class ConsentFormResultTemplateModelBuilder implements TemplateModelBuilder {
+public class ConsentSubmitFormTemplateModelBuilder implements TemplateModelBuilder {
 
-    private static final Logger LOGGER = Logger.getLogger(ConsentFormResultTemplateModelBuilder.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConsentSubmitFormTemplateModelBuilder.class.getName());
 
     @Override
     public boolean canBuild(Object data) {
-        return data instanceof ConsentFormResult;
+        return data instanceof ConsentSubmitForm;
     }
 
     @Override
-    public TemplateModel<ConsentFormResult> build(Object data) {
-        ConsentFormResult consentSubmissionData = (ConsentFormResult) data;
-
-        TemplateModel<ConsentFormResult> model = new TemplateModel<>();
-        model.setLanguage(consentSubmissionData.getContext().getLanguage());
+    public TemplateModel build(Object data) {
+        ConsentSubmitForm form = (ConsentSubmitForm) data;
+        TemplateModel<ConsentSubmitForm> model = new TemplateModel<>();
+        model.setLanguage(form.getLanguage());
         ResourceBundle bundle = ResourceBundle.getBundle("freemarker/bundles/consent", Locale.forLanguageTag(model.getLanguage()));
         model.setBundle(bundle);
+        model.setData(form);
 
-        model.setData(consentSubmissionData);
-        model.setTemplate("consent-form-result.ftl");
+        String orientation = form.getOrientation().equals(FormLayout.Orientation.HORIZONTAL) ? "horizontal" : "vertical";
+        model.setTemplate("form-" + orientation + ".ftl");
 
         LOGGER.log(Level.FINEST, model.toString());
         return model;
     }
-
 }
-

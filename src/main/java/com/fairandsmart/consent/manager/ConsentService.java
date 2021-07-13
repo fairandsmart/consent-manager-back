@@ -18,7 +18,10 @@ package com.fairandsmart.consent.manager;
 
 import com.fairandsmart.consent.api.dto.CollectionPage;
 import com.fairandsmart.consent.api.dto.PreviewDto;
-import com.fairandsmart.consent.common.exception.*;
+import com.fairandsmart.consent.common.exception.AccessDeniedException;
+import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
+import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.manager.entity.*;
 import com.fairandsmart.consent.manager.exception.*;
 import com.fairandsmart.consent.manager.filter.ModelFilter;
@@ -26,8 +29,6 @@ import com.fairandsmart.consent.manager.filter.RecordFilter;
 import com.fairandsmart.consent.manager.render.ReceiptRendererNotFoundException;
 import com.fairandsmart.consent.manager.render.RenderingException;
 import com.fairandsmart.consent.manager.store.ReceiptNotFoundException;
-import com.fairandsmart.consent.token.InvalidTokenException;
-import com.fairandsmart.consent.token.TokenExpiredException;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
@@ -81,13 +82,31 @@ public interface ConsentService {
 
     void deleteVersion(String versionId) throws UnexpectedException, EntityNotFoundException, AccessDeniedException;
 
-    /* Forms */
+    /* Transactions */
 
-    String buildFormToken(ConsentContext ctx) throws AccessDeniedException;
+    Transaction createTransaction(ConsentContext ctx) throws AccessDeniedException, ConsentContextSerializationException;
 
-    ConsentForm generateForm(String token) throws TokenExpiredException, InvalidTokenException, UnexpectedException, GenerateFormException;
+    Transaction getTransaction(String txId) throws AccessDeniedException, EntityNotFoundException;
 
-    ConsentReceipt submitConsent(String token, MultivaluedMap<String, String> values) throws InvalidTokenException, TokenExpiredException, UnexpectedException, SubmitConsentException;
+    boolean isTransactionExists(String txId);
+
+    List<Transaction> listTransactions() throws AccessDeniedException;
+
+    long countTransactions(long from, long to) throws AccessDeniedException;
+
+    ConsentSubmitForm getConsentForm(String txId) throws GenerateFormException, UnexpectedException, AccessDeniedException, EntityNotFoundException;
+
+    void submitConsentValues(String txId, MultivaluedMap<String, String> values) throws UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException;
+
+    ConsentConfirmForm getConfirmationForm(String txId) throws UnexpectedException, GenerateFormException, AccessDeniedException, EntityNotFoundException;
+
+    void submitConfirmationValues(String txId, MultivaluedMap<String, String> values) throws UnexpectedException, SubmitConsentException, AccessDeniedException, EntityNotFoundException, ConfirmationException;
+
+    Transaction breedTransaction(String txId) throws AccessDeniedException, ConsentContextSerializationException, EntityNotFoundException;
+
+    /* Preview */
+
+    ConsentSubmitForm getConsentFormPreview(ConsentContext ctx) throws GenerateFormException, UnexpectedException, AccessDeniedException, EntityNotFoundException;
 
     /* Records */
 
@@ -96,14 +115,6 @@ public interface ConsentService {
     Map<String, Record> systemListValidRecords(String subject, String infoKey, List<String> elementsKeys) throws AccessDeniedException;
 
     Map<Subject, Record> extractRecords(String key, String value, boolean regexpValue) throws AccessDeniedException, EntityNotFoundException;
-
-    /* Transactions */
-
-    Record.State getTransactionState(String transaction);
-
-    boolean isTransactionExists(String transaction);
-
-    long countTransactionsCreatedBetween(long from, long to);
 
     /* Subjects */
 
@@ -115,13 +126,9 @@ public interface ConsentService {
 
     Subject updateSubject(String id, String email) throws AccessDeniedException, EntityNotFoundException;
 
-    String buildSubjectToken(SubjectContext ctx) throws AccessDeniedException;
-
     /* Receipts */
 
     ConsentReceipt getReceipt(String id) throws ReceiptNotFoundException, UnexpectedException, AccessDeniedException;
-
-    String buildReceiptToken(ReceiptContext ctx) throws AccessDeniedException, UnexpectedException, ReceiptNotFoundException;
 
     byte[] renderReceipt(String id, String format, String themeKey) throws ReceiptNotFoundException, UnexpectedException, ReceiptRendererNotFoundException, RenderingException, EntityNotFoundException, ModelDataSerializationException, AccessDeniedException;
 

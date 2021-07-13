@@ -7,10 +7,10 @@ package com.fairandsmart.consent.manager.model;
  * Copyright (C) 2020 - 2021 Fair And Smart
  * %%
  * This file is part of Right Consents Community Edition.
- * 
+ *
  * Right Consents Community Edition is published by FAIR AND SMART under the
  * GNU GENERAL PUBLIC LICENCE Version 3 (GPLv3) and a set of additional terms.
- * 
+ *
  * For more information, please see the “LICENSE” and “LICENSE.FAIRANDSMART”
  * files, or see https://www.fairandsmart.com/opensource/.
  * #L%
@@ -20,8 +20,8 @@ import com.fairandsmart.consent.manager.entity.ModelData;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class Preference extends ModelData {
 
@@ -37,6 +37,8 @@ public class Preference extends ModelData {
 
     public Preference() {
         this.setType(TYPE);
+        this.options = new ArrayList<>();
+        this.defaultValues = new ArrayList<>();
     }
 
     public String getLabel() {
@@ -140,6 +142,27 @@ public class Preference extends ModelData {
     }
 
     @Override
+    public Pattern allowedValuesPattern() {
+        String pattern;
+        switch (valueType) {
+            case TOGGLE:
+            case RADIO_BUTTONS:
+            case LIST_SINGLE:
+                pattern = "^" + String.join("|", options) + "$";
+                break;
+            case CHECKBOXES:
+            case LIST_MULTI:
+                String choices = String.join("|", options);
+                pattern = "^((" + choices + "),)*(" + choices + ")?$";
+                break;
+            case FREE_TEXT:
+            default:
+                pattern = "^.*$";
+        }
+        return Pattern.compile(pattern);
+    }
+
+    @Override
     public String extractDataMimeType() {
         return MediaType.APPLICATION_JSON;
     }
@@ -154,13 +177,7 @@ public class Preference extends ModelData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Preference that = (Preference) o;
-        return includeDefault == that.includeDefault &&
-                optional == that.optional &&
-                Objects.equals(label, that.label) &&
-                Objects.equals(description, that.description) &&
-                Objects.equals(options, that.options) &&
-                valueType == that.valueType &&
-                Objects.equals(defaultValues, that.defaultValues);
+        return includeDefault == that.includeDefault && optional == that.optional && Objects.equals(label, that.label) && Objects.equals(description, that.description) && Objects.equals(options, that.options) && valueType == that.valueType && Objects.equals(defaultValues, that.defaultValues);
     }
 
     @Override
