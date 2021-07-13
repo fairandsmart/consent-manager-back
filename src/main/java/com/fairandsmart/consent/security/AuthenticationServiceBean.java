@@ -54,7 +54,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
 
     @Override
     public void ensureIsIdentified() throws AccessDeniedException {
-        if (!getConnectedIdentifier().equals(securityConfig.anonymousIdentifierName())) {
+        if (isIdentified()) {
             return;
         }
         throw new AccessDeniedException("Caller is not identified");
@@ -66,7 +66,6 @@ public class AuthenticationServiceBean implements AuthenticationService {
         LOGGER.log(Level.FINEST, "Connected Identifier: {0}", connectedIdentifier);
         return connectedIdentifier;
     }
-
 
     @Override
     public boolean isConnectedIdentifierAdmin() {
