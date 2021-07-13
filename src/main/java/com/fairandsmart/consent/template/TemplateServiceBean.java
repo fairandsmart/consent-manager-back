@@ -17,6 +17,7 @@ package com.fairandsmart.consent.template;
  */
 
 import com.fairandsmart.consent.api.writer.TemplateBodyWriter;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -54,7 +55,7 @@ public class TemplateServiceBean implements TemplateService {
     }
 
     @Override
-    public String render(TemplateModel model) throws TemplateServiceException {
+    public String render(TemplateModel model) throws UnexpectedException {
         LOGGER.log(Level.FINE, "Rendering model: " + model);
         try {
             Template template = cfg.getTemplate(model.getTemplate());
@@ -62,29 +63,29 @@ public class TemplateServiceBean implements TemplateService {
             template.process(model, writer);
             return writer.toString();
         } catch (IOException | TemplateException e ) {
-            throw new TemplateServiceException("Unable to apply template", e);
+            throw new UnexpectedException("Unable to apply template", e);
         }
     }
 
     @Override
-    public void render(TemplateModel model, OutputStream output) throws TemplateServiceException {
+    public void render(TemplateModel model, OutputStream output) throws UnexpectedException {
         LOGGER.log(Level.FINE, "Rendering model: " + model);
         try {
             Template template = cfg.getTemplate(model.getTemplate());
             Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
             template.process(model, writer);
         } catch (IOException | TemplateException e ) {
-            throw new TemplateServiceException("Unable to apply template", e);
+            throw new UnexpectedException("Unable to apply template", e);
         }
     }
 
     @Override
-    public <T> TemplateModel<T> buildModel(T data) throws TemplateServiceException {
+    public <T> TemplateModel<T> buildModel(T data) throws UnexpectedException {
         Optional<TemplateModel<T>> model = builders.stream().filter(b -> b.canBuild(data)).findFirst().map(b -> b.build(data));
         if (model.isPresent()) {
             return model.get();
         }
-        throw new TemplateServiceException("Unable to find a builder for data of class " + data.getClass().getName());
+        throw new UnexpectedException("Unable to find a builder for data of class " + data.getClass().getName());
     }
 
 }

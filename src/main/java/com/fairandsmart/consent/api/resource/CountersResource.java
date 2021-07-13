@@ -17,18 +17,16 @@ package com.fairandsmart.consent.api.resource;
  */
 
 import com.fairandsmart.consent.api.dto.CounterDto;
+import com.fairandsmart.consent.common.exception.AccessDeniedException;
 import com.fairandsmart.consent.manager.ConsentService;
-import io.smallrye.common.constraint.NotNull;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.validation.constraints.NotEmpty;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,13 +46,12 @@ public class CountersResource {
     @APIResponse(responseCode = "200", description = "Transaction counter")
     @Operation(summary = "Get the Transaction count between timestamp interval")
     public CounterDto getTransactionCounter(
-            @Parameter(description = "timestamp when to start counting") @QueryParam("from") @NotNull long from,
-            @Parameter(description = "timestamp when to stop counting") @QueryParam("to") @NotNull long to
-            ) {
+            @Parameter(description = "timestamp when to start counting") @QueryParam("from") @DefaultValue("0") long from,
+            @Parameter(description = "timestamp when to stop counting") @QueryParam("to") @NotEmpty long to
+            ) throws AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /counters/transaction");
-        long value = consentService.countTransactionsCreatedBetween(from, to);
-        CounterDto dto = new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
-        return dto;
+        long value = consentService.countTransactions(from, to);
+        return new CounterDto().withFromTimestamp(from).withToTimestamp(to).withValue(value);
     }
 
 }

@@ -16,7 +16,6 @@ package com.fairandsmart.consent.common.validation;
  * #L%
  */
 
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import javax.validation.constraints.Pattern;

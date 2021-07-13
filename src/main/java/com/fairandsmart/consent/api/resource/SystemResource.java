@@ -20,13 +20,11 @@ import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.config.ClientConfig;
 import com.fairandsmart.consent.common.config.SecurityConfig;
 import com.fairandsmart.consent.common.validation.SortDirection;
-import com.fairandsmart.consent.manager.ConsentService;
 import com.fairandsmart.consent.notification.NotificationService;
 import com.fairandsmart.consent.notification.entity.Event;
 import com.fairandsmart.consent.notification.filter.EventFilter;
-import com.fairandsmart.consent.security.AuthenticationService;
 import com.fairandsmart.consent.support.SupportService;
-import com.fairandsmart.consent.support.SupportServiceException;
+import com.fairandsmart.consent.support.SupportUnreachableException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -49,9 +47,6 @@ public class SystemResource {
     private static final Logger LOGGER = Logger.getLogger(SystemResource.class.getName());
 
     @Inject
-    AuthenticationService authenticationService;
-
-    @Inject
     SupportService supportService;
 
     @Inject
@@ -64,28 +59,13 @@ public class SystemResource {
     SecurityConfig securityConfig;
 
     @GET
-    @Path("/users/me")
-    @Produces(MediaType.APPLICATION_JSON)
-    @APIResponse(responseCode = "200", description = "Information for the connected user")
-    @Operation(summary = "Get the connected user information")
-    public UserDto me() {
-        LOGGER.log(Level.INFO, "GET /system/users/me");
-        UserDto user = new UserDto();
-        user.setUsername(authenticationService.getConnectedIdentifier());
-        user.setAdmin(authenticationService.isConnectedIdentifierAdmin());
-        user.setOperator(authenticationService.isConnectedIdentifierOperator());
-        user.setRoles(authenticationService.listConnectedIdentifierRoles());
-        return user;
-    }
-
-    @GET
     @Path("/support/infos")
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
             @APIResponse(responseCode = "204", description = "Support service is disabled"),
             @APIResponse(responseCode = "200", description = "Support service information")})
     @Operation(summary = "Get available service information (for now, only latest version is operational)")
-    public SupportInfoDto supportInfos() throws SupportServiceException {
+    public SupportInfoDto supportInfos() throws SupportUnreachableException {
         LOGGER.log(Level.INFO, "GET /system/support/infos");
         SupportInfoDto dto = new SupportInfoDto();
         dto.setStatus(supportService.getSupportStatus());

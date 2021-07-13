@@ -134,15 +134,16 @@ public class ApiError {
         RENDERER_NOT_FOUND(HttpStatus.SC_NOT_FOUND, "renderer-not-found", "Renderer Not Found"),
 
         SUPPORT_SERVICE_ERROR(HttpStatus.SC_NO_CONTENT, "support-error", "Unable to contact support service"),
+        CONFIRMATION_ERROR(HttpStatus.SC_BAD_REQUEST, "confirmation-error", "Unable to confirm consent submission"),
 
-        MODEL_DATA_SERIALIZATION_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Data Serialization Error"),
-        RENDERER_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Renderer Error"),
-        TOKEN_SERVICE_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Token Exception"),
-        UNEXPECTED_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Consent Exception");
+        MODEL_DATA_SERIALIZATION_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "serialization-error", "Unexpected Data Serialization Error"),
+        CONSENT_CONTEXT_SERIALIZATION_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "serialization-error", "Unexpected Consent Context Serialization Error"),
+        RENDERER_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "renderer-error", "Unexpected Renderer Error"),
+        UNEXPECTED_ERROR(HttpStatus.SC_INTERNAL_SERVER_ERROR, "unexpected-error", "Unexpected Error");
 
-        private int status;
-        private String type;
-        private String title;
+        private final int status;
+        private final String type;
+        private final String title;
 
         Type(int status, String type, String title) {
             this.status = status;

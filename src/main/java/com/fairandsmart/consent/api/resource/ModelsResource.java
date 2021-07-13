@@ -19,9 +19,9 @@ package com.fairandsmart.consent.api.resource;
 import com.fairandsmart.consent.api.dto.*;
 import com.fairandsmart.consent.common.consts.Placeholders;
 import com.fairandsmart.consent.common.exception.AccessDeniedException;
-import com.fairandsmart.consent.common.exception.ConsentManagerException;
 import com.fairandsmart.consent.common.exception.EntityAlreadyExistsException;
 import com.fairandsmart.consent.common.exception.EntityNotFoundException;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
 import com.fairandsmart.consent.common.validation.SortDirection;
 import com.fairandsmart.consent.common.validation.UUID;
 import com.fairandsmart.consent.manager.ConsentService;
@@ -33,7 +33,6 @@ import com.fairandsmart.consent.manager.exception.ModelDataSerializationExceptio
 import com.fairandsmart.consent.manager.filter.ModelFilter;
 import com.fairandsmart.consent.template.TemplateModel;
 import com.fairandsmart.consent.template.TemplateService;
-import com.fairandsmart.consent.template.TemplateServiceException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -82,7 +81,7 @@ public class ModelsResource {
             @Parameter(description = "languages to query") @QueryParam("languages") List<String> languages,
             @Parameter(description = "offset to apply", deprecated = true) @QueryParam("offset") @DefaultValue("-1") int offset,
             @Parameter(description = "page limit", deprecated = true) @QueryParam("limit") @DefaultValue("0") int limit
-            ) throws ConsentManagerException, ModelDataSerializationException {
+            ) throws UnexpectedException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models");
         ModelFilter filter = new ModelFilter();
         filter.setPage(page);
@@ -124,7 +123,7 @@ public class ModelsResource {
     @Operation(summary = "Create model")
     public ModelEntryDto createEntry(
             @Parameter(description = "the model payload") @Valid ModelEntryDto dto
-    ) throws EntityAlreadyExistsException, ConsentManagerException, ModelDataSerializationException {
+    ) throws EntityAlreadyExistsException, UnexpectedException, ModelDataSerializationException, AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /models");
         ModelEntry entry = consentService.createEntry(dto.getKey(), dto.getName(), dto.getDescription(), dto.getType());
         return transformEntryToDto(entry);
@@ -142,7 +141,7 @@ public class ModelsResource {
     @Operation(summary = "Get model")
     public ModelEntryDto getEntry(
             @Parameter(description = "the model ID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id
-    ) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
+    ) throws EntityNotFoundException, UnexpectedException, ModelDataSerializationException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /models/{0}", id);
         ModelEntry entry = consentService.getEntry(id);
         return transformEntryToDto(entry);
@@ -163,7 +162,7 @@ public class ModelsResource {
     public ModelEntryDto updateEntry(
             @Parameter(description = "the model ID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             ModelEntryDto dto
-    ) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
+    ) throws EntityNotFoundException, UnexpectedException, ModelDataSerializationException, AccessDeniedException {
         LOGGER.log(Level.INFO, "PUT /models/{0}", id);
         ModelEntry entry = consentService.updateEntry(id, dto.getName(), dto.getDescription());
         return transformEntryToDto(entry);
@@ -182,7 +181,7 @@ public class ModelsResource {
     @Operation(summary = "Delete model")
     public void deleteEntry(
             @Parameter(description = "the model ID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id
-    ) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException {
+    ) throws EntityNotFoundException, UnexpectedException, InvalidStatusException, AccessDeniedException {
         LOGGER.log(Level.INFO, "DELETE /models/{0}", id);
         consentService.deleteEntry(id);
     }
@@ -197,7 +196,7 @@ public class ModelsResource {
     @Operation(summary = "Get all versions for a given model")
     public List<ModelVersionDtoLight> listVersions(
             @Parameter(description = "the model ID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id
-    ) throws ConsentManagerException, ModelDataSerializationException {
+    ) throws UnexpectedException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "GET /models/{0}/versions", id);
         List<ModelVersionDtoLight> dto = new ArrayList<>();
         for (ModelVersion version : consentService.getVersionHistoryForEntry(id)) {
@@ -220,7 +219,7 @@ public class ModelsResource {
     public ModelVersionDto createVersion(
             @Parameter(description = "the model ID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Parameter(description = "the version payload") @Valid ModelVersionDto dto
-    ) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
+    ) throws EntityNotFoundException, UnexpectedException, ModelDataSerializationException, AccessDeniedException {
         LOGGER.log(Level.INFO, "POST /models/{0}/versions", id);
         ModelVersion version = consentService.createVersion(id, dto.getDefaultLanguage(), dto.getData());
         return ModelVersionDto.fromModelVersion(version);
@@ -300,7 +299,7 @@ public class ModelsResource {
             @Parameter(description = "the requested model UUID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Parameter(description = "the requested version UUID", example = Placeholders.NIL_UUID) @PathParam("vid") @Valid @UUID String vid,
             @Valid ModelVersionDto dto
-    ) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
+    ) throws EntityNotFoundException, UnexpectedException, ModelDataSerializationException, AccessDeniedException {
         LOGGER.log(Level.INFO, "PUT /models/{0}/versions/{1}", new Object[]{id, vid});
         ModelVersion version = consentService.updateVersion(vid, dto.getDefaultLanguage(), dto.getData());
         if (!version.entry.id.equals(id)) {
@@ -325,7 +324,7 @@ public class ModelsResource {
             @Parameter(description = "the requested model UUID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Parameter(description = "the requested version UUID", example = Placeholders.NIL_UUID) @PathParam("vid") @Valid @UUID String vid,
             @Valid ModelVersionStatusDto dto
-    ) throws EntityNotFoundException, ConsentManagerException, InvalidStatusException, ModelDataSerializationException {
+    ) throws EntityNotFoundException, UnexpectedException, InvalidStatusException, ModelDataSerializationException, AccessDeniedException {
         LOGGER.log(Level.INFO, "PUT /models/{0}/versions/{1}/status", new Object[]{id, vid});
         ModelVersion version = consentService.updateVersionStatus(vid, dto.getStatus());
         if (!version.entry.id.equals(id)) {
@@ -350,7 +349,7 @@ public class ModelsResource {
             @Parameter(description = "the requested model UUID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Parameter(description = "the requested version UUID", example = Placeholders.NIL_UUID) @PathParam("vid") @Valid @UUID String vid,
             @Valid ModelVersionTypeDto dto
-    ) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException {
+    ) throws EntityNotFoundException, UnexpectedException, ModelDataSerializationException, AccessDeniedException {
         LOGGER.log(Level.INFO, "PUT /models/{0}/versions/{1}/type", new Object[]{id, vid});
         ModelVersion version = consentService.updateVersionType(vid, dto.getType());
         return ModelVersionDto.fromModelVersion(version);
@@ -370,7 +369,7 @@ public class ModelsResource {
             @Parameter(description = "the requested model UUID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Parameter(description = "the requested version UUID", example = Placeholders.NIL_UUID) @PathParam("vid") @Valid @UUID String vid,
             PreviewDto dto
-    ) throws TemplateServiceException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
+    ) throws UnexpectedException, AccessDeniedException, EntityNotFoundException, ModelDataSerializationException {
         LOGGER.log(Level.INFO, "POST /models/{0}/versions/{1}/preview", new Object[]{id, vid});
         return templateService.buildModel(consentService.previewVersion(id, vid, dto));
     }
@@ -389,7 +388,7 @@ public class ModelsResource {
     public void deleteVersion(
             @Parameter(description = "the requested model UUID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Parameter(description = "the requested version UUID", example = Placeholders.NIL_UUID) @PathParam("vid") @Valid @UUID String vid
-    ) throws EntityNotFoundException, ConsentManagerException {
+    ) throws EntityNotFoundException, UnexpectedException, AccessDeniedException {
         LOGGER.log(Level.INFO, "DELETE /models/{0}/versions/{1}", new Object[]{id, vid});
         ModelVersion version = consentService.getVersion(vid);
         if (!version.entry.id.equals(id)) {
@@ -410,7 +409,7 @@ public class ModelsResource {
             @Parameter(description = "the requested model UUID", example = Placeholders.NIL_UUID) @PathParam("id") @Valid @UUID String id,
             @Parameter(description = "the requested version UUID", example = Placeholders.NIL_UUID) @PathParam("vid") @Valid @UUID String vid,
             @Parameter(description = "the locale to get data for", example = "fr") @QueryParam("locale") String locale
-    ) throws EntityNotFoundException, ConsentManagerException, ModelDataSerializationException, IOException {
+    ) throws EntityNotFoundException, ModelDataSerializationException, IOException, AccessDeniedException {
         LOGGER.log(Level.INFO, "GET /models/{0}/versions/{1}/data", new Object[]{id, vid});
         ModelVersion version = consentService.getVersion(vid);
         if (!version.entry.id.equals(id)) {
@@ -441,7 +440,7 @@ public class ModelsResource {
         return Response.ok(data.toMimeContent(), data.extractDataMimeType()).build();
     }
 
-    private ModelEntryDto transformEntryToDto(ModelEntry entry) throws ConsentManagerException, ModelDataSerializationException {
+    private ModelEntryDto transformEntryToDto(ModelEntry entry) throws UnexpectedException, ModelDataSerializationException {
         List<ModelVersion> versions = consentService.getVersionHistoryForEntry(entry.id);
         return ModelEntryDto.fromModelEntry(entry, versions);
     }

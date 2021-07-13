@@ -16,69 +16,119 @@ package com.fairandsmart.consent.manager;
  * #L%
  */
 
-import com.fairandsmart.consent.common.consts.Placeholders;
-import com.fairandsmart.consent.token.Tokenizable;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import com.fairandsmart.consent.manager.entity.Transaction;
+import com.fairandsmart.consent.manager.exception.ConsentContextSerializationException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URI;
 
-@Schema(description = "Represents a consent transaction")
-public class ConsentTransaction implements Tokenizable {
+public class ConsentTransaction {
 
-    @Schema(description = "the transaction id", example = Placeholders.NIL_UUID)
-    private String transaction;
+    private String id;
+    private String subject;
+    private String state;
+    private ConsentContext context;
+    private String token;
+    private URI task;
+    private URI receipt;
+    private URI breed;
+    private URI cpp;
 
     public ConsentTransaction() {
     }
 
-    public ConsentTransaction(String transaction) {
-        this.transaction = transaction;
+    public String getId() {
+        return id;
     }
 
-    @Override
-    @Schema(hidden = true) // else appears on the generated OpenAPI object
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getSubject() {
-        return transaction;
+        return subject;
     }
 
-    @Override
-    public Tokenizable setSubject(String subject) {
-        this.transaction = subject;
-        return this;
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
-    public String getTransaction() {
-        return transaction;
+    public String getState() {
+        return state;
     }
 
-    public ConsentTransaction setTransaction(String transaction) {
-        this.transaction = transaction;
-        return this;
+    public void setState(String state) {
+        this.state = state;
     }
 
-    @Override
-    @Schema(hidden = true) // else appears on the generated OpenAPI object
-    public Map<String, String> getClaims() {
-        Map<String, String> claims = new HashMap<>();
-        if (transaction != null) {
-            claims.put("transaction", this.getTransaction());
-        }
-        return claims;
+    public ConsentContext getContext() {
+        return context;
     }
 
-    @Override
-    public Tokenizable setClaims(Map<String, String> claims) {
-        if (claims.containsKey("transaction")) {
-            this.setTransaction(claims.get("transaction"));
-        }
-        return this;
+    public void setContext(ConsentContext context) {
+        this.context = context;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public URI getTask() {
+        return task;
+    }
+
+    public void setTask(URI formURI) {
+        this.task = formURI;
+    }
+
+    public URI getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(URI receipt) {
+        this.receipt = receipt;
+    }
+
+    public URI getBreed() {
+        return breed;
+    }
+
+    public void setBreed(URI breed) {
+        this.breed = breed;
+    }
+
+    public URI getCpp() {
+        return cpp;
+    }
+
+    public void setCpp(URI cpp) {
+        this.cpp = cpp;
+    }
+
+    public static ConsentTransaction fromTransaction(Transaction tx) throws ConsentContextSerializationException {
+        ConsentTransaction dto = new ConsentTransaction();
+        dto.setId(tx.id);
+        dto.setSubject(tx.subject);
+        dto.setState(tx.state.toString().toLowerCase());
+        dto.setContext(tx.getConsentContext());
+        return dto;
     }
 
     @Override
     public String toString() {
         return "ConsentTransaction{" +
-                "transaction='" + transaction + '\'' +
+                "id='" + id + '\'' +
+                ", subject='" + subject + '\'' +
+                ", state='" + state + '\'' +
+                ", context=" + context +
+                ", token='" + token + '\'' +
+                ", task=" + task +
+                ", receipt=" + receipt +
+                ", breed=" + breed +
+                ", cpp=" + cpp +
                 '}';
     }
 }

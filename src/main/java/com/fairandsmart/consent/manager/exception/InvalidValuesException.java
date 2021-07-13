@@ -16,13 +16,18 @@ package com.fairandsmart.consent.manager.exception;
  * #L%
  */
 
-public class InvalidValuesException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.GenericException;
+
+public class InvalidValuesException extends GenericException {
+
+    public static final String KEY = "invalidValues";
 
     private String expected;
     private String found;
 
     public InvalidValuesException(String message, String expected, String found) {
-        super(message);
+        super(message.concat(" (expected: ").concat(expected).concat(", found: ").concat(found).concat(")"));
         this.expected = expected;
         this.found = found;
     }
@@ -46,4 +51,15 @@ public class InvalidValuesException extends Exception {
     public void setFound(String found) {
         this.found = found;
     }
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.UNEXPECTED_ERROR;
+    }
+
 }

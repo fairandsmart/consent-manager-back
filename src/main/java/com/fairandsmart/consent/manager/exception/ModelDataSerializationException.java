@@ -16,7 +16,12 @@ package com.fairandsmart.consent.manager.exception;
  * #L%
  */
 
-public class ModelDataSerializationException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+import com.fairandsmart.consent.common.exception.GenericException;
+
+public class ModelDataSerializationException extends GenericException {
+
+    public static final String KEY = "serializationError";
 
     public ModelDataSerializationException(String s) {
         super(s);
@@ -24,6 +29,16 @@ public class ModelDataSerializationException extends Exception {
 
     public ModelDataSerializationException(String s, Throwable throwable) {
         super(s, throwable);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.MODEL_DATA_SERIALIZATION_ERROR;
     }
 
 }

@@ -39,6 +39,11 @@
 
     /* Switches */
 
+    .switch-wrapper {
+        display: flex;
+        justify-content: center;
+    }
+
     .switch {
         position: relative;
         display: inline-block;
@@ -47,7 +52,7 @@
         margin: 0 0 20px 12px;
     }
 
-    .switch input {
+    .switch-wrapper input {
         opacity: 0;
         width: 0;
         height: 0;
@@ -94,11 +99,15 @@
         transform: translateX(24px);
     }
 
+    .switch-text {
+        text-align: center;
+        width: 48px;
+        color: black;
+    }
+
     .switch .switch-text {
         margin-top: 8px;
-        text-align: center;
         font-size: small;
-        width: 48px;
     }
 
     .switch .switch-text.accept {
@@ -121,5 +130,14 @@
 
     .switch .switch-select {
         display: none;
+    }
+
+    .switch-inline {
+        text-align: center;
+        max-width: 64px;
+    }
+
+    .switch-inline.accept {
+        margin-left: 12px;
     }
 </style>

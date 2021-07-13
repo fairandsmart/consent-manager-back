@@ -16,10 +16,24 @@ package com.fairandsmart.consent.common.exception;
  * #L%
  */
 
-public class EntityAlreadyExistsException extends Exception {
+import com.fairandsmart.consent.api.error.ApiError;
+
+public class EntityAlreadyExistsException extends GenericException {
+
+    public static final String KEY = "entityAlreadyExists";
 
     public EntityAlreadyExistsException(String message) {
         super(message);
+    }
+
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public ApiError.Type getType() {
+        return ApiError.Type.ENTITY_ALREADY_EXISTS;
     }
 
 }

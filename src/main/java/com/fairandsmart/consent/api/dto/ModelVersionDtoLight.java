@@ -50,6 +50,7 @@ public class ModelVersionDtoLight{
     private long creationDate;
     @Schema(description = "the version last modification date (epoch in millisec)", readOnly = true, example = Placeholders.TS_2021_01_01)
     private long modificationDate;
+    @Schema(readOnly = true)
     private String identifier;
 
     public ModelVersionDtoLight() {

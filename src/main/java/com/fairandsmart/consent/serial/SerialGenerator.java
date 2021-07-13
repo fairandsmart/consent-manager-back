@@ -16,6 +16,8 @@ package com.fairandsmart.consent.serial;
  * #L%
  */
 
+import com.fairandsmart.consent.common.exception.UnexpectedException;
+
 /**
  * Ensure thread safe and fast serial number generation :
  * - locked singleton
@@ -31,7 +33,7 @@ package com.fairandsmart.consent.serial;
 
 public interface SerialGenerator {
 
-    String next(String name) throws SerialGeneratorException;
+    String next(String name) throws UnexpectedException;
 
     long extract(String serial);
 

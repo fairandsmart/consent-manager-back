@@ -1,7 +1,8 @@
 package com.fairandsmart.consent.manager.store;
 
 import com.fairandsmart.consent.common.config.MainConfig;
-import com.fairandsmart.consent.manager.model.Receipt;
+import com.fairandsmart.consent.common.exception.UnexpectedException;
+import com.fairandsmart.consent.manager.ConsentReceipt;
 import com.fairandsmart.quarkus.extension.timestamp.TimestampException;
 import com.fairandsmart.quarkus.extension.timestamp.TimestampService;
 import io.quarkus.arc.AlternativePriority;
@@ -68,7 +69,7 @@ public class TimestampedReceiptStore implements ReceiptStore {
         try {
             tf = TransformerFactory.newInstance();
             dbf = DocumentBuilderFactory.newInstance();
-            ctx = JAXBContext.newInstance(Receipt.class);
+            ctx = JAXBContext.newInstance(ConsentReceipt.class);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "unable to initialize receipt store", e);
         }
@@ -82,7 +83,7 @@ public class TimestampedReceiptStore implements ReceiptStore {
     }
 
     @Override
-    public long size(String id) throws ReceiptStoreException, ReceiptNotFoundException {
+    public long size(String id) throws UnexpectedException, ReceiptNotFoundException {
         LOGGER.log(Level.FINE, "Getting size fo receipt with id: " + id);
         Path file = Paths.get(base.toString(), id);
         if ( !Files.exists(file) ) {
@@ -91,12 +92,12 @@ public class TimestampedReceiptStore implements ReceiptStore {
         try {
             return Files.size(file);
         } catch (IOException e) {
-            throw new ReceiptStoreException("unexpected error during stream size", e);
+            throw new UnexpectedException("unexpected error during stream size", e);
         }
     }
 
     @Override
-    public void put(Receipt receipt) throws ReceiptStoreException, ReceiptAlreadyExistsException {
+    public void put(ConsentReceipt receipt) throws UnexpectedException, ReceiptAlreadyExistsException {
         Path file = Paths.get(base.toString(), receipt.getTransaction());
         if ( Files.exists(file) ) {
             throw new ReceiptAlreadyExistsException("unable to create file, id already exists");
@@ -116,13 +117,13 @@ public class TimestampedReceiptStore implements ReceiptStore {
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             transformer.transform(source, result);
         } catch (IOException | JAXBException | ParserConfigurationException | TransformerException | TimestampException e) {
-            throw new ReceiptStoreException("unexpected error during storing receipt", e);
+            throw new UnexpectedException("unexpected error during storing receipt", e);
         }
         LOGGER.log(Level.FINE, "New receipt stored with key: " + receipt.getTransaction());
     }
 
     @Override
-    public Receipt get(String id) throws ReceiptStoreException, ReceiptNotFoundException {
+    public ConsentReceipt get(String id) throws UnexpectedException, ReceiptNotFoundException {
         LOGGER.log(Level.FINE, "Getting receipt with id: " + id);
         Path file = Paths.get(base.toString(), id);
         if ( !Files.exists(file) ) {
@@ -130,14 +131,14 @@ public class TimestampedReceiptStore implements ReceiptStore {
         }
         try {
             Unmarshaller unmarshaller = ctx.createUnmarshaller();
-            return (Receipt) unmarshaller.unmarshal(Files.newInputStream(file, StandardOpenOption.READ));
+            return (ConsentReceipt) unmarshaller.unmarshal(Files.newInputStream(file, StandardOpenOption.READ));
         } catch (IOException | JAXBException e) {
-            throw new ReceiptStoreException("unexpected error while opening stream", e);
+            throw new UnexpectedException("unexpected error while opening stream", e);
         }
     }
 
     @Override
-    public void delete(String id) throws ReceiptStoreException, ReceiptNotFoundException {
+    public void delete(String id) throws UnexpectedException, ReceiptNotFoundException {
         LOGGER.log(Level.FINE, "Deleting receipt with id: " + id);
         Path file = Paths.get(base.toString(), id);
         if ( !Files.exists(file) ) {
@@ -146,7 +147,7 @@ public class TimestampedReceiptStore implements ReceiptStore {
         try {
             Files.delete(file);
         } catch (IOException e) {
-            throw new ReceiptStoreException("unexpected error while deleting receipt", e);
+            throw new UnexpectedException("unexpected error while deleting receipt", e);
         }
     }
 }
