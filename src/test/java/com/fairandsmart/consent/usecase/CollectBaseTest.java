@@ -247,7 +247,7 @@ public class CollectBaseTest {
 
         //PART 5
         //Post consent answers (enduser)
-        postUrl = newTxLocation.substring(0, txLocation.indexOf("?"));
+        postUrl = newTxLocation.substring(0, newTxLocation.indexOf("?"));
         LOGGER.log(Level.INFO, "Post URL: " + postUrl);
         postResponse = given().accept(ContentType.HTML).contentType(ContentType.URLENC)
                 .formParams(values).when().post(postUrl + "/" + action);
