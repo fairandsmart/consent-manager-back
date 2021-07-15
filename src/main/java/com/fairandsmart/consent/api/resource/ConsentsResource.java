@@ -78,7 +78,7 @@ public class ConsentsResource {
         Transaction tx = consentService.createTransaction(ctx);
         String token = tokenService.generateToken(new AccessToken().withSubject(tx.id));
         URI uri = uriInfo.getBaseUriBuilder().path(ConsentsResource.class).path(tx.id).queryParam("t", token).build();
-        return Response.created(uri).entity(uri.toString()).build();
+        return Response.created(uri).entity(tx.id).build();
     }
 
     @GET
